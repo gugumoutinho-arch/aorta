@@ -2,6 +2,14 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-09-30 — Claude — identidade "Prontuário + Laminário" (substitui a editorial) — ainda não publicada
+
+- **O que mudou:** o usuário achou a versão editorial comum demais e escolheu misturar dois conceitos. Estrutura do **Prontuário**: Archivo condensada em caixa alta nos títulos, números grandes (01, 02…) em cada material, fios pretos, botão de abrir numa coluna própria, vermelho só no que está ativo e na ação principal, barra inferior preta. Identidade do **Laminário**: mini-lâmina (etiqueta fosca + vidro com a mancha da coloração) em cada material, no índice e no título da área; "Aberto por último" como uma lâmina grande com etiqueta escrita à mão (Kalam); a exibição alternativa "Lâminas" mostra cada material como lâmina de vidro. Só o CSS e os produtores de linha e destaque (`entry`, `feature`) mudaram; banco, ids, `<dialog>`, remoção e Desfazer seguem iguais.
+- **Fontes:** Archivo (eixos de largura e peso), JetBrains Mono e Kalam, com `display=swap`. O visual depende da largura condensada, e com `optional` a primeira carga caía numa fonte larga que estourava o trilho.
+- **Testado:** `npm run check` sem erros nem avisos (24 telas, axe sem violações); 46 verificações de fluxo com banco fictício aprovadas (detalhe sem "null", favorito, status, remover e Desfazer, filtros, agrupamento, voltar, "/", foco com Esc); Lighthouse celular 92/100/100 com CLS 0,026, computador 99/100/100 com CLS 0,01; exibição "Lâminas" sem rolagem lateral em 375 e 1440 px.
+- **Não testado:** celular de verdade; gravações no banco real.
+- **Anterior:** a versão editorial está no commit anterior do git.
+
 ## 2026-09-30 — Claude — remodelação editorial (direção B com a organização da A) — ainda não publicada
 
 - **O que mudou:** nova identidade de "acervo editorial": Newsreader nos títulos, Public Sans na interface, papel claro e tinta escura, destaque terracota só para ações e seleção; no escuro, carvão quente. Os materiais viraram linhas numeradas (título em serifa, localização com o ponto de cor da unidade, tipo, assunto, "Abrir ↗"); a opção "Fichas" substitui a grade. Início compacto: busca, "Aberto por último" (só quando há `lastOpenedAt`), Em estudo, Favoritos e Adicionados recentemente; saíram o título gigante, o símbolo de microscópio e os quatro indicadores em bloco. No computador, trilho lateral claro com índice progressivo (módulo › unidade › matéria, abre só o caminho atual) e botão "Adicionar link"; detalhe como painel à direita. No celular, barra inferior com Início, Acervo, Adicionar e Organizar; filtros num botão "Filtros · n"; detalhe como folha inferior. Estados de carregamento em esqueleto; tecla "/" leva à busca.
