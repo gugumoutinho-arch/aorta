@@ -1,0 +1,19 @@
+{
+  "name": "biblioteca-tools",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Verificações automáticas do index.html da Biblioteca de Medicina (formato, CSS, telas, acessibilidade, desempenho).",
+  "type": "module",
+  "scripts": {
+    "check": "node check.mjs",
+    "lighthouse": "node lighthouse.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "html-validate": "^9.0.0",
+    "lighthouse": "^12.0.0",
+    "playwright-core": "^1.50.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-recommended": "^14.0.0"
+  }
+}

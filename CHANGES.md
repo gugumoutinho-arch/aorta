@@ -2,6 +2,14 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-09-30 — Claude — infraestrutura de verificação e histórico (nada mudou no site)
+
+- **Repositório Git local** criado nesta pasta (`.gitignore` exclui `_fora-do-site/` e `node_modules/`). Primeiro commit com o `index.html` do momento (inclui as edições do Codex ainda não publicadas) e `versoes/`.
+- **`tools/`**: `npm run check` (formato de publicação, sintaxe, CSS, HTML, 24 telas em 375/768/1440 px nos temas claro e escuro, erros de console e acessibilidade com axe-core) e `npm run lighthouse`. Usam dados fictícios e o Chrome instalado.
+- **Resultado sobre o `index.html` atual (nova composição do Codex):** `check` sem erros e sem avisos; Lighthouse: acessibilidade 100 e boas práticas 100 nos dois tamanhos, desempenho 91 no celular e 96 no computador, SEO 82. **A corrigir:** deslocamento de layout (CLS) de 0,152 no celular (limite recomendado: 0,1) e o aviso "Elements with visible text labels do not have matching accessible names".
+- **CI no GitHub** (`.github/workflows/check.yml`): roda o mesmo `check` a cada envio. Só funciona depois que o repositório for enviado ao GitHub.
+- **Não testado:** a página publicada na conta do usuário; a gravação de dados (o teste usa um banco fictício em memória).
+
 ## 2026-09-30 — Codex — nova composição da biblioteca
 
 - **O que mudou:** o computador ganhou uma navegação lateral persistente por acervo e módulos; a página inicial agora separa materiais para retomar da exploração por módulos; a biblioteca dispõe filtros em uma coluna própria; os cartões em grade passaram a ter formato vertical de lâmina, distinto da lista compacta. O celular conserva a navegação superior e inferior, com a exploração por módulos antes das listas de materiais. Mensagens de módulos e coleções deixam de declarar o catálogo vazio quando o banco está indisponível.

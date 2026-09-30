@@ -45,6 +45,21 @@ Este projeto é **um único arquivo**: `index.html`. É uma biblioteca pessoal d
 - **Acessibilidade:** foco visível, navegação por teclado, contraste mínimo de 4,5:1 no texto, `aria-*` nos controles, respeito a `prefers-reduced-motion`.
 - Movimento só onde ajuda a entender uma ação; nada decorativo que se repita.
 
+## Verificações automáticas (`tools/`)
+
+Depois de editar `index.html`, rode, dentro de `tools/`:
+
+```bash
+npm run check        # formato, sintaxe, CSS, HTML, 24 telas (375/768/1440 px × claro/escuro), console e acessibilidade
+npm run lighthouse   # notas de desempenho, acessibilidade e boas práticas
+```
+
+- Na primeira vez: `npm install --ignore-scripts` dentro de `tools/`. Instruções completas em `tools/LEIA-ME.md`.
+- `check` usa **dados fictícios** (`tools/seed.json`). Ele **não** verifica o banco real nem a gravação de dados; diga no `CHANGES.md` o que foi testado e o que não foi.
+- `tools/` é só leitura, exceto para rodar esses comandos. A única fonte do site continua sendo `index.html`.
+- Não publique com `check` em erro (código de saída 1).
+- O repositório Git da pasta guarda o histórico: prefira `git diff` e `git log` a copiar arquivos para `versoes/`. Faça commit das suas mudanças com uma mensagem curta em português. `.gitignore` já exclui `_fora-do-site/` e `node_modules/`.
+
 ## Como registrar uma mudança
 
 1. Antes de uma mudança grande, copie o `index.html` atual para `versoes/` com data e autor (ex.: `versoes/codex-2026-09-30-1400.html`).

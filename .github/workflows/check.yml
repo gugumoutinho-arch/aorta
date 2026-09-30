@@ -1,0 +1,32 @@
+name: Verificar o site
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tools/package-lock.json
+      - name: Instalar dependências das verificações
+        working-directory: tools
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verificar o index.html (formato, CSS, HTML, telas e acessibilidade)
+        working-directory: tools
+        run: npm run check
+      - name: Guardar capturas de tela e relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-do-site
+          path: tools/reports
+          retention-days: 14
