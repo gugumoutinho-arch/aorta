@@ -11,3 +11,4 @@ tools/reports/
 .env
 .env.*
 *.log
+_site/

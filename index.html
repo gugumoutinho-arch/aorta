@@ -79,7 +79,9 @@ button,summary,.btn,.tabbar a,.modtab,.unittab,.subtab{-webkit-user-select:none;
 .iconbtn svg{width:22px;height:22px}
 .star[aria-pressed="true"]{color:var(--fav)}
 .star[aria-pressed="true"] svg path{fill:currentColor}
-input[type="search"],input[type="text"],input[type="url"],select,textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:0;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font-size:1rem;font-family:var(--f-sans)}
+.btn{white-space:nowrap}
+.login{margin-bottom:4px}
+input[type="search"],input[type="text"],input[type="url"],input[type="email"],select,textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:0;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);font-size:1rem;font-family:var(--f-sans)}
 select{font-stretch:85%;font-weight:600}
 input:focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-offset:0}
 input::placeholder,textarea::placeholder{color:var(--ink-3)}
@@ -547,6 +549,7 @@ dialog[open]{animation:dlg-in .2s var(--ease-out)}
       <p class="mono">Estrutura do curso</p>
       <h1 id="h-org">Organizar</h1>
       <p class="muted" style="margin-top:8px;max-width:66ch">Módulos contêm unidades, e unidades contêm matérias. Um material fica em um lugar da estrutura e pode estar em várias coleções sem ser duplicado.</p>
+      <p class="small muted" id="account" hidden></p>
     </div>
     <div class="org">
       <div class="panel" aria-labelledby="h-tree">
@@ -845,12 +848,20 @@ const statsLine = list => {
 /* ---------- telas ---------- */
 function renderBanner() {
   const b = $("#state-banner");
-  if (S.dbState === "unavailable") {
+  if (S.dbState === "login") { if (b.dataset.state !== "login") { b.hidden = false; b.replaceChildren(loginPanel()); } }
+  else if (S.dbState === "denied") {
+    b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Este e-mail não tem acesso" }),
+      h("p", { text: `Você entrou como ${S.user || "um e-mail sem permissão"}, que não é um dos e-mails desta biblioteca.` }),
+      h("div", null, h("button", { class: "btn", type: "button", text: "Sair e usar outro e-mail", onclick: signOut }))));
+  } else if (S.dbState === "unavailable") {
     b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Não foi possível abrir o seu catálogo" }),
-      h("p", { text: "Esta visualização não tem acesso ao banco de dados da biblioteca. Abra a página no claude.ai, com a conta dona desta biblioteca, para ver e salvar seus materiais." })));
+      h("p", { text: "O banco de dados da biblioteca não respondeu. Verifique a conexão e recarregue a página." })));
   } else if (!ready()) { b.hidden = false; b.replaceChildren(h("p", { class: "sr", role: "status", text: "Carregando seu catálogo…" })); }
   else b.hidden = true;
+  b.dataset.state = S.dbState;
   $$("[data-action='add']").forEach(x => x.disabled = !ready());
+  const acc = $("#account"); acc.hidden = !S.user;
+  if (S.user) acc.replaceChildren(`Conectado como ${S.user}. `, h("button", { class: "btn ghost", type: "button", text: "Sair", onclick: signOut }));
 }
 function renderModTabs() {
   const nav = $("#modtabs"); nav.replaceChildren();
@@ -1230,10 +1241,85 @@ try {
   if (mq.matches) $("#more").open = false;
   mq.addEventListener("change", e => { if (!e.matches) $("#more").open = true; });
 } catch (_) {}
+/* ---------- banco fora do claude.ai: Supabase ----------
+   Dentro do claude.ai o site usa window.claude.use("db"). No site próprio usa o Supabase, com a mesma interface
+   (collection/doc/onSnapshot/set/update/delete). A chave abaixo é a chave pública do projeto: o acesso aos dados
+   é protegido pelas regras do banco (só os e-mails da dona leem e gravam). */
+const SUPA = { url: "https://rmqfduksayyplucshqea.supabase.co", key: "sb_publishable_EG4jEqDNIiD_-ow5L4qh8w_XkUG7eDZ", lib: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" };
+const COLS = {
+  materials: ["title", "url", "areaId", "subject", "period", "type", "tags", "collectionIds", "source", "notes", "status", "favorite", "createdAt", "lastOpenedAt", "statusAt"],
+  areas: ["name", "parentId", "order", "stain", "short", "createdAt"],
+  collections: ["name", "createdAt"],
+};
+const toCol = k => k === "order" ? "sort_order" : k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
+const toKey = c => c === "sort_order" ? "order" : c.replace(/_([a-z])/g, (_, x) => x.toUpperCase());
+function rowOut(table, obj) { const r = {}; for (const k of COLS[table]) if (k in obj) r[toCol(k)] = /At$/.test(k) && !obj[k] ? null : obj[k]; return r; }
+function rowIn(r) { const o = {}; for (const [c, v] of Object.entries(r)) if (c !== "id") o[toKey(c)] = v == null && c.endsWith("_at") ? "" : v; return o; }
+function loadScript(src) { return new Promise((ok, fail) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => fail(new Error("Falha ao carregar " + src)); document.head.append(s); }); }
+function supaDb(sb) {
+  const listeners = {};
+  const refresh = async table => {
+    const { data, error } = await sb.from(table).select("*");
+    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: r.id, data: () => rowIn(r) })) });
+  };
+  const check = ({ error }) => { if (error) throw error; };
+  const ref = (table, id) => ({ id,
+    async set(obj) { check(await sb.from(table).upsert({ id, ...rowOut(table, obj) })); refresh(table); },
+    async update(obj) { check(await sb.from(table).update(rowOut(table, obj)).eq("id", id)); refresh(table); },
+    async delete() { check(await sb.from(table).delete().eq("id", id)); refresh(table); } });
+  return {
+    doc: path => { const [table, id] = path.split("/"); return ref(table, id); },
+    collection: table => ({
+      doc: id => ref(table, id || crypto.randomUUID()),
+      onSnapshot(next, err) {
+        (listeners[table] ||= []).push({ next, err }); refresh(table);
+        sb.channel("bm-" + table).on("postgres_changes", { event: "*", schema: "public", table }, () => refresh(table)).subscribe();
+      } }),
+  };
+}
+async function startSupabase() {
+  await loadScript(SUPA.lib);
+  const sb = window.supabase.createClient(SUPA.url, SUPA.key, { auth: { flowType: "pkce", persistSession: true, detectSessionInUrl: true } });
+  S.sb = sb;
+  const { data } = await sb.auth.getSession();
+  if (/[?&]code=/.test(location.search)) history.replaceState(null, "", location.pathname + location.hash);
+  if (!data.session) { S.dbState = "login"; renderAll(); return null; }
+  S.user = data.session.user.email || "";
+  const { data: allowed, error } = await sb.rpc("sou_bibliotecaria");
+  if (error) throw error;
+  if (!allowed) { S.dbState = "denied"; renderAll(); return null; }
+  return supaDb(sb);
+}
+async function signOut() { if (S.sb) await S.sb.auth.signOut(); location.reload(); }
+function loginPanel() {
+  const email = h("input", { type: "email", id: "login-email", autocomplete: "email", inputmode: "email", autocapitalize: "none", required: true, placeholder: "seu e-mail" });
+  const code = h("input", { type: "text", id: "login-code", inputmode: "numeric", autocomplete: "one-time-code", maxlength: "10", placeholder: "código do e-mail" });
+  const msg = h("p", { class: "small muted", role: "status" });
+  const step2 = h("form", { class: "search", hidden: true, onsubmit: async e => {
+    e.preventDefault(); if (!code.value.trim()) return;
+    const { error } = await S.sb.auth.verifyOtp({ email: email.value.trim(), token: code.value.trim(), type: "email" });
+    if (error) msg.textContent = "Código inválido ou vencido. Peça um novo link."; else location.reload();
+  } }, h("label", { class: "sr", for: "login-code", text: "Código recebido por e-mail" }), h("div", { class: "field" }, code), h("button", { class: "btn ink", type: "submit", text: "Entrar" }));
+  const step1 = h("form", { class: "search", onsubmit: async e => {
+    e.preventDefault(); const v = email.value.trim(); if (!v) { email.focus(); return; }
+    msg.textContent = "Enviando…";
+    const { error } = await S.sb.auth.signInWithOtp({ email: v, options: { emailRedirectTo: location.origin + location.pathname } });
+    if (error) { msg.textContent = "Não foi possível enviar agora. Confira o e-mail e tente de novo em um minuto."; return; }
+    msg.textContent = `Enviamos um link de acesso para ${v}. Abra o link neste mesmo navegador. Se o e-mail trouxer um código, digite-o abaixo.`;
+    step2.hidden = false;
+  } }, h("label", { class: "sr", for: "login-email", text: "E-mail" }), h("div", { class: "field" }, email), h("button", { class: "btn primary", type: "submit", text: "Enviar link" }));
+  return h("div", { class: "notice login" }, h("h2", { text: "Entrar na biblioteca" }),
+    h("p", { class: "muted", text: "O catálogo é privado: só os e-mails da dona desta biblioteca têm acesso. Você entra sem senha, por um link enviado ao e-mail." }), step1, step2, msg);
+}
+
 route(false); renderAll();
 (async () => {
   let db = null;
-  try { db = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null; } catch (e) { console.error(e); }
+  try {
+    if (window.claude && typeof window.claude.use === "function") db = await window.claude.use("db");
+    else db = await startSupabase();
+  } catch (e) { console.error(e); }
+  if (S.dbState === "login" || S.dbState === "denied") return;
   if (!db) { S.dbState = "unavailable"; renderAll(); return; }
   S.db = db; S.dbState = "ready"; renderAll(); subscribe();
 })();
