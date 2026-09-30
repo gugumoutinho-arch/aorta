@@ -58,7 +58,7 @@ Regras:
 - **Celular primeiro:** 375 px sem rolagem horizontal, gutter lateral de 16 px, áreas de toque de pelo menos 44 px.
 - **Acessibilidade:** foco visível, teclado, contraste mínimo de 4,5:1, `aria-*` nos controles, respeito a `prefers-reduced-motion`.
 - Movimento só onde ajuda a entender uma ação.
-- Identidade visual atual: "Prontuário + Laminário" (Archivo condensada, fios pretos, números grandes, mini-lâminas com a mancha da coloração). Mudanças de identidade só com pedido do usuário.
+- Identidade visual atual: "Biblioteca clínica" (Figtree na interface, JetBrains Mono só em contagens e datas; fundo cinza-esverdeado claro, verde profundo na navegação e nas ações, cor da matéria só como ponto de localização; tema escuro próprio). Mudanças de identidade só com pedido do usuário.
 
 ## Verificações automáticas (`tools/`)
 
@@ -67,6 +67,7 @@ Depois de editar `index.html`, rode dentro de `tools/`:
 ```bash
 npm run check        # formato, sintaxe, CSS, HTML, 24 telas, console e acessibilidade
 npm run lighthouse   # desempenho, acessibilidade e boas práticas
+node flows.mjs       # fluxos (detalhe, favorito, status, remover/Desfazer, filtros, foco, alvos de 44 px) e capturas em tools/reports/flows/
 ```
 
 - Na primeira vez: `npm install --ignore-scripts` dentro de `tools/`.
