@@ -2,6 +2,16 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-09-30 — Claude — remodelação editorial (direção B com a organização da A) — ainda não publicada
+
+- **O que mudou:** nova identidade de "acervo editorial": Newsreader nos títulos, Public Sans na interface, papel claro e tinta escura, destaque terracota só para ações e seleção; no escuro, carvão quente. Os materiais viraram linhas numeradas (título em serifa, localização com o ponto de cor da unidade, tipo, assunto, "Abrir ↗"); a opção "Fichas" substitui a grade. Início compacto: busca, "Aberto por último" (só quando há `lastOpenedAt`), Em estudo, Favoritos e Adicionados recentemente; saíram o título gigante, o símbolo de microscópio e os quatro indicadores em bloco. No computador, trilho lateral claro com índice progressivo (módulo › unidade › matéria, abre só o caminho atual) e botão "Adicionar link"; detalhe como painel à direita. No celular, barra inferior com Início, Acervo, Adicionar e Organizar; filtros num botão "Filtros · n"; detalhe como folha inferior. Estados de carregamento em esqueleto; tecla "/" leva à busca.
+- **Correções:** textos "null" no detalhe (`replaceChildren` com nós ausentes); nome acessível da marca ("Bibliotecade Medicina"); deslocamento de layout (fontes com `display=optional` e carregamento sem aviso que empurra a página); "1 favoritos"; preferências salvas agora são validadas.
+- **Preservado:** `window.claude.use("db")`, coleções e campos; ids, `data-*` e `<dialog>` usados pelo script; aviso de remoção e Desfazer; busca só em metadados.
+- **Por quê:** o primeiro material no celular aparecia em y=1445; agora aparece em y≈214 no início e ≈475 numa unidade (dados fictícios, 375×812).
+- **Testado:** `npm run check` sem erros nem avisos (24 telas, axe sem violações); Lighthouse celular 90/100/100 com CLS 0 (antes 0,152), computador 99/100/100 com CLS 0,002; auditoria de rótulo aprovada nos dois. Fluxos com banco fictício em 375 px (claro e escuro) e 1440 px (escuro): detalhe sem "null", favorito, status, remover e Desfazer, filtro e limpar, agrupamento por assunto, voltar do navegador, "/" e retorno do foco ao fechar com Esc — 46 verificações aprovadas. Banco real lido só para conferir campos (nada gravado): 26 materiais, nenhum com `lastOpenedAt`, então o início real começa por "Adicionados recentemente".
+- **Não testado:** celular de verdade (toque, teclado virtual, área segura); gravações no banco real; primeira visita com fontes ainda não baixadas (com `display=optional` pode aparecer Georgia/sistema na primeira carga).
+- **Backup:** `versoes/claude-2026-09-30-antes-editorial.html` (a "nova composição" do Codex).
+
 ## 2026-09-30 — Claude — infraestrutura de verificação e histórico (nada mudou no site)
 
 - **Repositório Git local** criado nesta pasta (`.gitignore` exclui `_fora-do-site/` e `node_modules/`). Primeiro commit com o `index.html` do momento (inclui as edições do Codex ainda não publicadas) e `versoes/`.
