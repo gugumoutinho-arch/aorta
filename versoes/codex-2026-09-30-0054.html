@@ -1,0 +1,1090 @@
+<title>Biblioteca de Medicina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: lâminas de microscópio. Claro = campo claro (H&E); escuro = fluorescência.
+   Abas em três níveis (módulo › unidade › matéria); cada matéria tem a cor de uma coloração. */
+:root{
+  --bg:#f3f1f6; --paper:#fbfaff; --glass:rgba(255,255,255,.78); --line:#ddd7e8; --line-2:#cbc3db;
+  --ink:#221a3a; --ink-2:#51486b; --ink-3:#655c7e;
+  --accent:#6a3fb5; --accent-ink:#ffffff; --accent-soft:#ece4f9;
+  --on-stain:#ffffff; --focus:#1f6fd1;
+  --s-hema:#6a3fb5; --s-eosin:#c23766; --s-giemsa:#2f69a8; --s-masson:#177265; --s-pas:#9c2f78; --s-safra:#a8431f; --s-neutral:#5a5470;
+  --st-new:#4f4868; --st-new-bg:#ebe8f1; --st-study:#8a5200; --st-study-bg:#fcefd8; --st-done:#1b6b3c; --st-done-bg:#def2e5;
+  --danger:#a8322b; --danger-bg:#fbe7e5; --fav:#b7791f;
+  --shadow:0 1px 2px rgba(34,26,58,.06),0 8px 24px -8px rgba(34,26,58,.14);
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f0d1a; --paper:#161327; --glass:rgba(28,24,48,.78); --line:#2d2847; --line-2:#3c355c;
+  --ink:#eeebf8; --ink-2:#bcb4d6; --ink-3:#a39bbf;
+  --accent:#b39bff; --accent-ink:#130e26; --accent-soft:#2a2350;
+  --on-stain:#120d24; --focus:#8cc4ff;
+  --s-hema:#a58cff; --s-eosin:#ff78a8; --s-giemsa:#6cc0ff; --s-masson:#4fe0b6; --s-pas:#ff8ae4; --s-safra:#ffab6b; --s-neutral:#b6aecf;
+  --st-new:#c0b8d8; --st-new-bg:#262140; --st-study:#f5c46c; --st-study-bg:#3a2e16; --st-done:#7fd9a0; --st-done-bg:#16321f;
+  --danger:#ff9d92; --danger-bg:#3d1f1d; --fav:#f5bd5a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -10px rgba(0,0,0,.6);
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f0d1a; --paper:#161327; --glass:rgba(28,24,48,.78); --line:#2d2847; --line-2:#3c355c;
+  --ink:#eeebf8; --ink-2:#bcb4d6; --ink-3:#a39bbf;
+  --accent:#b39bff; --accent-ink:#130e26; --accent-soft:#2a2350;
+  --on-stain:#120d24; --focus:#8cc4ff;
+  --s-hema:#a58cff; --s-eosin:#ff78a8; --s-giemsa:#6cc0ff; --s-masson:#4fe0b6; --s-pas:#ff8ae4; --s-safra:#ffab6b; --s-neutral:#b6aecf;
+  --st-new:#c0b8d8; --st-new-bg:#262140; --st-study:#f5c46c; --st-study-bg:#3a2e16; --st-done:#7fd9a0; --st-done-bg:#16321f;
+  --danger:#ff9d92; --danger-bg:#3d1f1d; --fav:#f5bd5a;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -10px rgba(0,0,0,.6);
+  color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--ink) 7%,transparent) 1px,transparent 0);background-size:22px 22px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.1;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,1.4rem + 2.6vw,3.2rem);font-weight:800}
+h2{font-size:1.3rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--ink-2)} .small{font-size:.875rem}
+.mono{font-family:var(--f-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- topo e abas ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px) saturate(1.2);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);flex:none}
+.brand-mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:radial-gradient(circle at 35% 35%,var(--s-eosin) 0 22%,transparent 23%),radial-gradient(circle at 64% 60%,var(--s-hema) 0 26%,transparent 27%),var(--paper);
+  box-shadow:inset 0 0 0 2px var(--ink),inset 0 0 0 5px var(--paper)}
+.brand b{font-family:var(--f-display);font-size:1.12rem;font-weight:800;letter-spacing:-.02em}
+.modtabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:1;padding:2px}
+.modtabs::-webkit-scrollbar{display:none}
+.modtab{display:grid;padding:6px 14px;border-radius:10px;text-decoration:none;color:var(--ink-2);white-space:nowrap;line-height:1.15;border:1px solid transparent}
+.modtab b{font-family:var(--f-display);font-size:1rem;font-weight:700}
+.modtab span{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.modtab:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 5%,transparent)}
+.modtab[aria-current="page"]{background:var(--ink);color:var(--bg)}
+.modtab[aria-current="page"] span{color:color-mix(in srgb,var(--bg) 75%,transparent)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 14px;border-radius:10px;border:1px solid var(--line-2);background:var(--paper);color:var(--ink);font-weight:700;cursor:pointer;text-decoration:none;transition:background-color .15s,border-color .15s,transform .12s}
+.btn:hover{border-color:var(--ink-3)}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink)}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn svg{width:18px;height:18px;flex:none}
+.iconbtn{width:40px;height:40px;padding:0;display:inline-grid;place-items:center;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--ink-2);cursor:pointer}
+.iconbtn:hover{background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink)}
+.iconbtn svg{width:20px;height:20px}
+.star[aria-pressed="true"]{color:var(--fav)}
+.star[aria-pressed="true"] svg path{fill:currentColor}
+
+main{max-width:1180px;margin:0 auto;padding:22px 16px 56px;outline:none}
+.view{display:grid;gap:26px}
+.view.enter{animation:fade .22s ease-out}
+@keyframes fade{from{transform:translateY(6px)}to{transform:none}}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.section-head a{font-weight:700;font-size:.9rem}
+.notice{border:1px solid var(--line);background:var(--paper);border-radius:14px;padding:16px;display:grid;gap:6px}
+.notice.error{background:var(--danger-bg);border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}
+
+/* ---------- cabeçalho de área com campo de visão ---------- */
+.areahead{position:relative;display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:22px 24px;border-radius:20px;background:var(--paper);border:1px solid var(--line);overflow:hidden}
+.areahead::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;background:var(--stain,var(--accent))}
+.crumbs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
+.crumbs a,.crumbs span{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);text-decoration:none}
+.crumbs a:hover{color:var(--ink)}
+.crumbs i{font-style:normal;color:var(--line-2)}
+.areahead .stats{margin-top:10px}
+.fov{width:132px;height:132px;border-radius:50%;flex:none;position:relative;
+  background:
+    radial-gradient(circle at 30% 34%,color-mix(in srgb,var(--stain) 70%,transparent) 0 7%,transparent 8%),
+    radial-gradient(circle at 62% 28%,color-mix(in srgb,var(--stain) 55%,transparent) 0 5%,transparent 6%),
+    radial-gradient(circle at 70% 62%,color-mix(in srgb,var(--stain) 75%,transparent) 0 8%,transparent 9%),
+    radial-gradient(circle at 38% 70%,color-mix(in srgb,var(--stain) 50%,transparent) 0 6%,transparent 7%),
+    radial-gradient(circle at 52% 50%,color-mix(in srgb,var(--stain) 35%,transparent) 0 4%,transparent 5%),
+    radial-gradient(ellipse at 50% 50%,color-mix(in srgb,var(--stain) 16%,var(--paper)) 0 60%,color-mix(in srgb,var(--stain) 26%,var(--paper)) 100%);
+  box-shadow:inset 0 0 0 3px var(--ink),inset 0 0 0 9px var(--paper),inset 0 0 0 10px var(--line-2),inset 0 0 26px 14px color-mix(in srgb,var(--ink) 22%,transparent)}
+.fov::after{content:"";position:absolute;left:50%;top:14%;bottom:14%;width:1px;background:color-mix(in srgb,var(--ink) 30%,transparent)}
+.stats{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--ink-2);font-size:.95rem}
+.stats b{color:var(--ink);font-variant-numeric:tabular-nums;font-family:var(--f-display);font-size:1.1rem}
+
+/* abas de unidade e matéria */
+.tabrow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding:2px 2px 4px}
+.unittab{display:flex;align-items:baseline;gap:8px;padding:10px 16px;border-radius:12px;text-decoration:none;color:var(--ink-2);background:var(--paper);border:1px solid var(--line);white-space:nowrap;font-weight:700}
+.unittab .count{font-family:var(--f-mono);font-size:.7rem}
+.unittab:hover{border-color:var(--line-2);color:var(--ink)}
+.unittab[aria-current="page"]{border-color:var(--stain,var(--accent));color:var(--ink);box-shadow:inset 0 -3px 0 var(--stain,var(--accent))}
+.subtab{display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;text-decoration:none;color:var(--ink-2);border:1px solid var(--line);white-space:nowrap;font-weight:700;font-size:.92rem;background:transparent}
+.subtab::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--stain,var(--ink-3))}
+.subtab.all::before{background:conic-gradient(var(--s-hema) 0 25%,var(--s-eosin) 0 50%,var(--s-giemsa) 0 75%,var(--s-masson) 0)}
+.subtab:hover{color:var(--ink);border-color:var(--line-2)}
+.subtab[aria-current="page"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+/* ---------- início ---------- */
+.hero{display:grid;gap:16px;padding:28px 26px;border-radius:24px;background:var(--paper);border:1px solid var(--line);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;
+  background:radial-gradient(circle at 40% 40%,color-mix(in srgb,var(--s-eosin) 30%,transparent) 0 18%,transparent 19%),radial-gradient(circle at 60% 58%,color-mix(in srgb,var(--s-hema) 30%,transparent) 0 22%,transparent 23%);
+  pointer-events:none}
+.hero > *{position:relative;z-index:1}
+.hero .lead{color:var(--ink-2);max-width:58ch}
+.searchbar{display:flex;gap:8px;flex-wrap:wrap}
+.searchbar .field{flex:1 1 260px;position:relative}
+.searchbar .field svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-3);pointer-events:none}
+input[type="search"],input[type="text"],input[type="url"],select,textarea{width:100%;min-height:46px;padding:10px 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--paper);color:var(--ink)}
+input[type="search"]{padding-left:40px}
+textarea{min-height:96px;resize:vertical}
+input::placeholder,textarea::placeholder{color:var(--ink-3)}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.modcard{display:grid;gap:12px;padding:18px;border-radius:18px;background:var(--paper);border:1px solid var(--line);align-content:start}
+.modcard-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.modcard-head a{font-family:var(--f-display);font-size:2rem;font-weight:800;color:var(--ink);text-decoration:none;letter-spacing:-.03em}
+.modcard-head a:hover{color:var(--accent)}
+.unitlist{display:grid;gap:8px}
+.unitbox{display:grid;gap:8px;padding:12px;border-radius:12px;border:1px solid var(--line);background:color-mix(in srgb,var(--stain) 5%,var(--paper))}
+.unitbox > a{display:flex;justify-content:space-between;gap:8px;font-weight:700;color:var(--ink);text-decoration:none}
+.unitbox > a:hover{color:var(--accent)}
+.unitbox .subs{display:flex;flex-wrap:wrap;gap:6px}
+.count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:.85rem;flex:none}
+
+/* ---------- lâminas (cartões) ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.list{display:grid;gap:10px}
+.slide{--stain:var(--s-neutral);position:relative;display:grid;grid-template-columns:78px 1fr;min-height:128px;border-radius:10px;background:var(--glass);border:1px solid var(--line);overflow:hidden;min-width:0;transition:transform .18s cubic-bezier(.2,.8,.2,1),box-shadow .18s,border-color .18s}
+.slide:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--stain) 45%,var(--line))}
+.slide::after{content:"";position:absolute;right:-34px;bottom:-40px;width:130px;height:130px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 40% 40%,color-mix(in srgb,var(--stain) 20%,transparent) 0 30%,transparent 62%)}
+.slabel{display:flex;flex-direction:column;justify-content:space-between;gap:8px;padding:10px 8px;color:var(--on-stain);
+  background:repeating-linear-gradient(135deg,rgba(255,255,255,.10) 0 2px,transparent 2px 6px),var(--stain);min-width:0}
+.slabel .code{font-family:var(--f-mono);font-size:.64rem;font-weight:700;letter-spacing:.05em;line-height:1.3;text-transform:uppercase;overflow-wrap:break-word;word-break:normal}
+.slabel .dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--on-stain)}
+.slabel .dot[data-s="em-estudo"]{background:var(--on-stain);opacity:.55}
+.slabel .dot[data-s="revisado"]{background:var(--on-stain)}
+.sbody{display:grid;gap:8px;align-content:start;padding:12px 12px 10px 14px;min-width:0;position:relative;z-index:1}
+.stitle{margin:0;font-family:var(--f-display);font-size:1.05rem;font-weight:700;line-height:1.25;overflow-wrap:anywhere;letter-spacing:-.005em}
+.stitle button{all:unset;cursor:pointer}
+.stitle button::after{content:"";position:absolute;inset:0;z-index:0}
+.slide:has(.stitle button:focus-visible){outline:3px solid var(--focus);outline-offset:2px}
+.smeta{color:var(--ink-2);font-size:.88rem;overflow-wrap:anywhere}
+.sfoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto}
+.sfoot .open{margin-left:auto}
+.sfoot > *{position:relative;z-index:2}
+.list .slide{min-height:0;grid-template-columns:64px 1fr}
+.list .sbody{grid-template-columns:1fr auto;align-items:center}
+.list .sfoot{margin:0}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:999px;font-size:.76rem;font-weight:700;background:color-mix(in srgb,var(--ink) 6%,transparent);color:var(--ink-2);white-space:nowrap}
+.status[data-s="nao-iniciado"]{background:var(--st-new-bg);color:var(--st-new)}
+.status[data-s="em-estudo"]{background:var(--st-study-bg);color:var(--st-study)}
+.status[data-s="revisado"]{background:var(--st-done-bg);color:var(--st-done)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.8rem;color:var(--ink-2);border:1px solid var(--line-2);border-radius:999px;padding:1px 9px}
+.link-open{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.88rem;text-decoration:none;padding:6px 10px;border-radius:8px;color:var(--accent)}
+.link-open:hover{background:var(--accent-soft)}
+.link-open svg{width:16px;height:16px}
+
+/* ---------- ferramentas ---------- */
+.toolbar{display:grid;gap:10px;padding:14px;border-radius:16px;background:var(--paper);border:1px solid var(--line)}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.filters label{display:grid;gap:4px;font-size:.78rem;font-weight:700;color:var(--ink-2)}
+.toolbar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar-row .spacer{flex:1}
+.toolbar-row select{flex:1 1 170px;width:auto;max-width:100%}
+.toggle{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:6px 12px;border-radius:12px;border:1px solid var(--line-2);background:var(--paper);cursor:pointer;font-weight:700}
+.toggle[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.seg{display:inline-flex;border:1px solid var(--line-2);border-radius:12px;overflow:hidden}
+.seg button{border:0;background:var(--paper);padding:8px 13px;min-height:44px;cursor:pointer;font-weight:700;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.result-line{color:var(--ink-2);font-size:.95rem}
+.more-in{display:grid;gap:10px}
+.more summary{display:none}
+@media (max-width:760px){
+  .more summary{display:flex;align-items:center;justify-content:space-between;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid var(--line-2);font-weight:700;cursor:pointer;list-style:none}
+  .more summary::-webkit-details-marker{display:none}
+  .more summary::after{content:"+";font-family:var(--f-mono);font-size:1.1rem;color:var(--ink-3)}
+  .more[open] summary{margin-bottom:10px}
+  .more[open] summary::after{content:"–"}
+  .tabrow{scrollbar-width:none}
+  .tabrow::-webkit-scrollbar{display:none}
+}
+.group-title{margin:20px 0 10px;display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.group-title::after{content:"";flex:1;height:1px;background:var(--line)}
+.group-title:first-child{margin-top:0}
+
+/* ---------- organizar ---------- */
+.org{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;align-items:start}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;gap:12px;min-width:0}
+.tree,.tree ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.tree ul{margin:6px 0 0 18px;padding-left:12px;border-left:2px dashed var(--line-2)}
+.row{display:flex;align-items:center;gap:6px;padding:5px 5px 5px 10px;border-radius:10px;border:1px solid var(--line);min-width:0;flex-wrap:wrap;background:var(--paper)}
+.row .swatch{width:12px;height:12px;border-radius:50%;background:var(--stain,var(--ink-3));flex:none}
+.row .name{flex:1 1 120px;min-width:0;overflow-wrap:anywhere;font-weight:700;background:none;border:0;text-align:left;padding:6px 0;cursor:pointer;color:var(--ink)}
+.row .name:hover{color:var(--accent)}
+.row .lvl{font-family:var(--f-mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.row form{display:flex;gap:6px;flex:1 1 100%;min-width:0;flex-wrap:wrap}
+.row form input{flex:1 1 160px;min-height:40px}
+.row .btn{min-height:36px;padding:6px 10px;font-size:.88rem}
+.confirm-inline{display:grid;gap:8px;padding:12px;border-radius:10px;background:var(--danger-bg);border:1px solid color-mix(in srgb,var(--danger) 35%,var(--line))}
+.confirm-inline .acts{display:flex;gap:8px;flex-wrap:wrap}
+.addform{display:flex;gap:8px;flex-wrap:wrap}
+.addform input{flex:1 1 180px}
+.rows{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+
+.empty{display:grid;gap:10px;justify-items:start;padding:24px;border:1.5px dashed var(--line-2);border-radius:16px;background:var(--paper)}
+.empty p{max-width:60ch;color:var(--ink-2)}
+
+/* ---------- diálogos ---------- */
+dialog{border:0;padding:0;border-radius:20px;background:var(--paper);color:var(--ink);width:min(660px,calc(100vw - 24px));max-height:calc(100dvh - 32px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+dialog::backdrop{background:color-mix(in srgb,#0f0d1a 55%,transparent);backdrop-filter:blur(3px)}
+dialog[open]{animation:dlg-in .2s cubic-bezier(.2,.8,.2,1)}
+@keyframes dlg-in{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.dlg{display:grid;grid-template-rows:auto 1fr auto;max-height:calc(100dvh - 32px)}
+.dlg-head{display:flex;align-items:flex-start;gap:10px;padding:0 18px 10px;position:relative}
+.dlg-band{height:8px;background:repeating-linear-gradient(135deg,rgba(255,255,255,.15) 0 2px,transparent 2px 6px),var(--stain,var(--accent));margin-bottom:14px}
+.dlg-head h2{flex:1;min-width:0;overflow-wrap:anywhere;font-size:1.35rem}
+.dlg-body{overflow:auto;padding:4px 18px 16px;display:grid;gap:14px;align-content:start}
+.dlg-foot{display:flex;flex-wrap:wrap;gap:8px;padding:12px 18px;border-top:1px solid var(--line)}
+.dlg-foot .spacer{flex:1}
+.fld{display:grid;gap:5px}
+.fld > label,.fld > .lbl{font-weight:700;font-size:.9rem}
+.fld .hint{font-size:.82rem;color:var(--ink-3)}
+.fld .err{font-size:.85rem;color:var(--danger);font-weight:700}
+.fld input[aria-invalid="true"]{border-color:var(--danger)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border:1px solid var(--line-2);border-radius:999px;cursor:pointer;font-size:.9rem}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.checks label:has(input:checked){background:var(--accent-soft);border-color:var(--accent)}
+.dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0}
+.dl dt{color:var(--ink-3);font-size:.9rem}
+.dl dd{margin:0;overflow-wrap:anywhere}
+.notes{white-space:pre-wrap;background:color-mix(in srgb,var(--ink) 4%,transparent);border-radius:10px;padding:10px 12px}
+.statusset{display:flex;flex-wrap:wrap;gap:6px;border:0;padding:0;margin:0}
+.statusset legend{font-weight:700;font-size:.9rem;margin-bottom:6px}
+.statusset label{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line-2);border-radius:10px;cursor:pointer;font-weight:700}
+.statusset input{accent-color:var(--accent);width:18px;height:18px;margin:0}
+.statusset label:has(input:checked){background:var(--accent-soft);border-color:var(--accent)}
+
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:50;display:grid;gap:8px;width:min(460px,calc(100vw - 32px));pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--ink);color:var(--bg);box-shadow:0 12px 36px rgba(0,0,0,.3);animation:toast-in .22s cubic-bezier(.2,.8,.2,1)}
+.toast.error{background:var(--danger);color:#fff}
+.toast p{flex:1;font-weight:700}
+.toast button{background:transparent;border:1px solid currentColor;color:inherit;border-radius:8px;padding:4px 10px;font-weight:700;cursor:pointer}
+@keyframes toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.tabbar{display:none}
+@media (max-width:760px){
+  .topbar .add-top,.topbar .org-top{display:none}
+  .brand b{display:none}
+  main{padding-bottom:calc(98px + env(safe-area-inset-bottom,0px))}
+  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+  .tabbar a,.tabbar button{display:grid;justify-items:center;gap:2px;padding:6px 4px;border:0;background:none;color:var(--ink-2);text-decoration:none;font-size:.75rem;font-weight:700;cursor:pointer;border-radius:10px;min-height:50px;-webkit-tap-highlight-color:transparent}
+  .tabbar svg{width:22px;height:22px}
+  .tabbar a[aria-current="page"],.tabbar .tab-add{color:var(--accent)}
+  .toasts{bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+  .hero{padding:20px 18px}
+  .areahead{grid-template-columns:1fr;padding:18px}
+  .fov{position:absolute;right:-28px;top:-28px;width:120px;height:120px;opacity:.55}
+  .two,.org{grid-template-columns:1fr}
+  .list .sbody{grid-template-columns:1fr}
+  dialog{width:100vw;max-width:100vw;max-height:92dvh;margin:auto 0 0;border-radius:20px 20px 0 0}
+  .dlg{max-height:92dvh}
+  .dlg-foot{padding-bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+}
+@media (hover:none){.slide:hover{transform:none;box-shadow:none}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+/* Ajustes de interface Codex */
+[hidden]{display:none!important}
+html{-webkit-tap-highlight-color:transparent;scroll-padding-top:90px}
+body{margin:0;min-width:320px}
+button,a,summary{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.topbar{top:0}
+.topbar-in{min-height:74px;padding-inline:clamp(16px,3vw,30px)}
+.brand{gap:12px}
+.brand-mark{width:38px;height:38px}
+.brand b{font-size:1.16rem}
+.modtab{min-height:48px;align-content:center;padding-inline:15px}
+main{padding:clamp(18px,2.4vw,30px) clamp(16px,3vw,30px) 72px}
+.view{gap:clamp(20px,2.4vw,30px)}
+.hero{gap:18px;padding:clamp(26px,4vw,48px);border-radius:22px;
+  background:linear-gradient(116deg,var(--paper) 0 67%,color-mix(in srgb,var(--accent-soft) 40%,var(--paper)) 100%)}
+.hero::before{content:"";position:absolute;inset:auto 24px 0 24px;height:4px;border-radius:4px 4px 0 0;
+  background:linear-gradient(90deg,var(--s-hema) 0 34%,var(--s-eosin) 34% 56%,var(--s-giemsa) 56% 78%,var(--s-masson) 78%)}
+.hero::after{opacity:.58;right:-78px;top:-72px}
+.hero h1{max-width:16ch;font-size:clamp(2.3rem,1.7rem + 2.15vw,3.55rem);letter-spacing:-.035em}
+.hero .lead{max-width:62ch;font-size:1rem;line-height:1.6}
+.hero .searchbar{max-width:800px;margin-top:4px}
+.searchbar .field{min-width:0}
+.searchbar .btn{min-height:46px}
+.hero .stats{padding-top:4px}
+.section-head{align-items:center;margin-bottom:14px}
+.section-head h2{font-size:1.4rem}
+.section-head a{text-decoration-thickness:1px;text-underline-offset:3px}
+.modgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:16px}
+.modcard{gap:16px;padding:20px;border-radius:18px;box-shadow:0 5px 25px -22px color-mix(in srgb,var(--ink) 30%,transparent)}
+.modcard-head{align-items:center}
+.modcard-head a{font-size:clamp(1.45rem,1.1rem + 1vw,1.8rem)}
+.unitbox{border-left:3px solid var(--stain,var(--accent));padding:13px 14px}
+.unitbox > a{align-items:baseline}
+.grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,285px),1fr));gap:14px}
+.slide{grid-template-columns:70px minmax(0,1fr);min-height:140px;border-radius:14px;background:var(--paper);box-shadow:0 4px 18px -18px color-mix(in srgb,var(--ink) 30%,transparent)}
+.slide::after{display:none}
+.slide:hover{transform:none;box-shadow:none;border-color:var(--line)}
+.slabel{background:var(--stain);padding:13px 9px}
+.sbody{gap:10px;padding:15px}
+.stitle{font-size:1.07rem;line-height:1.32}
+.smeta{line-height:1.45}
+.toolbar{gap:12px;padding:16px;border-radius:16px}
+.filters{gap:10px}
+.toolbar-row{gap:10px}
+.areahead{padding:26px 30px;border-radius:18px}
+.areahead h1{max-width:20ch}
+.tabrow{scroll-snap-type:x proximity}
+.tabrow > *{scroll-snap-align:start}
+.empty{background:color-mix(in srgb,var(--accent-soft) 17%,var(--paper));border-style:solid;padding:26px}
+.empty h2{font-size:1.2rem}
+input[type="search"],input[type="text"],input[type="url"],select,textarea{font-size:1rem}
+@media (hover:hover) and (pointer:fine){
+  .slide:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--stain) 45%,var(--line))}
+  .modcard:hover{border-color:var(--line-2)}
+}
+@media (max-width:760px){
+  .topbar-in{min-height:62px;padding-inline:14px}
+  main{padding:18px 14px calc(100px + env(safe-area-inset-bottom,0px))}
+  .hero{gap:15px;padding:23px 20px 28px}
+  .hero h1{font-size:clamp(2.1rem,8vw,2.85rem)}
+  .hero::after{width:185px;height:185px;right:-75px;top:-55px}
+  .hero .lead{font-size:.96rem}
+  .searchbar .field{flex-basis:100%}
+  .searchbar .btn{width:100%}
+  .areahead{padding:20px}
+  .modcard{padding:17px}
+  .toolbar{padding:12px}
+  .tabbar a,.tabbar button{font-size:.78rem}
+}
+</style>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#inicio" aria-label="Biblioteca de Medicina, início"><span class="brand-mark" aria-hidden="true"></span><b>Biblioteca de Medicina</b></a>
+    <nav class="modtabs" id="modtabs" aria-label="Módulos"></nav>
+    <a class="btn ghost org-top" href="#organizar" data-nav="organizar">Organizar</a>
+    <button class="btn primary add-top" type="button" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div id="state-banner" hidden></div>
+
+  <section class="view" id="view-inicio" data-view="inicio" aria-labelledby="h-inicio">
+    <div class="hero">
+      <p class="mono muted">Sua bancada de estudos</p>
+      <h1 id="h-inicio">O que vai para a lâmina hoje?</h1>
+      <p class="lead">Busque em todo o catálogo pelo título, matéria, assunto ou etiqueta. A busca olha os dados que você cadastrou, não o texto dentro dos arquivos.</p>
+      <form class="searchbar" id="home-search" role="search">
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <label class="sr" for="home-q">Buscar em todo o catálogo</label>
+          <input id="home-q" type="search" placeholder="Ex.: placenta, manguito rotador, tecido epitelial" autocomplete="off">
+        </div>
+        <button class="btn primary" type="submit">Buscar</button>
+      </form>
+      <p class="stats" id="home-stats"></p>
+    </div>
+    <div id="home-sections" class="view"></div>
+  </section>
+
+  <section class="view" id="view-lib" data-view="lib" aria-labelledby="h-lib" hidden>
+    <div class="areahead" id="areahead">
+      <div>
+        <nav class="crumbs" id="crumbs" aria-label="Você está em"></nav>
+        <h1 id="h-lib"></h1>
+        <p class="stats" id="lib-stats"></p>
+      </div>
+      <div class="fov" aria-hidden="true"></div>
+    </div>
+    <nav class="tabrow" id="unitrow" aria-label="Unidades" hidden></nav>
+    <nav class="tabrow" id="subrow" aria-label="Matérias" hidden></nav>
+    <div class="toolbar">
+      <div class="searchbar">
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <label class="sr" for="lib-q">Buscar nesta área</label>
+          <input id="lib-q" type="search" autocomplete="off">
+        </div>
+      </div>
+      <details class="more" id="more" open>
+      <summary>Filtros e ordenação</summary>
+      <div class="more-in">
+      <div class="filters">
+        <label for="f-type">Tipo<select id="f-type"></select></label>
+        <label for="f-status">Status<select id="f-status"></select></label>
+        <label for="f-coll">Coleção<select id="f-coll"></select></label>
+      </div>
+      <div class="toolbar-row">
+        <button class="toggle" type="button" id="f-fav" aria-pressed="false"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Só favoritos</button>
+        <label class="sr" for="f-sort">Ordenar</label>
+        <select id="f-sort">
+          <option value="recent">Incluídos recentemente</option>
+          <option value="old">Incluídos há mais tempo</option>
+          <option value="az">Nome (A–Z)</option>
+          <option value="za">Nome (Z–A)</option>
+        </select>
+        <label class="sr" for="f-group">Agrupar</label>
+        <select id="f-group">
+          <option value="none">Sem agrupar</option>
+          <option value="area">Agrupar por matéria</option>
+          <option value="subject">Agrupar por assunto</option>
+          <option value="period">Agrupar por período</option>
+        </select>
+        <div class="seg" role="group" aria-label="Exibição">
+          <button type="button" data-layout="grid" aria-pressed="true">Grade</button>
+          <button type="button" data-layout="list" aria-pressed="false">Lista</button>
+        </div>
+      </div>
+      </div>
+      </details>
+      <div class="toolbar-row">
+        <p class="result-line" id="result-line"></p>
+        <span class="spacer"></span>
+        <button class="btn ghost" type="button" id="clear-filters">Limpar busca e filtros</button>
+      </div>
+    </div>
+    <div id="lib-results"></div>
+  </section>
+
+  <section class="view" id="view-organizar" data-view="organizar" aria-labelledby="h-org" hidden>
+    <div>
+      <p class="mono muted">Estrutura do curso</p>
+      <h1 id="h-org">Organizar</h1>
+      <p class="muted" style="margin-top:8px;max-width:66ch">Módulos contêm unidades, e unidades contêm matérias. Um material fica em um lugar da estrutura e pode estar em várias coleções sem ser duplicado.</p>
+    </div>
+    <div class="org">
+      <div class="panel" aria-labelledby="h-tree">
+        <h2 id="h-tree">Módulos, unidades e matérias</h2>
+        <ul class="tree" id="tree"></ul>
+        <form class="addform" id="mod-add">
+          <label class="sr" for="mod-new">Nome do novo módulo</label>
+          <input id="mod-new" type="text" placeholder="Novo módulo (ex.: M3)" maxlength="40" autocomplete="off">
+          <button class="btn" type="submit">Criar módulo</button>
+        </form>
+      </div>
+      <div class="panel" aria-labelledby="h-colls">
+        <h2 id="h-colls">Coleções</h2>
+        <ul class="rows" id="coll-rows"></ul>
+        <form class="addform" id="coll-add">
+          <label class="sr" for="coll-new">Nome da nova coleção</label>
+          <input id="coll-new" type="text" placeholder="Nova coleção (ex.: Revisão PR2)" maxlength="80" autocomplete="off">
+          <button class="btn" type="submit">Criar coleção</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Atalhos">
+  <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>Início</a>
+  <button type="button" class="tab-add" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M12 9.5v5M9.5 12h5"/></svg>Adicionar</button>
+  <a href="#organizar" data-nav="organizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg>Organizar</a>
+</nav>
+
+<dialog id="dlg-form" aria-labelledby="form-title">
+  <form class="dlg" id="mat-form" novalidate>
+    <div>
+      <div class="dlg-band" id="form-band"></div>
+      <div class="dlg-head">
+        <h2 id="form-title">Adicionar material</h2>
+        <button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <p class="small muted">Você cadastra um <b>link</b> para o material. O arquivo continua onde está (por exemplo, no seu Google Drive); nada é copiado nem sincronizado.</p>
+      <div class="fld">
+        <label for="m-title">Título *</label>
+        <input id="m-title" type="text" maxlength="200" required aria-describedby="m-title-err">
+        <span class="err" id="m-title-err" hidden></span>
+      </div>
+      <div class="fld">
+        <label for="m-url">Link do material *</label>
+        <input id="m-url" type="url" inputmode="url" placeholder="https://drive.google.com/…" required aria-describedby="m-url-hint m-url-err">
+        <span class="hint" id="m-url-hint">Cole o endereço completo, começando com https://. No Drive: Compartilhar → Copiar link.</span>
+        <span class="err" id="m-url-err" hidden></span>
+      </div>
+      <div class="fld">
+        <label for="m-area">Onde fica</label>
+        <select id="m-area"></select>
+      </div>
+      <div class="two">
+        <div class="fld">
+          <label for="m-type">Tipo</label>
+          <select id="m-type"></select>
+        </div>
+        <div class="fld">
+          <label for="m-status">Status de estudo</label>
+          <select id="m-status"></select>
+        </div>
+      </div>
+      <div class="two">
+        <div class="fld">
+          <label for="m-subject">Assunto</label>
+          <input id="m-subject" type="text" list="dl-subjects" maxlength="120" placeholder="Ex.: Placentação">
+        </div>
+        <div class="fld">
+          <label for="m-period">Período</label>
+          <input id="m-period" type="text" list="dl-periods" maxlength="40" placeholder="Ex.: 2026.2">
+        </div>
+      </div>
+      <div class="fld">
+        <label for="m-tags">Etiquetas</label>
+        <input id="m-tags" type="text" maxlength="300" placeholder="Separe por vírgula: PR2, caso clínico, revisão">
+      </div>
+      <div class="fld">
+        <span class="lbl" id="m-colls-lbl">Coleções</span>
+        <div class="checks" id="m-colls" role="group" aria-labelledby="m-colls-lbl"></div>
+        <label class="sr" for="m-coll-new">Nova coleção</label>
+        <input id="m-coll-new" type="text" maxlength="80" placeholder="Criar nova coleção e incluir este material">
+      </div>
+      <div class="fld">
+        <label for="m-origin">Origem</label>
+        <input id="m-origin" type="text" maxlength="120" placeholder="Ex.: Google Drive" aria-describedby="m-origin-hint">
+        <span class="hint" id="m-origin-hint">Se ficar vazio e o link for do Drive, preenchemos “Google Drive”.</span>
+      </div>
+      <div class="fld">
+        <label for="m-notes">Observações</label>
+        <textarea id="m-notes" maxlength="4000" placeholder="O que é importante lembrar sobre este material"></textarea>
+      </div>
+      <div class="checks"><label><input type="checkbox" id="m-fav"> Favorito</label></div>
+    </div>
+    <div class="dlg-foot">
+      <span class="spacer"></span>
+      <button class="btn ghost" type="button" data-close>Cancelar</button>
+      <button class="btn primary" type="submit" id="m-save">Salvar material</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-detail" aria-labelledby="d-title">
+  <div class="dlg">
+    <div>
+      <div class="dlg-band" id="d-band"></div>
+      <div class="dlg-head">
+        <div style="flex:1;min-width:0"><p class="mono muted" id="d-code"></p><h2 id="d-title"></h2></div>
+        <button class="iconbtn star" type="button" id="d-fav" aria-pressed="false" aria-label="Favorito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button>
+        <button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="dlg-body" id="d-body"></div>
+    <div class="dlg-foot" id="d-foot"></div>
+  </div>
+</dialog>
+
+<datalist id="dl-subjects"></datalist>
+<datalist id="dl-periods"></datalist>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+"use strict";
+const TYPES = ["Slides","Apostila","Resumo","Anotação","Estudo dirigido","Questões","Prova","Caso clínico","Imagem / lâmina","Artigo","Livro","Link"];
+const STATUS = [["nao-iniciado","Não iniciado"],["em-estudo","Em estudo"],["revisado","Revisado"]];
+const STATUS_LABEL = Object.fromEntries(STATUS);
+const STAINS = ["hema","eosin","giemsa","masson","pas","safra"];
+const LEVEL = ["Módulo","Unidade","Matéria"];
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+const S = {
+  db: null, dbState: "loading",
+  materials: [], areas: [], collections: [],
+  got: { m: false, a: false, c: false },
+  view: "inicio", area: "",
+  q: "", f: { type: "", status: "", coll: "", fav: false },
+  sort: "recent", group: "none", layout: "grid",
+  detailId: null, editId: null, busy: false,
+};
+try { const p = JSON.parse(localStorage.getItem("bm-prefs") || "{}"); if (p.layout) S.layout = p.layout; if (p.sort) S.sort = p.sort; if (p.group) S.group = p.group; } catch (_) {}
+const savePrefs = () => { try { localStorage.setItem("bm-prefs", JSON.stringify({ layout: S.layout, sort: S.sort, group: S.group })); } catch (_) {} };
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k === "style") el.setAttribute("style", v);
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return el;
+}
+const svg = d => { const t = document.createElement("template"); t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`; return t.content.firstChild; };
+const ICON_STAR = '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>';
+const ICON_EXT = '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>';
+const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+const cmpName = (a, b) => String(a).localeCompare(String(b), "pt-BR", { sensitivity: "base", numeric: true });
+const fmtDate = iso => { if (!iso) return ""; const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }); };
+const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+const nowIso = () => new Date().toISOString();
+function validUrl(v) { try { const u = new URL(v.trim()); return (u.protocol === "https:" || u.protocol === "http:") && u.hostname.includes("."); } catch (_) { return false; } }
+const isDrive = v => { try { return /(^|\.)(drive|docs)\.google\.com$/.test(new URL(v).hostname); } catch (_) { return false; } };
+const stainVar = k => `--stain:var(--s-${STAINS.includes(k) ? k : "neutral"})`;
+
+/* ---------- estrutura (áreas) ---------- */
+const areaById = id => S.areas.find(a => a.id === id);
+const byOrder = (a, b) => ((a.order ?? 999) - (b.order ?? 999)) || cmpName(a.name, b.name);
+const childrenOf = pid => S.areas.filter(a => (a.parentId || "") === (pid || "")).sort(byOrder);
+function pathOf(id) { const out = []; let a = areaById(id), guard = 0; while (a && guard++ < 8) { out.unshift(a); a = areaById(a.parentId); } return out; }
+function descIds(id) { const set = new Set([id]); let grew = true; while (grew) { grew = false; for (const a of S.areas) if (set.has(a.parentId) && !set.has(a.id)) { set.add(a.id); grew = true; } } return set; }
+function stainOf(id) { const p = pathOf(id); for (let i = p.length - 1; i >= 0; i--) if (p[i].stain) return p[i].stain; return ""; }
+const abbr = s => norm(s).replace(/[^a-z0-9 ]/g, "").split(" ").filter(Boolean).map((w, i, arr) => arr.length > 1 && /^\d+$/.test(w) ? w : w.slice(0, 4)).join("").toUpperCase().slice(0, 8);
+function codeParts(id) { const p = pathOf(id); if (!p.length) return ["SEM ÁREA"]; return p.slice(p.length > 1 ? 1 : 0).map(a => a.short || abbr(a.name)); }
+const codeOf = id => codeParts(id).join("·");
+const areaLabel = (id, from = "") => { const p = pathOf(id); const i = from ? p.findIndex(a => a.id === from) : -1; return p.slice(i + 1).map(a => a.name).join(" › "); };
+function treeOrder() { const out = []; const walk = (pid, d) => childrenOf(pid).forEach(a => { out.push([a, d]); if (d < 2) walk(a.id, d + 1); }); walk("", 0); return out; }
+const depthOf = id => pathOf(id).length - 1;
+
+/* ---------- avisos ---------- */
+function toast(msg, opts = {}) {
+  const box = $("#toasts");
+  const t = h("div", { class: "toast" + (opts.error ? " error" : "") }, h("p", { text: msg }));
+  if (opts.action) t.append(h("button", { type: "button", text: opts.action.label, onclick: () => { t.remove(); opts.action.run(); } }));
+  box.append(t);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => t.remove(), opts.action ? 7000 : 4000);
+}
+const failMsg = e => (e && e.code === "quota_exceeded") ? "O catálogo atingiu o limite de armazenamento. Remova itens antigos e tente de novo." : "Não foi possível salvar agora. Verifique a conexão e tente de novo.";
+async function write(fn, okMsg, opts) {
+  if (!S.db) { toast("O catálogo não está disponível nesta visualização.", { error: true }); return false; }
+  try { await fn(); if (okMsg) toast(okMsg, opts); return true; }
+  catch (e) { console.error(e); toast(failMsg(e), { error: true }); return false; }
+}
+async function ensureCollection(name) {
+  const n = name.trim(); if (!n) return "";
+  const hit = S.collections.find(c => norm(c.name) === norm(n)); if (hit) return hit.id;
+  const ref = S.db.collection("collections").doc(); await ref.set({ name: n, createdAt: nowIso() }); return ref.id;
+}
+function subscribe() {
+  const onErr = e => { console.error(e); S.dbState = "unavailable"; renderAll(); };
+  const map = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  S.db.collection("materials").onSnapshot(s => { S.materials = map(s); S.got.m = true; renderAll(); }, onErr);
+  S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
+  S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
+}
+const ready = () => S.dbState === "ready" && S.got.m && S.got.a && S.got.c;
+const collName = id => (S.collections.find(c => c.id === id) || {}).name || "";
+
+/* ---------- filtragem ---------- */
+function scopeSet() { return S.view === "lib" && S.area && S.area !== "todos" ? descIds(S.area) : null; }
+const inScope = (m, set) => !set || set.has(m.areaId);
+const haystack = m => norm([m.title, pathOf(m.areaId).map(a => a.name).join(" "), m.subject, (m.tags || []).join(" ")].join(" "));
+function filtered() {
+  const set = scopeSet(), toks = norm(S.q).split(/\s+/).filter(Boolean);
+  const out = S.materials.filter(m => {
+    if (!inScope(m, set)) return false;
+    if (S.f.type && m.type !== S.f.type) return false;
+    if (S.f.status && (m.status || "nao-iniciado") !== S.f.status) return false;
+    if (S.f.coll && !(m.collectionIds || []).includes(S.f.coll)) return false;
+    if (S.f.fav && !m.favorite) return false;
+    if (toks.length) { const hs = haystack(m); if (!toks.every(t => hs.includes(t))) return false; }
+    return true;
+  });
+  const t = m => m.createdAt || "";
+  const cmp = { recent: (a, b) => t(b).localeCompare(t(a)), old: (a, b) => t(a).localeCompare(t(b)), az: (a, b) => cmpName(a.title || "", b.title || ""), za: (a, b) => cmpName(b.title || "", a.title || "") }[S.sort];
+  return out.sort(cmp);
+}
+const anyFilter = () => !!(S.q.trim() || S.f.type || S.f.status || S.f.coll || S.f.fav);
+const countIn = id => { const set = descIds(id); return S.materials.filter(m => set.has(m.areaId)).length; };
+
+/* ---------- componentes ---------- */
+function statusChip(s) { const v = s || "nao-iniciado"; return h("span", { class: "chip status", "data-s": v, text: STATUS_LABEL[v] }); }
+function starBtn(m) {
+  const b = h("button", { class: "iconbtn star", type: "button", "aria-pressed": m.favorite ? "true" : "false", "aria-label": (m.favorite ? "Remover dos favoritos: " : "Favoritar: ") + m.title, onclick: e => { e.stopPropagation(); toggleFav(m.id); } });
+  b.append(svg(ICON_STAR)); return b;
+}
+function openLink(m, cls = "link-open open") {
+  if (!m.url || !validUrl(m.url)) return h("span", { class: "small muted", text: "Sem link válido" });
+  const a = h("a", { class: cls, href: m.url, target: "_blank", rel: "noopener noreferrer", "aria-label": "Abrir original (nova aba): " + m.title, onclick: () => markOpened(m.id) }, "Abrir original");
+  a.append(svg(ICON_EXT)); return a;
+}
+function slide(m, from) {
+  const st = m.status || "nao-iniciado";
+  const where = areaLabel(m.areaId, from);
+  const meta = [where, m.subject].filter(Boolean).join(" · ");
+  return h("article", { class: "slide", style: stainVar(stainOf(m.areaId)) },
+    h("div", { class: "slabel", "aria-hidden": "true" }, h("span", { class: "code" }, codeParts(m.areaId).flatMap((p, i) => i ? [h("br"), p] : [p])), h("span", { class: "code", text: m.type || "" }), h("span", { class: "dot", "data-s": st })),
+    h("div", { class: "sbody" },
+      h("div", { style: "display:grid;gap:6px;min-width:0" },
+        h("h3", { class: "stitle" }, h("button", { type: "button", onclick: () => openDetail(m.id), text: m.title || "(sem título)" })),
+        meta ? h("p", { class: "smeta", text: meta }) : null),
+      h("div", { class: "sfoot" }, statusChip(st), starBtn(m), openLink(m))));
+}
+function emptyState(title, text, withAdd) {
+  return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), withAdd && S.db ? h("button", { class: "btn primary", type: "button", onclick: () => openForm(null), text: "Adicionar material" }) : null);
+}
+const statsLine = list => {
+  const c = s => list.filter(m => (m.status || "nao-iniciado") === s).length;
+  const sep = () => h("span", { class: "sr", text: ", " });
+  return [h("span", null, h("b", { text: list.length }), list.length === 1 ? " material" : " materiais", sep()),
+    h("span", null, h("b", { text: c("em-estudo") }), " em estudo", sep()),
+    h("span", null, h("b", { text: c("revisado") }), c("revisado") === 1 ? " revisado" : " revisados", sep()),
+    h("span", null, h("b", { text: list.filter(m => m.favorite).length }), " favoritos")];
+};
+
+/* ---------- telas ---------- */
+function renderBanner() {
+  const b = $("#state-banner");
+  if (S.dbState === "unavailable") {
+    b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Não foi possível abrir o seu catálogo" }),
+      h("p", { text: "Esta visualização não tem acesso ao banco de dados da biblioteca. Abra a página no claude.ai, com a conta dona desta biblioteca, para ver e salvar seus materiais." })));
+  } else if (!ready()) { b.hidden = false; b.replaceChildren(h("div", { class: "notice", role: "status" }, h("p", { text: "Carregando seu catálogo…" }))); }
+  else b.hidden = true;
+  $$("[data-action='add']").forEach(x => x.disabled = !ready());
+}
+function renderModTabs() {
+  const nav = $("#modtabs"); nav.replaceChildren();
+  const cur = S.view === "lib" ? (S.area === "todos" ? "todos" : (pathOf(S.area)[0] || {}).id) : S.view;
+  const tab = (href, big, small, key) => h("a", { class: "modtab", href: "#" + href, "aria-current": cur === key ? "page" : null }, h("b", { text: big }), h("span", { text: small }));
+  nav.append(tab("inicio", "Início", "bancada", "inicio"));
+  childrenOf("").forEach(m => nav.append(tab("a-" + m.id, m.name, plural(countIn(m.id), "item", "itens"), m.id)));
+  nav.append(tab("todos", "Todos", plural(S.materials.length, "item", "itens"), "todos"));
+  $$("[data-nav]").forEach(a => a.dataset.nav === S.view ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+}
+function renderHome() {
+  const ms = S.materials;
+  $("#home-stats").replaceChildren(...(ready() ? statsLine(ms) : []));
+  const wrap = $("#home-sections"); wrap.replaceChildren();
+  if (!ready()) return;
+  if (!ms.length && !S.areas.length) { wrap.append(emptyState("Sua bancada está vazia", "Crie a estrutura do curso em Organizar (módulos, unidades e matérias) e cadastre o link do primeiro material.", true)); return; }
+  const block = (title, items, more, emptyText) => {
+    const sec = h("section", { "aria-label": title }, h("div", { class: "section-head" }, h("h2", { text: title }), more));
+    sec.append(items.length ? h("div", { class: "grid" }, items.map(m => slide(m))) : h("p", { class: "muted", text: emptyText })); return sec;
+  };
+  const recents = ms.filter(m => m.lastOpenedAt).sort((a, b) => b.lastOpenedAt.localeCompare(a.lastOpenedAt)).slice(0, 3);
+  const studying = ms.filter(m => m.status === "em-estudo").slice(0, 6);
+  const favs = ms.filter(m => m.favorite).sort((a, b) => cmpName(a.title, b.title)).slice(0, 6);
+  // módulos
+  const mods = childrenOf("");
+  if (mods.length) {
+    const sec = h("section", { "aria-label": "Módulos" }, h("div", { class: "section-head" }, h("h2", { text: "Módulos" }), h("a", { href: "#organizar", text: "Organizar estrutura" })));
+    sec.append(h("div", { class: "modgrid" }, mods.map(mod => h("div", { class: "modcard" },
+      h("div", { class: "modcard-head" }, h("a", { href: "#a-" + mod.id, text: mod.name }), h("span", { class: "count", text: plural(countIn(mod.id), "material", "materiais") })),
+      h("div", { class: "unitlist" }, childrenOf(mod.id).length ? childrenOf(mod.id).map(u => h("div", { class: "unitbox", style: stainVar(stainOf(u.id)) },
+        h("a", { href: "#a-" + u.id }, h("span", { text: u.name }), h("span", { class: "count", text: plural(countIn(u.id), "item", "itens") })),
+        childrenOf(u.id).length ? h("div", { class: "subs" }, childrenOf(u.id).map(s => h("a", { class: "subtab", href: "#a-" + s.id, style: stainVar(s.stain) }, s.name, h("span", { class: "count", text: countIn(s.id) })))) : null))
+        : h("p", { class: "muted small", text: "Nenhuma unidade ainda." }))))));
+    wrap.append(sec);
+  }
+  wrap.append(block("Abertos recentemente", recents, null, "Os materiais que você abrir por aqui aparecem nesta lista."));
+  if (studying.length) wrap.append(block("Em estudo", studying, h("a", { href: "#todos", onclick: () => presetFilters({ status: "em-estudo" }), text: "Ver todos" })));
+  wrap.append(block("Favoritos", favs, favs.length ? h("a", { href: "#todos", onclick: () => presetFilters({ fav: true }), text: "Ver todos" }) : null, "Toque na estrela de um material para guardá-lo aqui."));
+}
+function fillSelect(sel, options, value) { sel.replaceChildren(...options.map(([v, l]) => h("option", { value: v, text: l }))); sel.value = options.some(o => o[0] === value) ? value : options[0][0]; }
+function renderLibrary() {
+  if (S.view !== "lib") return;
+  const isAll = S.area === "todos";
+  const area = isAll ? null : areaById(S.area);
+  const head = $("#areahead");
+  if (!isAll && !area && ready()) { location.hash = "todos"; return; }
+  const path = area ? pathOf(area.id) : [];
+  head.setAttribute("style", stainVar(area ? stainOf(area.id) || "hema" : "hema"));
+  const crumbs = $("#crumbs"); crumbs.replaceChildren(h("a", { href: "#inicio", text: "Início" }));
+  path.slice(0, -1).forEach(a => crumbs.append(h("i", { text: "/" }), h("a", { href: "#a-" + a.id, text: a.name })));
+  crumbs.append(h("i", { text: "/" }), h("span", { "aria-current": "page", text: area ? (LEVEL[path.length - 1] || "Área") : "Todos os materiais" }));
+  $("#h-lib").textContent = area ? area.name : isAll ? "Todos os materiais" : "Carregando…";
+  const set = scopeSet(); const inArea = S.materials.filter(m => inScope(m, set));
+  $("#lib-stats").replaceChildren(...(ready() ? statsLine(inArea) : []));
+  // abas de unidade e matéria
+  const unitrow = $("#unitrow"), subrow = $("#subrow");
+  const mod = path[0], unit = path[1];
+  unitrow.hidden = !mod; subrow.hidden = true; unitrow.replaceChildren(); subrow.replaceChildren();
+  if (mod) {
+    unitrow.append(h("a", { class: "unittab", href: "#a-" + mod.id, "aria-current": path.length === 1 ? "page" : null }, `Tudo em ${mod.name}`, h("span", { class: "count", text: countIn(mod.id) })));
+    childrenOf(mod.id).forEach(u => unitrow.append(h("a", { class: "unittab", href: "#a-" + u.id, style: stainVar(stainOf(u.id)), "aria-current": unit && unit.id === u.id ? "page" : null }, u.name, h("span", { class: "count", text: countIn(u.id) }))));
+  }
+  if (unit && childrenOf(unit.id).length) {
+    subrow.hidden = false;
+    subrow.append(h("a", { class: "subtab all", href: "#a-" + unit.id, "aria-current": path.length === 2 ? "page" : null }, `Tudo em ${unit.name}`));
+    childrenOf(unit.id).forEach(s => subrow.append(h("a", { class: "subtab", href: "#a-" + s.id, style: stainVar(s.stain), "aria-current": path[2] && path[2].id === s.id ? "page" : null }, s.name, h("span", { class: "count", text: countIn(s.id) }))));
+  }
+  // ferramentas
+  $("#lib-q").placeholder = area ? `Buscar em ${area.name}: título, assunto ou etiqueta` : "Buscar em todo o catálogo";
+  fillSelect($("#f-type"), [["", "Todos"], ...TYPES.map(t => [t, t])], S.f.type);
+  fillSelect($("#f-status"), [["", "Todos"], ...STATUS], S.f.status);
+  fillSelect($("#f-coll"), [["", "Todas"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
+  if ($("#lib-q").value !== S.q) $("#lib-q").value = S.q;
+  $("#f-fav").setAttribute("aria-pressed", S.f.fav ? "true" : "false");
+  $("#f-sort").value = S.sort; $("#f-group").value = S.group;
+  $$("[data-layout]").forEach(b => b.setAttribute("aria-pressed", b.dataset.layout === S.layout ? "true" : "false"));
+  $("#clear-filters").disabled = !anyFilter();
+  const box = $("#lib-results"); box.replaceChildren(); const line = $("#result-line");
+  if (!ready()) { line.textContent = ""; return; }
+  const res = filtered(), total = inArea.length;
+  line.textContent = anyFilter() ? `${res.length} de ${plural(total, "material", "materiais")}` : plural(total, "material", "materiais");
+  if (!total) { box.append(emptyState(area ? `Nada em ${area.name} ainda` : "Nenhum material cadastrado", "Cadastre o link de um material; ele já entra nesta área.", true)); return; }
+  if (!res.length) { box.append(h("div", { class: "empty" }, h("h2", { text: "Nenhum material encontrado" }), h("p", { text: "Nada combina com a busca e os filtros atuais nesta área. A busca procura no título, matéria, assunto e etiquetas, não no texto dos arquivos." }), h("button", { class: "btn", type: "button", onclick: clearFilters, text: "Limpar busca e filtros" }))); return; }
+  const from = area ? area.id : "";
+  const mk = items => h("div", { class: S.layout === "list" ? "list" : "grid" }, items.map(m => slide(m, from)));
+  if (S.group === "none") { box.append(mk(res)); return; }
+  const keyOf = { area: m => areaLabel(m.areaId, from) || (area ? "Direto em " + area.name : ""), subject: m => m.subject || "", period: m => m.period || "" }[S.group];
+  const emptyLbl = { area: "Sem área", subject: "Sem assunto", period: "Sem período" }[S.group];
+  const groups = new Map(); res.forEach(m => { const k = keyOf(m).trim(); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(m); });
+  [...groups.keys()].sort((a, b) => !a ? 1 : !b ? -1 : cmpName(a, b)).forEach(k => { const items = groups.get(k); box.append(h("h2", { class: "group-title", text: `${k || emptyLbl} · ${items.length}` }), mk(items)); });
+}
+
+/* organizar */
+const orgUI = { editing: null, confirming: null, adding: null };
+function renderOrg() {
+  const tree = $("#tree"); tree.replaceChildren();
+  const dis = !ready();
+  const rowFor = (a, d) => {
+    const li = h("li");
+    const key = a.id;
+    if (orgUI.editing === key) {
+      const inp = h("input", { type: "text", value: a.name, maxlength: "60", "aria-label": "Novo nome de " + a.name });
+      li.append(h("div", { class: "row", style: stainVar(stainOf(a.id)) }, h("form", { onsubmit: e => { e.preventDefault(); renameArea(a.id, inp.value); } }, inp,
+        h("button", { class: "btn primary", type: "submit", text: "Salvar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.editing = null; renderOrg(); } }))));
+      setTimeout(() => inp.focus(), 0);
+    } else {
+      const kids = childrenOf(a.id);
+      li.append(h("div", { class: "row", style: stainVar(stainOf(a.id)) },
+        h("span", { class: "swatch", "aria-hidden": "true" }),
+        h("button", { class: "name", type: "button", title: "Abrir " + a.name, onclick: () => { location.hash = "a-" + a.id; }, text: a.name }),
+        h("span", { class: "lvl", text: LEVEL[d] }), h("span", { class: "count", text: plural(countIn(a.id), "item", "itens") }),
+        d < 2 ? h("button", { class: "btn ghost", type: "button", disabled: dis, text: d === 0 ? "+ Unidade" : "+ Matéria", onclick: () => { orgUI.adding = a.id; orgUI.editing = orgUI.confirming = null; renderOrg(); } }) : null,
+        h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Renomear", "aria-label": "Renomear " + a.name, onclick: () => { orgUI.editing = key; orgUI.confirming = orgUI.adding = null; renderOrg(); } }),
+        h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Excluir", "aria-label": "Excluir " + a.name, onclick: () => {
+          if (kids.length) { toast(`${a.name} tem ${plural(kids.length, "subdivisão", "subdivisões")}. Exclua o que está dentro primeiro.`, { error: true }); return; }
+          orgUI.confirming = key; orgUI.editing = orgUI.adding = null; renderOrg(); } })));
+      if (orgUI.confirming === key) {
+        const n = countIn(a.id), parent = areaById(a.parentId);
+        const yes = h("button", { class: "btn danger", type: "button", text: "Excluir", onclick: () => deleteArea(a.id) });
+        li.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: `Excluir “${a.name}”? ${n ? plural(n, "material vai", "materiais vão") + " para " + (parent ? parent.name : "“sem área”") + "." : "Não há materiais aqui."} Nenhum arquivo é apagado.` }),
+          h("div", { class: "acts" }, yes, h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { orgUI.confirming = null; renderOrg(); } }))));
+        setTimeout(() => yes.focus(), 0);
+      }
+    }
+    const kids = childrenOf(a.id);
+    if (kids.length || orgUI.adding === a.id) {
+      const ul = h("ul"); kids.forEach(k => ul.append(rowFor(k, d + 1)));
+      if (orgUI.adding === a.id) {
+        const inp = h("input", { type: "text", maxlength: "60", placeholder: d === 0 ? "Nome da unidade (ex.: CIS 3)" : "Nome da matéria (ex.: Fisiologia)", "aria-label": "Nome da nova " + (d === 0 ? "unidade" : "matéria") });
+        ul.append(h("li", null, h("div", { class: "row" }, h("form", { onsubmit: e => { e.preventDefault(); addArea(a.id, inp.value); } }, inp,
+          h("button", { class: "btn primary", type: "submit", text: "Criar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.adding = null; renderOrg(); } })))));
+        setTimeout(() => inp.focus(), 0);
+      }
+      li.append(ul);
+    }
+    return li;
+  };
+  const roots = childrenOf("");
+  if (!roots.length) tree.append(h("li", { class: "muted small", text: "Nenhum módulo ainda. Crie o primeiro abaixo." }));
+  roots.forEach(r => tree.append(rowFor(r, 0)));
+  const orphan = S.materials.filter(m => !areaById(m.areaId)).length;
+  if (orphan) tree.append(h("li", { class: "muted small", text: `${plural(orphan, "material está", "materiais estão")} sem área definida. Encontre em Todos e edite o campo “Onde fica”.` }));
+  // coleções
+  const ul = $("#coll-rows"); ul.replaceChildren();
+  if (!S.collections.length) ul.append(h("li", { class: "muted small", text: "Nenhuma coleção ainda. Crie a primeira abaixo." }));
+  S.collections.forEach(c => {
+    const cnt = S.materials.filter(m => (m.collectionIds || []).includes(c.id)).length, key = "c:" + c.id;
+    if (orgUI.editing === key) {
+      const inp = h("input", { type: "text", value: c.name, maxlength: "80", "aria-label": "Novo nome de " + c.name });
+      ul.append(h("li", { class: "row" }, h("form", { onsubmit: e => { e.preventDefault(); renameColl(c.id, inp.value); } }, inp, h("button", { class: "btn primary", type: "submit", text: "Salvar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.editing = null; renderOrg(); } }))));
+      setTimeout(() => inp.focus(), 0); return;
+    }
+    ul.append(h("li", { class: "row" }, h("button", { class: "name", type: "button", onclick: () => { presetFilters({ coll: c.id }); location.hash = "todos"; }, text: c.name }), h("span", { class: "count", text: plural(cnt, "item", "itens") }),
+      h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Renomear", "aria-label": "Renomear " + c.name, onclick: () => { orgUI.editing = key; orgUI.confirming = null; renderOrg(); } }),
+      h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Excluir", "aria-label": "Excluir " + c.name, onclick: () => { orgUI.confirming = key; orgUI.editing = null; renderOrg(); } })));
+    if (orgUI.confirming === key) {
+      const yes = h("button", { class: "btn danger", type: "button", text: "Excluir", onclick: () => deleteColl(c.id, c.name) });
+      ul.append(h("li", { class: "confirm-inline", role: "alert" }, h("p", { text: `Excluir a coleção “${c.name}”? ${plural(cnt, "material sai", "materiais saem")} dela, mas continuam no catálogo.` }), h("div", { class: "acts" }, yes, h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { orgUI.confirming = null; renderOrg(); } }))));
+      setTimeout(() => yes.focus(), 0);
+    }
+  });
+  $$("#mod-add input, #mod-add button, #coll-add input, #coll-add button").forEach(x => x.disabled = dis);
+}
+function renderDatalists() {
+  const uniq = arr => [...new Set(arr.map(s => (s || "").trim()).filter(Boolean))].sort(cmpName);
+  $("#dl-subjects").replaceChildren(...uniq(S.materials.map(m => m.subject)).map(v => h("option", { value: v })));
+  $("#dl-periods").replaceChildren(...uniq(S.materials.map(m => m.period)).map(v => h("option", { value: v })));
+}
+function renderAll() { renderBanner(); renderModTabs(); renderHome(); renderLibrary(); renderOrg(); renderDatalists(); if ($("#dlg-detail").open) renderDetail(); }
+
+/* ---------- navegação ---------- */
+function route(focus) {
+  const hs = location.hash.slice(1);
+  const prev = S.view + "|" + S.area;
+  if (hs === "organizar") { S.view = "organizar"; S.area = ""; }
+  else if (hs === "todos") { S.view = "lib"; S.area = "todos"; }
+  else if (hs.startsWith("a-")) { S.view = "lib"; S.area = hs.slice(2); }
+  else { S.view = "inicio"; S.area = ""; }
+  const vid = S.view === "lib" ? "lib" : S.view;
+  $$("[data-view]").forEach(s => { const on = s.dataset.view === vid; s.hidden = !on; if (on && prev !== S.view + "|" + S.area) { s.classList.remove("enter"); void s.offsetWidth; s.classList.add("enter"); } });
+  renderModTabs(); renderLibrary();
+  if (focus) { $("#main").focus({ preventScroll: true }); window.scrollTo(0, 0); }
+}
+function presetFilters(p) { S.f = { type: "", status: "", coll: "", fav: false, ...p }; S.q = ""; }
+function clearFilters() { S.q = ""; S.f = { type: "", status: "", coll: "", fav: false }; renderLibrary(); $("#lib-q").focus(); }
+
+/* ---------- ações ---------- */
+const find = id => S.materials.find(m => m.id === id);
+async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; await write(() => S.db.doc("materials/" + id).update({ favorite: on }), on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
+async function setStatus(id, s) { const m = find(id); if (!m || (m.status || "nao-iniciado") === s) return; await write(() => S.db.doc("materials/" + id).update({ status: s, statusAt: nowIso() }), "Status: " + STATUS_LABEL[s]); }
+function markOpened(id) { if (S.db) S.db.doc("materials/" + id).update({ lastOpenedAt: nowIso() }).catch(e => console.error(e)); }
+async function removeMaterial(id) {
+  const m = find(id); if (!m) return; const { id: _i, ...body } = m;
+  const ok = await write(() => S.db.doc("materials/" + id).delete(), "Removido do catálogo. O arquivo original não foi alterado.", { action: { label: "Desfazer", run: () => write(() => S.db.doc("materials/" + id).set(body), "Material restaurado") } });
+  if (ok) closeDlg($("#dlg-detail"));
+}
+async function addArea(parentId, name) {
+  name = name.trim(); if (!name) return;
+  if (childrenOf(parentId).some(a => norm(a.name) === norm(name))) { toast("Já existe um item com esse nome aqui.", { error: true }); return; }
+  const d = parentId ? depthOf(parentId) + 1 : 0;
+  const used = S.areas.map(a => a.stain).filter(Boolean);
+  const stain = d === 0 ? "" : STAINS.find(s => !used.includes(s)) || STAINS[S.areas.length % STAINS.length];
+  const ok = await write(() => S.db.collection("areas").doc().set({ name, parentId: parentId || "", order: childrenOf(parentId).length + 1, stain, createdAt: nowIso() }), ["Módulo criado", "Unidade criada", "Matéria criada"][d]);
+  if (ok) { orgUI.adding = null; renderOrg(); }
+}
+async function renameArea(id, name) {
+  name = name.trim(); if (!name) return; const a = areaById(id);
+  if (childrenOf(a.parentId).some(x => x.id !== id && norm(x.name) === norm(name))) { toast("Já existe um item com esse nome aqui.", { error: true }); return; }
+  if (await write(() => S.db.doc("areas/" + id).update({ name }), "Nome atualizado")) { orgUI.editing = null; renderOrg(); }
+}
+async function deleteArea(id) {
+  const a = areaById(id); if (!a) return; const affected = S.materials.filter(m => m.areaId === id);
+  const ok = await write(async () => { for (const m of affected) await S.db.doc("materials/" + m.id).update({ areaId: a.parentId || "" }); await S.db.doc("areas/" + id).delete(); }, `“${a.name}” excluído`);
+  if (ok) { orgUI.confirming = null; if (S.area === id) location.hash = a.parentId ? "a-" + a.parentId : "inicio"; renderAll(); }
+}
+async function addColl(input) {
+  const name = input.value.trim(); if (!name) { input.focus(); return; }
+  if (S.collections.some(c => norm(c.name) === norm(name))) { toast("Já existe uma coleção com esse nome.", { error: true }); return; }
+  if (await write(() => S.db.collection("collections").doc().set({ name, createdAt: nowIso() }), "Coleção criada")) input.value = "";
+}
+async function renameColl(id, name) {
+  name = name.trim(); if (!name) return;
+  if (S.collections.some(c => c.id !== id && norm(c.name) === norm(name))) { toast("Já existe uma coleção com esse nome.", { error: true }); return; }
+  if (await write(() => S.db.doc("collections/" + id).update({ name }), "Nome atualizado")) { orgUI.editing = null; renderOrg(); }
+}
+async function deleteColl(id, name) {
+  const affected = S.materials.filter(m => (m.collectionIds || []).includes(id));
+  const ok = await write(async () => { for (const m of affected) await S.db.doc("materials/" + m.id).update({ collectionIds: (m.collectionIds || []).filter(c => c !== id) }); await S.db.doc("collections/" + id).delete(); }, `Coleção “${name}” excluída`);
+  if (ok) { orgUI.confirming = null; if (S.f.coll === id) S.f.coll = ""; renderAll(); }
+}
+
+/* ---------- diálogos ---------- */
+let lastFocus = null;
+function openDlg(d) { lastFocus = document.activeElement; if (!d.open) d.showModal(); }
+function closeDlg(d) { if (d.open) d.close(); }
+$$("dialog").forEach(d => {
+  d.addEventListener("close", () => { if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); if (d.id === "dlg-detail") { S.detailId = null; confirmRemove = false; } });
+  d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-close]")) closeDlg(d); });
+});
+let confirmRemove = false;
+function openDetail(id) { S.detailId = id; confirmRemove = false; renderDetail(); openDlg($("#dlg-detail")); }
+function renderDetail() {
+  const m = find(S.detailId); if (!m) { closeDlg($("#dlg-detail")); return; }
+  $("#d-band").setAttribute("style", stainVar(stainOf(m.areaId)));
+  $("#d-code").textContent = [codeOf(m.areaId), m.type].filter(Boolean).join(" · ");
+  $("#d-title").textContent = m.title || "(sem título)";
+  const fav = $("#d-fav"); fav.setAttribute("aria-pressed", m.favorite ? "true" : "false"); fav.setAttribute("aria-label", m.favorite ? "Remover dos favoritos" : "Favoritar"); fav.onclick = () => toggleFav(m.id);
+  const rows = [["Onde fica", areaLabel(m.areaId) || "Sem área"], ["Assunto", m.subject], ["Período", m.period], ["Tipo", m.type], ["Origem", m.source], ["Incluído em", fmtDate(m.createdAt)], ["Aberto por aqui em", fmtDate(m.lastOpenedAt)]].filter(r => r[1]);
+  const dl = h("dl", { class: "dl" }); rows.forEach(([k, v]) => dl.append(h("dt", { text: k }), h("dd", { text: v })));
+  const cur = m.status || "nao-iniciado";
+  const fs = h("fieldset", { class: "statusset" }, h("legend", { text: "Status de estudo" }), STATUS.map(([v, l]) => h("label", null, h("input", { type: "radio", name: "d-status", value: v, checked: v === cur, onchange: () => setStatus(m.id, v) }), l)));
+  const colls = (m.collectionIds || []).map(collName).filter(Boolean);
+  const body = $("#d-body");
+  body.replaceChildren(fs, dl,
+    colls.length ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Coleções" }), h("div", { class: "tags" }, colls.map(c => h("span", { class: "tag", text: c })))) : null,
+    (m.tags || []).length ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Etiquetas" }), h("div", { class: "tags" }, m.tags.map(t => h("span", { class: "tag", text: t })))) : null,
+    m.notes ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Observações" }), h("p", { class: "notes", text: m.notes })) : null,
+    h("div", { class: "fld" }, h("span", { class: "lbl", text: "Link" }), h("p", { class: "small muted", style: "overflow-wrap:anywhere", text: m.url || "—" })));
+  if (confirmRemove) body.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: "Remover este material do catálogo? Só o registro sai daqui. O arquivo original (por exemplo, no Google Drive) não é apagado nem alterado." }),
+    h("div", { class: "acts" }, h("button", { class: "btn danger", type: "button", id: "d-rm-yes", text: "Remover do catálogo", onclick: () => { confirmRemove = false; removeMaterial(m.id); } }), h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { confirmRemove = false; renderDetail(); } }))));
+  $("#d-foot").replaceChildren(
+    h("button", { class: "btn ghost", type: "button", text: "Remover do catálogo", onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } }),
+    h("span", { class: "spacer" }),
+    h("button", { class: "btn", type: "button", text: "Editar", onclick: () => { closeDlg($("#dlg-detail")); openForm(m.id); } }),
+    openLink(m, "btn primary"));
+}
+function openForm(id) {
+  if (!ready()) return;
+  S.editId = id; const m = id ? find(id) : null;
+  $("#form-title").textContent = m ? "Editar material" : "Adicionar material";
+  $("#m-save").textContent = m ? "Salvar alterações" : "Salvar material";
+  $("#m-title").value = m ? m.title || "" : ""; $("#m-url").value = m ? m.url || "" : "";
+  const areaOpts = [["", "Sem área"], ...treeOrder().map(([a, d]) => [a.id, pathOf(a.id).map(x => x.name).join(" › ")])];
+  const defArea = m ? m.areaId || "" : (S.view === "lib" && S.area !== "todos" ? S.area : "");
+  fillSelect($("#m-area"), areaOpts, defArea);
+  $("#form-band").setAttribute("style", stainVar(stainOf($("#m-area").value)));
+  fillSelect($("#m-type"), [["", "Sem tipo"], ...TYPES.map(t => [t, t])], m ? m.type || "" : "");
+  fillSelect($("#m-status"), STATUS, m ? m.status || "nao-iniciado" : "nao-iniciado");
+  $("#m-subject").value = m ? m.subject || "" : ""; $("#m-period").value = m ? m.period || "" : "";
+  $("#m-tags").value = m ? (m.tags || []).join(", ") : ""; $("#m-origin").value = m ? m.source || "" : ""; $("#m-notes").value = m ? m.notes || "" : "";
+  $("#m-fav").checked = !!(m && m.favorite); $("#m-coll-new").value = "";
+  const sel = new Set(m ? m.collectionIds || [] : (S.f.coll ? [S.f.coll] : []));
+  $("#m-colls").replaceChildren(...(S.collections.length ? S.collections.map(c => h("label", null, h("input", { type: "checkbox", value: c.id, checked: sel.has(c.id) }), c.name)) : [h("span", { class: "small muted", text: "Nenhuma coleção ainda. Crie uma no campo abaixo, se quiser." })]));
+  ["title", "url"].forEach(k => fieldErr(k, ""));
+  openDlg($("#dlg-form")); setTimeout(() => $("#m-title").focus(), 0);
+}
+$("#m-area").addEventListener("change", e => $("#form-band").setAttribute("style", stainVar(stainOf(e.target.value))));
+function fieldErr(k, msg) { const i = $("#m-" + k), e = $("#m-" + k + "-err"); if (msg) { e.textContent = msg; e.hidden = false; i.setAttribute("aria-invalid", "true"); } else { e.hidden = true; i.removeAttribute("aria-invalid"); } return !msg; }
+const BAD_URL = "Este link não parece válido. Ele precisa começar com https:// e ter um endereço completo.";
+$("#m-url").addEventListener("blur", () => { const v = $("#m-url").value.trim(); if (v) fieldErr("url", validUrl(v) ? "" : BAD_URL); });
+$("#mat-form").addEventListener("submit", async e => {
+  e.preventDefault(); if (S.busy) return;
+  const title = $("#m-title").value.trim(), url = $("#m-url").value.trim();
+  const okT = fieldErr("title", title ? "" : "Dê um título ao material.");
+  const okU = fieldErr("url", !url ? "Cole o link do material." : validUrl(url) ? "" : BAD_URL);
+  if (!okT || !okU) { (!okT ? $("#m-title") : $("#m-url")).focus(); return; }
+  S.busy = true; $("#m-save").disabled = true;
+  const ok = await write(async () => {
+    const collIds = $$("#m-colls input:checked").map(i => i.value);
+    const nc = $("#m-coll-new").value.trim(); if (nc) { const cid = await ensureCollection(nc); if (cid && !collIds.includes(cid)) collIds.push(cid); }
+    const tags = [...new Set($("#m-tags").value.split(",").map(t => t.trim()).filter(Boolean))];
+    let source = $("#m-origin").value.trim(); if (!source && isDrive(url)) source = "Google Drive";
+    const body = { title, url, areaId: $("#m-area").value, subject: $("#m-subject").value.trim(), period: $("#m-period").value.trim(), type: $("#m-type").value, tags, collectionIds: collIds, source, notes: $("#m-notes").value.trim(), status: $("#m-status").value, favorite: $("#m-fav").checked };
+    if (S.editId) await S.db.doc("materials/" + S.editId).update(body);
+    else await S.db.collection("materials").doc().set({ ...body, createdAt: nowIso() });
+  }, S.editId ? "Alterações salvas" : "Material salvo");
+  S.busy = false; $("#m-save").disabled = false;
+  if (ok) closeDlg($("#dlg-form"));
+});
+
+/* ---------- eventos ---------- */
+$$("[data-action='add']").forEach(b => b.addEventListener("click", () => openForm(null)));
+$("#home-search").addEventListener("submit", e => { e.preventDefault(); presetFilters({}); S.q = $("#home-q").value; location.hash = "todos"; setTimeout(() => $("#lib-q").focus(), 0); });
+let qTimer; $("#lib-q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { S.q = e.target.value; renderLibrary(); }, 120); });
+$("#f-type").addEventListener("change", e => { S.f.type = e.target.value; renderLibrary(); });
+$("#f-status").addEventListener("change", e => { S.f.status = e.target.value; renderLibrary(); });
+$("#f-coll").addEventListener("change", e => { S.f.coll = e.target.value; renderLibrary(); });
+$("#f-fav").addEventListener("click", () => { S.f.fav = !S.f.fav; renderLibrary(); });
+$("#f-sort").addEventListener("change", e => { S.sort = e.target.value; savePrefs(); renderLibrary(); });
+$("#f-group").addEventListener("change", e => { S.group = e.target.value; savePrefs(); renderLibrary(); });
+$$("[data-layout]").forEach(b => b.addEventListener("click", () => { S.layout = b.dataset.layout; savePrefs(); renderLibrary(); }));
+$("#clear-filters").addEventListener("click", clearFilters);
+$("#mod-add").addEventListener("submit", e => { e.preventDefault(); const i = $("#mod-new"); if (i.value.trim()) addArea("", i.value).then(() => { i.value = ""; }); });
+$("#coll-add").addEventListener("submit", e => { e.preventDefault(); addColl($("#coll-new")); });
+window.addEventListener("hashchange", () => route(true));
+
+try {
+  const mq = window.matchMedia("(max-width:760px)");
+  if (mq.matches) $("#more").open = false;
+  mq.addEventListener("change", e => { if (!e.matches) $("#more").open = true; });
+} catch (_) {}
+route(false); renderAll();
+(async () => {
+  let db = null;
+  try { db = window.claude && typeof window.claude.use === "function" ? await window.claude.use("db") : null; } catch (e) { console.error(e); }
+  if (!db) { S.dbState = "unavailable"; renderAll(); return; }
+  S.db = db; S.dbState = "ready"; renderAll(); subscribe();
+})();
+})();
+</script>

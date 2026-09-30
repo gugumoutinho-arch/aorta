@@ -1,0 +1,13 @@
+# Fora do site: materiais de estudo e ferramentas do Claude
+_fora-do-site/
+
+# Dependências e relatórios de teste (gerados)
+node_modules/
+tools/reports/
+
+# Configurações locais das ferramentas
+.claude/
+.vscode/
+.env
+.env.*
+*.log
