@@ -2,6 +2,12 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-09-30 — Claude — catálogo no Supabase e site próprio (GitHub Pages)
+
+- **O que mudou:** a pedido do usuário, para que Codex e Claude trabalhem no mesmo lugar. Criado o projeto Supabase `biblioteca-medicina` (grátis, São Paulo) com as tabelas `materials`, `areas` e `collections`, regras de acesso só para os e-mails da dona e tempo real ligado. O catálogo foi copiado do Artifact: 13 áreas, 2 coleções, 26 materiais (conferido por contagem). O `index.html` ganhou uma segunda ponta de banco (`supaDb`) e login sem senha por link/código no e-mail; dentro do claude.ai continua usando `window.claude.use("db")`. Novo `tools/build-pages.mjs` e fluxo `.github/workflows/pages.yml` para publicar no GitHub Pages. `AGENTS.md` reescrito.
+- **Testado:** `npm run check` sem erros; 46 verificações de fluxo com o banco fictício; modo site próprio sem login mostra a tela de entrada, sem dados e sem erros de console (375 e 1440 px); verificador de segurança do Supabase sem alertas.
+- **Não testado:** login real e gravação no Supabase (depende do usuário entrar); publicação no GitHub Pages (depende de `gh auth login`).
+
 ## 2026-09-30 — Claude — identidade "Prontuário + Laminário" (substitui a editorial) — ainda não publicada
 
 - **O que mudou:** o usuário achou a versão editorial comum demais e escolheu misturar dois conceitos. Estrutura do **Prontuário**: Archivo condensada em caixa alta nos títulos, números grandes (01, 02…) em cada material, fios pretos, botão de abrir numa coluna própria, vermelho só no que está ativo e na ação principal, barra inferior preta. Identidade do **Laminário**: mini-lâmina (etiqueta fosca + vidro com a mancha da coloração) em cada material, no índice e no título da área; "Aberto por último" como uma lâmina grande com etiqueta escrita à mão (Kalam); a exibição alternativa "Lâminas" mostra cada material como lâmina de vidro. Só o CSS e os produtores de linha e destaque (`entry`, `feature`) mudaram; banco, ids, `<dialog>`, remoção e Desfazer seguem iguais.
