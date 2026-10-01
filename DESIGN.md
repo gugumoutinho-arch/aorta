@@ -5,7 +5,7 @@ description: Atlas digital — leitura ampla, retomada em verde profundo e explo
 
 # Atlas digital — sistema visual
 
-Atualizado em 01/10/2026 por Codex. Evolução da navegação “Índice de dedo”, com foco em recuperar largura no celular e tornar a leitura menos semelhante a um sumário impresso.
+Atualizado em 01/10/2026 por Codex. Evolução da navegação “Índice de dedo”, com foco em recuperar largura no celular, tornar a busca uma faixa de trabalho e dar ao catálogo uma leitura por margem.
 
 ## Direção
 
@@ -45,7 +45,9 @@ Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Est
 
 ## Composição
 
-- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes.
+- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes. A primeira visita apresenta busca, abas “Retomar/Catálogo”, retomada quando existe e uma seleção por “Em estudo”, “Favoritos” ou “Recentes”.
+- Computador: a busca ocupa uma faixa própria acima do conteúdo; a retomada e a seleção ocupam duas colunas antes do catálogo.
+- O catálogo usa uma faixa de unidade, cabeçalho de capítulo em superfície baixa e assuntos em margem de 132 px; materiais são linhas abertas com título e “Abrir original” alinhados.
 - “Explorar” na barra inferior abre `#dlg-toc`: árvore com nomes completos à esquerda e índice de matérias à direita. A cabeça corrente também abre o explorador.
 - Computador: sumário contextual de 280 px, conteúdo flexível, índice na borda. A área de retomada tem título largo e ações embaixo.
 - Materiais usam superfícies discretas e bordas suaves; foram removidos os pontilhados decorativos.
@@ -53,7 +55,7 @@ Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Est
 
 ## Componentes e interação
 
-- `.feature`: retomada em verde profundo; origem acima do título, data e ações abaixo. Arcos discretos de CSS são decorativos e não contêm informação científica.
+- `.resume`/`.feature`: retomada em verde profundo com cabeçalho de data, origem acima do título e ações abaixo. Não há arcos decorativos.
 - `.entry`: material legível, abertura do detalhe pelo título e link original separado; largura e altura acompanham o conteúdo.
 - `#thumbs`: um único elemento é movido para `#explore-index` no celular e para `.spread` no computador. Evita duplicação de IDs e de estado.
 - Toque na matéria fecha o explorador e navega. Arrastar percorre assuntos, mostra o balão e, ao soltar, fecha o explorador e foca um material do destino.

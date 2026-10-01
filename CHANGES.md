@@ -2,6 +2,15 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-01 — Codex — Atlas: retomada, busca ampla e catálogo por margem — não publicado
+
+- **Mudança:** a busca ocupa a faixa principal também no computador; “Retomar” e “Catálogo” formam uma navegação curta; o início separa “Em estudo”, “Favoritos” e “Recentes” por abas; a retomada ganhou cabeçalho próprio; o catálogo usa faixas de unidade e assuntos em margem; a ficha mantém “Abrir original” no rodapé.
+- **Interação:** pressão curta nos comandos, indicador de seleção nas abas, foco persistente no campo e índice contextual com localização atual. Ações por teclado permanecem imediatas e `prefers-reduced-motion` remove deslocamentos.
+- **Referências verificadas:** Bencho Like e Time scrubber (estado e alternativa por teclado); MicroKit Sliding Underline Tabs e Focus Field (seleção, foco e indicador); Cult Collab Toolbar (agrupamento). Details Reveal Hero exigia acesso de membro; Skiper permaneceu em carregamento; Originkit foi acessível apenas como leitura da seção. Nenhum padrão não verificado foi implementado.
+- **Skills utilizadas:** Impeccable (contexto, craft floor e detector), redesign-existing-projects (diagnóstico e upgrades em CSS existente), emil-design-eng (tabela mental Before/After e limites de movimento), find-animation-opportunities (pressão, seleção, painéis e índice), review-animations (curvas, GPU e redução de movimento), apple-design (resposta no pointer-down e gesto interrompível), mobile-native (toque, safe area e alvos), apple-design (hierarquia e toque).
+- **Testado:** `npm.cmd run check` — 0 erros/avisos, 24 telas, axe sem violações; `node flows.mjs` — 128/128; `npm.cmd run lighthouse` executado nas mesmas condições. Capturas comparáveis em `tools/reports/round-before/` e `tools/reports/round-after/`, incluindo matrizes de 375 e 1440 px nos dois temas.
+- **Não testado:** aparelho físico, Safari/Firefox, leitor de tela real, teclado virtual, login/gravações no Supabase real e publicação. O servidor local usa apenas `tools/seed.json`; nenhum catálogo real, Drive ou Supabase foi acessado.
+
 ## 2026-10-01 — Codex — Atlas contínuo e resposta ao toque — não publicado
 
 - **Pedido:** implementar o plano de autoavaliação de `_fora-do-site/feedback-codex.md` e deixar uma prévia para a dona revisar.
