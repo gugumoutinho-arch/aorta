@@ -2,6 +2,20 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-01 — Codex — Atlas contínuo e resposta ao toque — não publicado
+
+- **Pedido:** implementar o plano de autoavaliação de `_fora-do-site/feedback-codex.md` e deixar uma prévia para a dona revisar.
+- **Visual:** materiais como entradas contínuas com margem de assunto e separadores, em vez de cartões iguais; retomada mais compacta como marcador verde, sem arcos decorativos; menos versaletes e espaçamento artificial; filtros em três linhas no celular; origem e datas recolhidas na ficha, mantendo ação principal e título inteiro.
+- **Toque:** fundo de pressão nos materiais, árvore, filtros e navegação; compressões curtas nos botões; estrela preenchida ao favoritar. Teclado e movimento reduzido recebem resposta imediata sem animação de painel ou escala de pressão.
+- **Gravações:** favorito/status respondem localmente, mostram “Salvando alteração…”, protegem contra repetição enquanto pendentes, preservam foco do radio e recuperam estado anterior em erro. O teste usa atraso/falha fictícios; o banco real não foi acessado.
+- **Painéis e avisos:** saída pela direção de entrada, reabertura a partir da posição visível, Escape imediato e troca detalhe/formulário sem sobreposição; Desfazer disponível por 10 segundos, com prazo prorrogado durante foco/hover. Avisos comuns não eliminam um Desfazer ativo.
+- **Explorar:** abas compactas e legíveis; balão acompanha o ponteiro por frame, com geometria medida no início e navegação apenas ao mudar destino. Índice agrupa matérias por unidades/módulos quando não cabe; com muitos módulos, passa a rolagem nativa e explica a alternativa.
+- **Testado:** `npm.cmd run check` final com 0 erros/avisos, 24 telas sem overflow/console e axe sem violações; `node flows.mjs` final 128/128; auditoria adicional 34/34 para pendência, repetição, rollback, foco, teclado, redução de movimento e arraste touch por CDP; escala/interrupção 16/16, incluindo 1.200 materiais fictícios e 20 módulos. Relatórios em `tools/reports/interaction-audit.json` e `tools/reports/scale-interruption-audit.json`. Requisições ao Supabase bloqueadas nesses testes, sem tentativas.
+- **Lighthouse final:** celular desempenho/acessibilidade/boas práticas 98/100/100, LCP 1,3 s, CLS 0,019, TBT 150 ms; computador 99/100/100, LCP 0,5 s, CLS 0,069, TBT 0 ms; SEO 82 em ambos. Uma medição anterior desta rodada marcou desempenho móvel 100 e desktop 99; não se afirma manutenção de 100 em todos os ensaios. O relatório desktop atribui a mudança de layout ao carregamento das fontes.
+- **Prévia:** servidor local do próprio harness, com `tools/seed.json`; nenhuma cópia de index.html criada. Capturas atualizadas em `tools/reports/shots/` e `tools/reports/flows/`.
+- **Não testado:** aparelho físico, teclado virtual, Safari/Firefox, leitor de tela real, login/gravações no Supabase real e publicação. Não houve gasto de créditos, mídia externa, mudança de esquema/RLS, empacotamento ou dependências.
+- **Ponto de retorno:** `50f2412`. Mudanças limitadas a `index.html` e este registro.
+
 ## 2026-10-01 — Codex — Atlas digital, explorador contextual e leitura ampla — não publicado
 
 - **Pedido:** implementar a modernização revisada com o usuário como a última rodada da noite.

@@ -426,7 +426,94 @@ dialog[open]{animation:dlg-in .2s var(--ease)}
 @keyframes panel-in{from{transform:translateX(28px);opacity:0}}
 @keyframes fade{from{opacity:0}}
 @media (prefers-contrast:more){.entry,.row{border-color:var(--ink-2)} .e-dots{--dots:var(--ink-2)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}dialog[open]{animation:fade .15s ease-out!important}}
+/* Atlas contínuo: a matéria organiza a leitura; o material não precisa de uma caixa. */
+.caps,.rh-path,.part h2,.t-mod,.toc-h{font-variant:normal;letter-spacing:0}
+.rh-path{font-size:12px}
+.part{padding-top:26px}
+.part h2,.t-mod,.toc-h{font-size:12px;font-weight:600}
+.chap-title{font-weight:500}
+.sec-head{padding-bottom:10px}
+.sec-head::after{width:32px;height:2px}
+.sub{border-left:2px solid var(--rule-2);padding-left:14px;margin-top:14px}
+.sub-h{padding-top:0;min-height:28px}
+.entry{margin:0;padding:14px 0 4px;border:0;border-bottom:1px solid var(--rule);border-radius:0;background:transparent;transition:background-color .12s ease}
+.entry-title{font-weight:500}
+.entry:has(.entry-title button:active){background:var(--page-2);transition:none}
+.entry:has(.entry-title button:focus-visible){outline-offset:4px;border-radius:0}
+.entry-title button:active{color:var(--ink)}
+.entry .e-where{font-size:12px}
+.entry .e-where i{width:3px;height:12px;border-radius:0}
+.shelf{padding-top:14px}
+.block-h{padding-bottom:8px}
+.block-h h2{font-size:19px}
+.feature{padding:18px 18px 14px 22px;border:0;border-radius:0 14px 14px 0;border-left:4px solid var(--feature-action)}
+.feature::before{right:18px;top:0;width:8px;height:26px;border:0;border-radius:0 0 2px 2px;box-shadow:none;background:var(--feature-action);opacity:1}
+.feature .entry-main{gap:8px}
+.feature .entry-title{font-size:20px;line-height:1.35;padding-right:6px}
+.feature .e-line{margin-top:8px;gap:4px 10px}
+.feature .e-where{padding-right:12px}
+.feature .e-where i{width:3px;height:12px;border-radius:0}
+.feature:has(.entry-title button:active){box-shadow:inset 0 0 0 2px var(--feature-action)}
+.feature .entry-title button:active{color:var(--feature-ink)}
+.feature .e-line .open{border-radius:6px}
+.feature .e-line .btn{border-radius:6px}
+.btn,.iconbtn,.toggle,.open{transition:transform .1s var(--ease),background-color .12s ease,color .12s ease,border-color .12s ease}
+.btn:active,.toggle:active,.open:active{transform:scale(.98)}
+.iconbtn:active{transform:scale(.96);background:var(--page-2)}
+.star[aria-pressed="true"] svg path{fill:currentColor}
+.more summary,.af,.rh-where,.t-sub,.t-mat,.tree-all,.toast button{transition:background-color .1s ease,color .1s ease}
+.more summary:active,.af:active,.rh-where:active,.t-sub:active,.t-mat:active,.tree-all:active{background:var(--page-2);color:var(--ink);transition:none}
+.more[open] summary:active{background:var(--ink-2);color:var(--page)}
+.af{height:44px;border-radius:8px;padding-inline:10px}
+.af::after{inset:0}
+.more-in{padding:10px;gap:8px;border-radius:8px;background:transparent}
+.fgrid{gap:8px}
+.fgrid .wide{grid-column:auto}
+.flabel{margin-bottom:2px;font-size:12px}
+.more-in select{font-size:16px;min-height:44px;padding-left:8px}
+.toggle{font-size:13px;padding-inline:8px}
+.tabbar a,.tabbar button{transition:transform .1s var(--ease),background-color .1s ease}
+.tabbar a:active,.tabbar button:active{transform:scale(.98);background:var(--page-2)}
+.thumbs{gap:2px}
+.thumbs[data-scrollable="true"]{touch-action:pan-y}
+.thumb{flex:0 0 48px;margin-left:4px;border-radius:4px 0 0 4px;font-size:11px;gap:0;transition:transform .1s var(--ease),background-color .1s ease,color .1s ease}
+.thumb[aria-current="location"]{transform:translateX(-4px)}
+.thumb:active,.thumb.is-scrubbing{background:var(--t);color:var(--t-on);transform:translateX(-4px);transition:none}
+.bubble small{font-variant:normal;letter-spacing:0;font-size:12px}
+.bubble b{font-family:var(--sans);font-size:17px;font-weight:600}
+.explore-hint{padding:0 18px 10px;font-size:12px;color:var(--ink-2)}
+.d-tab{border-radius:2px 2px 6px 6px;height:34px;top:0;padding-top:6px}
+#dlg-detail .dlg-head{padding-top:56px;padding-bottom:18px;background:var(--page)}
+#dlg-detail .dlg-body{gap:18px;padding-top:18px}
+.dl{border:0;border-top:1px solid var(--rule);border-radius:0;padding:14px 0 0;background:none;gap:14px 16px}
+.d-meta{border-top:1px solid var(--rule)}
+.d-meta summary{min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--ink-2);font-size:13px}
+.d-meta summary::after{content:"+";margin-left:auto;font-size:20px}
+.d-meta[open] summary::after{content:"−"}
+.d-meta .dl{border:0;padding-top:0}
+.save-state{min-height:20px;font-size:12px;color:var(--ink-2)}
+.save-state:empty{display:none}
+.statusset[aria-busy="true"]{opacity:.75}
+.confirm-inline{animation:fade .15s var(--ease)}
+.toast{transition:opacity .15s var(--ease),transform .15s var(--ease)}
+.toast.leaving{opacity:0;transform:translateY(8px)}
+.toast button:active{background:var(--page);color:var(--ink)}
+dialog.no-motion[open]{animation:none}
+@media (min-width:1000px){
+  .entry{padding:14px 0;grid-template-columns:minmax(0,1fr) 290px;column-gap:20px}
+  .feature{padding:22px 24px 18px 28px}
+  .feature .entry-title{font-size:25px;max-width:42ch}
+  .feature .entry-main{gap:8px}
+  .feature .e-line{margin-top:12px}
+  .feature::before{width:10px;height:34px;right:24px;top:0}
+  .chap-title{font-size:40px}
+  .toc-brand{margin-bottom:16px}
+}
+@media (min-width:1000px) and (max-width:1200px){.entry{display:block}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .btn:active,.iconbtn:active,.toggle:active,.open:active,.tabbar a:active,.tabbar button:active{transform:none}
+}
 </style>
 
 <button class="skip" type="button" id="skip">Ir para os materiais</button>
@@ -538,7 +625,7 @@ dialog[open]{animation:dlg-in .2s var(--ease)}
 
 <dialog id="dlg-toc" aria-labelledby="toc-title">
   <div class="dlg">
-    <div><div class="dlg-head"><h2 id="toc-title">Explorar o curso</h2><button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div>
+    <div><div class="dlg-head"><h2 id="toc-title">Explorar o curso</h2><button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><p class="explore-hint">Toque no assunto ou arraste pela régua à direita.</p></div>
     <div class="dlg-body"><nav id="toc-tree-m" aria-label="Sumário do curso"></nav><div id="explore-index"></div></div>
   </div>
 </dialog>
@@ -708,10 +795,17 @@ const depthOf = id => pathOf(id).length - 1;
 function toast(msg, opts = {}) {
   const box = $("#toasts");
   const t = h("div", { class: "toast" + (opts.error ? " error" : "") }, h("p", { text: msg }));
-  if (opts.action) t.append(h("button", { type: "button", text: opts.action.label, onclick: () => { t.remove(); opts.action.run(); } }));
+  if (opts.action) t.append(h("button", { type: "button", text: opts.action.label, onclick: () => { clearTimeout(timer); t.remove(); opts.action.run(); } }));
   box.append(t);
-  while (box.children.length > 3) box.firstChild.remove();
-  setTimeout(() => t.remove(), opts.action ? 7000 : 4000);
+  const dismiss = () => {
+    if (t.matches(":hover") || t.contains(document.activeElement)) { timer = setTimeout(dismiss, 1000); return; }
+    t.classList.add("leaving");
+    setTimeout(() => t.remove(), matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : 150);
+  };
+  let timer = setTimeout(dismiss, opts.action ? 10000 : 4000);
+  // Um aviso de gravação nunca elimina um Desfazer ainda disponível.
+  const plain = $$(".toast", box).filter(el => !el.querySelector("button"));
+  while (plain.length > 3) plain.shift().remove();
 }
 const failMsg = e => (e && e.code === "quota_exceeded") ? "O catálogo atingiu o limite de armazenamento. Remova itens antigos e tente de novo." : "Não foi possível salvar agora. Verifique a conexão e tente de novo.";
 async function write(fn, okMsg, opts) {
@@ -727,7 +821,10 @@ async function ensureCollection(name) {
 function subscribe() {
   const onErr = e => { console.error(e); S.dbState = "unavailable"; renderAll(); };
   const map = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  S.db.collection("materials").onSnapshot(s => { S.materials = map(s); S.got.m = true; renderAll(); }, onErr);
+  S.db.collection("materials").onSnapshot(s => {
+    S.materials = map(s).map(m => ({ ...m, ...(materialWrites.get(m.id)?.patch || {}) }));
+    S.got.m = true; renderAll();
+  }, onErr);
   S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
   S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
 }
@@ -935,6 +1032,8 @@ function renderBook(list) {
 /* Índice de dedo: uma aba por matéria, com altura proporcional; se não couber, uma por unidade, depois por módulo. */
 function renderThumbs(sections) {
   const nav = $("#thumbs"); nav.replaceChildren();
+  let level = "matérias";
+  nav.dataset.scrollable = "false";
   nav.hidden = !sections.length || S.view === "organizar";
   if (nav.hidden) return;
   const tab = (id, area, target, n, label) => h("a", { class: "thumb", draggable: "false", href: "#a-" + area.id, style: tabVar(area.id) + ";--n:" + Math.max(n, 1), "data-target": target, "data-name": label },
@@ -944,7 +1043,21 @@ function renderThumbs(sections) {
   if (sections.length * 49 > availableHeight) {
     const chaps = new Map(); sections.forEach(({ s, chap }) => { const k = chap.area.id; chaps.set(k, (chaps.get(k) || { area: chap.area, n: 0 })); chaps.get(k).n += s.items.length; });
     nav.replaceChildren(...[...chaps.values()].map(c => tab(c.area.id, c.area, "c-" + c.area.id, c.n, c.area.name)));
+    level = "unidades";
+    if (chaps.size * 50 > availableHeight) {
+      const modules = new Map();
+      sections.forEach(({ s }) => {
+        const area = pathOf(s.area.id)[0] || s.area;
+        const item = modules.get(area.id) || { area, n: 0 };
+        item.n += s.items.length; modules.set(area.id, item);
+      });
+      nav.replaceChildren(...[...modules.values()].map(m => tab(m.area.id, m.area, "p-" + m.area.id, m.n, m.area.name)));
+      level = "módulos";
+    }
   }
+  nav.dataset.scrollable = String(nav.children.length * 50 > availableHeight);
+  nav.setAttribute("aria-label", "Índice do curso: " + level);
+  $(".explore-hint").textContent = nav.dataset.scrollable === "true" ? "Toque no assunto ou role a régua de " + level + " à direita." : "Toque no assunto ou arraste pela régua de " + level + " à direita.";
 }
 /* Sumário: a árvore do curso com contagens; no computador fica na página da esquerda, no celular abre como folha. */
 function tocTree(list) {
@@ -1006,7 +1119,7 @@ function renderLibrary() {
   if (S.view === "organizar") return;
   fillSelect($("#f-type"), [["", "Todos os tipos"], ...TYPES.map(t => [t, t])], S.f.type);
   fillSelect($("#f-status"), [["", "Todas"], ...STATUS], S.f.status);
-  fillSelect($("#f-coll"), [["", "Todas as coleções"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
+  fillSelect($("#f-coll"), [["", "Todas"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
   if ($("#lib-q").value !== S.q) $("#lib-q").value = S.q;
   $("#f-fav").setAttribute("aria-pressed", S.f.fav ? "true" : "false");
   $("#f-sort").value = S.sort; $("#f-group").value = S.group;
@@ -1031,28 +1144,42 @@ function renderLibrary() {
 /* Folhear pela borda: arrastar o polegar pelo índice percorre os assuntos, com um balão que mostra onde se está. */
 (() => {
   const nav = $("#thumbs"), bub = $("#bubble"); let down = false, moved = false, y0 = 0, destination = null;
-  const at = y => {
-    const tabs = $$(".thumb", nav); if (!tabs.length) return null;
-    let t = tabs.find(el => { const r = el.getBoundingClientRect(); return y >= r.top - 2 && y <= r.bottom + 2; });
-    if (!t) t = y < tabs[0].getBoundingClientRect().top ? tabs[0] : tabs[tabs.length - 1];
-    const r = t.getBoundingClientRect(), f = Math.min(.999, Math.max(0, (y - r.top) / r.height));
-    const target = document.getElementById(t.dataset.target); if (!target) return null;
-    const subs = $$(".sub", target); return { t, el: subs.length ? subs[Math.floor(f * subs.length)] : target };
+  let geometry = [], frame = 0, latestY = 0, selected = null;
+  const measure = () => {
+    geometry = $$(".thumb", nav).map(t => {
+      const r = t.getBoundingClientRect(), target = document.getElementById(t.dataset.target);
+      return { t, top: r.top, bottom: r.bottom, height: r.height, target, subs: target ? $$(".sub", target) : [] };
+    });
   };
-  nav.addEventListener("pointerdown", e => { if (e.button) return; down = true; moved = false; destination = null; y0 = e.clientY; });
+  nav.addEventListener("scroll", () => { if (down) measure(); }, { passive: true });
+  const at = y => {
+    if (!geometry.length) return null;
+    const hit = geometry.find(g => y >= g.top - 1 && y <= g.bottom + 1) || (y < geometry[0].top ? geometry[0] : geometry[geometry.length - 1]);
+    if (!hit.target) return null;
+    const f = Math.min(.999, Math.max(0, (y - hit.top) / hit.height));
+    return { t: hit.t, el: hit.subs.length ? hit.subs[Math.floor(f * hit.subs.length)] : hit.target };
+  };
+  const paint = () => {
+    frame = 0;
+    const hit = at(latestY); if (!hit) return;
+    if (selected !== hit.t) { if (selected) selected.classList.remove("is-scrubbing"); selected = hit.t; selected.classList.add("is-scrubbing"); }
+    if (destination !== hit.el) { destination = hit.el; goTo(hit.el, true); }
+    bub.hidden = false; bub.style.top = latestY + "px"; $("#bubble-sec").textContent = hit.t.dataset.name; $("#bubble-sub").textContent = hit.el.dataset.sub || hit.t.dataset.name;
+  };
+  nav.addEventListener("pointerdown", e => { if (e.button || nav.dataset.scrollable === "true") return; down = true; moved = false; destination = null; y0 = e.clientY; measure(); });
   nav.addEventListener("pointermove", e => {
     if (!down) return; if (!moved && Math.abs(e.clientY - y0) < 8) return;
     if (!moved) { moved = true; try { nav.setPointerCapture(e.pointerId); } catch (_) {} }
-    const hit = at(e.clientY); if (!hit) return;
-    destination = hit.el;
-    goTo(hit.el, true);
-    bub.hidden = false; bub.style.top = e.clientY + "px"; $("#bubble-sec").textContent = hit.t.dataset.name; $("#bubble-sub").textContent = hit.el.dataset.sub || hit.t.dataset.name;
+    latestY = e.clientY;
+    if (!frame) frame = requestAnimationFrame(paint);
   });
   const end = e => {
+    if (frame) { cancelAnimationFrame(frame); if (e.type === "pointerup") paint(); frame = 0; }
     down = false; bub.hidden = true;
+    if (selected) selected.classList.remove("is-scrubbing"); selected = null;
     if (e.type === "pointerup" && moved && destination && $("#dlg-toc").open) {
-      const target = destination; closeDlg($("#dlg-toc"));
-      requestAnimationFrame(() => { goTo(target, true); const first = target.querySelector("[data-mid]"); if (first) first.focus({ preventScroll: true }); });
+      const target = destination; closeDlg($("#dlg-toc"), true);
+      requestAnimationFrame(() => { goTo(target, true); const first = target.querySelector("[data-mid]") || target.nextElementSibling?.querySelector("[data-mid]"); if (first) first.focus({ preventScroll: true }); });
     }
   };
   nav.addEventListener("pointerup", end); nav.addEventListener("pointercancel", end);
@@ -1068,7 +1195,7 @@ function renderLibrary() {
 document.addEventListener("click", e => {
   const go = e.target.closest("[data-go]"); if (!go) return;
   const el = document.getElementById(go.dataset.go); if (!el) return;
-  if (go.closest("#dlg-toc")) closeDlg($("#dlg-toc"));
+  if (go.closest("#dlg-toc")) closeDlg($("#dlg-toc"), true);
   if (S.view !== "lib" && S.view !== "inicio") location.hash = "todos";
   requestAnimationFrame(() => { goTo(el); const hd = el.querySelector(".sub-h"); if (hd) hd.focus({ preventScroll: true }); });
 });
@@ -1170,8 +1297,20 @@ function clearFilters() { S.q = ""; S.f = { type: "", status: "", coll: "", fav:
 
 /* ---------- ações ---------- */
 const find = id => S.materials.find(m => m.id === id);
-async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; await write(() => S.db.doc("materials/" + id).update({ favorite: on }), on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
-async function setStatus(id, s) { const m = find(id); if (!m || (m.status || "nao-iniciado") === s) return; await write(() => S.db.doc("materials/" + id).update({ status: s, statusAt: nowIso() }), "Status: " + STATUS_LABEL[s]); }
+const materialWrites = new Map();
+async function updateMaterial(id, patch, message) {
+  const m = find(id); if (!m || !S.db || materialWrites.has(id)) return;
+  const before = Object.fromEntries(Object.keys(patch).map(k => [k, m[k]]));
+  materialWrites.set(id, { patch });
+  Object.assign(m, patch); renderAll();
+  const ok = await write(() => S.db.doc("materials/" + id).update(patch), message);
+  materialWrites.delete(id);
+  const current = find(id);
+  if (current) Object.assign(current, ok ? patch : before);
+  renderAll();
+}
+async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; await updateMaterial(id, { favorite: on }, on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
+async function setStatus(id, s) { const m = find(id); if (!m || (m.status || "nao-iniciado") === s) return; await updateMaterial(id, { status: s, statusAt: nowIso() }, "Status: " + STATUS_LABEL[s]); }
 function markOpened(id) { if (S.db) S.db.doc("materials/" + id).update({ lastOpenedAt: nowIso() }).catch(e => console.error(e)); }
 async function removeMaterial(id) {
   const m = find(id); if (!m) return; const { id: _i, ...body } = m;
@@ -1214,21 +1353,68 @@ async function deleteColl(id, name) {
 }
 
 /* ---------- diálogos ---------- */
-let lastFocus = null;
-function openDlg(d) { lastFocus = document.activeElement; if (!d.open) d.showModal(); }
-function closeDlg(d) { if (d.open) d.close(); }
+let lastFocus = null, keyboardInput = false;
+const dialogExits = new WeakMap(), dialogReturns = new WeakMap(), dialogFocus = new WeakMap();
+document.addEventListener("keydown", () => { keyboardInput = true; }, true);
+document.addEventListener("pointerdown", () => { keyboardInput = false; }, true);
+function openDlg(d) {
+  const exit = dialogExits.get(d);
+  if (exit) {
+    const style = getComputedStyle(d), from = { opacity: style.opacity, transform: style.transform };
+    dialogExits.delete(d); exit.cancel();
+    if (!keyboardInput && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
+      const motion = d.animate([from, { opacity: 1, transform: "none" }], { duration: 160, easing: getComputedStyle(document.documentElement).getPropertyValue("--ease").trim() });
+      dialogReturns.set(d, motion);
+      motion.finished.finally(() => { if (dialogReturns.get(d) === motion) dialogReturns.delete(d); }).catch(() => {});
+    }
+  }
+  d.classList.toggle("no-motion", keyboardInput);
+  if (!d.open) { lastFocus = document.activeElement; dialogFocus.set(d, lastFocus); d.showModal(); }
+}
+function closeDlg(d, immediate = false) {
+  if (!d.open) return;
+  const old = dialogExits.get(d);
+  if (immediate || keyboardInput || matchMedia("(prefers-reduced-motion:reduce)").matches) {
+    if (old) { dialogExits.delete(d); old.cancel(); }
+    const returning = dialogReturns.get(d);
+    if (returning) { dialogReturns.delete(d); returning.cancel(); }
+    d.close(); return;
+  }
+  if (old) return;
+  const mobile = matchMedia("(max-width:999px)").matches;
+  const panel = !mobile && d.id === "dlg-detail";
+  const style = getComputedStyle(d);
+  const from = { opacity: style.opacity, transform: style.transform };
+  const returning = dialogReturns.get(d);
+  if (returning) { dialogReturns.delete(d); returning.cancel(); }
+  const exit = d.animate([
+    from,
+    { opacity: 0, transform: panel ? "translateX(28px)" : "translateY(28px)" }
+  ], { duration: mobile ? 180 : 160, easing: getComputedStyle(document.documentElement).getPropertyValue(mobile ? "--ease-drawer" : "--ease").trim(), fill: "forwards" });
+  dialogExits.set(d, exit);
+  exit.finished.then(() => {
+    if (dialogExits.get(d) !== exit) return;
+    dialogExits.delete(d); d.close(); exit.cancel();
+  }).catch(() => {});
+}
 $$("dialog").forEach(d => {
   d.addEventListener("close", () => {
     // a lista é redesenhada enquanto o painel está aberto; se o botão de origem foi substituído, volta ao mesmo material
-    const back = lastFocus && document.contains(lastFocus) ? lastFocus : (d.id === "dlg-detail" && S.detailId ? $$(`[data-mid="${S.detailId}"]`).find(b => !b.closest("[hidden]")) : null);
-    if (back) back.focus();
+    const origin = dialogFocus.get(d) || lastFocus;
+    const back = origin && document.contains(origin) ? origin : (d.id === "dlg-detail" && S.detailId ? $$(`[data-mid="${S.detailId}"]`).find(b => !b.closest("[hidden]")) : null);
+    if (back && !document.querySelector("dialog[open]")) back.focus();
     if (d.id === "dlg-detail") { S.detailId = null; confirmRemove = false; }
   });
   d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-close]")) closeDlg(d); });
+  d.addEventListener("cancel", e => { e.preventDefault(); closeDlg(d, true); });
 });
 let confirmRemove = false;
 function openDetail(id) { S.detailId = id; confirmRemove = false; renderDetail(); openDlg($("#dlg-detail")); setTimeout(() => $("#d-title").focus(), 0); }
 function renderDetail() {
+  const focused = document.activeElement;
+  const radioValue = focused && focused.matches('input[name="d-status"]') ? focused.value : null;
+  const metaOpen = !!$("#d-body .d-meta[open]");
+  const scroll = $("#d-body").scrollTop;
   const m = find(S.detailId); if (!m) { closeDlg($("#dlg-detail")); return; }
   // a ficha leva a aba da sua matéria, como uma página tirada do livro
   const p = pathOf(m.areaId);
@@ -1237,23 +1423,37 @@ function renderDetail() {
   $("#d-code").textContent = (p.map(a => a.name).join(" · ") || "Sem área") + (m.subject ? " — " + m.subject : "");
   $("#d-title").textContent = m.title || "(sem título)";
   const fav = $("#d-fav"); fav.setAttribute("aria-pressed", m.favorite ? "true" : "false"); fav.setAttribute("aria-label", m.favorite ? "Remover dos favoritos" : "Favoritar"); fav.onclick = () => toggleFav(m.id);
+  const pending = materialWrites.has(m.id);
+  fav.setAttribute("aria-disabled", String(pending));
+  fav.setAttribute("aria-busy", String(pending));
   const colls = (m.collectionIds || []).map(collName).filter(Boolean);
   const rows = [["Tipo", m.type || "Link"], ["Assunto", m.subject], ["Período", m.period], ["Origem", m.source], ["Coleções", colls.join(", ")], ["Incluído em", fmtDate(m.createdAt)], ["Aberto por aqui em", fmtDate(m.lastOpenedAt)]].filter(r => r[1]);
-  const dl = h("dl", { class: "dl" }, rows.map(([k, v]) => h("div", null, h("dt", { text: k }), h("dd", { text: v }))));
+  const fields = list => h("dl", { class: "dl" }, list.map(([k, v]) => h("div", null, h("dt", { text: k }), h("dd", { text: v }))));
+  const secondary = ["Origem", "Incluído em", "Aberto por aqui em"];
+  const dl = fields(rows.filter(([k]) => !secondary.includes(k)));
+  const meta = h("details", { class: "d-meta", open: metaOpen }, h("summary", { text: "Origem e datas" }), fields(rows.filter(([k]) => secondary.includes(k))));
   const cur = m.status || "nao-iniciado";
-  const fs = h("fieldset", { class: "statusset" }, h("legend", { text: "Situação de estudo" }), h("div", { class: "segwrap" }, STATUS.map(([v, l]) => h("label", null, h("input", { type: "radio", name: "d-status", value: v, checked: v === cur, onchange: () => setStatus(m.id, v) }), l))));
-  const parts = [h("div", { class: "d-actions" }, openLink(m)), fs, dl,
+  const fs = h("fieldset", { class: "statusset" }, h("legend", { text: "Situação de estudo" }), h("div", { class: "segwrap" }, STATUS.map(([v, l]) => h("label", null, h("input", { type: "radio", name: "d-status", value: v, checked: v === cur, onchange: () => { if (materialWrites.has(m.id)) renderDetail(); else setStatus(m.id, v); } }), l))));
+  fs.setAttribute("aria-busy", String(pending));
+  $$("input", fs).forEach(input => { input.setAttribute("aria-disabled", String(pending)); });
+  const parts = [h("div", { class: "d-actions" }, openLink(m)), fs,
+    h("p", { class: "save-state", role: "status", text: pending ? "Salvando alteração…" : "" }), dl, meta,
     (m.tags || []).length ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Etiquetas" }), h("div", { class: "tags" }, m.tags.map(t => h("span", { class: "tag", text: t })))) : null,
     m.notes ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Observações" }), h("p", { class: "notes", text: m.notes })) : null,
     h("p", { class: "d-note", text: (m.url || "Sem link") + " · o arquivo continua onde está; a biblioteca guarda só o link." })];
   const body = $("#d-body");
   body.replaceChildren(...parts.filter(Boolean));
+  body.scrollTop = scroll;
+  if (radioValue) {
+    const radio = $$('input[name="d-status"]', body).find(input => input.value === radioValue);
+    if (radio) radio.focus({ preventScroll: true });
+  }
   if (confirmRemove) body.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: "Remover este material do catálogo? Só o registro sai daqui. O arquivo original (por exemplo, no Google Drive) não é apagado nem alterado." }),
     h("div", { class: "acts" }, h("button", { class: "btn danger", type: "button", id: "d-rm-yes", text: "Remover do catálogo", onclick: () => { confirmRemove = false; removeMaterial(m.id); } }), h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { confirmRemove = false; renderDetail(); } }))));
   $("#d-foot").replaceChildren(
-    h("button", { class: "btn", type: "button", text: "Editar", onclick: () => { closeDlg($("#dlg-detail")); openForm(m.id); } }),
+    h("button", { class: "btn", type: "button", text: "Editar", disabled: pending, onclick: () => { closeDlg($("#dlg-detail"), true); openForm(m.id); } }),
     h("span", { class: "spacer" }),
-    h("button", { class: "btn ghost", type: "button", text: "Remover do catálogo", onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } }));
+    h("button", { class: "btn ghost", type: "button", text: "Remover do catálogo", disabled: pending, onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } }));
 }
 function openForm(id, areaId) {
   if (!ready()) return;
@@ -1313,7 +1513,7 @@ $("#dlg-toc").addEventListener("close", () => {
 const explorerMedia = matchMedia("(max-width:999px)");
 function syncExplorer() {
   const dialog = $("#dlg-toc");
-  if (dialog.open) closeDlg(dialog);
+  if (dialog.open) closeDlg(dialog, true);
   (explorerMedia.matches ? $("#explore-index") : $(".spread")).append($("#thumbs"));
   (explorerMedia.matches ? dialog : document.body).append($("#bubble"));
 }
@@ -1326,7 +1526,7 @@ $("#rh-where").addEventListener("click", () => {
   const cur = $("#toc-tree [aria-current='location']") || $("#toc-tree a, #toc-tree button");
   if (cur) { cur.scrollIntoView({ block: "center" }); cur.focus(); }
 });
-$("#dlg-toc").addEventListener("click", e => { if (e.target.closest("a[href^='#']")) closeDlg($("#dlg-toc")); });
+$("#dlg-toc").addEventListener("click", e => { if (e.target.closest("a[href^='#']")) closeDlg($("#dlg-toc"), true); });
 $("#rh-search").addEventListener("click", () => { if (S.view === "organizar") location.hash = "inicio"; window.scrollTo(0, 0); setTimeout(() => $("#lib-q").focus(), 0); });
 /* Um toque numa aba ou no sumário que aponta para a área já aberta também leva até ela. */
 document.addEventListener("click", e => {
