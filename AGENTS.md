@@ -26,7 +26,7 @@ Os agentes **não** têm acesso ao conteúdo dos arquivos do Drive; o catálogo 
 
 `index.html` continua sendo um **fragmento**: começa com `<title>Biblioteca de Medicina</title>` e **não** tem `<!doctype>`, `<html>`, `<head>` nem `<body>`. O claude.ai e o `tools/build-pages.mjs` envolvem o fragmento num documento completo.
 
-- Ordem: `<title>`, `<link>` de fontes, `<style>`, HTML da página, `<script>`.
+- Ordem: `<title>`, `<link>` de fontes, `<style>`, bootstrap síncrono do tema (antes do conteúdo visível), HTML da página, `<script>` principal. O bootstrap evita piscar o tema salvo na primeira pintura.
 - CSS e JS dentro do arquivo. Scripts externos só com versão fixada (hoje: `@supabase/supabase-js@2.117.2` no jsDelivr, carregado apenas fora do claude.ai); estilos externos só do Google Fonts.
 
 ## Banco de dados
@@ -44,7 +44,7 @@ Tabelas no Supabase (não renomeie sem pedir ao usuário):
 
 Regras:
 
-- **Acesso:** as regras do banco (RLS) só deixam ler e gravar os e-mails da dona, conferidos na função `private.is_librarian()`. Não afrouxe essas regras e não copie os e-mails para o código do site.
+- **Acesso:** as regras do banco (RLS) só deixam ler e gravar os e-mails do dono, conferidos na função `private.is_librarian()`. Não afrouxe essas regras e não copie os e-mails para o código do site.
 - **Chaves:** o `index.html` só pode conter a chave **pública** (`sb_publishable_…`). Nunca coloque a chave `service_role`, senhas ou tokens no repositório.
 - **Mudanças de estrutura** (colunas, tabelas, regras) só com pedido do usuário, por migração no Supabase, e registradas em `CHANGES.md`.
 - **Não invente registros.** Alterar o catálogo (criar, editar, apagar materiais) só quando o usuário pedir.

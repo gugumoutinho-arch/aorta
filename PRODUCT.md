@@ -7,8 +7,8 @@
 web
 
 ## Users
-- **Hoje:** a dona da biblioteca, estudante de medicina (M1 › CIS 1), que organiza e abre os próprios materiais.
-- **Destino confirmado (30/09/2026):** alunos de medicina de todos os períodos, acima e abaixo do dela, usando a mesma base para achar materiais da matéria que estão cursando ou revisando.
+- **Hoje:** o dono da biblioteca, estudante de medicina (M1 › CIS 1), que organiza e abre os próprios materiais.
+- **Destino confirmado (30/09/2026):** alunos de medicina de todos os períodos, acima e abaixo do dele, usando a mesma base para achar materiais da matéria que estão cursando ou revisando.
 - **Situação de uso:** principalmente no celular, em momentos curtos (entre aulas, no transporte, antes de estudar), para **achar ou retomar** um material e **abrir o original** no Google Drive. No computador, para cadastrar e organizar.
 
 ## Product Purpose
@@ -21,12 +21,12 @@ A biblioteca segue a estrutura real do curso (módulos, unidades, matérias, sem
 - Os arquivos ficam no Google Drive de quem os criou; o site guarda só o link e os metadados. A busca consulta só os metadados.
 - O conteúdo de M1 › CIS 1 inclui embriologia por semanas (1ª semana, 1ª e 2ª semanas, 2ª semana, 3ª semana, dobramento, placentação, gametogênese) e anatomia por região (membro superior, membro inferior, coluna vertebral), além de histologia (tecido epitelial, tecido conjuntivo).
 - Coleções reais: "Prova Integrada CIS I" e "Casos clínicos". Provas integradas são um ritual do curso.
-- A dona só vai começar a cadastrar os arquivos em volume quando o design estiver lapidado.
+- O dono só vai começar a cadastrar os arquivos em volume quando o design estiver lapidado.
 
 ## Capabilities and Constraints
 - Uma página (`index.html`, fragmento) que roda dentro do claude.ai (`window.claude.use("db")`) e no GitHub Pages (Supabase).
 - Tabelas `materials`, `areas`, `collections`; status `nao-iniciado` | `em-estudo` | `revisado`; favoritos; remoção com aviso de que o original não é apagado e "Desfazer".
-- Acesso hoje: só os e-mails da dona (RLS). **Em aberto:** como colegas de outros períodos vão ler e contribuir (leitura pública? contas? quem cadastra?). Mudar acesso ou banco só com pedido explícito.
+- Acesso hoje: só os e-mails do dono (RLS). **Em aberto:** como colegas de outros períodos vão ler e contribuir (leitura pública? contas? quem cadastra?). Mudar acesso ou banco só com pedido explícito.
 - **Em aberto:** situação de estudo e favoritos são hoje do catálogo, não de cada aluno; com muitos usuários isso precisa de uma decisão de produto.
 - Sem dependências novas; só fontes do Google Fonts; sem `alert/confirm/prompt`.
 

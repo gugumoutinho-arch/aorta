@@ -26,6 +26,7 @@ const srv = { main: await serve(withDb(seed())), none: await serve(withDb(noHist
 async function open(scheme, w, which = 'main') {
   const ctx = await browser.newContext({ viewport: { width: w, height: w < 500 ? 812 : 900 }, colorScheme: scheme, reducedMotion: 'no-preference' });
   const page = await ctx.newPage(); const errors = [];
+  await ctx.route(/supabase\.co/, route => route.abort());
   page.on('pageerror', e => errors.push(e.message)); page.on('console', m => { if (m.type() === 'error' && !/fonts\.g|net::ERR/.test(m.text())) errors.push(m.text()); });
   await page.goto(srv[which].url); await page.waitForTimeout(700);
   return { ctx, page, errors };
@@ -34,7 +35,7 @@ const shot = (page, name) => page.screenshot({ path: path.join(out, name + '.png
 const hash = async (page, h) => { await page.evaluate(x => { location.hash = x; }, h); await page.waitForTimeout(350); };
 const noOverflow = async (page, label) => ok(label + ': sem rolagem lateral', (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 1);
 
-for (const w of [375, 1440]) for (const scheme of ['light', 'dark']) {
+for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   const tag = `${w}-${scheme}`;
   const { ctx, page, errors } = await open(scheme, w);
   // início
@@ -140,6 +141,87 @@ for (const scheme of ['light', 'dark']) {
   await hash(page, 'a-cis1'); await page.waitForTimeout(200);
   ok(`1440-${scheme} rota de unidade abre o capítulo no topo`, Math.abs(await page.evaluate(() => document.querySelector('#c-cis1').getBoundingClientRect().top - document.querySelector('.rh').offsetHeight)) < 4);
   await shot(page, `unidade@1440-${scheme}`); await ctx.close();
+}
+// Tema: controles nativos, persistência e primeira pintura em oposição ao sistema.
+for (const w of [375, 1440]) {
+  const { ctx, page } = await open('light', w);
+  await page.click('#theme-open');
+  await page.locator('input[name="theme"][value="dark"]').check();
+  ok(`${w} tema: escolha escura e meta acompanham`, await page.evaluate(() =>
+    document.documentElement.dataset.theme === 'dark' && document.querySelector('meta[name="theme-color"]').content === getComputedStyle(document.documentElement).getPropertyValue('--page').trim()));
+  ok(`${w} tema: armazenamento salvo`, await page.evaluate(() => localStorage.getItem('bm-theme') === 'dark'));
+  ok(`${w} tema: acessibilidade`, !(await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations.length);
+  const sizes = await page.locator('.theme-options label').evaluateAll(labels => labels.map(x=>x.getBoundingClientRect().height));
+  ok(`${w} tema: alvos de 44 px`, sizes.every(n=>n>=44));
+  await shot(page, `tema@${w}-dark`);
+  await page.keyboard.press('ArrowUp');
+  ok(`${w} tema: teclado seleciona Claro`, await page.evaluate(() => document.documentElement.dataset.theme === 'light'));
+  await page.keyboard.press('ArrowUp');
+  ok(`${w} tema: teclado seleciona Sistema`, await page.evaluate(() => !document.documentElement.hasAttribute('data-theme')));
+  await page.emulateMedia({ colorScheme:'dark' });
+  ok(`${w} tema: Sistema reage ao dispositivo`, await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme === 'dark'));
+  await page.keyboard.press('Escape');
+  ok(`${w} tema: Escape devolve foco`, await page.locator('#theme-open').evaluate(x=>x===document.activeElement));
+  await ctx.close();
+}
+
+for (const preference of ['dark','light']) {
+  const ctx = await browser.newContext({ viewport:{width:375,height:812}, colorScheme:preference==='dark'?'light':'dark' });
+  await ctx.route(/supabase\.co/, route=>route.abort());
+  // Registra todos os frames com conteúdo e os eventos de pintura, também após reload.
+  await ctx.addInitScript(value => {
+    localStorage.setItem('bm-theme',value);
+    window.themeFrames=[]; window.themePaints=[];
+    const snapshot=()=>({theme:document.documentElement.dataset.theme,scheme:getComputedStyle(document.documentElement).colorScheme});
+    new PerformanceObserver(list=>{for(const entry of list.getEntries()) window.themePaints.push({name:entry.name,...snapshot()});}).observe({type:'paint',buffered:true});
+    const sample=()=>{if(document.querySelector('.spread')) window.themeFrames.push(snapshot());if(window.themeFrames.length<30) requestAnimationFrame(sample);};
+    requestAnimationFrame(sample);
+  }, preference);
+  const page=await ctx.newPage();
+  const cdp=await ctx.newCDPSession(page); await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});
+  await page.goto(srv.main.url); await page.waitForTimeout(900);
+  for (const stage of ['entrada','reload']) {
+    if(stage==='reload'){await page.reload();await page.waitForTimeout(900);}
+    const evidence=await page.evaluate(()=>({frames:window.themeFrames,paints:window.themePaints}));
+    ok(`tema ${preference} ${stage}: sem frame do tema oposto`, evidence.frames.length>0 && evidence.paints.some(p=>p.name==='first-contentful-paint') && [...evidence.frames,...evidence.paints].every(f=>f.theme===preference && f.scheme===preference));
+    fs.writeFileSync(path.join(out,`primeira-pintura-${preference}-${stage}.json`),JSON.stringify(evidence,null,2));
+  }
+  await ctx.close();
+}
+
+// Persistência real: nenhum init script regrava o valor durante reload.
+{
+  const {ctx,page}=await open('light',375);
+  await page.click('#theme-open');await page.locator('input[value="dark"][name="theme"]').check();
+  await page.reload();await page.waitForTimeout(500);
+  ok('tema: recarregar mantém escolha',await page.evaluate(()=>document.documentElement.dataset.theme==='dark'));
+  await ctx.close();
+}
+for(const block of ['get','set']){
+  const ctx=await browser.newContext({viewport:{width:375,height:812},colorScheme:'dark'});
+  await ctx.route(/supabase\.co/,route=>route.abort());
+  await ctx.addInitScript(mode=>{
+    Storage.prototype[mode==='get'?'getItem':'setItem']=()=>{throw new DOMException('Bloqueado para teste','SecurityError');};
+  },block);
+  const page=await ctx.newPage();await page.goto(srv.main.url);await page.waitForTimeout(500);
+  if(block==='set'){await page.click('#theme-open');await page.locator('label').filter({hasText:'Claro'}).click(); await page.waitForTimeout(40);}
+  ok(`tema: falha em ${block} cai para Sistema`,await page.evaluate(()=>!document.documentElement.hasAttribute('data-theme') && document.documentElement.dataset.themePreference==='system' && getComputedStyle(document.documentElement).colorScheme==='dark'));
+  await ctx.close();
+}
+// Movimento reduzido: pressione, não apenas clique. Cor/borda devem responder sem deslocamento.
+{
+  const {ctx,page}=await open('light',375);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.click('.tabbar [data-action="toc"]');
+  const thumb=page.locator('#thumbs .thumb').last();await thumb.hover();await page.mouse.down();
+  ok('redução: índice pressionado sem deslocamento',await thumb.evaluate(x=>getComputedStyle(x).transform==='none'));
+  await page.mouse.up();await page.keyboard.press('Escape');
+  await hash(page,'todos');await page.locator('#lib-results .entry-title button').first().click();
+  const edit=page.locator('#dlg-detail .d-secondary .btn').first();
+  const before=await edit.evaluate(x=>getComputedStyle(x).boxShadow);
+  await edit.hover();await page.mouse.down();
+  ok('redução: Editar responde por borda sem escala',await edit.evaluate((x,old)=>getComputedStyle(x).transform==='none' && getComputedStyle(x).boxShadow!==old,before));
+  await page.mouse.move(1,1);await page.mouse.up();await ctx.close();
 }
 await browser.close(); Object.values(srv).forEach(x => x.s.close());
 console.log(log.join('\n') + `\n\n${log.length - fails} de ${log.length} verificações aprovadas, ${fails} falha(s). Capturas em tools/reports/flows/`);

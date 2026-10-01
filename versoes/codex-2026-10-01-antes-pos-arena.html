@@ -433,7 +433,7 @@ dialog[open]{animation:dlg-in .2s var(--ease)}
   .rh .mark{display:none}
   .rh-where{padding:0 8px;margin-left:-8px}
   .rh-title{font-size:19px}
-  .tabbar{display:none}
+  #rh-search,.tabbar{display:none}
   main{grid-area:page;padding:10px 40px 120px}
   .thumbs{grid-area:tabs;position:sticky;top:24px;bottom:auto;right:auto;align-self:start;height:calc(100vh - 48px)}
   .bubble{right:max(66px,calc((100vw - 1440px) / 2 + var(--tabs) + 14px))}
@@ -516,105 +516,15 @@ dialog.no-motion[open]{animation:none}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .btn:active,.iconbtn:active,.toggle:active,.open:active,.tabbar a:active,.tabbar button:active{transform:none}
-  .thumb,.thumb:hover,.thumb:active,.thumb.is-scrubbing,.thumb[aria-current="location"]{transform:none}
-}
-/* Pós-arena: marcador de leitura, capítulos abertos e tintas como abas. */
-#home-focus{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 0 0}
-.resume{background:none;color:var(--ink);border-radius:0;overflow:visible;border-left:4px solid var(--feature);padding-left:12px}
-.resume-head{padding:0;gap:4px 12px;border:0}
-.resume-head h2{font-family:var(--sans);font-size:13px;font-weight:650}
-.feature-when{color:var(--ink-3);font-size:11px}
-.feature{padding:10px 0 12px}
-.feature .entry-main{gap:6px}
-.feature .entry-title{font-size:20px;line-height:1.3}
-.feature .e-where,.feature .e-line{color:var(--ink-2)}
-.feature .e-line{margin-top:8px;gap:4px 8px}
-.feature .e-line .open{background:var(--feature);color:var(--feature-ink);border-radius:2px}
-.feature .e-line .btn{color:var(--ink)}
-.feature .chip{color:var(--ink-2);border-color:var(--edge)}
-.feature .entry-fav svg{color:var(--fav)}
-.feature:has(.entry-title button:active){background:var(--page-2);box-shadow:none}
-.feature .entry-title button:active{color:var(--ink)}
-.feature:has(.entry-title button:focus-visible){outline-color:var(--focus)}
-.study-disclosure{border-bottom:1px solid var(--rule);margin-top:2px}
-.study-disclosure > summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-size:13px;color:var(--ink-2);list-style:none}
-.study-disclosure > summary::-webkit-details-marker{display:none}
-.study-disclosure > summary::after{content:"+";font-size:22px}
-.study-disclosure[open] > summary::after{content:"−"}
-.study-selection{padding-bottom:12px}
-.study-selection .block-h h2{font-family:var(--sans);font-size:13px;color:var(--ink-3)}
-.chap-head{align-items:end;padding:8px 0 12px;background:none;border-radius:0;border-bottom:2px solid var(--ink)}
-.chap-title{font-size:44px;line-height:1.08;letter-spacing:-.04em}
-.chap-sub{font-size:11px;max-width:15ch}
-.sec-head{padding:0;gap:6px 10px;align-items:center}
-.sec-head h3{padding:10px 12px;background:var(--t);color:var(--t-on);font-size:17px;font-weight:600;border-radius:2px 2px 0 0}
-.sec-head .num{font-size:11px;padding-block:4px}
-.sec{padding-top:22px}
-.part{padding-top:18px}
-.btn:active,.toggle:active,.open:active{box-shadow:inset 0 0 0 2px currentColor}
-.study-tabs button:active,.route-tabs a:active,.study-disclosure > summary:active{background:var(--page-2);color:var(--ink);transition:none}
-.statusset label:active{box-shadow:inset 0 0 0 2px currentColor;transition:none}
-#theme-open{flex-shrink:0}
-#dlg-theme{max-width:400px}
-#dlg-theme .dlg{max-height:320px}
-.theme-options{border:0;padding:0;display:grid;gap:4px}
-.theme-options legend{margin-bottom:8px;font-size:13px;color:var(--ink-2)}
-.theme-options label{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;cursor:pointer;border:1px solid var(--rule);border-radius:4px}
-.theme-options label:has(:checked){border-color:var(--ink);background:var(--page-2)}
-.theme-options input{accent-color:var(--ink);width:18px;height:18px}
-.theme-options label:active{outline:2px solid var(--ink);outline-offset:-2px}
-:root[data-theme-switching] *,:root[data-theme-switching] *::before,:root[data-theme-switching] *::after{transition:none!important}
-@media (prefers-reduced-motion:reduce){
-  .study-tabs::after{display:none}
-  .study-tabs button[aria-selected="true"]{box-shadow:inset 0 -2px var(--ink)}
-}
-@media (min-width:1000px){
-  .resume{display:grid;grid-template-columns:132px minmax(0,1fr);gap:24px;padding-left:12px}
-  .resume-head{display:block;padding-top:12px}
-  .resume-head h2{margin-bottom:8px}
-  .feature .entry-title{font-size:26px}
-  .feature .e-dots{flex:1;height:auto}
-  .feature .e-line .open{flex:0 0 auto}
-  .study-disclosure{margin-left:172px}
-  .chap-title{font-size:64px}
-  .chap-sub{font-size:13px;max-width:none}
 }
 </style>
-<script>
-/* Executado antes do conteúdo visível, também no fragmento do Artifact. */
-(() => {
-  const root = document.documentElement, system = matchMedia("(prefers-color-scheme:dark)");
-  let preference = "system", frame;
-  const valid = value => ["light", "dark", "system"].includes(value) ? value : "system";
-  try { preference = valid(localStorage.getItem("bm-theme")); } catch (_) {}
-  function apply() {
-    root.setAttribute("data-theme-switching", "");
-    root.dataset.themePreference = preference;
-    if (preference === "system") delete root.dataset.theme; else root.dataset.theme = preference;
-    const color = getComputedStyle(root).getPropertyValue("--page").trim();
-    document.querySelectorAll('meta[name="theme-color"]').forEach(meta => { meta.removeAttribute("media"); meta.content = color; });
-    document.querySelectorAll('input[name="theme"]').forEach(input => { input.checked = input.value === preference; });
-    // Resolve estilos com transições desligadas; a própria troca tem duração zero.
-    void root.offsetWidth;
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => root.removeAttribute("data-theme-switching")); });
-  }
-  window.atlasTheme = { set(value) {
-    preference = valid(value);
-    try { localStorage.setItem("bm-theme", preference); } catch (_) { preference = "system"; }
-    apply();
-  }, sync: apply };
-  system.addEventListener("change", () => { if (preference === "system") apply(); });
-  apply();
-})();
-</script>
 
 <button class="skip" type="button" id="skip">Ir para os materiais</button>
 <div class="spread">
 <header class="rh">
   <a class="mark" href="#inicio" aria-label="Biblioteca de Medicina, início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5h11a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2z"/><path d="M17 7h3v3h-3M17 12h3v3h-3"/></svg></a>
   <button class="rh-where" id="rh-where" type="button"><span class="rh-path" id="rh-path">Biblioteca de Medicina</span><span class="rh-title" id="rh-title">Índice do curso</span><span class="sr"> — explorar o curso</span></button>
-  <button class="iconbtn" id="theme-open" type="button" aria-label="Aparência: Sistema, Claro ou Escuro" aria-haspopup="dialog" aria-controls="dlg-theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+  <button class="iconbtn" id="rh-search" type="button" aria-label="Buscar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
 </header>
 
 <aside class="toc" aria-label="Sumário e busca">
@@ -724,17 +634,6 @@ dialog.no-motion[open]{animation:none}
   <div class="dlg">
     <div><div class="dlg-head"><h2 id="toc-title">Explorar o curso</h2><button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><p class="explore-location" id="explore-location" hidden></p><p class="explore-hint">Toque no assunto ou arraste pela régua à direita.</p></div>
     <div class="dlg-body"><nav id="toc-tree-m" aria-label="Sumário do curso"></nav><div id="explore-index"></div></div>
-  </div>
-</dialog>
-
-<dialog id="dlg-theme" aria-labelledby="theme-title">
-  <div class="dlg">
-    <div class="dlg-head"><h2 id="theme-title">Aparência</h2><button class="iconbtn" type="button" data-close aria-label="Fechar">×</button></div>
-    <div class="dlg-body"><fieldset class="theme-options"><legend>Tema da biblioteca</legend>
-      <label><input type="radio" name="theme" value="system" checked> Sistema</label>
-      <label><input type="radio" name="theme" value="light"> Claro</label>
-      <label><input type="radio" name="theme" value="dark"> Escuro</label>
-    </fieldset><p class="small muted" id="theme-note" role="status">Sistema acompanha a aparência do dispositivo.</p></div>
   </div>
 </dialog>
 
@@ -1078,10 +977,7 @@ function renderHome() {
     select(options[e.key==="Home"?0:e.key==="End"?2:(i+(e.key==="ArrowRight"?1:2))%3][0],true);
   });
   select(homeShelf);
-  const disclosure = h("details", { class:"study-disclosure", open:!opened.length },
-    h("summary", { text:"Em estudo, favoritos e recentes" }),
-    h("section", { class:"study-selection", "aria-label":"Seleção de estudo" }, tabs,panel));
-  focus.append(disclosure);
+  focus.append(h("section", { class:"study-selection", "aria-label":"Seleção de estudo" }, tabs,panel));
 }
 function fillSelect(sel, options, value) { sel.replaceChildren(...options.map(([v, l]) => h("option", { value: v, text: l }))); sel.value = options.some(o => o[0] === value) ? value : options[0][0]; }
 const ICON_X = '<path d="M6 6l12 12M18 6 6 18"/>';
@@ -1660,15 +1556,7 @@ $("#rh-where").addEventListener("click", () => {
   if (cur) { cur.scrollIntoView({ block: "center" }); cur.focus(); }
 });
 $("#dlg-toc").addEventListener("click", e => { if (e.target.closest("a[href^='#']")) closeDlg($("#dlg-toc"), true); });
-window.atlasTheme.sync();
-$("#theme-open").addEventListener("click", () => { window.atlasTheme.sync(); openDlg($("#dlg-theme")); });
-$("#dlg-theme").addEventListener("change", e => {
-  if (!e.target.matches('input[name="theme"]')) return;
-  const requested = e.target.value;
-  window.atlasTheme.set(requested);
-  $("#theme-note").textContent = document.documentElement.dataset.themePreference !== requested ?
-    "Não foi possível salvar a preferência. Usando o tema do sistema." : "Sistema acompanha a aparência do dispositivo.";
-});
+$("#rh-search").addEventListener("click", () => { if (S.view === "organizar") location.hash = "inicio"; window.scrollTo(0, 0); setTimeout(() => $("#lib-q").focus(), 0); });
 /* Um toque numa aba ou no sumário que aponta para a área já aberta também leva até ela. */
 document.addEventListener("click", e => {
   const a = e.target.closest("a[href^='#a-']"); if (!a || e.defaultPrevented || a.getAttribute("href") !== location.hash) return;
@@ -1721,7 +1609,7 @@ try {
 /* ---------- banco fora do claude.ai: Supabase ----------
    Dentro do claude.ai o site usa window.claude.use("db"). No site próprio usa o Supabase, com a mesma interface
    (collection/doc/onSnapshot/set/update/delete). A chave abaixo é a chave pública do projeto: o acesso aos dados
-   é protegido pelas regras do banco (só os e-mails do dono leem e gravam). */
+   é protegido pelas regras do banco (só os e-mails da dona leem e gravam). */
 const SUPA = { url: "https://rmqfduksayyplucshqea.supabase.co", key: "sb_publishable_EG4jEqDNIiD_-ow5L4qh8w_XkUG7eDZ", lib: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" };
 const COLS = {
   materials: ["title", "url", "areaId", "subject", "period", "type", "tags", "collectionIds", "source", "notes", "status", "favorite", "createdAt", "lastOpenedAt", "statusAt"],
@@ -1786,7 +1674,7 @@ function loginPanel() {
     step2.hidden = false;
   } }, h("label", { class: "sr", for: "login-email", text: "E-mail" }), h("div", { class: "field" }, email), h("button", { class: "btn primary", type: "submit", text: "Enviar link" }));
   return h("div", { class: "notice login" }, h("h2", { text: "Entrar na biblioteca" }),
-    h("p", { class: "muted", text: "O catálogo é privado: só os e-mails do dono desta biblioteca têm acesso. Você entra sem senha, por um link enviado ao e-mail." }), step1, step2, msg);
+    h("p", { class: "muted", text: "O catálogo é privado: só os e-mails da dona desta biblioteca têm acesso. Você entra sem senha, por um link enviado ao e-mail." }), step1, step2, msg);
 }
 
 route(false); renderAll();
