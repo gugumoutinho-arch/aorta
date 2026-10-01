@@ -2,6 +2,23 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-01 — Codex — Atlas digital, explorador contextual e leitura ampla — não publicado
+
+- **Pedido:** implementar a modernização revisada com o usuário como a última rodada da noite.
+- **Visual:** superfícies claras e carvão esverdeado no tema escuro; Literata nos capítulos e Schibsted Grotesk nos materiais; retomada em verde profundo, com título largo e ações alinhadas; materiais em superfícies discretas; cores das matérias concentradas na seleção. Removidos os pontilhados decorativos. Detalhe com título amplo, ferramentas no topo e metadados em duas colunas.
+- **Celular:** os 52 px do índice permanente foram devolvidos à leitura. “Explorar” abre a árvore de matérias e assuntos com o índice de arraste. Tocar navega e fecha; arrastar mostra o destino e, ao soltar, fecha e foca um material. Escape devolve o foco e `aria-expanded` acompanha o estado. O índice e o balão mudam de posição no breakpoint sem duplicar IDs.
+- **Computador:** sumário lateral de 280 px, retomada com toda a largura útil e abas inativas discretas. A matéria atual mantém a cor de localização.
+- **Figma:** proposta editável em https://www.figma.com/design/uK8IhxlrNvcPCEm4mki3Ar, com três frames (375 claro/escuro e 1440 claro), textos fictícios e camadas editáveis. A implementação foi refinada com os títulos longos dos testes.
+- **Higgsfield:** não havia conector nem CLI disponível; nenhum crédito foi gasto. Sem imagens externas ou dependências novas: a peça de retomada usa apenas CSS. Nada foi alterado no empacotamento/publicação.
+- **Testado com dados fictícios:**
+  - `npm.cmd run check`: 0 erros/avisos, 24 telas sem rolagem lateral e axe sem violações.
+  - `node flows.mjs`: 128/128. Inclui o novo explorador, arraste, retorno do foco, busca, filtros, detalhes, favorito, status, remover/Desfazer e alvos de toque; adicionada auditoria axe no detalhe.
+  - Auditoria adicional por Playwright/Chrome DevTools Protocol: 16/16. Toque simulado real do protocolo (`touchStart`/`touchMove`/`touchEnd`), foco ao soltar, Escape, mudança de 375 para 1440 px com explorador aberto, ausência de overflow em 320 px, axe nos diálogos e primeiro material inteiro na tela sem histórico, favoritos nem itens em estudo. Relatório gerado: `tools/reports/atlas-audit.json`.
+  - `npm.cmd run lighthouse`, medição final sem outros navegadores de teste concorrentes: celular 100/100/100, LCP 1,3 s, CLS 0,001; computador 100/100/100, LCP 0,6 s, CLS 0,025. Uma medição anterior com testes concorrentes marcou desempenho móvel 93.
+  - Capturas finais em `tools/reports/shots/`, `tools/reports/flows/` e `tools/reports/atlas/`; comparação anterior em `tools/reports/atlas-before/`. Inspeção visual em 375 e 1440 px, nos dois temas. `git diff --check` sem erros.
+- **Não testado:** celular físico, leitor de tela real, Safari/Firefox, login ou gravações no Supabase real e publicação. Nenhum catálogo real foi lido ou alterado nesta rodada.
+- **Documentação:** `DESIGN.md` substituído pela especificação atual, com tokens, componentes, interação e referência do Figma; identidade em `AGENTS.md` atualizada. Ponto de retorno: commit anterior `af84706`.
+
 ## 2026-10-01 — Claude — remodelação "Índice de dedo" (estrutura, navegação e interação novas) — não publicada
 
 - **Pedido:** `_fora-do-site/prompt-vscode-redesign-v2.md`. Crítica da versão "Pauta e marca-texto" com 8 achados conferidos nas capturas. Os principais:

@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import { chromium } from 'playwright-core';
+import AxeBuilder from '@axe-core/playwright';
 import { reports, chromePath, pageHtml, mockDbScript, seed } from './harness.mjs';
 
 const out = path.join(reports, 'flows'); fs.mkdirSync(out, { recursive: true });
@@ -66,7 +67,11 @@ for (const w of [375, 1440]) for (const scheme of ['light', 'dark']) {
   await page.selectOption('#f-group', 'subject'); await page.waitForTimeout(200);
   ok(`${tag} dividir por assunto`, await page.locator('#lib-results .sub-h').count() > 1);
   await page.click('#more summary'); await page.waitForTimeout(100);
-  // índice de dedo: abas proporcionais, salto, posição atual e folhear pela borda
+  if (w < 1000) {
+    ok(`${tag} leitura usa toda a largura sem índice permanente`, !(await page.locator('#thumbs').isVisible()) && await page.locator('#main').evaluate(el => el.getBoundingClientRect().width === innerWidth));
+    await page.click('.tabbar [data-action="toc"]');
+    ok(`${tag} explorar abre índice e informa expansão`, await page.locator('#thumbs').isVisible() && await page.getAttribute('.tabbar [data-action="toc"]', 'aria-expanded') === 'true');
+  }
   const tabs = await page.locator('#thumbs .thumb').count();
   ok(`${tag} índice de dedo com abas`, tabs >= 2, String(tabs));
   const hs = await page.evaluate(() => [...document.querySelectorAll('#thumbs .thumb')].map(t => Math.round(t.getBoundingClientRect().height)));
@@ -74,6 +79,10 @@ for (const w of [375, 1440]) for (const scheme of ['light', 'dark']) {
   const last = page.locator('#thumbs .thumb').last(); const lastName = await last.getAttribute('data-name');
   await last.click(); await page.waitForTimeout(500);
   ok(`${tag} tocar na aba leva à matéria e marca a posição`, await last.getAttribute('aria-current') === 'location' && (await page.locator('#rh-title').textContent()).includes(lastName), lastName);
+  if (w < 1000) {
+    ok(`${tag} escolher matéria fecha explorador`, !(await page.locator('#dlg-toc').evaluate(dialog => dialog.open)));
+    await page.click('.tabbar [data-action="toc"]');
+  }
   const tb = await page.locator('#thumbs .thumb').first().boundingBox();
   await page.mouse.move(tb.x + tb.width / 2, tb.y + 6); await page.mouse.down(); await page.mouse.move(tb.x + tb.width / 2, tb.y + tb.height * .6, { steps: 6 }); await page.waitForTimeout(150);
   ok(`${tag} folhear pela borda mostra o balão`, await page.locator('#bubble').isVisible(), await page.locator('#bubble').innerText().catch(() => ''));
@@ -85,6 +94,8 @@ for (const w of [375, 1440]) for (const scheme of ['light', 'dark']) {
   await trig.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(400);
   ok(`${tag} detalhe abre e contém o foco`, await page.evaluate(() => !!document.querySelector('#dlg-detail[open]') && document.querySelector('#dlg-detail').contains(document.activeElement)));
   ok(`${tag} detalhe sem "null"`, !/null|undefined/.test(await page.locator('#dlg-detail').innerText()));
+  const detailViolations = (await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations;
+  ok(`${tag} detalhe sem violações de acessibilidade`, detailViolations.length === 0, detailViolations.map(v => v.id).join(', '));
   await shot(page, `detalhe@${tag}`);
   const fav0 = await page.getAttribute('#d-fav', 'aria-pressed'); await page.click('#d-fav'); await page.waitForTimeout(250);
   ok(`${tag} favorito alterna`, (await page.getAttribute('#d-fav', 'aria-pressed')) !== fav0);
