@@ -2,6 +2,17 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-01 — Codex — Rodada pós-arena: marcador editorial, tema e resposta ao toque — não publicado
+
+- **Pedido/H1:** reduzir a aparência de modelo pronto com composição editorial comprovada em `tools/reports/pos-arena-antes/`: retomada de cartão para marcador aberto, seleção secundária em disclosure e capítulos em Literata sem caixa; matérias recebem abas de tinta. No celular, o capítulo CIS 1 subiu de y848 para y573 e o primeiro material de y997 para y738 na medição visual comparável.
+- **H2:** manter Explorar, arraste, busca, filtros, ficha, favorito, status e Desfazer já aprovados; corrigir resposta em movimento reduzido (régua sem deslocamento e borda fixa na aba) e acrescentar contorno imediato ao pressionar botões/status. Curvas existentes `--ease` e `--ease-drawer` preservadas.
+- **Tema:** Sistema/Claro/Escuro em diálogo de radios nativos, alvos de 48 px, teclado, `localStorage` com fallback para Sistema, bootstrap antes da primeira pintura, reação a mudança do sistema e `theme-color` sincronizada. Ocupa o botão de aparência no cabeçalho; a busca continua na faixa principal.
+- **Dono:** `dona` corrigido para `dono` em `AGENTS.md`, `PRODUCT.md` e `index.html`.
+- **Cabeçalho/testes:** `tools/harness.mjs` e `tools/build-pages.mjs` compartilham o mesmo cabeçalho publicado, mantendo `noindex, nofollow` intencional. `npm.cmd run check` — 0 erros/avisos; `node flows.mjs` — 215/215; `npm.cmd run lighthouse` — segunda medição mobile 100/100/100 e desktop 99/100/100 (a primeira medição móvel variou para 92; SEO 54 é esperado com noindex no servidor local).
+- **Referências e skills:** evidências, URLs, observações em 375 px, H1/H2 e limites em `_fora-do-site/referencias-pos-arena.md`. Skills abertas: Impeccable (critique/audit/bolder/distill/craft-floor), redesign-existing-projects, emil-design-eng, apple-design, mobile-native, find-animation-opportunities, review-animations, animate, ECC frontend-design-direction/frontend-a11y/motion-foundations/browser-qa/verification-loop. `design-taste-frontend` não instalada/não usada.
+- **Capturas/prévia:** antes e depois em `tools/reports/pos-arena-antes/` e `tools/reports/pos-arena-depois/`, incluindo 320 px e reduced-motion. Prévia local pelo harness em `http://127.0.0.1:60890/`, somente seed fictício.
+- **Não testado:** aparelho físico, Safari/Firefox, leitor de tela real, teclado virtual, login/gravações no Supabase real, Drive ou publicação. Ponto de retorno: `13812c7`; backup: `versoes/codex-2026-10-01-antes-pos-arena.html`.
+
 ## 2026-10-01 — Codex — Atlas: retomada, busca ampla e catálogo por margem — não publicado
 
 - **Mudança:** a busca ocupa a faixa principal também no computador; “Retomar” e “Catálogo” formam uma navegação curta; o início separa “Em estudo”, “Favoritos” e “Recentes” por abas; a retomada ganhou cabeçalho próprio; o catálogo usa faixas de unidade e assuntos em margem; a ficha mantém “Abrir original” no rodapé.

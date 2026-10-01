@@ -5,7 +5,7 @@ description: Atlas digital — leitura ampla, retomada em verde profundo e explo
 
 # Atlas digital — sistema visual
 
-Atualizado em 01/10/2026 por Codex. Evolução da navegação “Índice de dedo”, com foco em recuperar largura no celular, tornar a busca uma faixa de trabalho e dar ao catálogo uma leitura por margem.
+Atualizado em 01/10/2026 por Codex. Evolução da navegação “Índice de dedo”, com foco em recuperar largura no celular, tornar a busca uma faixa de trabalho e dar ao catálogo uma leitura editorial por margem.
 
 ## Direção
 
@@ -45,9 +45,9 @@ Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Est
 
 ## Composição
 
-- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes. A primeira visita apresenta busca, abas “Retomar/Catálogo”, retomada quando existe e uma seleção por “Em estudo”, “Favoritos” ou “Recentes”.
+- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes. A primeira visita apresenta busca, abas “Retomar/Catálogo”, marcador de leitura aberto quando existe e o primeiro capítulo do curso. “Em estudo, favoritos e recentes” fica em disclosure nativo quando há histórico; sem histórico ele abre a seleção.
 - Computador: a busca ocupa uma faixa própria acima do conteúdo; a retomada e a seleção ocupam duas colunas antes do catálogo.
-- O catálogo usa uma faixa de unidade, cabeçalho de capítulo em superfície baixa e assuntos em margem de 132 px; materiais são linhas abertas com título e “Abrir original” alinhados.
+- O catálogo usa módulo em linha, unidade em Literata grande sem caixa e matérias como abas preenchidas pela tinta da área; assuntos continuam em margem de 132 px no computador e materiais são linhas abertas com título e “Abrir original” alinhados.
 - “Explorar” na barra inferior abre `#dlg-toc`: árvore com nomes completos à esquerda e índice de matérias à direita. A cabeça corrente também abre o explorador.
 - Computador: sumário contextual de 280 px, conteúdo flexível, índice na borda. A área de retomada tem título largo e ações embaixo.
 - Materiais usam superfícies discretas e bordas suaves; foram removidos os pontilhados decorativos.
@@ -62,7 +62,8 @@ Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Est
 - “Explorar” informa `aria-expanded`; Escape e o botão Fechar devolvem o foco.
 - Ao atravessar o breakpoint de 1000 px, o explorador fecha e o índice muda de posição.
 - Detalhe: marcador da matéria no cabeçalho, favorito/fechar alinhados no topo, abertura do original em destaque, metadados em grade de duas colunas.
-- Movimento curto, com alternativa para `prefers-reduced-motion`. Alvos de toque de 44 px.
+- Movimento curto, com alternativa para `prefers-reduced-motion`: pressão em 100 ms com `--ease`, painéis em 220 ms/160 ms com `--ease-drawer`; modo reduzido mantém apenas cor, borda e foco. Alvos de toque de 44 px ou mais.
+- Aparência: o botão no cabeçalho abre radios nativos para Sistema, Claro e Escuro. A preferência é aplicada antes da primeira pintura, guardada em `bm-theme` quando possível, reage ao sistema e atualiza `theme-color`; falha de armazenamento volta a Sistema.
 
 ## Figma e Higgsfield
 
