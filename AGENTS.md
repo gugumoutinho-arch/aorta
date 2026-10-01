@@ -58,7 +58,7 @@ Regras:
 - **Celular primeiro:** 375 px sem rolagem horizontal, gutter lateral de 16 px, áreas de toque de pelo menos 44 px.
 - **Acessibilidade:** foco visível, teclado, contraste mínimo de 4,5:1, `aria-*` nos controles, respeito a `prefers-reduced-motion`.
 - Movimento só onde ajuda a entender uma ação.
-- Identidade visual atual: "Biblioteca clínica" (Figtree na interface, JetBrains Mono só em contagens e datas; fundo cinza-esverdeado claro, verde profundo na navegação e nas ações, cor da matéria só como ponto de localização; tema escuro próprio). Mudanças de identidade só com pedido do usuário.
+- Identidade visual atual: "Pauta e marca-texto" (ver `DESIGN.md`; produto em `PRODUCT.md`): quadro do semestre em papel pautado, Atkinson Hyperlegible Next + Mono só para números, azul-caneta só na ação principal e na seleção, matérias como faixas de marca-texto, busca com grifo e quadro matéria × assunto gerados dos dados. Sem trilho lateral. Mudanças de identidade só com pedido do usuário.
 
 ## Verificações automáticas (`tools/`)
 

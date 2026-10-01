@@ -2,6 +2,44 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-09-30 — Claude — remodelação "Pauta e marca-texto" (estrutura nova, não só pele) — não publicada
+
+- **Pedido:** `_fora-do-site/prompt-vscode-redesign.md`. A dona confirmou que a biblioteca vai servir a alunos de vários períodos e crescer muito (registrado em `PRODUCT.md`).
+- **Processo:**
+  - contexto com `impeccable` e `PRODUCT.md`;
+  - diagnóstico da versão anterior (Distinção 1, Interação 1, Primeira tela 3, Hierarquia 4, Temas 4, Estados 4, Acabamento 3);
+  - três conceitos com prancha e protótipo da tela inicial no celular (A · Mapa do curso, B · Busca com marca-texto, C · Mesa da prova);
+  - escolhido B (27 contra 26 e 26), com o quadro de A;
+  - C foi recusado porque a situação de estudo é do catálogo, não de cada aluno.
+
+  Tudo em `_fora-do-site/remodelacao/` (`escolha.md`, `pranchas/`, `prototipo/`, `capturas-*`, `antes/`, `depois/`, `referencias/`).
+- **O que mudou no site:**
+  - **Fora:** o trilho lateral.
+  - **Cabeçalho:** abas de módulo com sublinhado deslizante.
+  - **Início:** a pergunta "Qual material você procura?", o campo grande com resultados ao vivo e termos grifados (sem acentos, só metadados), os assuntos do curso em ordem de semana como atalhos e o "Quadro do curso" (módulos × unidades com as matérias grifadas). "Aberto por último" continua só com `lastOpenedAt` válido.
+  - **Catálogo:** o quadro substitui as abas de unidade e matéria. Numa matéria, células de assunto filtram a lista (novo filtro `subject`, com chip removível); numa unidade, uma faixa por matéria leva à matéria já filtrada.
+  - **Materiais:** título em primeiro lugar, a matéria como faixa de marca-texto e "Abrir original" sempre com texto.
+  - **Detalhe:** "Abrir original" em destaque e a situação como controle segmentado. Folha no celular, painel no computador.
+  - **Tema escuro próprio:** lousa azulada com faixas fluorescentes.
+  - **Teclado:** "/", setas e Esc entre a busca e os resultados.
+- **Preservado:** banco nas duas pontas, tabelas e campos (nada mudou no Supabase), login, coleções, favoritos, situação, remoção com aviso sobre o original e Desfazer, preferências salvas, agrupar e ordenar, ids usados por `tools/flows.mjs`.
+- **Referências:** Originkit ("/"), details.so (assuntos com contagem), Skiper (contagem ao vivo), MicroKit (sublinhado deslizante), Cult UI (segmentado com opção elevada). Do Bencho, só a ideia dos pontos empilhados, que não foi usada. Capturas em `referencias/`.
+- **Testado:**
+  - `npm run check`: 0 erros e 0 avisos (24 telas, axe sem violações).
+  - `node flows.mjs`: 94 de 94.
+  - `node verificar-assinatura.mjs`: 49 de 49, com dados na forma do real, em 375 e 1440 px, claro e escuro. Cobre primeira tela com material inteiro e "Abrir original", busca ao vivo, grifo sem animação ao digitar, acentos, setas e Esc, assunto, quadro, filtro que não vaza, contraste das faixas ≥7,6:1 e movimento reduzido.
+  - `npm run lighthouse`: celular 92/100/100 (CLS 0,032), computador 99/100/100 (CLS 0,015).
+  - Revisões `review-animations` e `accessibility-review` feitas, com as correções aplicadas: grifo animado só no toque; borda dos campos ≥3:1; anúncio só da contagem.
+  - Estados sem login e erro capturados.
+- **Não testado:**
+  - celular de verdade;
+  - leitor de tela real (NVDA/VoiceOver);
+  - Supabase real (login, gravações);
+  - publicação no GitHub Pages;
+  - Safari e Firefox (View Transitions e container queries têm alternativa, mas não foram vistas);
+  - 768 px só pelo `check`.
+- **Backup:** `versoes/claude-2026-09-30-antes-pauta-marca-texto.html` (commit 2cdc6a6).
+
 ## 2026-09-30 — Claude — remodelação "Biblioteca clínica" — ainda não publicada
 
 - **O que mudou:** a pedido do usuário, que achou a identidade anterior pesada (títulos condensados em caixa alta, números grandes, fios pretos, lâminas e manchas). Nova identidade: Figtree na interface e nos materiais, JetBrains Mono só em contagens e datas; fundo cinza-esverdeado claro com superfícies claras; verde profundo no trilho lateral, nas ações principais e no item selecionado; a cor de cada matéria virou um ponto de localização; tema escuro com superfícies próprias (trilho, fundo e cartões distintos). O CSS foi reescrito num único bloco (sem camadas de sobrescrita), com tokens claros e escuros.
