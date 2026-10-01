@@ -1,0 +1,1346 @@
+<title>Biblioteca de Medicina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Biblioteca clínica: fundo cinza-esverdeado claro, superfícies claras, verde profundo na navegação e nas ações.
+   A cor de cada matéria aparece só como um ponto de localização. Tudo por tokens, com tema escuro próprio. */
+:root{
+  --bg:#eef1ef; --surface:#fbfcfb; --fill:#e5eae7; --line:#d8dfdb; --line-2:#b4c0ba;
+  --ink:#14201b; --ink-2:#435149; --ink-3:#586660;
+  --brand:#16503f; --brand-hover:#0f3d30; --brand-ink:#ffffff; --brand-soft:#dcebe4; --brand-text:#16503f;
+  --nav-bg:#0f3a2f; --nav-ink:#e8f1ed; --nav-ink-2:#a9c2b8; --nav-line:rgba(255,255,255,.14); --nav-hover:rgba(255,255,255,.08);
+  --nav-sel-bg:#eaf3ef; --nav-sel-ink:#0f3a2f; --nav-btn-bg:#f1f7f4; --nav-btn-ink:#0f3a2f; --nav-focus:#ffffff;
+  --focus:#1f5fd1;
+  --s-hema:#5b4a9e; --s-eosin:#c2336a; --s-giemsa:#2f6ea8; --s-masson:#1f7d69; --s-pas:#8e3572; --s-safra:#a34a1c; --s-neutral:#6d7770;
+  --danger:#b3261e; --danger-bg:#fbe6e3; --danger-ink:#ffffff; --fav:#9a6700;
+  --scrim:rgba(10,22,18,.5); --shadow-panel:0 20px 48px -20px rgba(10,30,24,.45);
+  --f-sans:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+  --ease-out:cubic-bezier(.23,1,.32,1); --ease-drawer:cubic-bezier(.32,.72,0,1);
+  --rail:280px; --r:10px; --r-sm:8px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d1210; --surface:#161c19; --fill:#1f2723; --line:#28312d; --line-2:#3f4d47;
+  --ink:#e9efec; --ink-2:#b7c3bd; --ink-3:#94a39c;
+  --brand:#66cba9; --brand-hover:#82d8ba; --brand-ink:#04201a; --brand-soft:#183429; --brand-text:#86dbbd;
+  --nav-bg:#15241f; --nav-ink:#e3ece8; --nav-ink-2:#9db2a9; --nav-line:rgba(255,255,255,.1); --nav-hover:rgba(255,255,255,.07);
+  --nav-sel-bg:#2d5446; --nav-sel-ink:#f4fbf8; --nav-btn-bg:#66cba9; --nav-btn-ink:#04201a; --nav-focus:#ffffff;
+  --focus:#8ab8ff;
+  --s-hema:#a99af0; --s-eosin:#f27aa6; --s-giemsa:#7fb6ec; --s-masson:#6fd0b4; --s-pas:#e393cc; --s-safra:#f0a071; --s-neutral:#9aa6a0;
+  --danger:#ff8a7e; --danger-bg:#3a1a17; --danger-ink:#220805; --fav:#f0c050;
+  --scrim:rgba(0,0,0,.62); --shadow-panel:0 20px 48px -20px rgba(0,0,0,.8);
+  color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0d1210; --surface:#161c19; --fill:#1f2723; --line:#28312d; --line-2:#3f4d47;
+  --ink:#e9efec; --ink-2:#b7c3bd; --ink-3:#94a39c;
+  --brand:#66cba9; --brand-hover:#82d8ba; --brand-ink:#04201a; --brand-soft:#183429; --brand-text:#86dbbd;
+  --nav-bg:#15241f; --nav-ink:#e3ece8; --nav-ink-2:#9db2a9; --nav-line:rgba(255,255,255,.1); --nav-hover:rgba(255,255,255,.07);
+  --nav-sel-bg:#2d5446; --nav-sel-ink:#f4fbf8; --nav-btn-bg:#66cba9; --nav-btn-ink:#04201a; --nav-focus:#ffffff;
+  --focus:#8ab8ff;
+  --s-hema:#a99af0; --s-eosin:#f27aa6; --s-giemsa:#7fb6ec; --s-masson:#6fd0b4; --s-pas:#e393cc; --s-safra:#f0a071; --s-neutral:#9aa6a0;
+  --danger:#ff8a7e; --danger-bg:#3a1a17; --danger-ink:#220805; --fav:#f0c050;
+  --scrim:rgba(0,0,0,.62); --shadow-panel:0 20px 48px -20px rgba(0,0,0,.8);
+  color-scheme:dark;}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;scroll-padding-top:120px}
+body{margin:0;min-width:320px;background:var(--bg);color:var(--ink);font-family:var(--f-sans);font-size:1rem;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;font-weight:650;line-height:1.2;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:1.625rem}
+p{margin:0}
+a{color:inherit;text-underline-offset:3px;text-decoration-thickness:1px}
+button,input,select,textarea{font:inherit;color:inherit}
+button,a,summary,[role="button"]{touch-action:manipulation}
+button,summary,.btn,.tabbar a,.modtab,.unittab,.subtab{-webkit-user-select:none;user-select:none}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+svg[aria-hidden="true"]{stroke-width:1.75}
+.sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.muted{color:var(--ink-2)} .small{font-size:.875rem}
+.count{font-family:var(--f-mono);font-size:.75rem;font-variant-numeric:tabular-nums;color:var(--ink-3);flex:none}
+/* marcador de localização: ponto na cor da matéria */
+.dot{display:inline-block;flex:none;width:8px;height:8px;border-radius:50%;background:var(--stain,var(--s-neutral))}
+
+/* ---------- controles ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--r-sm);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-weight:600;font-size:.9375rem;line-height:1;cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .14s var(--ease-out),background-color .15s,border-color .15s,color .15s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.danger{background:var(--danger);border-color:var(--danger);color:var(--danger-ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn svg{width:18px;height:18px;flex:none}
+.iconbtn{width:44px;height:44px;padding:0;display:inline-grid;place-items:center;flex:none;border:0;border-radius:var(--r-sm);background:transparent;color:var(--ink-2);cursor:pointer;transition:transform .14s var(--ease-out),background-color .15s,color .15s}
+.iconbtn:active{transform:scale(.94)}
+.iconbtn svg{width:22px;height:22px}
+.star[aria-pressed="true"]{color:var(--fav)}
+.star[aria-pressed="true"] svg path{fill:currentColor}
+.login{margin-bottom:4px}
+input[type="search"],input[type="text"],input[type="url"],input[type="email"],select,textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:var(--r-sm);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-size:1rem}
+select{padding-right:32px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23788' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:16px;font-weight:500}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-offset:0;border-color:var(--focus)}
+input::placeholder,textarea::placeholder{color:var(--ink-3)}
+textarea{min-height:96px;resize:vertical}
+.field{position:relative;flex:1 1 220px;min-width:0}
+.field svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-3);pointer-events:none}
+input[type="search"]{padding-left:40px}
+.search{display:flex;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:6px;font-weight:600;font-size:.75rem;line-height:1.5;white-space:nowrap;border:1px solid transparent}
+.status[data-s="nao-iniciado"]{border-color:var(--line-2);color:var(--ink-2)}
+.status[data-s="em-estudo"]{background:var(--brand-soft);color:var(--brand-text)}
+.status[data-s="revisado"]{border-color:var(--line-2);color:var(--ink-2)}
+.status[data-s="revisado"]::before{content:"✓" / ""}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:.8125rem;padding:2px 9px;border-radius:6px;background:var(--fill);color:var(--ink-2)}
+.link-open{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;min-width:44px;padding:0 12px;border-radius:var(--r-sm);border:1px solid var(--line-2);background:var(--surface);color:var(--brand-text);font-weight:600;font-size:.9375rem;text-decoration:none;white-space:nowrap;transition:background-color .15s,border-color .15s,transform .14s var(--ease-out)}
+.link-open:active{transform:scale(.95)}
+.link-open svg{width:18px;height:18px;flex:none}
+
+/* ---------- trilho lateral (computador) ---------- */
+.sidebar{display:none}
+.side-brand{display:flex;align-items:center;gap:12px;min-height:48px;padding:2px 4px 18px;text-decoration:none;color:var(--nav-ink)}
+.mark{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:10px;background:var(--nav-sel-bg);color:var(--nav-sel-ink)}
+.mark svg{width:20px;height:20px}
+.side-brand strong{display:block;font-weight:650;font-size:1.0625rem;line-height:1.15}
+.side-brand small{display:block;font-size:.8125rem;color:var(--nav-ink-2)}
+.side-add{margin:0 0 14px}
+.side-add .btn{width:100%;background:var(--nav-btn-bg);border-color:var(--nav-btn-bg);color:var(--nav-btn-ink)}
+.side-nav{display:grid;align-content:start;gap:2px;overflow-y:auto;min-height:0;margin:0 -8px;padding:0 8px;scrollbar-width:thin;scrollbar-color:var(--nav-line) transparent}
+.side-label{margin:20px 0 6px 10px;font-size:.75rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--nav-ink-2)}
+.side-link{position:relative;display:flex;align-items:center;gap:10px;min-height:44px;padding:6px 10px;border-radius:var(--r-sm);color:var(--nav-ink);text-decoration:none;font-weight:500;font-size:.9375rem;line-height:1.25;min-width:0}
+.side-link svg{width:19px;height:19px;flex:none;color:var(--nav-ink-2)}
+.side-link[aria-current="page"]{background:var(--nav-sel-bg);color:var(--nav-sel-ink);font-weight:650}
+.side-link[aria-current="page"] svg{color:inherit}
+.side-link.in-path{font-weight:650}
+.side-name{flex:1;min-width:0;overflow-wrap:anywhere}
+.side-count{font-family:var(--f-mono);font-size:.75rem;font-variant-numeric:tabular-nums;color:var(--nav-ink-2)}
+.side-link[aria-current="page"] .side-count{color:inherit;opacity:.75}
+.side-tree{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.side-tree .side-tree{margin:2px 0 4px 18px;padding-left:10px;border-left:1px solid var(--nav-line)}
+.side-tree .side-tree .side-link{min-height:40px;font-size:.9063rem}
+.side-link.has-kids .side-name::after{content:"";display:inline-block;width:6px;height:6px;margin-left:8px;border-right:1.75px solid currentColor;border-bottom:1.75px solid currentColor;opacity:.55;transform:translateY(-3px) rotate(-45deg);transition:transform .2s var(--ease-out)}
+.side-link.has-kids.is-open .side-name::after{transform:translateY(-4px) rotate(45deg)}
+.side-l1::before,.side-l2::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--stain,var(--s-neutral));box-shadow:0 0 0 2px var(--nav-bg)}
+.side-l1[aria-current="page"]::before,.side-l2[aria-current="page"]::before{box-shadow:0 0 0 2px var(--nav-sel-bg)}
+.side-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--nav-line);font-size:.8125rem;line-height:1.45;color:var(--nav-ink-2)}
+.sidebar :focus-visible{outline-color:var(--nav-focus)}
+
+/* ---------- topo (celular e tablet) ---------- */
+.topbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.topbar-in{display:flex;flex-wrap:wrap;align-items:center;gap:0 10px;padding:6px 16px 0}
+.brand{display:inline-flex;align-items:center;gap:10px;min-height:48px;text-decoration:none;color:var(--ink);flex:none}
+.brand .mark{width:30px;height:30px;border-radius:8px;background:var(--nav-bg);color:var(--nav-ink)}
+.brand .mark svg{width:17px;height:17px}
+.brand b{font-weight:650;font-size:1.0625rem}
+.modtabs{display:flex;flex:1 1 100%;margin:0 -16px;padding:0 10px;overflow-x:auto;scrollbar-width:none}
+.modtabs::-webkit-scrollbar{display:none}
+.modtab{position:relative;flex:0 0 auto;display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 12px;color:var(--ink-2);text-decoration:none;white-space:nowrap;font-weight:600;font-size:.9375rem}
+.modtab[aria-current="page"]{color:var(--brand-text)}
+.modtab[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--brand)}
+
+/* ---------- barra inferior (celular) ---------- */
+.tabbar{display:none}
+
+/* ---------- conteúdo ---------- */
+main{max-width:1120px;margin:0 auto;padding:20px 16px 64px}
+#main:focus,#main:focus-visible{outline:none}
+.view{display:grid;gap:18px;align-content:start}
+.notice{border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface);padding:18px;display:grid;gap:8px}
+.notice.error{background:var(--danger-bg);border-color:var(--danger)}
+.notice h2{font-size:1.125rem}
+.stats{display:flex;flex-wrap:wrap;gap:0 14px;font-size:.8125rem;color:var(--ink-3)}
+.stats b{font-family:var(--f-mono);font-size:.75rem;font-weight:500;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* estantes */
+.shelf{display:grid;align-content:start;gap:4px;min-width:0}
+.shelf-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+.shelf-head h2{font-size:1.0625rem}
+.shelf-head a{display:inline-flex;align-items:center;min-height:44px;margin-block:-6px;padding-inline:4px;font-size:.875rem;font-weight:600;color:var(--brand-text);text-decoration:none}
+.shelf-note{padding-top:10px;font-size:.875rem;color:var(--ink-2);max-width:60ch}
+.group-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:26px 0 8px;font-size:1.0625rem;font-weight:650}
+.group-title span:last-child{font-size:.8125rem;font-weight:500;color:var(--ink-3)}
+.group-title:first-child{margin-top:0}
+
+/* materiais: o título manda; localização, tipo e situação ficam em segundo plano */
+.list{display:grid;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.entry{--stain:var(--s-neutral);position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:0 4px;min-width:0;padding:4px 8px 4px 16px}
+.list .entry + .entry{border-top:1px solid var(--line)}
+.entry-main{display:grid;gap:4px;align-content:start;padding:10px 0;min-width:0}
+.entry-title{font-weight:600;font-size:1rem;line-height:1.3;overflow-wrap:anywhere;text-wrap:pretty}
+.entry-title button{appearance:none;background:none;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.entry-title button::after{content:"";position:absolute;inset:0}
+.entry:has(.entry-title button:focus-visible){outline:2px solid var(--focus);outline-offset:-2px;border-radius:var(--r-sm)}
+.entry-title button:focus-visible{outline:0}
+.entry-meta{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;font-size:.8125rem;line-height:1.4;color:var(--ink-2);min-width:0}
+.entry-meta .where{display:inline-flex;align-items:center;gap:7px;min-width:0}
+.entry-meta .where span{overflow-wrap:anywhere}
+.entry-meta .kind,.entry-meta .subj{color:var(--ink-3)}
+.entry-fav svg{width:14px;height:14px;vertical-align:-2px;color:var(--fav)}
+.entry-fav svg path{fill:currentColor}
+.entry-acts{position:relative;z-index:1;display:flex;align-items:center;padding-left:6px}
+.entry-acts .link-open .lbl{display:none}
+.entry-acts .link-open{padding:0}
+
+/* exibição em grade: o mesmo material, em bloco */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.grid .entry{grid-template-columns:minmax(0,1fr);align-content:space-between;gap:0;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.grid .entry-main{padding:0 0 14px}
+.grid .entry-acts{padding:0}
+.grid .entry-acts .link-open{width:100%;padding:0 12px}
+.grid .entry-acts .link-open .lbl{display:inline}
+
+/* destaque: aberto por último */
+.feature{--stain:var(--s-neutral);display:grid;gap:10px}
+.feature-card{position:relative;display:grid;gap:10px;padding:18px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface)}
+.feature-where{display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;font-size:.8125rem;color:var(--ink-2)}
+.feature-where span:first-child{display:inline-flex;align-items:center;gap:7px}
+.feature-title{font-weight:650;font-size:1.25rem;line-height:1.25;letter-spacing:-.01em;overflow-wrap:anywhere;text-wrap:pretty}
+.feature-title button{appearance:none;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
+.feature-title button::after{content:"";position:absolute;inset:0}
+.feature-card:has(.feature-title button:focus-visible){outline:2px solid var(--focus);outline-offset:2px}
+.feature-title button:focus-visible{outline:0}
+.feature-when{font-family:var(--f-mono);font-size:.75rem;color:var(--ink-3)}
+.feature-acts{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.feature-acts .link-open{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+
+/* carregando */
+.skel{display:grid;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.skel-row{display:grid;gap:8px;padding:16px}
+.skel-row + .skel-row{border-top:1px solid var(--line)}
+.skel-bar{height:14px;width:70%;border-radius:4px;background:var(--fill);animation:pulse 1.4s ease-in-out infinite}
+.skel-bar.short{height:10px;width:38%}
+.skel-row:nth-child(3n) .skel-bar:first-child{width:52%}
+.skel-row:nth-child(3n+1) .skel-bar:first-child{width:82%}
+@keyframes pulse{50%{opacity:.5}}
+.empty{display:grid;gap:8px;justify-items:start;padding:24px;border:1px dashed var(--line-2);border-radius:var(--r);background:var(--surface)}
+.empty h2{font-size:1.125rem}
+.empty p{max-width:60ch;color:var(--ink-2)}
+.empty .btn{margin-top:6px}
+
+/* ---------- início ---------- */
+.home-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 20px}
+.home-search{max-width:720px}
+.search-note{margin-top:-10px;font-size:.8125rem;color:var(--ink-3)}
+.home-dashboard{display:grid;gap:32px;margin-top:6px}
+#home-focus{display:grid;gap:28px;min-width:0}
+.home-col{display:grid;gap:28px;align-content:start;min-width:0}
+.index{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.index ul{list-style:none;margin:0;padding:0}
+.index-mod{padding:6px 14px 10px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.index-link{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--ink);text-decoration:none}
+.index-link > span:first-child{flex:1;min-width:0;overflow-wrap:anywhere}
+.index-l0{font-weight:650}
+.index-l1{font-weight:500;border-top:1px solid var(--line)}
+.index-l1::before,.index-l2::before{content:"";width:8px;height:8px;flex:none;border-radius:50%;background:var(--stain,var(--s-neutral))}
+.index-subs{display:flex;flex-wrap:wrap;gap:0 16px;padding:0 0 6px 18px}
+.index-l2{font-size:.875rem;color:var(--ink-2);gap:7px}
+
+/* ---------- catálogo ---------- */
+.areahead{--stain:var(--s-neutral);display:grid;gap:6px}
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin:-10px 0 -6px -7px;font-size:.8125rem;color:var(--ink-3)}
+.crumbs a{display:inline-flex;align-items:center;min-height:44px;padding-inline:7px;color:var(--ink-2);text-decoration:none}
+.crumbs i{font-style:normal;color:var(--line-2)}
+.crumbs span{padding-inline:7px}
+.areahead h1{display:flex;align-items:center;gap:12px;overflow-wrap:anywhere}
+.areahead h1::before{content:"";flex:none;width:12px;height:12px;border-radius:50%;background:var(--stain)}
+.tabrow{position:relative;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px;scroll-snap-type:x proximity}
+.tabrow::-webkit-scrollbar{display:none}
+.tabrow > *{scroll-snap-align:start}
+.unittab,.subtab{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface);color:var(--ink);text-decoration:none;white-space:nowrap;font-weight:500;font-size:.9063rem;transition:background-color .15s,color .15s}
+.unittab[style]::before,.subtab::before{content:"";width:8px;height:8px;flex:none;border-radius:50%;background:var(--stain,var(--s-neutral))}
+.subtab.all::before{display:none}
+.unittab[aria-current="page"],.subtab[aria-current="page"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-text);font-weight:650}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.toolbar > .search{flex:1 1 180px;min-width:0}
+.more{flex:0 0 auto}
+.more[open]{flex-basis:100%}
+.more summary{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface);font-weight:600;font-size:.9375rem;cursor:pointer;list-style:none}
+.more summary::-webkit-details-marker{display:none}
+.more summary::before{content:"";width:16px;height:16px;background:currentColor;-webkit-mask:var(--ic-sliders) center/contain no-repeat;mask:var(--ic-sliders) center/contain no-repeat}
+.more[open] summary{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-text)}
+.more-count{color:var(--brand-text)}
+.more-in{display:grid;gap:12px;margin-top:8px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.brk{display:none}
+.filters{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.filters .fld-wide{grid-column:1 / -1}
+.toolbar-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end}
+.flabel{display:block;margin-bottom:4px;font-size:.8125rem;font-weight:600;color:var(--ink-2)}
+.fcell{min-width:0}
+.toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--line-2);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-weight:600;font-size:.9375rem;transition:transform .14s var(--ease-out),background-color .15s}
+.toggle:active{transform:scale(.97)}
+.toggle svg{width:16px;height:16px}
+.toggle[aria-pressed="true"]{background:var(--brand-soft);border-color:var(--brand);color:var(--brand-text)}
+.toggle[aria-pressed="true"] svg path{fill:currentColor}
+.seg{display:inline-flex;padding:3px;gap:2px;border-radius:var(--r-sm);background:var(--fill)}
+.seg button{border:0;border-radius:6px;background:transparent;min-height:44px;padding:0 14px;cursor:pointer;font-weight:600;font-size:.9375rem;color:var(--ink-2);transition:background-color .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line-2)}
+.active-filters{display:flex;flex-wrap:wrap;gap:6px}
+.af{position:relative;display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 6px 0 12px;border:1px solid var(--brand);border-radius:16px;background:var(--brand-soft);color:var(--brand-text);font-weight:600;font-size:.8125rem;cursor:pointer}
+.af::after{content:"";position:absolute;inset:-7px -2px}
+.af svg{width:14px;height:14px}
+.result-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;margin-bottom:-6px}
+.result-line{font-size:.8125rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
+#clear-filters{min-height:44px;padding:0 10px;font-size:.875rem;color:var(--brand-text)}
+#clear-filters:disabled{visibility:hidden}
+
+/* ---------- organizar ---------- */
+.org{display:grid;gap:18px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:12px;min-width:0}
+.panel h2{font-size:1.0625rem}
+.tree,.tree ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.tree ul{margin:6px 0 0 12px;padding-left:12px;border-left:1px solid var(--line-2)}
+.row{--stain:var(--s-neutral);display:flex;align-items:center;gap:6px;padding:2px 4px 2px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);min-width:0;flex-wrap:wrap}
+.row .swatch{width:8px;height:8px;flex:none;border-radius:50%;background:var(--stain)}
+.row .name{flex:1 1 120px;min-width:0;min-height:44px;overflow-wrap:anywhere;font-weight:600;background:none;border:0;text-align:left;padding:6px 0;cursor:pointer;color:var(--ink)}
+.row .lvl{font-size:.75rem;color:var(--ink-3)}
+.row form{display:flex;gap:6px;flex:1 1 100%;min-width:0;flex-wrap:wrap;padding:4px 0}
+.row form input{flex:1 1 160px}
+.row .btn{padding:0 10px;font-size:.875rem}
+.confirm-inline{display:grid;gap:8px;padding:12px;border-radius:var(--r-sm);background:var(--danger-bg);border:1px solid var(--danger)}
+.confirm-inline .acts{display:flex;gap:8px;flex-wrap:wrap}
+.addform{display:flex;gap:8px;flex-wrap:wrap}
+.addform input{flex:1 1 180px}
+.rows{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+
+/* ---------- painéis (diálogos) ---------- */
+dialog{border:1px solid var(--line-2);border-radius:14px;padding:0;background:var(--surface);color:var(--ink);width:min(620px,calc(100vw - 32px));max-height:calc(100dvh - 48px);box-shadow:var(--shadow-panel);overscroll-behavior:contain}
+dialog::backdrop{background:var(--scrim)}
+dialog[open]{animation:dlg-in .2s var(--ease-out)}
+@keyframes dlg-in{from{opacity:0;transform:translateY(8px) scale(.985)}}
+.dlg{display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:calc(100dvh - 48px)}
+.dlg-head{display:flex;align-items:flex-start;gap:2px;padding:16px 10px 10px 22px}
+.dlg-head h2:focus{outline:none}
+.dlg-head h2{flex:1;min-width:0;font-weight:650;font-size:1.3125rem;line-height:1.25;overflow-wrap:anywhere;padding-top:2px}
+.dlg-where{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-bottom:6px;padding-top:10px;font-size:.8125rem;color:var(--ink-2)}
+.dlg-body{overflow:auto;overscroll-behavior:contain;padding:8px 22px 20px;display:grid;gap:18px;align-content:start}
+.dlg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 22px;border-top:1px solid var(--line)}
+.dlg-foot .spacer{flex:1}
+.dlg-foot .btn{min-height:44px}
+.d-actions{display:flex;flex-wrap:wrap;gap:8px}
+.d-actions .btn{flex:1 1 auto}
+.d-admin{display:grid;gap:10px;padding-top:6px}
+.fld{display:grid;gap:6px}
+.fld > label,.fld > .lbl{font-size:.8125rem;font-weight:600;color:var(--ink-2)}
+.fld .hint{font-size:.8125rem;color:var(--ink-3)}
+.fld .err{font-size:.875rem;color:var(--danger);font-weight:600}
+.fld input[aria-invalid="true"]{border-color:var(--danger)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:var(--r-sm);cursor:pointer;font-weight:500}
+.checks input{width:18px;height:18px;margin:0;accent-color:var(--brand)}
+.checks label:has(input:checked){background:var(--brand-soft);border-color:var(--brand);color:var(--brand-text)}
+.dl{display:grid;grid-template-columns:max-content 1fr;gap:0;margin:0;font-size:.875rem;border-top:1px solid var(--line)}
+.dl dt,.dl dd{padding:8px 0;border-bottom:1px solid var(--line)}
+.dl dt{padding-right:16px;font-size:.8125rem;color:var(--ink-3)}
+.dl dd{margin:0;overflow-wrap:anywhere;color:var(--ink-2)}
+.notes{white-space:pre-wrap;background:var(--fill);border-radius:var(--r-sm);padding:10px 12px;font-size:.9375rem}
+.statusset{min-width:0;margin:0;padding:0;border:0}
+.segwrap{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;padding:3px;border-radius:var(--r-sm);background:var(--fill)}
+.statusset legend{padding:0;margin-bottom:6px;font-size:.8125rem;font-weight:600;color:var(--ink-2)}
+.statusset label{display:flex;align-items:center;justify-content:center;min-height:44px;padding:0 6px;border-radius:6px;cursor:pointer;font-weight:600;font-size:.875rem;text-align:center;color:var(--ink-2);transition:background-color .15s,color .15s}
+.statusset input{position:absolute;opacity:0;width:1px;height:1px}
+.statusset label:has(input:checked){background:var(--surface);color:var(--brand-text);box-shadow:0 0 0 1px var(--brand)}
+.statusset label:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:1px}
+
+/* ---------- avisos ---------- */
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:50;display:grid;gap:8px;width:min(460px,calc(100vw - 32px));pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:var(--r);background:var(--ink);color:var(--bg);box-shadow:var(--shadow-panel);transition:opacity .2s,transform .2s var(--ease-out)}
+@starting-style{.toast{opacity:0;transform:translateY(8px)}}
+.toast.error{background:var(--danger);color:var(--danger-ink)}
+.toast p{flex:1;font-weight:600;font-size:.9375rem}
+.toast button{min-height:44px;background:transparent;border:1px solid currentColor;border-radius:var(--r-sm);color:inherit;padding:0 14px;font-weight:600;cursor:pointer}
+
+/* ---------- mouse: estados de passagem só onde há ponteiro fino ---------- */
+@media (hover:hover) and (pointer:fine){
+  .btn:hover{background:var(--fill)}
+  .btn.primary:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+  .btn.ghost:hover{background:var(--fill);color:var(--ink)}
+  .iconbtn:hover{background:var(--fill);color:var(--ink)}
+  .link-open:hover{background:var(--brand-soft);border-color:var(--brand)}
+  .feature-acts .link-open:hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+  .side-add .btn:hover{background:#fff;color:var(--nav-btn-ink)}
+  .side-link:hover:not([aria-current="page"]){background:var(--nav-hover)}
+  .modtab:hover{color:var(--ink)}
+  .unittab:hover,.subtab:hover,.more summary:hover,.toggle:hover{background:var(--fill)}
+  .seg button:hover:not([aria-pressed="true"]){color:var(--ink)}
+  .list .entry:hover,.grid .entry:hover{background:color-mix(in srgb,var(--fill) 55%,var(--surface))}
+  .grid .entry:hover{border-color:var(--line-2)}
+  .entry:hover .entry-title,.feature-title button:hover{text-decoration:underline;text-decoration-thickness:1px}
+  .index-link:hover,.crumbs a:hover,.shelf-head a:hover{color:var(--brand-text)}
+  .row .name:hover{color:var(--brand-text)}
+  .statusset label:hover{color:var(--ink)}
+  .af:hover{background:var(--brand);color:var(--brand-ink)}
+}
+
+/* ---------- celular ---------- */
+@media (max-width:759px){
+  :root{--ic-sliders:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M4 7h10M18 7h2M4 17h2M10 17h10'/%3E%3Ccircle cx='16' cy='7' r='2'/%3E%3Ccircle cx='8' cy='17' r='2'/%3E%3C/svg%3E")}
+  .topbar .add-top,.topbar .org-top{display:none}
+  main{padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+  .home-head{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  .flabel{display:block}
+  .two{grid-template-columns:1fr}
+  .tabbar{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding:0 0 env(safe-area-inset-bottom,0px)}
+  .tabbar a,.tabbar button{position:relative;display:grid;justify-items:center;align-content:center;gap:2px;min-height:60px;padding:6px 4px;border:0;background:none;color:var(--ink-2);text-decoration:none;font-weight:600;font-size:.75rem;cursor:pointer;transition:transform .12s var(--ease-out)}
+  .tabbar a:active,.tabbar button:active{transform:scale(.95)}
+  .tabbar button:disabled{opacity:.5}
+  .tabbar svg{width:22px;height:22px}
+  .tabbar a[aria-current="page"]{color:var(--brand-text)}
+  .tabbar a[aria-current="page"]::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--brand)}
+  .toasts{bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+  .more:not([open]) .more-in{display:none}
+  dialog{width:100%;max-width:100%;margin:auto 0 0;border-width:1px 0 0;border-radius:18px 18px 0 0;max-height:92dvh}
+  dialog[open]{animation:sheet-in .26s var(--ease-drawer)}
+  .dlg{max-height:92dvh}
+  .dlg-head{position:relative;padding-left:16px;padding-top:18px}
+  .dlg-head::before{content:"";position:absolute;top:7px;left:50%;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:var(--line-2)}
+  .dlg-body{padding-inline:16px}
+  .dlg-foot{padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px))}
+}
+@keyframes sheet-in{from{transform:translateY(24px);opacity:.4}}
+
+/* ---------- tablet e acima ---------- */
+@media (min-width:760px){
+  :root{--ic-sliders:none}
+  main{padding:28px 28px 72px}
+  h1{font-size:1.875rem}
+  .more summary{display:none}
+  .more{flex-basis:100%}
+  .more-in{margin-top:0;padding:0;border:0;background:none;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .filters,.toolbar-row{display:contents}
+  .brk{display:block;order:2;flex-basis:100%;height:0}
+  .filters .fcell{order:0}
+  #f-fav{order:1}
+  .toolbar-row .fcell{order:3}
+  .seg{order:4;margin-left:auto}
+  .flabel{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  .fcell{flex:0 1 auto}
+  .more-in select{width:auto;min-height:44px;border-color:transparent;background-color:var(--fill);font-weight:600;font-size:.9375rem}
+  .more-in .toggle{border-color:transparent;background:var(--fill)}
+  .more-in .toggle[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+  .more-in .sep{flex:1}
+  .org{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+  .topbar-in{padding:6px 28px;gap:12px}
+  .modtabs{flex:0 1 auto;margin:0 0 0 auto;padding:0}
+  .topbar .add-top{order:2}
+  .entry{padding-left:20px}
+  .entry-acts .link-open .lbl{display:inline}
+  .entry-acts .link-open{padding:0 14px}
+  .feature-acts .link-open{padding:0 18px}
+}
+
+/* ---------- computador: trilho lateral com o índice ---------- */
+@media (min-width:960px){
+  body{padding-left:var(--rail)}
+  .sidebar{position:fixed;inset:0 auto 0 0;z-index:22;width:var(--rail);display:flex;flex-direction:column;padding:20px 18px 16px;background:var(--nav-bg);color:var(--nav-ink);border-right:1px solid var(--nav-line)}
+  .topbar{display:none}
+  main{padding:36px 44px 80px}
+  #unitrow,#subrow{display:none!important}
+  #home-directory{display:none}
+  h1{font-size:2rem}
+  .areahead h1::before{width:14px;height:14px}
+  #home-focus.has-primary{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:44px}
+  .tabrow{margin:0;padding:0}
+  .entry-title{font-size:1.0625rem}
+  .feature-title{font-size:1.4375rem}
+  #dlg-detail{margin:0 0 0 auto;width:min(460px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;border-width:0 0 0 1px;border-radius:0}
+  #dlg-detail .dlg{height:100%;max-height:100dvh}
+  #dlg-detail[open]{animation:panel-in .22s var(--ease-out)}
+}
+@keyframes panel-in{from{transform:translateX(24px);opacity:0}}
+@media (prefers-contrast:more){.list,.entry,.row,.grid .entry{border-color:var(--ink-2)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+
+<aside class="sidebar" aria-label="Navegação principal">
+  <a class="side-brand" href="#inicio" aria-label="Biblioteca de Medicina, início"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4v16H5zM10 4h4v16h-4zM15.5 5l3.8-1 3.2 15-3.8 1z"/></svg></span><span><strong>Biblioteca</strong> <small>de Medicina</small></span></a>
+  <div class="side-add"><button class="btn primary" type="button" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar link</button></div>
+  <nav class="side-nav" aria-label="Biblioteca">
+    <a class="side-link" href="#inicio" data-side="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span class="side-name">Início</span></a>
+    <a class="side-link" href="#todos" data-side="todos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="side-name">Todos os materiais</span></a>
+    <p class="side-label">Índice</p>
+    <div id="side-modules"></div>
+    <p class="side-label">Ferramentas</p>
+    <a class="side-link" href="#organizar" data-side="organizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg><span class="side-name">Organizar</span></a>
+  </nav>
+  <p class="side-foot">Seu catálogo guarda links. Os arquivos continuam onde você os salvou.</p>
+</aside>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#inicio" aria-label="Biblioteca de Medicina, início"><span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4v16H5zM10 4h4v16h-4zM15.5 5l3.8-1 3.2 15-3.8 1z"/></svg></span><b>Biblioteca</b></a>
+    <nav class="modtabs" id="modtabs" aria-label="Módulos"></nav>
+    <a class="btn ghost org-top" href="#organizar" data-nav="organizar">Organizar</a>
+    <button class="btn primary add-top" type="button" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+  <div id="state-banner" hidden></div>
+
+  <section class="view" id="view-inicio" data-view="inicio" aria-labelledby="h-inicio">
+    <div class="home-head">
+      <h1 id="h-inicio">Início</h1>
+      <p class="stats home-stats" id="home-stats"></p>
+    </div>
+    <form class="search home-search" id="home-search" role="search">
+      <div class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label class="sr" for="home-q">Buscar em todo o catálogo</label>
+        <input id="home-q" type="search" enterkeyhint="search" placeholder="Título, matéria, assunto ou etiqueta" autocomplete="off" aria-describedby="home-search-note">
+      </div>
+      <button class="btn primary" type="submit">Buscar</button>
+    </form>
+    <p class="search-note" id="home-search-note">A busca consulta os dados do catálogo, não o texto dentro dos arquivos.</p>
+    <div class="home-dashboard">
+      <div id="home-focus"></div>
+      <div id="home-directory"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-lib" data-view="lib" aria-labelledby="h-lib" hidden>
+    <header class="areahead" id="areahead">
+      <nav class="crumbs" id="crumbs" aria-label="Você está em"></nav>
+      <h1 id="h-lib"></h1>
+      <p class="stats" id="lib-stats"></p>
+    </header>
+    <nav class="tabrow" id="unitrow" aria-label="Unidades" hidden></nav>
+    <nav class="tabrow" id="subrow" aria-label="Matérias" hidden></nav>
+    <div class="toolbar">
+      <div class="search">
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <label class="sr" for="lib-q">Buscar nesta área</label>
+          <input id="lib-q" type="search" enterkeyhint="search" autocomplete="off">
+        </div>
+      </div>
+      <details class="more" id="more" open>
+        <summary>Filtros<span class="more-count" id="more-count"></span></summary>
+        <div class="more-in">
+          <div class="filters">
+            <div class="fcell"><label class="flabel" for="f-type">Tipo</label><select id="f-type"></select></div>
+            <div class="fcell"><label class="flabel" for="f-status">Situação</label><select id="f-status"></select></div>
+            <div class="fcell fld-wide"><label class="flabel" for="f-coll">Coleção</label><select id="f-coll"></select></div>
+          </div>
+          <span class="brk" aria-hidden="true"></span>
+          <div class="toolbar-row">
+            <div class="fcell"><label class="flabel" for="f-sort">Ordenar</label>
+              <select id="f-sort">
+                <option value="recent">Mais recentes</option>
+                <option value="old">Mais antigos</option>
+                <option value="az">Nome A–Z</option>
+                <option value="za">Nome Z–A</option>
+              </select></div>
+            <div class="fcell"><label class="flabel" for="f-group">Agrupar</label>
+              <select id="f-group">
+                <option value="none">Sem agrupar</option>
+                <option value="area">Por matéria</option>
+                <option value="subject">Por assunto</option>
+                <option value="period">Por período</option>
+              </select></div>
+            <button class="toggle" type="button" id="f-fav" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Só favoritos</button>
+            <div class="seg" role="group" aria-label="Exibição">
+              <button type="button" data-layout="list" aria-pressed="true">Lista</button>
+              <button type="button" data-layout="grid" aria-pressed="false">Grade</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <div class="active-filters" id="active-filters" role="group" aria-label="Filtros ativos" hidden></div>
+    <div class="result-bar">
+      <p class="result-line" id="result-line"></p>
+      <button class="btn ghost" type="button" id="clear-filters">Limpar busca e filtros</button>
+    </div>
+    <div id="lib-results"></div>
+  </section>
+
+  <section class="view" id="view-organizar" data-view="organizar" aria-labelledby="h-org" hidden>
+    <div>
+      <p class="small muted">Estrutura do curso</p>
+      <h1 id="h-org">Organizar</h1>
+      <p class="muted" style="margin-top:8px;max-width:66ch">Módulos contêm unidades, e unidades contêm matérias. Um material fica em um lugar da estrutura e pode estar em várias coleções sem ser duplicado.</p>
+      <p class="small muted" id="account" hidden></p>
+    </div>
+    <div class="org">
+      <div class="panel" aria-labelledby="h-tree">
+        <h2 id="h-tree">Módulos, unidades e matérias</h2>
+        <ul class="tree" id="tree"></ul>
+        <form class="addform" id="mod-add">
+          <label class="sr" for="mod-new">Nome do novo módulo</label>
+          <input id="mod-new" type="text" placeholder="Novo módulo (ex.: M3)" maxlength="40" autocomplete="off">
+          <button class="btn" type="submit">Criar módulo</button>
+        </form>
+      </div>
+      <div class="panel" aria-labelledby="h-colls">
+        <h2 id="h-colls">Coleções</h2>
+        <ul class="rows" id="coll-rows"></ul>
+        <form class="addform" id="coll-add">
+          <label class="sr" for="coll-new">Nome da nova coleção</label>
+          <input id="coll-new" type="text" placeholder="Nova coleção (ex.: Revisão PR2)" maxlength="80" autocomplete="off">
+          <button class="btn" type="submit">Criar coleção</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" aria-label="Atalhos">
+  <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>Início</a>
+  <a href="#todos" data-nav="lib"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4v16H5zM10 4h4v16h-4zM15.5 5l3.8-1 3.2 15-3.8 1z"/></svg>Acervo</a>
+  <button type="button" class="tab-add" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
+  <a href="#organizar" data-nav="organizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg>Organizar</a>
+</nav>
+
+<dialog id="dlg-form" aria-labelledby="form-title">
+  <form class="dlg" id="mat-form" novalidate>
+    <div>
+      <div class="dlg-head">
+        <h2 id="form-title">Adicionar material</h2>
+        <button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="dlg-body">
+      <p class="small muted">Você cadastra um <b>link</b> para o material. O arquivo continua onde está (por exemplo, no seu Google Drive); nada é copiado nem sincronizado.</p>
+      <div class="fld">
+        <label for="m-title">Título *</label>
+        <input id="m-title" type="text" maxlength="200" required aria-describedby="m-title-err">
+        <span class="err" id="m-title-err" hidden></span>
+      </div>
+      <div class="fld">
+        <label for="m-url">Link do material *</label>
+        <input id="m-url" type="url" inputmode="url" autocapitalize="none" autocorrect="off" placeholder="https://drive.google.com/…" required aria-describedby="m-url-hint m-url-err">
+        <span class="hint" id="m-url-hint">Cole o endereço completo, começando com https://. No Drive: Compartilhar → Copiar link.</span>
+        <span class="err" id="m-url-err" hidden></span>
+      </div>
+      <div class="fld">
+        <label for="m-area">Onde fica</label>
+        <select id="m-area"></select>
+      </div>
+      <div class="two">
+        <div class="fld">
+          <label for="m-type">Tipo</label>
+          <select id="m-type"></select>
+        </div>
+        <div class="fld">
+          <label for="m-status">Status de estudo</label>
+          <select id="m-status"></select>
+        </div>
+      </div>
+      <div class="two">
+        <div class="fld">
+          <label for="m-subject">Assunto</label>
+          <input id="m-subject" type="text" list="dl-subjects" maxlength="120" placeholder="Ex.: Placentação">
+        </div>
+        <div class="fld">
+          <label for="m-period">Período</label>
+          <input id="m-period" type="text" list="dl-periods" maxlength="40" placeholder="Ex.: 2026.2">
+        </div>
+      </div>
+      <div class="fld">
+        <label for="m-tags">Etiquetas</label>
+        <input id="m-tags" type="text" maxlength="300" placeholder="Separe por vírgula: PR2, caso clínico, revisão">
+      </div>
+      <div class="fld">
+        <span class="lbl" id="m-colls-lbl">Coleções</span>
+        <div class="checks" id="m-colls" role="group" aria-labelledby="m-colls-lbl"></div>
+        <label class="sr" for="m-coll-new">Nova coleção</label>
+        <input id="m-coll-new" type="text" maxlength="80" placeholder="Criar nova coleção e incluir este material">
+      </div>
+      <div class="fld">
+        <label for="m-origin">Origem</label>
+        <input id="m-origin" type="text" maxlength="120" placeholder="Ex.: Google Drive" aria-describedby="m-origin-hint">
+        <span class="hint" id="m-origin-hint">Se ficar vazio e o link for do Drive, preenchemos “Google Drive”.</span>
+      </div>
+      <div class="fld">
+        <label for="m-notes">Observações</label>
+        <textarea id="m-notes" maxlength="4000" placeholder="O que é importante lembrar sobre este material"></textarea>
+      </div>
+      <div class="checks"><label><input type="checkbox" id="m-fav"> Favorito</label></div>
+    </div>
+    <div class="dlg-foot">
+      <span class="spacer"></span>
+      <button class="btn ghost" type="button" data-close>Cancelar</button>
+      <button class="btn primary" type="submit" id="m-save">Salvar material</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-detail" aria-labelledby="d-title">
+  <div class="dlg">
+    <div>
+      <div class="dlg-head">
+        <div style="flex:1;min-width:0"><p class="dlg-where" id="d-code"></p><h2 id="d-title" tabindex="-1"></h2></div>
+        <button class="iconbtn star" type="button" id="d-fav" aria-pressed="false" aria-label="Favorito"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button>
+        <button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+    </div>
+    <div class="dlg-body" id="d-body"></div>
+    <div class="dlg-foot" id="d-foot"></div>
+  </div>
+</dialog>
+
+<datalist id="dl-subjects"></datalist>
+<datalist id="dl-periods"></datalist>
+<div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+"use strict";
+const TYPES = ["Slides","Apostila","Resumo","Anotação","Estudo dirigido","Questões","Prova","Caso clínico","Imagem / lâmina","Artigo","Livro","Link"];
+const STATUS = [["nao-iniciado","Não iniciado"],["em-estudo","Em estudo"],["revisado","Revisado"]];
+const STATUS_LABEL = Object.fromEntries(STATUS);
+const STAINS = ["hema","eosin","giemsa","masson","pas","safra"];
+const LEVEL = ["Módulo","Unidade","Matéria"];
+const LAYOUTS = ["list","grid"], SORTS = ["recent","old","az","za"], GROUPS = ["none","area","subject","period"];
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+const S = {
+  db: null, dbState: "loading",
+  materials: [], areas: [], collections: [],
+  got: { m: false, a: false, c: false },
+  view: "inicio", area: "",
+  q: "", f: { type: "", status: "", coll: "", fav: false },
+  sort: "recent", group: "none", layout: "list",
+  detailId: null, editId: null, busy: false,
+};
+try {
+  const p = JSON.parse(localStorage.getItem("bm-prefs") || "{}");
+  if (LAYOUTS.includes(p.layout)) S.layout = p.layout;
+  if (SORTS.includes(p.sort)) S.sort = p.sort;
+  if (GROUPS.includes(p.group)) S.group = p.group;
+} catch (_) {}
+const savePrefs = () => { try { localStorage.setItem("bm-prefs", JSON.stringify({ layout: S.layout, sort: S.sort, group: S.group })); } catch (_) {} };
+
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  if (attrs) for (const [k, v] of Object.entries(attrs)) {
+    if (v == null || v === false) continue;
+    if (k === "class") el.className = v;
+    else if (k === "text") el.textContent = v;
+    else if (k === "style") el.setAttribute("style", v);
+    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return el;
+}
+const svg = d => { const t = document.createElement("template"); t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`; return t.content.firstChild; };
+const ICON_STAR = '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>';
+const ICON_EXT = '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>';
+const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+const cmpName = (a, b) => String(a).localeCompare(String(b), "pt-BR", { sensitivity: "base", numeric: true });
+const validDate = iso => !!iso && !isNaN(new Date(iso));
+const fmtDate = iso => validDate(iso) ? new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "";
+const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+const nowIso = () => new Date().toISOString();
+function validUrl(v) { try { const u = new URL(v.trim()); return (u.protocol === "https:" || u.protocol === "http:") && u.hostname.includes("."); } catch (_) { return false; } }
+const isDrive = v => { try { return /(^|\.)(drive|docs)\.google\.com$/.test(new URL(v).hostname); } catch (_) { return false; } };
+const stainVar = k => `--stain:var(--s-${STAINS.includes(k) ? k : "neutral"})`;
+const cnt = n => h("span", { class: "count" }, String(n), h("span", { class: "sr", text: n === 1 ? " material" : " materiais" }));
+
+/* ---------- estrutura (áreas) ---------- */
+const areaById = id => S.areas.find(a => a.id === id);
+const byOrder = (a, b) => ((a.order ?? 999) - (b.order ?? 999)) || cmpName(a.name, b.name);
+const childrenOf = pid => S.areas.filter(a => (a.parentId || "") === (pid || "")).sort(byOrder);
+function pathOf(id) { const out = []; let a = areaById(id), guard = 0; while (a && guard++ < 8) { out.unshift(a); a = areaById(a.parentId); } return out; }
+function descIds(id) { const set = new Set([id]); let grew = true; while (grew) { grew = false; for (const a of S.areas) if (set.has(a.parentId) && !set.has(a.id)) { set.add(a.id); grew = true; } } return set; }
+function stainOf(id) { const p = pathOf(id); for (let i = p.length - 1; i >= 0; i--) if (p[i].stain) return p[i].stain; return ""; }
+const areaLabel = (id, from = "") => { const p = pathOf(id); const i = from ? p.findIndex(a => a.id === from) : -1; return p.slice(i + 1).map(a => a.name).join(" › "); };
+function treeOrder() { const out = []; const walk = (pid, d) => childrenOf(pid).forEach(a => { out.push([a, d]); if (d < 2) walk(a.id, d + 1); }); walk("", 0); return out; }
+const depthOf = id => pathOf(id).length - 1;
+/* Localização curta de um material: abaixo da área aberta, ou sem o módulo quando não há área aberta. */
+function whereOf(m, from) {
+  if (from) return areaLabel(m.areaId, from);
+  const p = pathOf(m.areaId); return (p.length > 1 ? p.slice(1) : p).map(a => a.name).join(" › ");
+}
+
+/* ---------- avisos ---------- */
+function toast(msg, opts = {}) {
+  const box = $("#toasts");
+  const t = h("div", { class: "toast" + (opts.error ? " error" : "") }, h("p", { text: msg }));
+  if (opts.action) t.append(h("button", { type: "button", text: opts.action.label, onclick: () => { t.remove(); opts.action.run(); } }));
+  box.append(t);
+  while (box.children.length > 3) box.firstChild.remove();
+  setTimeout(() => t.remove(), opts.action ? 7000 : 4000);
+}
+const failMsg = e => (e && e.code === "quota_exceeded") ? "O catálogo atingiu o limite de armazenamento. Remova itens antigos e tente de novo." : "Não foi possível salvar agora. Verifique a conexão e tente de novo.";
+async function write(fn, okMsg, opts) {
+  if (!S.db) { toast("O catálogo não está disponível nesta visualização.", { error: true }); return false; }
+  try { await fn(); if (okMsg) toast(okMsg, opts); return true; }
+  catch (e) { console.error(e); toast(failMsg(e), { error: true }); return false; }
+}
+async function ensureCollection(name) {
+  const n = name.trim(); if (!n) return "";
+  const hit = S.collections.find(c => norm(c.name) === norm(n)); if (hit) return hit.id;
+  const ref = S.db.collection("collections").doc(); await ref.set({ name: n, createdAt: nowIso() }); return ref.id;
+}
+function subscribe() {
+  const onErr = e => { console.error(e); S.dbState = "unavailable"; renderAll(); };
+  const map = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  S.db.collection("materials").onSnapshot(s => { S.materials = map(s); S.got.m = true; renderAll(); }, onErr);
+  S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
+  S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
+}
+const ready = () => S.dbState === "ready" && S.got.m && S.got.a && S.got.c;
+const collName = id => (S.collections.find(c => c.id === id) || {}).name || "";
+
+/* ---------- filtragem ---------- */
+function scopeSet() { return S.view === "lib" && S.area && S.area !== "todos" ? descIds(S.area) : null; }
+const inScope = (m, set) => !set || set.has(m.areaId);
+const haystack = m => norm([m.title, pathOf(m.areaId).map(a => a.name).join(" "), m.subject, (m.tags || []).join(" ")].join(" "));
+function filtered() {
+  const set = scopeSet(), toks = norm(S.q).split(/\s+/).filter(Boolean);
+  const out = S.materials.filter(m => {
+    if (!inScope(m, set)) return false;
+    if (S.f.type && m.type !== S.f.type) return false;
+    if (S.f.status && (m.status || "nao-iniciado") !== S.f.status) return false;
+    if (S.f.coll && !(m.collectionIds || []).includes(S.f.coll)) return false;
+    if (S.f.fav && !m.favorite) return false;
+    if (toks.length) { const hs = haystack(m); if (!toks.every(t => hs.includes(t))) return false; }
+    return true;
+  });
+  const t = m => m.createdAt || "";
+  const cmp = { recent: (a, b) => t(b).localeCompare(t(a)), old: (a, b) => t(a).localeCompare(t(b)), az: (a, b) => cmpName(a.title || "", b.title || ""), za: (a, b) => cmpName(b.title || "", a.title || "") }[S.sort];
+  return out.sort(cmp);
+}
+const activeFilters = () => [S.f.type, S.f.status, S.f.coll, S.f.fav].filter(Boolean).length;
+const anyFilter = () => !!(S.q.trim() || activeFilters());
+const countIn = id => { const set = descIds(id); return S.materials.filter(m => set.has(m.areaId)).length; };
+
+/* ---------- componentes ---------- */
+function statusChip(s) { const v = s || "nao-iniciado"; return h("span", { class: "chip status", "data-s": v, text: STATUS_LABEL[v] }); }
+function openLink(m, cls = "link-open open", label = "Abrir") {
+  if (!m.url || !validUrl(m.url)) return h("span", { class: "small muted", text: "Sem link válido" });
+  const a = h("a", { class: cls, href: m.url, target: "_blank", rel: "noopener noreferrer", "aria-label": "Abrir original (nova aba): " + m.title, onclick: () => markOpened(m.id) }, label ? h("span", { class: "lbl", text: label }) : null);
+  a.append(svg(ICON_EXT)); return a;
+}
+/* Localização com o ponto da matéria, tipo, assunto e situação: tudo em segundo plano, abaixo do título. */
+const whereText = (m, from) => whereOf(m, from) || (areaById(m.areaId) || {}).name || "Sem área";
+function metaLine(m, from) {
+  const st = m.status || "nao-iniciado";
+  return h("p", { class: "entry-meta" },
+    h("span", { class: "where" }, h("i", { class: "dot", "aria-hidden": "true" }), h("span", { text: whereText(m, from) })),
+    m.type ? h("span", { class: "kind", text: m.type }) : null,
+    m.subject ? h("span", { class: "subj", text: m.subject }) : null,
+    st !== "nao-iniciado" ? statusChip(st) : null,
+    m.favorite ? h("span", { class: "entry-fav" }, svg(ICON_STAR), h("span", { class: "sr", text: "Favorito" })) : null);
+}
+function entry(m, from) {
+  return h("article", { class: "entry", style: stainVar(stainOf(m.areaId)) },
+    h("div", { class: "entry-main" },
+      h("h3", { class: "entry-title" }, h("button", { type: "button", "data-mid": m.id, onclick: () => openDetail(m.id), text: m.title || "(sem título)" })),
+      metaLine(m, from)),
+    h("div", { class: "entry-acts" }, openLink(m, "link-open open", "Abrir")));
+}
+function skeleton(n) {
+  return h("div", { class: "skel" }, h("p", { class: "sr", role: "status", text: "Carregando seu catálogo…" }),
+    Array.from({ length: n }, () => h("div", { class: "skel-row", "aria-hidden": "true" }, h("div", { class: "skel-bar" }), h("div", { class: "skel-bar short" }))));
+}
+function emptyState(title, text, withAdd) {
+  return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), withAdd && S.db ? h("button", { class: "btn primary", type: "button", onclick: () => openForm(null), text: "Adicionar material" }) : null);
+}
+const statsLine = list => {
+  const c = s => list.filter(m => (m.status || "nao-iniciado") === s).length;
+  const sep = () => h("span", { class: "sr", text: ", " });
+  return [h("span", null, h("b", { text: list.length }), list.length === 1 ? " material" : " materiais", sep()),
+    h("span", null, h("b", { text: c("em-estudo") }), " em estudo", sep()),
+    h("span", null, h("b", { text: c("revisado") }), c("revisado") === 1 ? " revisado" : " revisados", sep()),
+    h("span", null, h("b", { text: list.filter(m => m.favorite).length }), list.filter(m => m.favorite).length === 1 ? " favorito" : " favoritos")];
+};
+
+/* ---------- telas ---------- */
+function renderBanner() {
+  const b = $("#state-banner");
+  if (S.dbState === "login") { if (b.dataset.state !== "login") { b.hidden = false; b.replaceChildren(loginPanel()); } }
+  else if (S.dbState === "denied") {
+    b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Este e-mail não tem acesso" }),
+      h("p", { text: `Você entrou como ${S.user || "um e-mail sem permissão"}, que não é um dos e-mails desta biblioteca.` }),
+      h("div", null, h("button", { class: "btn", type: "button", text: "Sair e usar outro e-mail", onclick: signOut }))));
+  } else if (S.dbState === "unavailable") {
+    b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Não foi possível abrir o seu catálogo" }),
+      h("p", { text: "O banco de dados da biblioteca não respondeu. Verifique a conexão e recarregue a página." })));
+  } else if (!ready()) { b.hidden = false; b.replaceChildren(h("p", { class: "sr", role: "status", text: "Carregando seu catálogo…" })); }
+  else b.hidden = true;
+  b.dataset.state = S.dbState;
+  $$("[data-action='add']").forEach(x => x.disabled = !ready());
+  const acc = $("#account"); acc.hidden = !S.user;
+  if (S.user) acc.replaceChildren(`Conectado como ${S.user}. `, h("button", { class: "btn ghost", type: "button", text: "Sair", onclick: signOut }));
+}
+function renderModTabs() {
+  const nav = $("#modtabs"); nav.replaceChildren();
+  const cur = S.view === "lib" ? (S.area === "todos" ? "todos" : (pathOf(S.area)[0] || {}).id) : S.view;
+  const tab = (href, big, small, key) => h("a", { class: "modtab", href: "#" + href, "aria-current": cur === key ? "page" : null }, big);
+  childrenOf("").forEach(m => nav.append(tab("a-" + m.id, m.name, ready() ? plural(countIn(m.id), "item", "itens") : "módulo", m.id)));
+  nav.append(tab("todos", "Todos", ready() ? plural(S.materials.length, "item", "itens") : "acervo", "todos"));
+  // índice do trilho lateral: abre só o caminho da área atual
+  const side = $("#side-modules"); side.replaceChildren();
+  const path = S.view === "lib" && S.area !== "todos" ? pathOf(S.area).map(a => a.id) : [];
+  const node = (a, d) => {
+    const here = S.view === "lib" && S.area === a.id, on = path.includes(a.id);
+    const kids = childrenOf(a.id);
+    const li = h("li", null, h("a", { class: `side-link side-l${d}${on && !here ? " in-path" : ""}${kids.length && d < 2 ? " has-kids" : ""}${on && kids.length && d < 2 ? " is-open" : ""}`, href: "#a-" + a.id, style: d ? stainVar(stainOf(a.id)) : null, "aria-current": here ? "page" : null },
+      h("span", { class: "side-name", text: a.name }), ready() ? h("span", { class: "side-count", text: countIn(a.id) }) : null));
+    if (on && kids.length && d < 2) li.append(h("ul", { class: "side-tree" }, kids.map(k => node(k, d + 1))));
+    return li;
+  };
+  side.append(h("ul", { class: "side-tree" }, childrenOf("").map(m => node(m, 0))));
+  $$("[data-side]").forEach(a => a.dataset.side === cur ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  $$("[data-nav]").forEach(a => a.dataset.nav === S.view ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+}
+let shelfN = 0;
+function shelf(title, items, more, note) {
+  const id = "sh-" + (++shelfN);
+  return h("section", { class: "shelf", "aria-labelledby": id },
+    h("div", { class: "shelf-head" }, h("h2", { id, text: title }), more || null),
+    h("div", { class: "list" }, items.map(m => entry(m))),
+    note ? h("p", { class: "shelf-note", text: note }) : null);
+}
+function feature(m) {
+  const st = m.status || "nao-iniciado";
+  return h("section", { class: "feature", "aria-labelledby": "h-feature", style: stainVar(stainOf(m.areaId)) },
+    h("div", { class: "shelf-head" }, h("h2", { id: "h-feature", text: "Aberto por último" })),
+    h("div", { class: "feature-card" },
+      h("p", { class: "feature-where" }, h("span", null, h("i", { class: "dot", "aria-hidden": "true" }), areaLabel(m.areaId) || "Sem área"),
+        m.type ? h("span", { text: m.type }) : null, st !== "nao-iniciado" ? statusChip(st) : null),
+      h("h3", { class: "feature-title" }, h("button", { type: "button", "data-mid": m.id, onclick: () => openDetail(m.id), text: m.title || "(sem título)" })),
+      fmtDate(m.lastOpenedAt) ? h("p", { class: "feature-when", text: "Aberto em " + fmtDate(m.lastOpenedAt) }) : null,
+      h("div", { class: "feature-acts" }, openLink(m, "link-open open", "Abrir original"), h("button", { class: "btn", type: "button", text: "Detalhes", onclick: () => openDetail(m.id) }))));
+}
+function renderDirectory(box) {
+  const mods = childrenOf("");
+  if (!mods.length) return;
+  const link = (a, d) => h("a", { class: "index-link index-l" + d, href: "#a-" + a.id, style: d ? stainVar(stainOf(a.id)) : null }, h("span", { text: a.name }), cnt(countIn(a.id)));
+  box.append(h("section", { class: "shelf", "aria-labelledby": "h-dir" },
+    h("div", { class: "shelf-head" }, h("h2", { id: "h-dir", text: "Acervo por módulo" }), h("a", { href: "#organizar", text: "Organizar" })),
+    h("ul", { class: "index" }, mods.map(mod => h("li", { class: "index-mod" }, link(mod, 0),
+      childrenOf(mod.id).length ? h("ul", null, childrenOf(mod.id).map(u => h("li", null, link(u, 1),
+        childrenOf(u.id).length ? h("ul", { class: "index-subs" }, childrenOf(u.id).map(s => h("li", null, link(s, 2)))) : null)))
+        : h("p", { class: "muted small", text: "Nenhuma unidade ainda." }))))));
+}
+function renderHome() {
+  const ms = S.materials;
+  $("#home-stats").replaceChildren(...(ready() ? statsLine(ms) : []));
+  const focus = $("#home-focus"), directory = $("#home-directory");
+  focus.replaceChildren(); directory.replaceChildren(); focus.classList.remove("has-primary"); shelfN = 0;
+  if (!ready()) { if (S.dbState === "loading") focus.append(skeleton(6)); return; }
+  if (!ms.length && !S.areas.length) { focus.append(emptyState("Sua biblioteca está vazia", "Crie a estrutura do curso em Organizar e cadastre o link do primeiro material.", true)); return; }
+  const opened = ms.filter(m => validDate(m.lastOpenedAt)).sort((a, b) => b.lastOpenedAt.localeCompare(a.lastOpenedAt));
+  const newest = [...ms].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
+  const studying = ms.filter(m => m.status === "em-estudo").sort((a, b) => cmpName(a.title || "", b.title || ""));
+  const favs = ms.filter(m => m.favorite).sort((a, b) => cmpName(a.title || "", b.title || ""));
+  const primary = [];
+  if (opened.length) primary.push(feature(opened[0]));
+  if (opened.length > 1) primary.push(shelf("Abertos antes", opened.slice(1, 4)));
+  if (studying.length) primary.push(shelf("Em estudo", studying.slice(0, 6), h("a", { href: "#todos", onclick: () => presetFilters({ status: "em-estudo" }), text: "Ver todos" })));
+  if (favs.length) primary.push(shelf("Favoritos", favs.slice(0, 6), h("a", { href: "#todos", onclick: () => presetFilters({ fav: true }), text: "Ver todos" })));
+  const recent = ms.length
+    ? shelf("Adicionados recentemente", newest.slice(0, 8), h("a", { href: "#todos", text: "Ver todos" }), opened.length ? null : "Quando você abrir um material por aqui, ele aparece no topo desta página.")
+    : emptyState("Nenhum material ainda", "A estrutura do curso já existe. Cadastre o link do primeiro material.", true);
+  if (primary.length) { focus.classList.add("has-primary"); focus.append(h("div", { class: "home-col" }, primary), h("div", { class: "home-col" }, recent)); }
+  else focus.append(recent);
+  renderDirectory(directory);
+}
+function fillSelect(sel, options, value) { sel.replaceChildren(...options.map(([v, l]) => h("option", { value: v, text: l }))); sel.value = options.some(o => o[0] === value) ? value : options[0][0]; }
+const ICON_X = '<path d="M6 6l12 12M18 6 6 18"/>';
+function renderActiveFilters() {
+  const box = $("#active-filters");
+  const items = [];
+  if (S.q.trim()) items.push([`Busca: “${S.q.trim()}”`, () => { S.q = ""; }]);
+  if (S.f.type) items.push([S.f.type, () => { S.f.type = ""; }]);
+  if (S.f.status) items.push([STATUS_LABEL[S.f.status] || S.f.status, () => { S.f.status = ""; }]);
+  if (S.f.coll) items.push(["Coleção: " + (collName(S.f.coll) || "removida"), () => { S.f.coll = ""; }]);
+  if (S.f.fav) items.push(["Favoritos", () => { S.f.fav = false; }]);
+  box.hidden = !items.length;
+  box.replaceChildren(...items.map(([label, clear]) => h("button", { class: "af", type: "button", "aria-label": "Remover filtro: " + label, onclick: () => { clear(); renderLibrary(); $("#lib-q").focus(); } }, label, svg(ICON_X))));
+}
+function renderLibrary() {
+  if (S.view !== "lib") return;
+  const isAll = S.area === "todos";
+  const area = isAll ? null : areaById(S.area);
+  const head = $("#areahead");
+  if (!isAll && !area && ready()) { location.hash = "todos"; return; }
+  const path = area ? pathOf(area.id) : [];
+  head.setAttribute("style", stainVar(area ? stainOf(area.id) : ""));
+  const crumbs = $("#crumbs"); crumbs.replaceChildren(h("a", { href: "#inicio", text: "Início" }));
+  path.slice(0, -1).forEach(a => crumbs.append(h("i", { "aria-hidden": "true", text: "/" }), h("a", { href: "#a-" + a.id, text: a.name })));
+  crumbs.append(h("i", { "aria-hidden": "true", text: "/" }), h("span", { "aria-current": "page", text: area ? (LEVEL[path.length - 1] || "Área") : "Todos os materiais" }));
+  $("#h-lib").textContent = area ? area.name : isAll ? "Todos os materiais" : "Carregando…";
+  const set = scopeSet(); const inArea = S.materials.filter(m => inScope(m, set));
+  $("#lib-stats").replaceChildren(...(ready() ? statsLine(inArea) : []));
+  // abas de unidade e matéria (celular e tablet; no computador o índice lateral faz esse papel)
+  const unitrow = $("#unitrow"), subrow = $("#subrow");
+  const mod = path[0], unit = path[1];
+  unitrow.hidden = !mod; subrow.hidden = true; unitrow.replaceChildren(); subrow.replaceChildren();
+  if (mod) {
+    unitrow.append(h("a", { class: "unittab", href: "#a-" + mod.id, "aria-current": path.length === 1 ? "page" : null }, `Tudo em ${mod.name}`, cnt(countIn(mod.id))));
+    childrenOf(mod.id).forEach(u => unitrow.append(h("a", { class: "unittab", href: "#a-" + u.id, style: stainVar(stainOf(u.id)), "aria-current": unit && unit.id === u.id ? "page" : null }, u.name, cnt(countIn(u.id)))));
+  }
+  if (unit && childrenOf(unit.id).length) {
+    subrow.hidden = false;
+    subrow.append(h("a", { class: "subtab all", href: "#a-" + unit.id, "aria-current": path.length === 2 ? "page" : null }, `Tudo em ${unit.name}`));
+    childrenOf(unit.id).forEach(s => subrow.append(h("a", { class: "subtab", href: "#a-" + s.id, style: stainVar(s.stain), "aria-current": path[2] && path[2].id === s.id ? "page" : null }, s.name, cnt(countIn(s.id)))));
+  }
+  // ferramentas
+  $("#lib-q").placeholder = area ? `Buscar em ${area.name}` : "Buscar materiais";
+  fillSelect($("#f-type"), [["", "Tipo: todos"], ...TYPES.map(t => [t, t])], S.f.type);
+  fillSelect($("#f-status"), [["", "Situação: todas"], ...STATUS], S.f.status);
+  fillSelect($("#f-coll"), [["", "Coleção: todas"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
+  if ($("#lib-q").value !== S.q) $("#lib-q").value = S.q;
+  $("#f-fav").setAttribute("aria-pressed", S.f.fav ? "true" : "false");
+  $("#f-sort").value = S.sort; $("#f-group").value = S.group;
+  $$("[data-layout]").forEach(b => b.setAttribute("aria-pressed", b.dataset.layout === S.layout ? "true" : "false"));
+  const nf = activeFilters(); $("#more-count").textContent = nf ? ` · ${nf}` : "";
+  renderActiveFilters();
+  $("#clear-filters").disabled = !anyFilter();
+  const box = $("#lib-results"); box.replaceChildren(); const line = $("#result-line");
+  if (!ready()) { line.textContent = ""; if (S.dbState === "loading") box.append(skeleton(6)); return; }
+  const res = filtered(), total = inArea.length;
+  line.textContent = anyFilter() ? `${res.length} de ${plural(total, "material", "materiais")}` : plural(total, "material", "materiais");
+  if (!total) { box.append(emptyState(area ? `Nada em ${area.name} ainda` : "Nenhum material cadastrado", "Cadastre o link de um material; ele já entra nesta área.", true)); return; }
+  if (!res.length) { box.append(h("div", { class: "empty" }, h("h2", { text: "Nenhum material encontrado" }), h("p", { text: "Nada combina com a busca e os filtros atuais nesta área. A busca procura no título, matéria, assunto e etiquetas, não no texto dos arquivos." }), h("button", { class: "btn", type: "button", onclick: clearFilters, text: "Limpar busca e filtros" }))); return; }
+  const from = area ? area.id : "";
+  const mk = items => h("div", { class: S.layout === "grid" ? "grid" : "list" }, items.map(m => entry(m, from)));
+  if (S.group === "none") { box.append(mk(res)); return; }
+  const keyOf = { area: m => areaLabel(m.areaId, from) || (area ? "Direto em " + area.name : ""), subject: m => m.subject || "", period: m => m.period || "" }[S.group];
+  const emptyLbl = { area: "Sem área", subject: "Sem assunto", period: "Sem período" }[S.group];
+  const groups = new Map(); res.forEach(m => { const k = keyOf(m).trim(); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(m); });
+  [...groups.keys()].sort((a, b) => !a ? 1 : !b ? -1 : cmpName(a, b)).forEach(k => { const items = groups.get(k); box.append(h("h2", { class: "group-title" }, h("span", { text: k || emptyLbl }), h("span", { text: plural(items.length, "material", "materiais") })), mk(items)); });
+}
+
+/* organizar */
+const orgUI = { editing: null, confirming: null, adding: null };
+function renderOrg() {
+  const tree = $("#tree"); tree.replaceChildren();
+  const dis = !ready();
+  const rowFor = (a, d) => {
+    const li = h("li");
+    const key = a.id;
+    if (orgUI.editing === key) {
+      const inp = h("input", { type: "text", value: a.name, maxlength: "60", "aria-label": "Novo nome de " + a.name });
+      li.append(h("div", { class: "row", style: stainVar(stainOf(a.id)) }, h("form", { onsubmit: e => { e.preventDefault(); renameArea(a.id, inp.value); } }, inp,
+        h("button", { class: "btn primary", type: "submit", text: "Salvar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.editing = null; renderOrg(); } }))));
+      setTimeout(() => inp.focus(), 0);
+    } else {
+      const kids = childrenOf(a.id);
+      li.append(h("div", { class: "row", style: stainVar(stainOf(a.id)) },
+        h("span", { class: "swatch", "aria-hidden": "true" }),
+        h("button", { class: "name", type: "button", title: "Abrir " + a.name, onclick: () => { location.hash = "a-" + a.id; }, text: a.name }),
+        h("span", { class: "lvl", text: LEVEL[d] }), h("span", { class: "count", text: plural(countIn(a.id), "item", "itens") }),
+        d < 2 ? h("button", { class: "btn ghost", type: "button", disabled: dis, text: d === 0 ? "+ Unidade" : "+ Matéria", onclick: () => { orgUI.adding = a.id; orgUI.editing = orgUI.confirming = null; renderOrg(); } }) : null,
+        h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Renomear", "aria-label": "Renomear " + a.name, onclick: () => { orgUI.editing = key; orgUI.confirming = orgUI.adding = null; renderOrg(); } }),
+        h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Excluir", "aria-label": "Excluir " + a.name, onclick: () => {
+          if (kids.length) { toast(`${a.name} tem ${plural(kids.length, "subdivisão", "subdivisões")}. Exclua o que está dentro primeiro.`, { error: true }); return; }
+          orgUI.confirming = key; orgUI.editing = orgUI.adding = null; renderOrg(); } })));
+      if (orgUI.confirming === key) {
+        const n = countIn(a.id), parent = areaById(a.parentId);
+        const yes = h("button", { class: "btn danger", type: "button", text: "Excluir", onclick: () => deleteArea(a.id) });
+        li.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: `Excluir “${a.name}”? ${n ? plural(n, "material vai", "materiais vão") + " para " + (parent ? parent.name : "“sem área”") + "." : "Não há materiais aqui."} Nenhum arquivo é apagado.` }),
+          h("div", { class: "acts" }, yes, h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { orgUI.confirming = null; renderOrg(); } }))));
+        setTimeout(() => yes.focus(), 0);
+      }
+    }
+    const kids = childrenOf(a.id);
+    if (kids.length || orgUI.adding === a.id) {
+      const ul = h("ul"); kids.forEach(k => ul.append(rowFor(k, d + 1)));
+      if (orgUI.adding === a.id) {
+        const inp = h("input", { type: "text", maxlength: "60", placeholder: d === 0 ? "Nome da unidade (ex.: CIS 3)" : "Nome da matéria (ex.: Fisiologia)", "aria-label": "Nome da nova " + (d === 0 ? "unidade" : "matéria") });
+        ul.append(h("li", null, h("div", { class: "row" }, h("form", { onsubmit: e => { e.preventDefault(); addArea(a.id, inp.value); } }, inp,
+          h("button", { class: "btn primary", type: "submit", text: "Criar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.adding = null; renderOrg(); } })))));
+        setTimeout(() => inp.focus(), 0);
+      }
+      li.append(ul);
+    }
+    return li;
+  };
+  const roots = childrenOf("");
+  if (!roots.length) tree.append(h("li", { class: "muted small", text: dis ? (S.dbState === "loading" ? "Carregando módulos…" : "Módulos indisponíveis nesta visualização.") : "Nenhum módulo ainda. Crie o primeiro abaixo." }));
+  roots.forEach(r => tree.append(rowFor(r, 0)));
+  const orphan = S.materials.filter(m => !areaById(m.areaId)).length;
+  if (orphan) tree.append(h("li", { class: "muted small", text: `${plural(orphan, "material está", "materiais estão")} sem área definida. Encontre em Todos e edite o campo “Onde fica”.` }));
+  // coleções
+  const ul = $("#coll-rows"); ul.replaceChildren();
+  if (!S.collections.length) ul.append(h("li", { class: "muted small", text: dis ? (S.dbState === "loading" ? "Carregando coleções…" : "Coleções indisponíveis nesta visualização.") : "Nenhuma coleção ainda. Crie a primeira abaixo." }));
+  S.collections.forEach(c => {
+    const n = S.materials.filter(m => (m.collectionIds || []).includes(c.id)).length, key = "c:" + c.id;
+    if (orgUI.editing === key) {
+      const inp = h("input", { type: "text", value: c.name, maxlength: "80", "aria-label": "Novo nome de " + c.name });
+      ul.append(h("li", { class: "row" }, h("form", { onsubmit: e => { e.preventDefault(); renameColl(c.id, inp.value); } }, inp, h("button", { class: "btn primary", type: "submit", text: "Salvar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.editing = null; renderOrg(); } }))));
+      setTimeout(() => inp.focus(), 0); return;
+    }
+    ul.append(h("li", { class: "row" }, h("button", { class: "name", type: "button", onclick: () => { presetFilters({ coll: c.id }); location.hash = "todos"; }, text: c.name }), h("span", { class: "count", text: plural(n, "item", "itens") }),
+      h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Renomear", "aria-label": "Renomear " + c.name, onclick: () => { orgUI.editing = key; orgUI.confirming = null; renderOrg(); } }),
+      h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Excluir", "aria-label": "Excluir " + c.name, onclick: () => { orgUI.confirming = key; orgUI.editing = null; renderOrg(); } })));
+    if (orgUI.confirming === key) {
+      const yes = h("button", { class: "btn danger", type: "button", text: "Excluir", onclick: () => deleteColl(c.id, c.name) });
+      ul.append(h("li", { class: "confirm-inline", role: "alert" }, h("p", { text: `Excluir a coleção “${c.name}”? ${plural(n, "material sai", "materiais saem")} dela, mas continuam no catálogo.` }), h("div", { class: "acts" }, yes, h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { orgUI.confirming = null; renderOrg(); } }))));
+      setTimeout(() => yes.focus(), 0);
+    }
+  });
+  $$("#mod-add input, #mod-add button, #coll-add input, #coll-add button").forEach(x => x.disabled = dis);
+}
+function renderDatalists() {
+  const uniq = arr => [...new Set(arr.map(s => (s || "").trim()).filter(Boolean))].sort(cmpName);
+  $("#dl-subjects").replaceChildren(...uniq(S.materials.map(m => m.subject)).map(v => h("option", { value: v })));
+  $("#dl-periods").replaceChildren(...uniq(S.materials.map(m => m.period)).map(v => h("option", { value: v })));
+}
+function renderAll() { renderBanner(); renderModTabs(); renderHome(); renderLibrary(); renderOrg(); renderDatalists(); if ($("#dlg-detail").open) renderDetail(); }
+
+/* ---------- navegação ---------- */
+function route(focus) {
+  const hs = location.hash.slice(1);
+  if (hs === "organizar") { S.view = "organizar"; S.area = ""; }
+  else if (hs === "todos") { S.view = "lib"; S.area = "todos"; }
+  else if (hs.startsWith("a-")) { S.view = "lib"; S.area = hs.slice(2); }
+  else { S.view = "inicio"; S.area = ""; }
+  const vid = S.view === "lib" ? "lib" : S.view;
+  $$("[data-view]").forEach(s => { s.hidden = s.dataset.view !== vid; });
+  renderModTabs(); renderLibrary();
+  if (focus) { $("#main").focus({ preventScroll: true }); window.scrollTo(0, 0); }
+}
+function presetFilters(p) { S.f = { type: "", status: "", coll: "", fav: false, ...p }; S.q = ""; }
+function clearFilters() { S.q = ""; S.f = { type: "", status: "", coll: "", fav: false }; renderLibrary(); $("#lib-q").focus(); }
+
+/* ---------- ações ---------- */
+const find = id => S.materials.find(m => m.id === id);
+async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; await write(() => S.db.doc("materials/" + id).update({ favorite: on }), on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
+async function setStatus(id, s) { const m = find(id); if (!m || (m.status || "nao-iniciado") === s) return; await write(() => S.db.doc("materials/" + id).update({ status: s, statusAt: nowIso() }), "Status: " + STATUS_LABEL[s]); }
+function markOpened(id) { if (S.db) S.db.doc("materials/" + id).update({ lastOpenedAt: nowIso() }).catch(e => console.error(e)); }
+async function removeMaterial(id) {
+  const m = find(id); if (!m) return; const { id: _i, ...body } = m;
+  const ok = await write(() => S.db.doc("materials/" + id).delete(), "Removido do catálogo. O arquivo original não foi alterado.", { action: { label: "Desfazer", run: () => write(() => S.db.doc("materials/" + id).set(body), "Material restaurado") } });
+  if (ok) closeDlg($("#dlg-detail"));
+}
+async function addArea(parentId, name) {
+  name = name.trim(); if (!name) return;
+  if (childrenOf(parentId).some(a => norm(a.name) === norm(name))) { toast("Já existe um item com esse nome aqui.", { error: true }); return; }
+  const d = parentId ? depthOf(parentId) + 1 : 0;
+  const used = S.areas.map(a => a.stain).filter(Boolean);
+  const stain = d === 0 ? "" : STAINS.find(s => !used.includes(s)) || STAINS[S.areas.length % STAINS.length];
+  const ok = await write(() => S.db.collection("areas").doc().set({ name, parentId: parentId || "", order: childrenOf(parentId).length + 1, stain, createdAt: nowIso() }), ["Módulo criado", "Unidade criada", "Matéria criada"][d]);
+  if (ok) { orgUI.adding = null; renderOrg(); }
+}
+async function renameArea(id, name) {
+  name = name.trim(); if (!name) return; const a = areaById(id);
+  if (childrenOf(a.parentId).some(x => x.id !== id && norm(x.name) === norm(name))) { toast("Já existe um item com esse nome aqui.", { error: true }); return; }
+  if (await write(() => S.db.doc("areas/" + id).update({ name }), "Nome atualizado")) { orgUI.editing = null; renderOrg(); }
+}
+async function deleteArea(id) {
+  const a = areaById(id); if (!a) return; const affected = S.materials.filter(m => m.areaId === id);
+  const ok = await write(async () => { for (const m of affected) await S.db.doc("materials/" + m.id).update({ areaId: a.parentId || "" }); await S.db.doc("areas/" + id).delete(); }, `“${a.name}” excluído`);
+  if (ok) { orgUI.confirming = null; if (S.area === id) location.hash = a.parentId ? "a-" + a.parentId : "inicio"; renderAll(); }
+}
+async function addColl(input) {
+  const name = input.value.trim(); if (!name) { input.focus(); return; }
+  if (S.collections.some(c => norm(c.name) === norm(name))) { toast("Já existe uma coleção com esse nome.", { error: true }); return; }
+  if (await write(() => S.db.collection("collections").doc().set({ name, createdAt: nowIso() }), "Coleção criada")) input.value = "";
+}
+async function renameColl(id, name) {
+  name = name.trim(); if (!name) return;
+  if (S.collections.some(c => c.id !== id && norm(c.name) === norm(name))) { toast("Já existe uma coleção com esse nome.", { error: true }); return; }
+  if (await write(() => S.db.doc("collections/" + id).update({ name }), "Nome atualizado")) { orgUI.editing = null; renderOrg(); }
+}
+async function deleteColl(id, name) {
+  const affected = S.materials.filter(m => (m.collectionIds || []).includes(id));
+  const ok = await write(async () => { for (const m of affected) await S.db.doc("materials/" + m.id).update({ collectionIds: (m.collectionIds || []).filter(c => c !== id) }); await S.db.doc("collections/" + id).delete(); }, `Coleção “${name}” excluída`);
+  if (ok) { orgUI.confirming = null; if (S.f.coll === id) S.f.coll = ""; renderAll(); }
+}
+
+/* ---------- diálogos ---------- */
+let lastFocus = null;
+function openDlg(d) { lastFocus = document.activeElement; if (!d.open) d.showModal(); }
+function closeDlg(d) { if (d.open) d.close(); }
+$$("dialog").forEach(d => {
+  d.addEventListener("close", () => {
+    // a lista é redesenhada enquanto o painel está aberto; se o botão de origem foi substituído, volta ao mesmo material
+    const back = lastFocus && document.contains(lastFocus) ? lastFocus : (d.id === "dlg-detail" && S.detailId ? $$(`[data-mid="${S.detailId}"]`).find(b => !b.closest("[hidden]")) : null);
+    if (back) back.focus();
+    if (d.id === "dlg-detail") { S.detailId = null; confirmRemove = false; }
+  });
+  d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-close]")) closeDlg(d); });
+});
+let confirmRemove = false;
+function openDetail(id) { S.detailId = id; confirmRemove = false; renderDetail(); openDlg($("#dlg-detail")); setTimeout(() => $("#d-title").focus(), 0); }
+function renderDetail() {
+  const m = find(S.detailId); if (!m) { closeDlg($("#dlg-detail")); return; }
+  $("#d-code").replaceChildren(h("span", { class: "where", style: "display:inline-flex;align-items:center;gap:7px;" + stainVar(stainOf(m.areaId)) }, h("i", { class: "dot", "aria-hidden": "true" }), areaLabel(m.areaId) || "Sem área"), m.type ? h("span", { text: m.type }) : null);
+  $("#d-title").textContent = m.title || "(sem título)";
+  const fav = $("#d-fav"); fav.setAttribute("aria-pressed", m.favorite ? "true" : "false"); fav.setAttribute("aria-label", m.favorite ? "Remover dos favoritos" : "Favoritar"); fav.onclick = () => toggleFav(m.id);
+  const rows = [["Onde fica", areaLabel(m.areaId) || "Sem área"], ["Assunto", m.subject], ["Período", m.period], ["Tipo", m.type], ["Origem", m.source], ["Incluído em", fmtDate(m.createdAt)], ["Aberto por aqui em", fmtDate(m.lastOpenedAt)]].filter(r => r[1]);
+  const dl = h("dl", { class: "dl" }); rows.forEach(([k, v]) => dl.append(h("dt", { text: k }), h("dd", { text: v })));
+  const cur = m.status || "nao-iniciado";
+  const fs = h("fieldset", { class: "statusset" }, h("legend", { text: "Status de estudo" }), h("div", { class: "segwrap" }, STATUS.map(([v, l]) => h("label", null, h("input", { type: "radio", name: "d-status", value: v, checked: v === cur, onchange: () => setStatus(m.id, v) }), l))));
+  const colls = (m.collectionIds || []).map(collName).filter(Boolean);
+  const parts = [h("div", { class: "d-actions" }, openLink(m, "btn primary", "Abrir original")), fs, dl,
+    colls.length ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Coleções" }), h("div", { class: "tags" }, colls.map(c => h("span", { class: "tag", text: c })))) : null,
+    (m.tags || []).length ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Etiquetas" }), h("div", { class: "tags" }, m.tags.map(t => h("span", { class: "tag", text: t })))) : null,
+    m.notes ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Observações" }), h("p", { class: "notes", text: m.notes })) : null,
+    h("div", { class: "fld" }, h("span", { class: "lbl", text: "Link" }), h("p", { class: "small muted", style: "overflow-wrap:anywhere", text: m.url || "—" }))];
+  const body = $("#d-body");
+  body.replaceChildren(...parts.filter(Boolean));
+  if (confirmRemove) body.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: "Remover este material do catálogo? Só o registro sai daqui. O arquivo original (por exemplo, no Google Drive) não é apagado nem alterado." }),
+    h("div", { class: "acts" }, h("button", { class: "btn danger", type: "button", id: "d-rm-yes", text: "Remover do catálogo", onclick: () => { confirmRemove = false; removeMaterial(m.id); } }), h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { confirmRemove = false; renderDetail(); } }))));
+  $("#d-foot").replaceChildren(
+    h("button", { class: "btn", type: "button", text: "Editar", onclick: () => { closeDlg($("#dlg-detail")); openForm(m.id); } }),
+    h("span", { class: "spacer" }),
+    h("button", { class: "btn ghost", type: "button", text: "Remover do catálogo", onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } }));
+}
+function openForm(id) {
+  if (!ready()) return;
+  S.editId = id; const m = id ? find(id) : null;
+  $("#form-title").textContent = m ? "Editar material" : "Adicionar material";
+  $("#m-save").textContent = m ? "Salvar alterações" : "Salvar material";
+  $("#m-title").value = m ? m.title || "" : ""; $("#m-url").value = m ? m.url || "" : "";
+  const areaOpts = [["", "Sem área"], ...treeOrder().map(([a]) => [a.id, pathOf(a.id).map(x => x.name).join(" › ")])];
+  const defArea = m ? m.areaId || "" : (S.view === "lib" && S.area !== "todos" ? S.area : "");
+  fillSelect($("#m-area"), areaOpts, defArea);
+  fillSelect($("#m-type"), [["", "Sem tipo"], ...TYPES.map(t => [t, t])], m ? m.type || "" : "");
+  fillSelect($("#m-status"), STATUS, m ? m.status || "nao-iniciado" : "nao-iniciado");
+  $("#m-subject").value = m ? m.subject || "" : ""; $("#m-period").value = m ? m.period || "" : "";
+  $("#m-tags").value = m ? (m.tags || []).join(", ") : ""; $("#m-origin").value = m ? m.source || "" : ""; $("#m-notes").value = m ? m.notes || "" : "";
+  $("#m-fav").checked = !!(m && m.favorite); $("#m-coll-new").value = "";
+  const sel = new Set(m ? m.collectionIds || [] : (S.f.coll ? [S.f.coll] : []));
+  $("#m-colls").replaceChildren(...(S.collections.length ? S.collections.map(c => h("label", null, h("input", { type: "checkbox", value: c.id, checked: sel.has(c.id) }), c.name)) : [h("span", { class: "small muted", text: "Nenhuma coleção ainda. Crie uma no campo abaixo, se quiser." })]));
+  ["title", "url"].forEach(k => fieldErr(k, ""));
+  openDlg($("#dlg-form")); setTimeout(() => $("#m-title").focus(), 0);
+}
+function fieldErr(k, msg) { const i = $("#m-" + k), e = $("#m-" + k + "-err"); if (msg) { e.textContent = msg; e.hidden = false; i.setAttribute("aria-invalid", "true"); } else { e.hidden = true; i.removeAttribute("aria-invalid"); } return !msg; }
+const BAD_URL = "Este link não parece válido. Ele precisa começar com https:// e ter um endereço completo.";
+$("#m-url").addEventListener("blur", () => { const v = $("#m-url").value.trim(); if (v) fieldErr("url", validUrl(v) ? "" : BAD_URL); });
+$("#mat-form").addEventListener("submit", async e => {
+  e.preventDefault(); if (S.busy) return;
+  const title = $("#m-title").value.trim(), url = $("#m-url").value.trim();
+  const okT = fieldErr("title", title ? "" : "Dê um título ao material.");
+  const okU = fieldErr("url", !url ? "Cole o link do material." : validUrl(url) ? "" : BAD_URL);
+  if (!okT || !okU) { (!okT ? $("#m-title") : $("#m-url")).focus(); return; }
+  S.busy = true; $("#m-save").disabled = true;
+  const ok = await write(async () => {
+    const collIds = $$("#m-colls input:checked").map(i => i.value);
+    const nc = $("#m-coll-new").value.trim(); if (nc) { const cid = await ensureCollection(nc); if (cid && !collIds.includes(cid)) collIds.push(cid); }
+    const tags = [...new Set($("#m-tags").value.split(",").map(t => t.trim()).filter(Boolean))];
+    let source = $("#m-origin").value.trim(); if (!source && isDrive(url)) source = "Google Drive";
+    const body = { title, url, areaId: $("#m-area").value, subject: $("#m-subject").value.trim(), period: $("#m-period").value.trim(), type: $("#m-type").value, tags, collectionIds: collIds, source, notes: $("#m-notes").value.trim(), status: $("#m-status").value, favorite: $("#m-fav").checked };
+    if (S.editId) await S.db.doc("materials/" + S.editId).update(body);
+    else await S.db.collection("materials").doc().set({ ...body, createdAt: nowIso() });
+  }, S.editId ? "Alterações salvas" : "Material salvo");
+  S.busy = false; $("#m-save").disabled = false;
+  if (ok) closeDlg($("#dlg-form"));
+});
+
+/* ---------- eventos ---------- */
+$$("[data-action='add']").forEach(b => b.addEventListener("click", () => openForm(null)));
+$("#home-search").addEventListener("submit", e => { e.preventDefault(); presetFilters({}); S.q = $("#home-q").value; location.hash = "todos"; setTimeout(() => $("#lib-q").focus(), 0); });
+let qTimer; $("#lib-q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { S.q = e.target.value; renderLibrary(); }, 120); });
+$("#f-type").addEventListener("change", e => { S.f.type = e.target.value; renderLibrary(); });
+$("#f-status").addEventListener("change", e => { S.f.status = e.target.value; renderLibrary(); });
+$("#f-coll").addEventListener("change", e => { S.f.coll = e.target.value; renderLibrary(); });
+$("#f-fav").addEventListener("click", () => { S.f.fav = !S.f.fav; renderLibrary(); });
+$("#f-sort").addEventListener("change", e => { S.sort = e.target.value; savePrefs(); renderLibrary(); });
+$("#f-group").addEventListener("change", e => { S.group = e.target.value; savePrefs(); renderLibrary(); });
+$$("[data-layout]").forEach(b => b.addEventListener("click", () => { S.layout = b.dataset.layout; savePrefs(); renderLibrary(); }));
+$("#clear-filters").addEventListener("click", clearFilters);
+$("#mod-add").addEventListener("submit", e => { e.preventDefault(); const i = $("#mod-new"); if (i.value.trim()) addArea("", i.value).then(() => { i.value = ""; }); });
+$("#coll-add").addEventListener("submit", e => { e.preventDefault(); addColl($("#coll-new")); });
+window.addEventListener("hashchange", () => route(true));
+// "/" leva à busca, como numa barra de comando; ignorado enquanto se digita ou com um painel aberto
+document.addEventListener("keydown", e => {
+  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || document.querySelector("dialog[open]")) return;
+  const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+  e.preventDefault();
+  if (S.view === "lib") $("#lib-q").focus();
+  else if (S.view === "inicio") $("#home-q").focus();
+  else { location.hash = "todos"; setTimeout(() => $("#lib-q").focus(), 0); }
+});
+
+try {
+  const mq = window.matchMedia("(max-width:759px)");
+  if (mq.matches) $("#more").open = false;
+  mq.addEventListener("change", e => { if (!e.matches) $("#more").open = true; });
+} catch (_) {}
+/* ---------- banco fora do claude.ai: Supabase ----------
+   Dentro do claude.ai o site usa window.claude.use("db"). No site próprio usa o Supabase, com a mesma interface
+   (collection/doc/onSnapshot/set/update/delete). A chave abaixo é a chave pública do projeto: o acesso aos dados
+   é protegido pelas regras do banco (só os e-mails da dona leem e gravam). */
+const SUPA = { url: "https://rmqfduksayyplucshqea.supabase.co", key: "sb_publishable_EG4jEqDNIiD_-ow5L4qh8w_XkUG7eDZ", lib: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" };
+const COLS = {
+  materials: ["title", "url", "areaId", "subject", "period", "type", "tags", "collectionIds", "source", "notes", "status", "favorite", "createdAt", "lastOpenedAt", "statusAt"],
+  areas: ["name", "parentId", "order", "stain", "short", "createdAt"],
+  collections: ["name", "createdAt"],
+};
+const toCol = k => k === "order" ? "sort_order" : k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
+const toKey = c => c === "sort_order" ? "order" : c.replace(/_([a-z])/g, (_, x) => x.toUpperCase());
+function rowOut(table, obj) { const r = {}; for (const k of COLS[table]) if (k in obj) r[toCol(k)] = /At$/.test(k) && !obj[k] ? null : obj[k]; return r; }
+function rowIn(r) { const o = {}; for (const [c, v] of Object.entries(r)) if (c !== "id") o[toKey(c)] = v == null && c.endsWith("_at") ? "" : v; return o; }
+function loadScript(src) { return new Promise((ok, fail) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => fail(new Error("Falha ao carregar " + src)); document.head.append(s); }); }
+function supaDb(sb) {
+  const listeners = {};
+  const refresh = async table => {
+    const { data, error } = await sb.from(table).select("*");
+    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: r.id, data: () => rowIn(r) })) });
+  };
+  const check = ({ error }) => { if (error) throw error; };
+  const ref = (table, id) => ({ id,
+    async set(obj) { check(await sb.from(table).upsert({ id, ...rowOut(table, obj) })); refresh(table); },
+    async update(obj) { check(await sb.from(table).update(rowOut(table, obj)).eq("id", id)); refresh(table); },
+    async delete() { check(await sb.from(table).delete().eq("id", id)); refresh(table); } });
+  return {
+    doc: path => { const [table, id] = path.split("/"); return ref(table, id); },
+    collection: table => ({
+      doc: id => ref(table, id || crypto.randomUUID()),
+      onSnapshot(next, err) {
+        (listeners[table] ||= []).push({ next, err }); refresh(table);
+        sb.channel("bm-" + table).on("postgres_changes", { event: "*", schema: "public", table }, () => refresh(table)).subscribe();
+      } }),
+  };
+}
+async function startSupabase() {
+  await loadScript(SUPA.lib);
+  const sb = window.supabase.createClient(SUPA.url, SUPA.key, { auth: { flowType: "pkce", persistSession: true, detectSessionInUrl: true } });
+  S.sb = sb;
+  const { data } = await sb.auth.getSession();
+  if (/[?&]code=/.test(location.search)) history.replaceState(null, "", location.pathname + location.hash);
+  if (!data.session) { S.dbState = "login"; renderAll(); return null; }
+  S.user = data.session.user.email || "";
+  const { data: allowed, error } = await sb.rpc("sou_bibliotecaria");
+  if (error) throw error;
+  if (!allowed) { S.dbState = "denied"; renderAll(); return null; }
+  return supaDb(sb);
+}
+async function signOut() { if (S.sb) await S.sb.auth.signOut(); location.reload(); }
+function loginPanel() {
+  const email = h("input", { type: "email", id: "login-email", autocomplete: "email", inputmode: "email", autocapitalize: "none", required: true, placeholder: "seu e-mail" });
+  const code = h("input", { type: "text", id: "login-code", inputmode: "numeric", autocomplete: "one-time-code", maxlength: "10", placeholder: "código do e-mail" });
+  const msg = h("p", { class: "small muted", role: "status" });
+  const step2 = h("form", { class: "search", hidden: true, onsubmit: async e => {
+    e.preventDefault(); if (!code.value.trim()) return;
+    const { error } = await S.sb.auth.verifyOtp({ email: email.value.trim(), token: code.value.trim(), type: "email" });
+    if (error) msg.textContent = "Código inválido ou vencido. Peça um novo link."; else location.reload();
+  } }, h("label", { class: "sr", for: "login-code", text: "Código recebido por e-mail" }), h("div", { class: "field" }, code), h("button", { class: "btn primary", type: "submit", text: "Entrar" }));
+  const step1 = h("form", { class: "search", onsubmit: async e => {
+    e.preventDefault(); const v = email.value.trim(); if (!v) { email.focus(); return; }
+    msg.textContent = "Enviando…";
+    const { error } = await S.sb.auth.signInWithOtp({ email: v, options: { emailRedirectTo: location.origin + location.pathname } });
+    if (error) { msg.textContent = "Não foi possível enviar agora. Confira o e-mail e tente de novo em um minuto."; return; }
+    msg.textContent = `Enviamos um link de acesso para ${v}. Abra o link neste mesmo navegador. Se o e-mail trouxer um código, digite-o abaixo.`;
+    step2.hidden = false;
+  } }, h("label", { class: "sr", for: "login-email", text: "E-mail" }), h("div", { class: "field" }, email), h("button", { class: "btn primary", type: "submit", text: "Enviar link" }));
+  return h("div", { class: "notice login" }, h("h2", { text: "Entrar na biblioteca" }),
+    h("p", { class: "muted", text: "O catálogo é privado: só os e-mails da dona desta biblioteca têm acesso. Você entra sem senha, por um link enviado ao e-mail." }), step1, step2, msg);
+}
+
+route(false); renderAll();
+(async () => {
+  let db = null;
+  try {
+    if (window.claude && typeof window.claude.use === "function") db = await window.claude.use("db");
+    else db = await startSupabase();
+  } catch (e) { console.error(e); }
+  if (S.dbState === "login" || S.dbState === "denied") return;
+  if (!db) { S.dbState = "unavailable"; renderAll(); return; }
+  S.db = db; S.dbState = "ready"; renderAll(); subscribe();
+})();
+})();
+</script>
