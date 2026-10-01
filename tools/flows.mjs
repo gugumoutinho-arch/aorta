@@ -46,7 +46,7 @@ for (const w of [375, 1440]) for (const scheme of ['light', 'dark']) {
   const clipped = await page.evaluate(() => [...document.querySelectorAll('.entry-title button')].filter(b => b.scrollWidth > b.clientWidth + 1 || b.parentElement.scrollHeight > b.parentElement.clientHeight + 1).length);
   ok(`${tag} títulos longos sem corte`, clipped === 0);
   // filtros ativos
-  if (w < 500) await page.click('#more summary');
+  if (!(await page.locator('#more').evaluate(d => d.open))) await page.click('#more summary');
   await page.selectOption('#f-status', 'em-estudo'); await page.waitForTimeout(150);
   await page.click('#f-fav'); await page.waitForTimeout(150);
   ok(`${tag} chips de filtros ativos`, await page.locator('#active-filters .af').count() === 2);
@@ -59,12 +59,27 @@ for (const w of [375, 1440]) for (const scheme of ['light', 'dark']) {
   await page.fill('#lib-q', 'zzzxyz'); await page.waitForTimeout(300);
   ok(`${tag} estado vazio da busca`, await page.locator('#lib-results .empty').count() === 1);
   await shot(page, `vazio@${tag}`); await page.click('#clear-filters');
-  // grade e agrupamento
-  if (w < 500 && !(await page.locator('#more').evaluate(d => d.open))) await page.click('#more summary');
-  await page.click('[data-layout="grid"]'); await page.selectOption('#f-group', 'subject'); await page.waitForTimeout(200);
-  await shot(page, `grade@${tag}`); await noOverflow(page, `${tag} grade`);
-  ok(`${tag} agrupar por assunto`, await page.locator('.group-title').count() > 1);
-  await page.click('[data-layout="list"]'); await page.selectOption('#f-group', 'none');
+  // divisão das matérias (assunto, período, nenhuma)
+  if (!(await page.locator('#more').evaluate(d => d.open))) await page.click('#more summary');
+  await page.selectOption('#f-group', 'none'); await page.waitForTimeout(200);
+  ok(`${tag} sem divisão: nenhuma subseção`, await page.locator('#lib-results .sub-h').count() === 0);
+  await page.selectOption('#f-group', 'subject'); await page.waitForTimeout(200);
+  ok(`${tag} dividir por assunto`, await page.locator('#lib-results .sub-h').count() > 1);
+  await page.click('#more summary'); await page.waitForTimeout(100);
+  // índice de dedo: abas proporcionais, salto, posição atual e folhear pela borda
+  const tabs = await page.locator('#thumbs .thumb').count();
+  ok(`${tag} índice de dedo com abas`, tabs >= 2, String(tabs));
+  const hs = await page.evaluate(() => [...document.querySelectorAll('#thumbs .thumb')].map(t => Math.round(t.getBoundingClientRect().height)));
+  ok(`${tag} abas com altura ≥ 44 px`, hs.every(x => x >= 44), hs.join(','));
+  const last = page.locator('#thumbs .thumb').last(); const lastName = await last.getAttribute('data-name');
+  await last.click(); await page.waitForTimeout(500);
+  ok(`${tag} tocar na aba leva à matéria e marca a posição`, await last.getAttribute('aria-current') === 'location' && (await page.locator('#rh-title').textContent()).includes(lastName), lastName);
+  const tb = await page.locator('#thumbs .thumb').first().boundingBox();
+  await page.mouse.move(tb.x + tb.width / 2, tb.y + 6); await page.mouse.down(); await page.mouse.move(tb.x + tb.width / 2, tb.y + tb.height * .6, { steps: 6 }); await page.waitForTimeout(150);
+  ok(`${tag} folhear pela borda mostra o balão`, await page.locator('#bubble').isVisible(), await page.locator('#bubble').innerText().catch(() => ''));
+  await shot(page, `folhear@${tag}`); await page.mouse.up(); await page.waitForTimeout(100);
+  ok(`${tag} balão some ao soltar`, !(await page.locator('#bubble').isVisible()));
+  await hash(page, 'todos');
   // detalhes: foco, Escape, retorno
   const trig = page.locator('#lib-results .entry-title button').first();
   await trig.focus(); await page.keyboard.press('Enter'); await page.waitForTimeout(400);
@@ -101,7 +116,9 @@ for (const scheme of ['light', 'dark']) {
   ok(`375-${scheme} sem histórico: não mostra "Aberto por último"`, await page.locator('#h-feature').count() === 0);
   ok(`375-${scheme} sem histórico: mostra materiais em estudo/recentes`, (await page.locator('#home-focus .entry').count()) > 0);
   await shot(page, `inicio-sem-historico@375-${scheme}`);
-  await page.locator('#home-directory').scrollIntoViewIfNeeded(); await shot(page, `inicio-modulos@375-${scheme}`);
+  await page.click('.tabbar [data-action="toc"]'); await page.waitForTimeout(400);
+  ok(`375-${scheme} sumário abre em folha`, await page.locator('#dlg-toc[open] .t-mat').count() > 0);
+  await shot(page, `sumario@375-${scheme}`); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
   await hash(page, 'organizar'); await shot(page, `organizar@375-${scheme}`);
   await page.click('.tabbar [data-action="add"]'); await page.waitForTimeout(400); await shot(page, `formulario@375-${scheme}`);
   await ctx.close();
@@ -109,7 +126,9 @@ for (const scheme of ['light', 'dark']) {
   ok(`375-${scheme} carregando mostra esqueleto`, await page.locator('.skel').count() >= 1);
   await shot(page, `carregando@375-${scheme}`); await ctx.close();
   ({ ctx, page } = await open(scheme, 1440, 'none')); await shot(page, `inicio-sem-historico@1440-${scheme}`);
-  await hash(page, 'a-cis1'); await shot(page, `unidade@1440-${scheme}`); await ctx.close();
+  await hash(page, 'a-cis1'); await page.waitForTimeout(200);
+  ok(`1440-${scheme} rota de unidade abre o capítulo no topo`, Math.abs(await page.evaluate(() => document.querySelector('#c-cis1').getBoundingClientRect().top - document.querySelector('.rh').offsetHeight)) < 4);
+  await shot(page, `unidade@1440-${scheme}`); await ctx.close();
 }
 await browser.close(); Object.values(srv).forEach(x => x.s.close());
 console.log(log.join('\n') + `\n\n${log.length - fails} de ${log.length} verificações aprovadas, ${fails} falha(s). Capturas em tools/reports/flows/`);

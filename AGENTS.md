@@ -58,7 +58,7 @@ Regras:
 - **Celular primeiro:** 375 px sem rolagem horizontal, gutter lateral de 16 px, áreas de toque de pelo menos 44 px.
 - **Acessibilidade:** foco visível, teclado, contraste mínimo de 4,5:1, `aria-*` nos controles, respeito a `prefers-reduced-motion`.
 - Movimento só onde ajuda a entender uma ação.
-- Identidade visual atual: "Pauta e marca-texto" (ver `DESIGN.md`; produto em `PRODUCT.md`): quadro do semestre em papel pautado, Atkinson Hyperlegible Next + Mono só para números, azul-caneta só na ação principal e na seleção, matérias como faixas de marca-texto, busca com grifo e quadro matéria × assunto gerados dos dados. Sem trilho lateral. Mudanças de identidade só com pedido do usuário.
+- Identidade visual atual: "Índice de dedo" (ver `DESIGN.md`; produto em `PRODUCT.md`): a biblioteca é um livro de referência do curso, com abas impressas na borda (uma por matéria, altura proporcional, arrastar para folhear), entradas de sumário com linha pontilhada até "Abrir original", sumário em duas páginas no computador. Literata + Schibsted Grotesk; tintas por coloração da matéria. Mudanças de identidade só com pedido do usuário.
 
 ## Verificações automáticas (`tools/`)
 

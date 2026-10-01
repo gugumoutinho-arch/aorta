@@ -2,6 +2,43 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-01 — Claude — remodelação "Índice de dedo" (estrutura, navegação e interação novas) — não publicada
+
+- **Pedido:** `_fora-do-site/prompt-vscode-redesign-v2.md`. Crítica da versão "Pauta e marca-texto" com 8 achados conferidos nas capturas. Os principais:
+  - no celular, quadro, busca e filtros vinham antes do primeiro material (Todos: só o título dele em y≈720);
+  - no computador, o quadro parecia uma tabela branca;
+  - a mesma linha azul "Abrir original" se repetia em cada material;
+  - o painel de detalhe era genérico;
+  - no escuro, as faixas ficavam turvas.
+- **Exploração:** duas direções com prancha, protótipo navegável e capturas lado a lado contra a versão atual (375 e 1440, claro e escuro), com dados fictícios na forma do catálogo real e com o `seed.json`. Tudo em `_fora-do-site/remodelacao/v2/`.
+  - **A · Índice de dedo**, escolhida: livro contínuo com abas impressas na borda.
+  - **B · Camadas**, descartada: as folhas empilhavam ~400 px antes do primeiro material no celular e deixavam três colunas quase vazias no computador.
+  - **O que A ganha:** primeiro material completo na primeira tela em todas as rotas, um gesto até qualquer assunto e identidade própria.
+  - **O que A perde:** o livro cresce com muitos períodos (compensado por busca, abas que se agrupam por unidade e sumário), a coluna do índice tira 52 px no celular e a opção "Grade" sai.
+- **O que mudou no site:**
+  - **Livro:** a página vira um livro: módulo › unidade (capítulo) › matéria (seção com fio na cor da coloração) › assunto (subseção em ordem de semana). Cada material é uma entrada de sumário com "Abrir original" na tinta da matéria.
+  - **Índice de dedo:** uma aba por matéria, com altura proporcional. Tocar salta; arrastar o polegar folheia com um balão; ↑/↓ e Enter no teclado. Com a busca ativa, mostra só onde há resultado; se não couber, agrupa por unidade ou módulo.
+  - **Navegação:** a cabeça corrente mostra onde você está. O sumário fica à esquerda no computador e em folha no celular (pela cabeça ou pela barra).
+  - **Início:** "Aberto por último", "Em estudo" e "Favoritos" quando existem; sem histórico, "Recém-incluídos". Depois vem o livro.
+  - **Busca e filtros:** a busca filtra o livro inteiro ao vivo e grifa os termos. "Refinar" recolhido traz tipo, situação, coleção, só favoritos, ordenar e dividir por assunto/período/nenhum.
+  - **Ficha:** leva a aba da matéria. Folha no celular, painel no computador.
+  - **Acessibilidade e temas:** botão "Ir para os materiais" ao receber foco; tema escuro desenhado à parte.
+  - **Fontes:** Literata + Schibsted Grotesk, carregadas sem bloquear a renderização.
+- **Preservado:** as duas pontas de banco, esquema e RLS (nada mudou no Supabase), login, coleções, favoritos, situação, cadastro e edição, rotas e voltar, remoção com aviso de que o original fica e Desfazer, busca só em metadados. A preferência antiga "agrupar por matéria" vira "assunto"; `layout` é ignorado.
+- **Higgsfield:** não usado.
+  - O Higgsfield não está conectado nesta sessão e a extensão Claude in Chrome também não; não houve acesso à conta, ao saldo nem ao preço.
+  - O caminho oficial para o Claude Code instala uma CLI global (`npm i -g @higgsfield/cli`), o que você pediu para evitar.
+  - Nenhum crédito foi gasto. O desenho usa só CSS e HTML.
+- **Testado** (dados fictícios; nada lido nem gravado no banco real):
+  - `npm run check`: 0 erros e 0 avisos (24 telas, axe sem violações).
+  - `node flows.mjs`: 118 de 118. Novos testes: abas ≥44 px, toque na aba, folhear com balão, sumário em folha, rota de unidade no topo, divisão por assunto e nenhuma.
+  - `verificar-indice.mjs`: 81 de 81. Cobre material completo na primeira tela (Início 3, Todos 3, matéria 4 a 375; 5, 6 e 8 a 1440), contraste das tintas (≥6:1 no claro, ≥7,8:1 no escuro), teclado, busca com e sem resultado, sumário, 320 e 768 px sem rolagem lateral, títulos longos sem corte e movimento reduzido.
+  - `adversarial.mjs`: os três caminhos até um material no celular funcionam (busca, sumário, folhear), e os 108 controles visíveis clicados têm efeito.
+  - `npm run lighthouse`: celular 100/100/100 (LCP 1,3 s, CLS 0,002), computador 100/100/100.
+  - Revisão de acessibilidade com `design:accessibility-review`. Revisão de movimento seguindo o `SKILL.md` de `review-animations`, que não é invocável pelo modelo nesta sessão. Correções: atalho para os materiais, nomes acessíveis das abas e da cabeça corrente, fio de chegada em 280 ms.
+- **Não testado:** celular de verdade (o gesto de folhear foi testado com mouse simulado, não com toque real), leitor de tela real, Supabase real (login e gravações), publicação no GitHub Pages, Safari e Firefox.
+- **Backup:** `versoes/claude-2026-09-30-antes-indice-de-dedo.html` (commit 34de0a1).
+
 ## 2026-09-30 — Claude — remodelação "Pauta e marca-texto" (estrutura nova, não só pele) — não publicada
 
 - **Pedido:** `_fora-do-site/prompt-vscode-redesign.md`. A dona confirmou que a biblioteca vai servir a alunos de vários períodos e crescer muito (registrado em `PRODUCT.md`).
