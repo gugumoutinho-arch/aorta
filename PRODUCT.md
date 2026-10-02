@@ -9,6 +9,8 @@ web
 ## Users
 - **Hoje:** o dono da biblioteca, estudante de medicina (M1 › CIS 1), que organiza e abre os próprios materiais.
 - **Destino confirmado (30/09/2026):** alunos de medicina de todos os períodos, acima e abaixo do dele, usando a mesma base para achar materiais da matéria que estão cursando ou revisando.
+- **Direção decidida pelo dono em 01/10/2026 (ainda não implementada):** acervo aberto de materiais de qualidade para estudantes de medicina em geral: provas antigas, materiais de monitoria, resumos e casos clínicos, de fácil acesso, para melhorar a primeira experiência de quem chega. Os alunos da IDOMED são o primeiro grupo; o site não é só deles e não leva o nome de nenhuma instituição. Qualquer pessoa lê sem login; o login é opcional e serve para guardar o que a pessoa já abriu e favoritou; só o dono e quem ele autorizar alteram o acervo. Quem tem login poderá sugerir material (só link do Drive), que passa por curadoria do dono antes de aparecer.
+- **Módulos:** as pastas M1 a M8 (M8 é o último antes do internato) podem existir desde já; só M1 e M2 têm conteúdo. Módulo, unidade ou matéria sem nenhum material aparece marcado "Em produção", deduzido dos dados, e a marca some no primeiro material. Os módulos nunca são fixos no código.
 - **Situação de uso:** principalmente no celular, em momentos curtos (entre aulas, no transporte, antes de estudar), para **achar ou retomar** um material e **abrir o original** no Google Drive. No computador, para cadastrar e organizar.
 
 ## Product Purpose
@@ -27,7 +29,8 @@ A biblioteca segue a estrutura real do curso (módulos, unidades, matérias, sem
 - Uma página (`index.html`, fragmento) que roda dentro do claude.ai (`window.claude.use("db")`) e no GitHub Pages (Supabase).
 - Tabelas `materials`, `areas`, `collections`; status `nao-iniciado` | `em-estudo` | `revisado`; favoritos; remoção com aviso de que o original não é apagado e "Desfazer".
 - Acesso hoje: só os e-mails do dono (RLS). **Em aberto:** como colegas de outros períodos vão ler e contribuir (leitura pública? contas? quem cadastra?). Mudar acesso ou banco só com pedido explícito.
-- **Em aberto:** situação de estudo e favoritos são hoje do catálogo, não de cada aluno; com muitos usuários isso precisa de uma decisão de produto.
+- **Em aberto:** situação de estudo e favoritos são hoje do catálogo, não de cada aluno; com muitos usuários isso precisa de uma decisão de produto. Direção do dono: no aparelho para quem não entrou; na conta, em tabela própria, para quem entrou.
+- **Próximas rodadas (precisam de pedido explícito, migração e revisão de segurança):** leitura pública; login opcional; estado por pessoa; lista de editores no banco; sugestão de material com login e curadoria (fila separada do catálogo, limite de envios, só links do Drive, escolha entre aparecer como autor ou anônimo, fila consultada pelo dono sem aviso por e-mail); `noindex` mantido enquanto o acervo estiver em construção. Os links do Drive ainda não estão prontos: o dono vai reuni-los depois.
 - Sem dependências novas; só fontes do Google Fonts; sem `alert/confirm/prompt`.
 
 ## Brand Commitments

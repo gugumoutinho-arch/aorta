@@ -45,7 +45,7 @@ Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Est
 
 ## Composição
 
-- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes. A primeira visita apresenta busca, abas “Retomar/Catálogo”, marcador de leitura aberto quando existe e o primeiro capítulo do curso. “Em estudo, favoritos e recentes” fica em disclosure nativo quando há histórico; sem histórico ele abre a seleção.
+- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes. A primeira visita apresenta busca, abas “Retomar/Catálogo”, marcador de leitura aberto quando existe e o primeiro capítulo do curso. “Em estudo, favoritos e recentes” fica em disclosure nativo, sempre fechado; sem histórico, “Por onde começar” ocupa o início.
 - Computador: a busca ocupa uma faixa própria acima do conteúdo; a retomada e a seleção ocupam duas colunas antes do catálogo.
 - O catálogo usa módulo em linha, unidade em Literata grande sem caixa e matérias como abas preenchidas pela tinta da área; assuntos continuam em margem de 132 px no computador e materiais são linhas abertas com título e “Abrir original” alinhados.
 - “Explorar” na barra inferior abre `#dlg-toc`: árvore com nomes completos à esquerda e índice de matérias à direita. A cabeça corrente também abre o explorador.
@@ -63,6 +63,9 @@ Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Est
 - Ao atravessar o breakpoint de 1000 px, o explorador fecha e o índice muda de posição.
 - Detalhe: marcador da matéria no cabeçalho, favorito/fechar alinhados no topo, abertura do original em destaque, metadados em grade de duas colunas.
 - Movimento curto, com alternativa para `prefers-reduced-motion`: pressão em 100 ms com `--ease`, painéis em 220 ms/160 ms com `--ease-drawer`; modo reduzido mantém apenas cor, borda e foco. Alvos de toque de 44 px ou mais.
+- `.start` ("Por onde começar"): aparece só sem histórico. Duas fileiras de portas (`.door`, 2 colunas no celular, 4 no computador): tipos (Provas antigas, Monitoria, Resumos, Casos clínicos) e módulos com material; porta sem material é tracejada e diz "Em produção". Módulos sem material ficam numa linha única "Em produção: M3 M4 …" (`.start-prod`, links de 44 px). Os módulos vêm dos dados; nada fixo em M1–M8.
+- "Em produção" (`IN_PRODUCTION`, `areasWithContent()`): módulo, unidade ou matéria sem material nela nem abaixo. Marca no livro (`.part.is-production`, aviso `.part-note` com atalho para o primeiro módulo com conteúdo), no Explorar (`.t-flag`) e na cabeça corrente. Módulos com conteúdo vêm primeiro; sem barra de progresso, porcentagem ou data.
+- `[data-edit]`: toda ação de edição (Adicionar link, Organizar, Editar, Remover, Adicionar material) o leva e fica em segundo plano (Adicionar link deixou de ser primário). A rodada de acesso o esconde de quem não edita com uma regra, ainda não ativada.
 - Aparência: o botão no cabeçalho abre radios nativos para Sistema, Claro e Escuro. A preferência é aplicada antes da primeira pintura, guardada em `bm-theme` quando possível, reage ao sistema e atualiza `theme-color`; falha de armazenamento volta a Sistema.
 
 ## Figma e Higgsfield
