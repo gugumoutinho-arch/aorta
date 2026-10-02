@@ -8,7 +8,7 @@ import { onThemeChange } from "../ui/theme.js";
 import { concept } from "./concept.js";
 
 const NS = "http://www.w3.org/2000/svg";
-const MODEL = `${import.meta.env.BASE_URL}modelos/heart-hra-v1.3.glb`;
+const modelUrl = () => `${import.meta.env.BASE_URL}modelos/${concept().model || "heart-hra-v1.3.glb"}`;
 let mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
 
 function flatTips() {
@@ -24,7 +24,7 @@ function buildLabels() {
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
   // O nome acessível é o próprio texto visível ("Art. 01 M1 4 materiais"), como pede o WCAG 2.5.3.
   nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
-    h("span", { class: "mono", text: moduleNumber(m.index) + " " }), h("b", { text: m.name }), h("small", { text: " " + countLabel(m.count) }))));
+    h("span", { class: "mono", text: (concept().labelTop?.(m) || moduleNumber(m.index)) + " " }), h("b", { text: m.name }), h("small", { text: " " + countLabel(m.count) }))));
   $("#flat-arteries").replaceChildren(...mods.map(m => {
     const p = document.createElementNS(NS, "path");
     p.setAttribute("d", concept().flat(m, mods.length).d); p.dataset.flat = String(m.index);
@@ -47,11 +47,16 @@ function layout() {
     // Lado = onde a ponta aparece na tela (vale para o 3D girado e para o mapa em linhas).
     const isRight = m => ends[m.index] ? ends[m.index].x > map.clientWidth / 2 : concept().side(m, mods.length) === "right";
     const side = mods.filter(m => isRight(m) === right).sort((a, b) => y(a) - y(b));
-    side.forEach((m, row) => {
-      const b = $(`#modules [data-module="${m.id}"]`); if (!b) return;
+    // Cada rótulo tenta ficar na altura da sua ponta (linha-guia curta e quase reta); depois afasta os vizinhos
+    // para não se sobreporem e devolve para dentro do mapa, de baixo para cima.
+    const GAP = 8, items = side.map(m => ({ m, b: $(`#modules [data-module="${m.id}"]`) })).filter(x => x.b);
+    items.forEach(x => { x.h = x.b.offsetHeight; x.top = Math.max(4, y(x.m) - x.h * .62); });
+    for (let k = 1; k < items.length; k++) items[k].top = Math.max(items[k].top, items[k - 1].top + items[k - 1].h + GAP);
+    let limit = hgt - 4;
+    for (let k = items.length - 1; k >= 0; k--) { items[k].top = Math.min(items[k].top, limit - items[k].h); limit = items[k].top - GAP; }
+    items.forEach(({ b, top }) => {
       b.dataset.side = right ? "right" : "left";
-      const lh = b.offsetHeight, top = side.length === 1 ? hgt * .35 : 4 + row * (hgt - 8 - lh) / Math.max(1, side.length - 1);
-      b.style.transform = `translate(${right ? w - b.offsetWidth : 0}px, ${top}px)`;
+      b.style.transform = `translate(${right ? w - b.offsetWidth : 0}px, ${Math.max(0, top)}px)`;
     });
   }
   $("#guides").setAttribute("viewBox", `0 0 ${map.clientWidth} ${hgt}`);
@@ -101,7 +106,7 @@ async function startHeart() {
     const create = await c.load();
     if (token !== boot) return;
     const created = await create({
-      map: $("#map"), modules: mods, model: MODEL,
+      map: $("#map"), modules: mods, model: modelUrl(),
       // Content-Length pode vir comprimido e os bytes lidos, não: o número nunca passa de 100%.
       onProgress: (got, total) => { if (token !== boot) return; $("#load-text").textContent = c.loadingModel; $("#progress").textContent = total ? Math.min(100, Math.round(got / total * 100)) + "%" : Math.round(got / 1024) + " KB"; },
       onProject: points => guides(points),
@@ -134,7 +139,8 @@ export function drawMap(list) {
   const atlas = $("#atlas");
   atlas.dataset.empty = String(!list.length);
   mods = list;
-  const sig = JSON.stringify(list.map(m => [m.id, m.name, m.count, m.live]));
+  concept().decorate?.(list);
+  const sig = JSON.stringify(list.map(m => [m.id, m.name, m.count, m.live, m.dest]));
   if (sig !== signature) { signature = sig; buildLabels(); }
   requestLayout();
   if (!ready() || !list.length) return;

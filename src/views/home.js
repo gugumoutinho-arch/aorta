@@ -82,7 +82,7 @@ function renderIndex(mods) {
       h("a", { class: "index-num", href: "#a-" + m.id, "data-module": m.id, "aria-label": `${m.name}: ${countLabel(m.count)}` }, m.name),
       h("div", null,
         h("h3", { text: units.length ? (S.acervo === "geral" ? liveUnits : units).map(u => u.name).join(" · ") : m.name }),
-        h("p", { text: `${countLabel(m.count)} · ${moduleNumber(m.index).toUpperCase()}${S.concept === "coracao" ? " · " + m.art : ""}` })),
+        h("p", { text: `${countLabel(m.count)} · ${concept().labelTop ? "destino: " + concept().labelTop(m) : moduleNumber(m.index).toUpperCase() + (S.concept === "coracao" ? " · " + m.art : "")}` })),
       h("a", { class: "index-go", href: "#a-" + m.id, "aria-hidden": "true", tabindex: "-1" }, "↗"));
   });
   const prod = waiting.length ? h("div", { class: "production-index" }, h("span", { text: "Em produção · ainda sem material" }),
@@ -127,6 +127,7 @@ function renderShelves(resume) {
 export function renderHome() {
   renderCopy();
   const mods = ready() ? moduleList() : [];
+  concept().decorate?.(mods);
   renderCounts(mods);
   const resume = ready() ? renderResume() : null;
   if (!ready()) $("#resume").hidden = true;

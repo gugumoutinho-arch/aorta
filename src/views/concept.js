@@ -4,6 +4,8 @@
    Cada conceito diz: forma do mapa em linhas (SVG 600×560), traçado e ponta de cada caminho, lado do rótulo,
    textos e quem desenha o 3D. O resto (rótulos, linhas-guia, páginas) é o mesmo. */
 import { S } from "../core/state.js";
+import { DESTINATIONS, destinationsFor } from "../body/routes.js";
+import SILHOUETTE from "../body/silhouette.json";
 
 const f1 = n => n.toFixed(1);
 function smoothPath(p) {
@@ -43,6 +45,14 @@ function leafOutline() {
     `M${f1(leafSvg([0, -LEAF_L - .45])[0])} ${f1(leafSvg([0, -LEAF_L - .45])[1])}L${f1(leafSvg([0, LEAF_L - .12])[0])} ${f1(leafSvg([0, LEAF_L - .12])[1])}`];
 }
 
+/* ---------- corpo: projeção frontal do corpo inteiro (metros → SVG 600×560) ---------- */
+const BODY_S = 284;
+const bodySvg = ([x, y]) => [300 + x * BODY_S, 280 - y * BODY_S];
+function bodyOutline() {
+  const p = SILHOUETTE.outline.map(bodySvg);
+  return [p.map((q, i) => (i ? "L" : "M") + f1(q[0]) + " " + f1(q[1])).join("") + "Z"];
+}
+
 export const CONCEPTS = {
   coracao: {
     brand: "Aorta", title: "Aorta", footer: "O curso inteiro, irrigado módulo a módulo.",
@@ -64,5 +74,19 @@ export const CONCEPTS = {
     geometryKey: list => JSON.stringify(list.map(m => m.id)),
     load: () => import("../leaf/leaf.js").then(x => x.createLeaf),
   },
+};
+CONCEPTS.corpo = {
+  brand: "Aorta", title: "Aorta", footer: "Do coração a cada parte do corpo, um módulo por vez.",
+  pause: ["Pausar batimento", "Retomar batimento"], loading: "Preparando o corpo", loadingModel: "Carregando o corpo",
+  state3d: "Artérias estilizadas · cada módulo leva a uma parte do corpo.", caption: "corpo inteiro", back: "← Voltar ao corpo", flatWhat: "Corpo em linhas",
+  model: "corpo.glb",
+  outline: bodyOutline,
+  /* Cada módulo ganha um destino (M1 → pé…) antes de desenhar; o rótulo mostra o destino. */
+  decorate: list => { destinationsFor(list).forEach((key, i) => { list[i].dest = key; }); },
+  labelTop: m => DESTINATIONS[m.dest]?.label || "",
+  side: m => (DESTINATIONS[m.dest]?.route.at(-1)[0] ?? 0) >= 0 ? "right" : "left",
+  flat: m => { const p = (DESTINATIONS[m.dest] || DESTINATIONS.pe).route.map(bodySvg); return { d: smoothPath(p), tip: p.at(-1) }; },
+  geometryKey: list => JSON.stringify(list.map(m => [m.id, m.dest])),
+  load: () => import("../body/body.js").then(x => x.createBody),
 };
 export const concept = () => CONCEPTS[S.concept] || CONCEPTS.coracao;

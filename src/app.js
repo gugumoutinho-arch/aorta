@@ -9,11 +9,20 @@ import { renderModule, moduleEntered } from "./views/module.js";
 import { renderOrg } from "./views/organize.js";
 import { renderDetail } from "./views/detail.js";
 import { renderDatalists } from "./views/form.js";
+import { slideIndicator } from "./ui/indicator.js";
+
+/* Abas de acervo: a pílula desliza com mola até o acervo atual. */
+let pill = null;
+export function syncAcervoTabs(animate = true) {
+  $$("[data-acervo-tab]").forEach(a => a.dataset.acervoTab === S.acervo && S.view !== "organizar" ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  pill ||= slideIndicator($(".acervo-tabs"), '[aria-current="page"]', "acervo-pill");
+  pill(animate);
+}
 
 export function renderNav() {
   document.body.dataset.view = S.view;
   document.body.dataset.acervo = S.acervo;
-  $$("[data-acervo-tab]").forEach(a => a.dataset.acervoTab === S.acervo && S.view !== "organizar" ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  syncAcervoTabs();
   $$(".view[data-view]").forEach(s => { s.hidden = s.dataset.view !== S.view; });
   $$("[data-nav]").forEach(a => {
     const on = a.dataset.nav === S.view || (a.dataset.nav === "todos" && S.view === "modulo" && S.scope === "todos");

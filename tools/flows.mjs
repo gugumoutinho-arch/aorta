@@ -43,9 +43,10 @@ const axeClean = async page => (await new AxeBuilder({ page }).withTags(['wcag2a
 const dialogOpen = (page, id) => page.evaluate(x => !!document.querySelector(`#${x}[open]`), id);
 const focusedIn = (page, sel) => page.evaluate(s => !!document.querySelector(s)?.contains(document.activeElement), sel);
 const smallTargets = page => page.evaluate(() => [...document.querySelectorAll('button,a[href],summary,select,input:not([type=hidden]):not([type=radio]):not([type=checkbox])')].filter(e => {
-  const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
-  return r.width && r.height && cs.visibility !== 'hidden' && !e.closest('[hidden],dialog:not([open]),.sr,footer') && !e.matches('.material-title button,.mini-card h3 button,.resume-title') && (r.height < 43.5 || r.width < 43.5);
-}).map(e => `${e.tagName}.${e.className || e.id}:${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`));
+  // Tamanho de layout (offset*): a mola de "afundar" muda só o desenho por um instante, não o alvo de toque.
+  const r = e.getBoundingClientRect(), cs = getComputedStyle(e), w = e.offsetWidth || r.width, hh = e.offsetHeight || r.height;
+  return r.width && r.height && cs.visibility !== 'hidden' && !e.closest('[hidden],dialog:not([open]),.sr,footer') && !e.matches('.material-title button,.mini-card h3 button,.resume-title') && (hh < 43.5 || w < 43.5);
+}).map(e => `${e.tagName}.${e.className || e.id}:${e.offsetWidth}x${e.offsetHeight}`));
 
 /* ---------- caminho principal, em 3 larguras e 2 temas ---------- */
 for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {

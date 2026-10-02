@@ -6,6 +6,10 @@ import { $, $$, h, svg, ICON } from "../core/dom.js";
 import { tokens, plural, cmpName, byKey } from "../core/text.js";
 import { childrenOf, modules, moduleList, moduleNumber, pathOf, descIds, areaById, areasWithContent, areaLabel, treeOrder, acervoOf, inAcervo } from "../core/areas.js";
 import { concept } from "./concept.js";
+import { DESTINATIONS } from "../body/routes.js";
+import { syncAcervoTabs } from "../app.js";
+import { slideIndicator } from "../ui/indicator.js";
+let unitsInk = null;
 import { materialCard } from "./cards.js";
 import { openForm } from "./form.js";
 import { rememberModule } from "./home.js";
@@ -25,7 +29,7 @@ function resolvePending() {
   // Abrir uma área de outro acervo (pela busca ou por um link) leva junto o acervo.
   if (scope !== "todos" && acervoOf(scope) !== S.acervo) {
     S.acervo = acervoOf(scope); remember("aorta-acervo", S.acervo); document.body.dataset.acervo = S.acervo;
-    $$("[data-acervo-tab]").forEach(a => a.dataset.acervoTab === S.acervo ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+    syncAcervoTabs();
   }
   return true;
 }
@@ -81,7 +85,9 @@ function renderHeader(mod) {
   view.style.setProperty("--selected", `var(${mod.token})`);
   title.textContent = mod.name;
   title.classList.toggle("long", mod.name.length > 4);
-  meta.textContent = S.concept === "coracao" ? `${moduleNumber(mod.index)} · ${mod.art}` : `${moduleNumber(mod.index)} · ${ACERVOS[S.acervo].label}`;
+  const c = concept();
+  if (c.decorate) { const list = moduleList(); c.decorate(list); const d = list.find(x => x.id === mod.id); meta.textContent = `${c.labelTop(d)} · ${DESTINATIONS[d.dest]?.art || ""}`; }
+  else meta.textContent = S.concept === "coracao" ? `${moduleNumber(mod.index)} · ${mod.art}` : `${moduleNumber(mod.index)} · ${ACERVOS[S.acervo].label}`;
   $("#back-home").textContent = concept().back;
   const units = childrenOf(mod.id), live = areasWithContent();
   const waiting = units.filter(u => !live.has(u.id));
@@ -97,6 +103,7 @@ function renderUnits(mod) {
   box.hidden = !kids.length;
   const all = S.scope === "todos" ? S.materials.filter(m => inAcervo(m)).length : mod?.count || 0;
   const tab = (id, label, n, on) => h("button", { type: "button", "data-unit": id, "aria-pressed": String(on) }, label, h("small", { text: n ? plural(n, "material", "materiais") : IN_PRODUCTION }));
+  queueMicrotask(() => { unitsInk ||= slideIndicator(box, '[aria-pressed="true"]', "units-ink", { underline: true }); unitsInk(); });
   box.replaceChildren(tab("", S.scope === "todos" ? `Todos (${ACERVOS[S.acervo].units})` : "Todas as unidades", all, !S.unit),
     ...kids.map(u => { const n = live.has(u.id) ? baseCount(u.id) : 0; return tab(u.id, u.name, n, S.unit === u.id); }));
 }

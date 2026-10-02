@@ -15,8 +15,8 @@ export const ACERVOS = {
   idomed: { label: "IDOMED", long: "Acervo IDOMED", unit: "módulo", units: "módulos", mapTitle: "Mapa do curso", indexTitle: "Módulos do curso" },
   geral: { label: "Medicina geral", long: "Medicina geral", unit: "disciplina", units: "disciplinas", mapTitle: "Mapa das disciplinas", indexTitle: "Disciplinas" },
 };
-/* Protótipo v4: o mesmo site em dois conceitos visuais, para o dono comparar (?conceito=coracao | folha). */
-export const CONCEPTS = ["coracao", "folha"];
+/* Protótipo v4: o mesmo site em três conceitos visuais, para o dono comparar (?conceito=coracao | folha | corpo). */
+export const CONCEPTS = ["coracao", "folha", "corpo"];
 const fromUrl = new URLSearchParams(location.search).get("conceito");
 let savedConcept = "coracao", savedAcervo = "idomed";
 try { savedConcept = localStorage.getItem("aorta-conceito") || "coracao"; savedAcervo = localStorage.getItem("aorta-acervo") || "idomed"; } catch (_) { /* sem armazenamento */ }
