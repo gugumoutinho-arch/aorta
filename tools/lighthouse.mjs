@@ -18,7 +18,7 @@ try {
   for (const mode of ['mobile', 'desktop']) {
     const flags = { port, output: 'json', onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'], logLevel: 'error' };
     const config = mode === 'desktop' ? (await import('lighthouse/core/config/desktop-config.js')).default : undefined;
-    const run = await lighthouse(url, flags, config);
+    const run = await lighthouse(url + (process.env.LH_QUERY || ''), flags, config); // ex.: LH_QUERY='?conceito=corpo'
     const c = run.lhr.categories;
     const score = k => Math.round((c[k]?.score ?? 0) * 100);
     const a = run.lhr.audits;

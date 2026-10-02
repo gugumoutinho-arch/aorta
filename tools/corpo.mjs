@@ -1,26 +1,33 @@
 // Prepara o conceito "corpo" (protótipo v4) a partir dos modelos do HuBMAP / Human Reference Atlas (CC BY 4.0):
-//  - baixa a pele do corpo inteiro (3D Reference Organ: Skin, Male, v1.3) e usa o coração já no projeto;
-//  - simplifica as malhas por agrupamento de vértices (de ~6 MB para algumas centenas de kB);
-//  - põe o coração no peito, no referencial do corpo (src/body/routes.js: HEART_POS);
-//  - grava public/modelos/corpo.glb e a silhueta frontal para o mapa em linhas (src/body/silhouette.json).
+//  - baixa o corpo completo (3D Reference Organ: United Male, v1.7 — pele e órgãos já posicionados) uma vez;
+//  - junta as malhas por órgão (o encéfalo em telencéfalo, diencéfalo, tronco encefálico e cerebelo) e simplifica;
+//  - grava public/modelos/corpo.glb, o centro de cada órgão (src/body/anatomy.json) e a silhueta frontal
+//    para o mapa em linhas (src/body/silhouette.json).
 // Uso (precisa de internet só na primeira vez):  node tools/corpo.mjs
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { root } from './harness.mjs';
 import { parseGLB } from '../src/heart/glb.js';
-import { HEART_POS } from '../src/body/routes.js';
 
-const SKIN_URL = 'https://cdn.humanatlas.io/digital-objects/ref-organ/skin-male/v1.3/assets/3d-vh-m-skin.glb';
-const cache = path.join(os.tmpdir(), 'aorta-skin-v1.3.glb');
+const UNITED_URL = 'https://cdn.humanatlas.io/digital-objects/ref-organ/united-male/v1.7/assets/3d-vh-m-united.glb';
+const cache = path.join(os.tmpdir(), 'aorta-united-male-v1.7.glb');
 if (!fs.existsSync(cache)) {
-  console.log('Baixando a pele do HuBMAP…');
-  const r = await fetch(SKIN_URL); if (!r.ok) throw new Error('Download falhou: ' + r.status);
+  console.log('Baixando o corpo completo do HuBMAP (~150 MB, só na primeira vez)…');
+  const r = await fetch(UNITED_URL); if (!r.ok) throw new Error('Download falhou: ' + r.status);
   fs.writeFileSync(cache, Buffer.from(await r.arrayBuffer()));
 }
 const ab = b => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength);
-const skin = parseGLB(ab(fs.readFileSync(cache)));
-const heartGlb = parseGLB(ab(fs.readFileSync(path.join(root, 'public', 'modelos', 'heart-hra-v1.3.glb'))));
+const raw = fs.readFileSync(cache);
+const united = parseGLB(ab(raw));
+// Hierarquia (nomes dos nós) para juntar as malhas por órgão; o modelo já vem com tudo no lugar, no referencial do corpo.
+const json = JSON.parse(new TextDecoder().decode(raw.subarray(20, 20 + raw.readUInt32LE(12))));
+const byName = new Map(json.nodes.map((n, i) => [n.name, i]));
+function meshesUnder(name, test = () => true) {
+  const out = [], walk = i => { const n = json.nodes[i]; if (n.translation || n.rotation || n.scale || n.matrix) return; if (n.mesh !== undefined && test(n.name) && united[n.name]) out.push(united[n.name]); (n.children || []).forEach(walk); };
+  if (byName.has(name)) walk(byName.get(name)); else console.warn('Sem o grupo', name);
+  return out;
+}
 
 /* Agrupamento de vértices: cada célula de "cell" metros vira um vértice (média); triângulos degenerados saem. */
 function cluster(meshes, cell) {
@@ -43,12 +50,37 @@ function cluster(meshes, cell) {
   return { pos: out, idx: sum.length < 65536 ? Uint16Array.from(idx) : Uint32Array.from(idx) };
 }
 
-const skinMesh = cluster(Object.values(skin), 0.011);
-// Coração: câmaras e valvas, recentradas no próprio modelo e levadas ao peito (escala real, em metros).
-const HC = [.0187, .4761, .0376];
-const chambers = ['VH_M_left_cardiac_atrium', 'VH_M_right_cardiac_atrium', 'VH_M_heart_left_ventricle', 'VH_M_heart_right_ventricle', 'VH_M_interventricular_septum']
-  .filter(n => heartGlb[n]).map(n => { const d = heartGlb[n], p = d.pos.slice(); for (let i = 0; i < p.length; i += 3) { p[i] += HEART_POS[0] - HC[0]; p[i + 1] += HEART_POS[1] - HC[1]; p[i + 2] += HEART_POS[2] - HC[2]; } return { pos: p, idx: d.idx }; });
-const heartMesh = cluster(chambers, 0.0045);
+/* Divisões clássicas do encéfalo a partir das estruturas do atlas Allen. */
+const DIEN = /thalam|hypothal|HTH|habenul|pineal|zona_incerta|subthalam|geniculate|third_ventricle|mammill|optic_tract|reuniens|pulvinar|centromedian|parafascicular|midline_nuclear/i;
+const TRONCO = /substantia_nigra|colliculus|red_nucleus|cerebral_peduncle|midbrain|pretectal|aqueduct|pons|pontine|medulla|olive|fourth_ventricle|central_canal/i;
+const CEREB = /cerebell|vermis|hindbrain/i;
+const division = n => CEREB.test(n) && !/cerebral_peduncle/i.test(n) ? 'cerebelo' : TRONCO.test(n) ? 'tronco' : DIEN.test(n) ? 'dien' : 'tel';
+const GROUPS = [
+  ['skin', meshesUnder('VH_M_skin'), 0.013],
+  ['heart', meshesUnder('VH_M_cardiac_chamber'), 0.0045],
+  ['brain_tel', meshesUnder('Allen_brain', n => division(n) === 'tel'), 0.0058],
+  ['brain_dien', meshesUnder('Allen_brain', n => division(n) === 'dien'), 0.0022],
+  ['brain_tronco', meshesUnder('Allen_brain', n => division(n) === 'tronco'), 0.0024],
+  ['brain_cerebelo', meshesUnder('Allen_brain', n => division(n) === 'cerebelo'), 0.0045],
+  ['spinal_cord', meshesUnder('VH_M_spinal_cord'), 0.004],
+  ['eyes', meshesUnder('VH_M_eyes'), 0.0025],
+  ['lungs', meshesUnder('VH_M_lungs'), 0.008],
+  ['liver', meshesUnder('VH_M_liver'), 0.007],
+  ['kidneys', meshesUnder('VH_M_kidney'), 0.006],
+  ['intestine', meshesUnder('VH_M_small_intestine'), 0.009],
+  ['knees', [...meshesUnder('VH_M_knee_R'), ...meshesUnder('VH_M_knee_L')], 0.011],
+  ['pelvis', meshesUnder('VH_M_pelvis'), 0.009],
+];
+const built = GROUPS.map(([name, list, cell]) => ({ name, ...cluster(list, cell) }));
+const skinMesh = built[0];
+/* Centro e caixa de cada órgão: as artérias de src/body/routes.js terminam nesses pontos. */
+const anatomy = {};
+for (const g of built) {
+  let mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < g.pos.length; i += 3) for (let k = 0; k < 3; k++) { mn[k] = Math.min(mn[k], g.pos[i + k]); mx[k] = Math.max(mx[k], g.pos[i + k]); }
+  anatomy[g.name] = { center: mn.map((v, k) => +((v + mx[k]) / 2).toFixed(4)), min: mn.map(v => +v.toFixed(4)), max: mx.map(v => +v.toFixed(4)), vertices: g.pos.length / 3 };
+}
+fs.writeFileSync(path.join(root, 'src', 'body', 'anatomy.json'), JSON.stringify(anatomy, null, 1) + '\n');
 
 /* GLB mínimo: dois nós ("skin" e "heart"), só posições e índices; as normais são calculadas no navegador. */
 function writeGLB(meshes) {
@@ -71,7 +103,7 @@ function writeGLB(meshes) {
   return Buffer.concat([head, jh, jb, bh, bin]);
 }
 const glbOut = path.join(root, 'public', 'modelos', 'corpo.glb');
-fs.writeFileSync(glbOut, writeGLB([{ name: 'skin', ...skinMesh }, { name: 'heart', ...heartMesh }]));
+fs.writeFileSync(glbOut, writeGLB(built));
 
 /* Silhueta frontal: projeta os triângulos da pele em (x, y), pinta uma grade e contorna a borda externa. */
 const CELL = 0.004, X0 = -0.56, Y0 = -0.95, W = Math.ceil(1.12 / CELL), H = Math.ceil(1.9 / CELL);
@@ -112,4 +144,5 @@ function simplify(pts, eps) {
 }
 const outline = simplify(contour, 1.2).map(([x, y]) => [+(X0 + x * CELL).toFixed(4), +(Y0 + y * CELL).toFixed(4)]);
 fs.writeFileSync(path.join(root, 'src', 'body', 'silhouette.json'), JSON.stringify({ outline }) + '\n');
-console.log(`corpo.glb: ${(fs.statSync(glbOut).size / 1024).toFixed(0)} kB (pele ${skinMesh.pos.length / 3} vértices, coração ${heartMesh.pos.length / 3}); silhueta com ${outline.length} pontos.`);
+console.log(`corpo.glb: ${(fs.statSync(glbOut).size / 1024).toFixed(0)} kB; ` + built.map(g => `${g.name} ${g.pos.length / 3}`).join(', ') + `; silhueta com ${outline.length} pontos.`);
+for (const [k, v] of Object.entries(anatomy)) console.log(k.padEnd(15), 'centro', v.center.join(', '), ' min', v.min.join(', '), ' max', v.max.join(', '));

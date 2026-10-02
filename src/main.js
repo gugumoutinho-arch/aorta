@@ -20,6 +20,7 @@ import { wireForm } from "./views/form.js";
 import { wireOrg } from "./views/organize.js";
 import { wirePalette } from "./views/palette.js";
 import { wirePress } from "./ui/indicator.js";
+import { wireMotion } from "./ui/motion.js";
 
 /* Protótipo v4: aplica o conceito visual (coração ou folha) e lembra a escolha neste aparelho. */
 function applyConcept() {
@@ -41,7 +42,7 @@ function applyConcept() {
 }
 applyConcept();
 wireDialogs(detailFallbackFocus);
-wirePress();
+wirePress(); wireMotion();
 wireTheme(); wireHome(); wireModule(); wireDetail(); wireForm(); wireOrg(); wirePalette();
 window.addEventListener("hashchange", () => route(true));
 route(false);

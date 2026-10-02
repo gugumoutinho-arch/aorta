@@ -13,7 +13,7 @@ const css = token => getComputedStyle(document.documentElement).getPropertyValue
 const breathe = () => new Promise(r => ("scheduler" in window && scheduler.yield) ? scheduler.yield().then(r) : setTimeout(r, 0));
 
 const RIM_VERTEX = "varying vec3 N;varying vec3 V;void main(){vec4 p=modelViewMatrix*vec4(position,1.);N=normalize(normalMatrix*normal);V=normalize(-p.xyz);gl_Position=projectionMatrix*p;}";
-const RIM_FRAGMENT = "uniform vec3 base;uniform vec3 rim;uniform float alpha;uniform float kick;varying vec3 N;varying vec3 V;void main(){float f=pow(1.-abs(dot(normalize(N),normalize(V))),2.4);gl_FragColor=vec4(base*.85+rim*f*1.25*(1.+kick*.6),alpha*(.16+.84*f));}";
+const RIM_FRAGMENT = "uniform vec3 base;uniform vec3 rim;uniform float alpha;uniform float kick;varying vec3 N;varying vec3 V;void main(){float f=pow(1.-abs(dot(normalize(N),normalize(V))),2.2);gl_FragColor=vec4(base*.85+rim*f*1.25*(1.+kick*.8)+rim*kick*.25,min(1.,alpha*(.16+.84*f)+kick*.2));}";
 const TUBE_VERTEX = "varying vec2 UV;void main(){UV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}";
 const TUBE_FRAGMENT = "uniform vec3 col;uniform float flow;uniform float off;uniform float hot;uniform float grow;varying vec2 UV;void main(){if(UV.x>grow)discard;if(off>.5){if(fract(UV.x*40.)>.5)discard;gl_FragColor=vec4(col,.45+hot*.35);return;}float p=exp(-pow((UV.x-flow)*12.,2.));gl_FragColor=vec4(col*(.75+hot*.35)+vec3(1.,.75,.85)*p,.55+.4*hot+.4*p);}";
 
@@ -41,6 +41,7 @@ export async function createBody(o) {
 
 async function assemble(o, glb, renderer) {
   if (!glb.skin || !glb.heart) throw new Error("Modelo do corpo incompleto");
+  const ORGANS = Object.keys(glb).filter(k => k !== "skin" && k !== "heart");
   const scene = new Scene(), camera = new PerspectiveCamera(30, 1, .05, 50);
   camera.position.set(0, 0, DIST);
   const root = new Group(), body = new Group(); scene.add(root); root.add(body);
@@ -50,6 +51,17 @@ async function assemble(o, glb, renderer) {
   await breathe();
   const h = meshGeometry(glb.heart, true), heart = new Mesh(h.geometry, rim("--ventricle", "--flow", 1)); heart.position.copy(h.center); heart.renderOrder = 4; body.add(heart);
   await breathe();
+  // Órgãos: discretos quando não são destino; destino de módulo ganha a cor do módulo e acende quando o pulso chega.
+  const owner = {}; o.modules.forEach((m, i) => (DESTINATIONS[m.dest]?.organ || []).forEach(k => { owner[k] = i; }));
+  const organs = {};
+  for (const key of ORGANS) {
+    const i = owner[key], g = meshGeometry(glb[key], true);
+    const mat = i === undefined ? rim("--atrium", "--violet-2", .42) : rim("--atrium", o.modules[i].token, o.modules[i].live ? .95 : .6);
+    const mesh = new Mesh(g.geometry, mat); mesh.position.copy(g.center); mesh.renderOrder = 2; body.add(mesh);
+    organs[key] = { mesh, owner: i };
+    await breathe();
+  }
+  const organsOf = i => Object.values(organs).filter(x => x.owner === i);
 
   let live = o.modules.map(m => m.live);
   const vessels = o.modules.map((m, i) => {
@@ -93,9 +105,11 @@ async function assemble(o, glb, renderer) {
       .fromTo(skin.material.uniforms.kick, { value: strength * .35 }, { value: 0, duration: .9 }, .1);
     vessels.forEach((v, i) => {
       if (!live[i] || (only !== null && only !== i)) return;
+      const arrive = only === null ? 1.55 : 1.15;
       beatTl.fromTo(v.mat.uniforms.flow, { value: -.05 }, { value: 1.08, duration: only === null ? 1.5 : 1.1, ease: "power1.in" }, .2);
-      // O destino acende quando o pulso chega.
-      beatTl.fromTo(v.node.scale, { x: 1, y: 1, z: 1 }, { x: 1.9, y: 1.9, z: 1.9, duration: .25, ease: "power2.out", yoyo: true, repeat: 1 }, only === null ? 1.55 : 1.15);
+      // O destino acende quando o pulso chega: o ponto cresce e o órgão brilha.
+      beatTl.fromTo(v.node.scale, { x: 1, y: 1, z: 1 }, { x: 1.9, y: 1.9, z: 1.9, duration: .25, ease: "power2.out", yoyo: true, repeat: 1 }, arrive);
+      organsOf(i).forEach(x => beatTl.fromTo(x.mesh.material.uniforms.kick, { value: 1.6 }, { value: 0, duration: 1, ease: "power2.out" }, arrive));
     });
   }
   const stop = () => { clearTimeout(timer); timer = 0; beatTl?.pause(); if (frame) cancelAnimationFrame(frame); frame = 0; };
@@ -114,12 +128,22 @@ async function assemble(o, glb, renderer) {
   const lost = e => { e.preventDefault(); api.dispose(); o.onLost?.(); };
   renderer.domElement.addEventListener("webglcontextlost", lost);
 
+  /* Mergulho: a câmera vai até o destino antes de a página do módulo abrir; volta ao corpo inteiro no retorno. */
+  const home = { x: 0, y: 0, z: DIST, tx: 0, ty: 0 }, cam = { ...home };
+  const aim = () => { camera.position.set(cam.x, cam.y, cam.z); camera.lookAt(cam.tx, cam.ty, 0); request(); };
   const api = {
+    focus(i) {
+      const v = vessels[i]; if (!v) return Promise.resolve();
+      body.updateMatrixWorld(true); const p = body.localToWorld(v.tip.clone());
+      return new Promise(done => gsap.to(cam, { x: p.x * .9, y: p.y * .95, z: .85, tx: p.x, ty: p.y, duration: .8, ease: "expo.inOut", overwrite: true, onUpdate: aim, onComplete: done }));
+    },
+    reset(animate = true) { gsap.to(cam, { ...home, duration: animate ? .9 : 0, ease: "expo.inOut", overwrite: true, onUpdate: aim }); },
     resize,
     highlight(i, on) {
       const v = vessels[i]; if (!v) return;
       gsap.to(v.mat.uniforms.hot, { value: on ? 1 : 0, duration: .2, overwrite: true, onUpdate: request });
       gsap.to(v.node.scale, { x: on ? 1.6 : 1, y: on ? 1.6 : 1, z: on ? 1.6 : 1, duration: .35, ease: "back.out(3)", overwrite: true, onUpdate: request });
+      organsOf(i).forEach(x => gsap.to(x.mesh.material.uniforms.kick, { value: on ? 1.2 : 0, duration: .35, overwrite: true, onUpdate: request }));
       if (on && live[i]) { beat(.7, i); schedule(); }
     },
     pause(p) {
@@ -133,6 +157,7 @@ async function assemble(o, glb, renderer) {
       skin.material.uniforms.base.value.set(css("--atrium")); skin.material.uniforms.rim.value.set(css("--violet-2"));
       heart.material.uniforms.base.value.set(css("--ventricle")); heart.material.uniforms.rim.value.set(css("--flow"));
       vessels.forEach(v => { v.mat.uniforms.col.value.set(css(v.token)); v.node.material.color.set(css(v.token)); });
+      Object.values(organs).forEach(x => { x.mesh.material.uniforms.base.value.set(css("--atrium")); x.mesh.material.uniforms.rim.value.set(css(x.owner === undefined ? "--violet-2" : o.modules[x.owner].token)); });
       request();
     },
     dispose() {
@@ -148,6 +173,7 @@ async function assemble(o, glb, renderer) {
   if (!o.isCurrent()) { api.dispose(); return null; }
   // Entrada: o corpo aparece, as artérias crescem do coração até os destinos, um a um; depois a primeira batida.
   gsap.fromTo(skin.material.uniforms.alpha, { value: 0 }, { value: .72, duration: 1.2, ease: "power2.out", onUpdate: request });
+  Object.values(organs).forEach((x, k) => gsap.from(x.mesh.scale, { x: .001, y: .001, z: .001, delay: .4 + k * .05, duration: .9, ease: "expo.out", onUpdate: request }));
   vessels.forEach((v, i) => {
     gsap.to(v.mat.uniforms.grow, { value: 1, delay: .3 + i * .1, duration: 1.1, ease: "power3.inOut", onUpdate: request });
     gsap.to(v.node.scale, { x: 1, y: 1, z: 1, delay: 1.2 + i * .1, duration: .5, ease: "back.out(3)", onUpdate: request });

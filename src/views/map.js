@@ -9,7 +9,7 @@ import { concept } from "./concept.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const modelUrl = () => `${import.meta.env.BASE_URL}modelos/${concept().model || "heart-hra-v1.3.glb"}`;
-let mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
+let diving = false, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
 
 function flatTips() {
   const map = $("#map"), w = map.clientWidth, hgt = map.clientHeight, s = Math.min(w / 600, hgt / 560);
@@ -149,7 +149,7 @@ export function drawMap(list) {
   if (scene) { if (geometry !== sceneKey) scheduleHeart(); else scene.update(list.map(m => m.live)); }
   else if (!started) { started = true; scheduleHeart(); }
 }
-export function mapVisible(on) { visible = on; scene?.visible(on); if (on) requestLayout(); }
+export function mapVisible(on) { visible = on; scene?.visible(on); if (on) { scene?.reset?.(false); requestLayout(); } }
 export function focusModuleLabel(id) { const a = $(`#modules [data-module="${id}"]`); if (!a) return false; a.focus({ preventScroll: true }); return true; }
 
 export function wireMap() {
@@ -169,6 +169,17 @@ export function wireMap() {
   // A partir de qualquer link de módulo do início, a página do módulo nasce do lugar tocado.
   $("#view-home").addEventListener("click", e => {
     const a = e.target.closest("a[data-module]"); if (!a) return;
+    // Com o corpo em 3D, clicar num rótulo do mapa mergulha a câmera até o destino antes de abrir o módulo.
+    const label = a.closest("#modules .mod");
+    if (label && scene?.focus && !reducedMotion() && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
+      e.preventDefault();
+      if (diving) return;
+      diving = true; highlight(+label.dataset.index, true);
+      document.body.classList.add("diving");
+      const go = () => { if (!diving) return; diving = false; document.body.classList.remove("diving"); noteFlight(label.getBoundingClientRect(), label.dataset.module, label.querySelector("b")?.textContent || ""); location.hash = "a-" + label.dataset.module; };
+      Promise.race([scene.focus(+label.dataset.index), new Promise(r => setTimeout(r, 1100))]).then(go);
+      return;
+    }
     noteFlight(a.getBoundingClientRect(), a.dataset.module, a.querySelector("b")?.textContent || a.textContent);
   });
   $("#pause").hidden = true;

@@ -355,6 +355,49 @@
    "parentId": "g-semio",
    "order": 3,
    "stain": "hema"
+  },
+  {
+   "id": "g-neuro",
+   "name": "Neuroanatomia",
+   "parentId": "",
+   "order": 27,
+   "stain": "pas",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-neuro-tel",
+   "name": "Telencéfalo",
+   "parentId": "g-neuro",
+   "order": 1,
+   "stain": "pas"
+  },
+  {
+   "id": "g-neuro-dien",
+   "name": "Diencéfalo",
+   "parentId": "g-neuro",
+   "order": 2,
+   "stain": "pas"
+  },
+  {
+   "id": "g-neuro-tronco",
+   "name": "Tronco encefálico",
+   "parentId": "g-neuro",
+   "order": 3,
+   "stain": "pas"
+  },
+  {
+   "id": "g-neuro-cerebelo",
+   "name": "Cerebelo",
+   "parentId": "g-neuro",
+   "order": 4,
+   "stain": "pas"
+  },
+  {
+   "id": "g-neuro-medula",
+   "name": "Medula espinal",
+   "parentId": "g-neuro",
+   "order": 5,
+   "stain": "pas"
   }
  ],
  "collections": [
@@ -772,6 +815,91 @@
    "status": "nao-iniciado",
    "favorite": false,
    "createdAt": "2026-09-15T12:00:00Z"
+  },
+  {
+   "id": "neuro0",
+   "title": "Exemplo — lobos, giros e sulcos do telencéfalo (resumo com figuras)",
+   "url": "https://example.com/neuro/0",
+   "areaId": "g-neuro-tel",
+   "subject": "Lobos e giros",
+   "type": "Resumo",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-20T12:00:00Z"
+  },
+  {
+   "id": "neuro1",
+   "title": "Exemplo — núcleos da base: caudado, putâmen e globo pálido",
+   "url": "https://example.com/neuro/1",
+   "areaId": "g-neuro-tel",
+   "subject": "Núcleos da base",
+   "type": "Slides",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-21T12:00:00Z"
+  },
+  {
+   "id": "neuro2",
+   "title": "Exemplo — tálamo e hipotálamo: núcleos e conexões",
+   "url": "https://example.com/neuro/2",
+   "areaId": "g-neuro-dien",
+   "subject": "Tálamo e hipotálamo",
+   "type": "Resumo",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-22T12:00:00Z"
+  },
+  {
+   "id": "neuro3",
+   "title": "Exemplo — tronco encefálico: mesencéfalo, ponte e bulbo em cortes",
+   "url": "https://example.com/neuro/3",
+   "areaId": "g-neuro-tronco",
+   "subject": "Cortes do tronco",
+   "type": "Imagem / lâmina",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-23T12:00:00Z"
+  },
+  {
+   "id": "neuro4",
+   "title": "Exemplo — vias ascendentes e descendentes da medula espinal",
+   "url": "https://example.com/neuro/4",
+   "areaId": "g-neuro-medula",
+   "subject": "Vias da medula",
+   "type": "Resumo",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-24T12:00:00Z"
   }
  ]
 }

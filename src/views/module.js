@@ -6,10 +6,36 @@ import { $, $$, h, svg, ICON } from "../core/dom.js";
 import { tokens, plural, cmpName, byKey } from "../core/text.js";
 import { childrenOf, modules, moduleList, moduleNumber, pathOf, descIds, areaById, areasWithContent, areaLabel, treeOrder, acervoOf, inAcervo } from "../core/areas.js";
 import { concept } from "./concept.js";
-import { DESTINATIONS } from "../body/routes.js";
+import { DESTINATIONS, partFor } from "../body/routes.js";
+import { onThemeChange } from "../ui/theme.js";
 import { syncAcervoTabs } from "../app.js";
 import { slideIndicator } from "../ui/indicator.js";
+import { revealIn } from "../ui/motion.js";
 let unitsInk = null;
+
+/* ---------- órgão em destaque (conceito corpo) ---------- */
+let organ = null, organKey = "", organBoot = 0;
+const canOrgan = () => { if (S.concept !== "corpo" || reducedMotion()) return false; try { return !!document.createElement("canvas").getContext("webgl2"); } catch (_) { return false; } };
+function unitParts(modId) { const map = new Map(); childrenOf(modId).forEach(u => { const p = partFor(u.name); if (p) map.set(u.id, p.key); }); return map; }
+function organActive(modId) { const parts = unitParts(modId); return S.unit && parts.has(S.unit) ? [parts.get(S.unit)] : null; }
+async function syncOrgan(mod) {
+  const box = $("#organ-view"), art = $(".mini-artery");
+  const dest = mod && S.concept === "corpo" ? (() => { const list = moduleList(); concept().decorate(list); return list.find(x => x.id === mod.id)?.dest; })() : null;
+  const keys = dest ? DESTINATIONS[dest]?.organ : null;
+  if (!keys || !canOrgan()) { box.hidden = true; art.style.display = ""; if (organ) { organ.dispose(); organ = null; organKey = ""; } return; }
+  box.hidden = false; art.style.display = "none";
+  const key = mod.id + "|" + dest;
+  if (organ && organKey === key) { organ.setActive(organActive(mod.id)); return; }
+  organ?.dispose(); organ = null; organKey = key;
+  const token = ++organBoot, brain = dest === "cerebro";
+  try {
+    const { createOrganView } = await import("../body/organ.js");
+    const view = await createOrganView(box, { url: `${import.meta.env.BASE_URL}modelos/corpo.glb`, keys: brain ? [...keys, "spinal_cord"] : keys, frame: brain ? keys : null, yaw: brain ? -1.3 : 0, // encéfalo de perfil token: moduleList().find(x => x.id === mod.id)?.token || "--m1",
+      onPick: part => { const hit = [...unitParts(mod.id)].find(([, k]) => k === part); if (hit) { S.unit = hit[0]; S.subject = ""; setHash(S.unit); renderModule(); } } });
+    if (token !== organBoot) { view.dispose(); return; }
+    organ = view; organ.setActive(organActive(mod.id));
+  } catch (e) { console.warn("Órgão 3D indisponível:", e); box.hidden = true; art.style.display = ""; }
+}
 import { materialCard } from "./cards.js";
 import { openForm } from "./form.js";
 import { rememberModule } from "./home.js";
@@ -85,6 +111,7 @@ function renderHeader(mod) {
   view.style.setProperty("--selected", `var(${mod.token})`);
   title.textContent = mod.name;
   title.classList.toggle("long", mod.name.length > 4);
+  title.classList.toggle("xlong", mod.name.length > 10);
   const c = concept();
   if (c.decorate) { const list = moduleList(); c.decorate(list); const d = list.find(x => x.id === mod.id); meta.textContent = `${c.labelTop(d)} · ${DESTINATIONS[d.dest]?.art || ""}`; }
   else meta.textContent = S.concept === "coracao" ? `${moduleNumber(mod.index)} · ${mod.art}` : `${moduleNumber(mod.index)} · ${ACERVOS[S.acervo].label}`;
@@ -194,7 +221,7 @@ export function renderModule() {
   if (S.scope !== "todos" && !mod) { S.scope = "todos"; S.unit = S.subject = ""; history.replaceState(null, "", "#todos"); }
   if (S.unit && !areaById(S.unit)) S.unit = "";
   if (S.subject && !areaById(S.subject)) S.subject = "";
-  renderHeader(mod); renderUnits(mod);
+  renderHeader(mod); renderUnits(mod); syncOrgan(mod);
   const base = baseList();
   renderSubjects(base); renderFilters(); renderMaterials(base, mod);
 }
@@ -211,6 +238,7 @@ export function moduleEntered() {
   if (S.scope && S.scope !== "todos") rememberModule(S.scope);
   const f = flight; flight = null;
   if (reducedMotion()) return;
+  requestAnimationFrame(() => revealIn($("#materials"), ".group-h, .material"));
   gsap.fromTo(".module-hero > *, #units, .module-body", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .55, ease: "expo.out", stagger: .05, overwrite: true, clearProps: "opacity,transform" });
   if (!f || f.id !== S.scope || performance.now() - f.at > 1500 || !f.rect.width) return;
   // O nome do módulo sai do rótulo tocado e pousa no numeral do cabeçalho.
@@ -225,14 +253,18 @@ export function moduleEntered() {
 }
 
 export function wireModule() {
+  onThemeChange(() => organ?.theme());
+  // Passar por uma unidade que é parte do órgão acende a parte (prévia); sair volta ao que está escolhido.
+  $("#units").addEventListener("pointerover", e => { const b = e.target.closest("[data-unit]"); if (!b || !organ) return; const k = unitParts(S.scope).get(b.dataset.unit); if (k) organ.setActive([k]); });
+  $("#units").addEventListener("pointerleave", () => { if (organ) organ.setActive(organActive(S.scope)); });
   $("#units").addEventListener("click", e => {
     const b = e.target.closest("[data-unit]"); if (!b) return;
-    S.unit = b.dataset.unit; S.subject = ""; setHash(S.unit); renderModule();
+    S.unit = b.dataset.unit; S.subject = ""; setHash(S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
     $(`#units [data-unit="${S.unit}"]`)?.focus({ preventScroll: true });
   });
   $("#subjects").addEventListener("click", e => {
     const b = e.target.closest("[data-subject]"); if (!b) return;
-    S.subject = b.dataset.subject; setHash(S.subject || S.unit); renderModule();
+    S.subject = b.dataset.subject; setHash(S.subject || S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
     $(`#subjects [data-subject="${S.subject}"]`)?.focus({ preventScroll: true });
   });
   let qTimer;

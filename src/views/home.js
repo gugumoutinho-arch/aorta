@@ -9,6 +9,11 @@ import { childrenOf, moduleList, moduleNumber, pathOf, countLabel, inAcervo } fr
 import { miniCard, openLink, moduleToken } from "./cards.js";
 import { drawMap, mapVisible, wireMap, focusModuleLabel } from "./map.js";
 import { concept } from "./concept.js";
+import { revealHeadline, revealIn, countTo } from "../ui/motion.js";
+
+const REVEAL = ".section-heading h2, .index-row, .production-index, .mini-card, .book";
+let revealed = false;
+function revealHome(delay = 0) { revealHeadline($("#home-title"), delay); revealIn($("#view-home"), REVEAL); }
 
 /* Textos de cada acervo. A IDOMED aparece como nome do curso, sem marca nem logo, e com o aviso de que o acervo não é oficial. */
 const COPY = {
@@ -38,12 +43,17 @@ export function homeSwitched() {
   window.scrollTo(0, 0);
   $("#home-title").setAttribute("tabindex", "-1"); $("#home-title").focus({ preventScroll: true });
   if (reducedMotion()) return;
-  gsap.fromTo(["#home-title", "#intro-copy", ".search-plate", "#counts", "#acervo-note", ".index-section"], { opacity: 0, y: 16 },
-    { opacity: 1, y: 0, duration: .6, ease: "expo.out", stagger: .045, overwrite: true, clearProps: "opacity,transform" });
+  revealHome();
+  gsap.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 16 },
+    { opacity: 1, y: 0, duration: .7, ease: "expo.out", stagger: .06, delay: .15, overwrite: true, clearProps: "opacity,transform" });
+  gsap.fromTo("#modules .mod", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .6, ease: "expo.out", stagger: .04, delay: .3, clearProps: "opacity,transform" });
 }
 
 const mats = () => S.materials.filter(m => inAcervo(m));
+let copyFor = "";
 function renderCopy() {
+  if (copyFor === S.acervo + S.concept) return; // o título só muda com o acervo (e não desfaz a animação a cada redesenho)
+  copyFor = S.acervo + S.concept;
   const c = COPY[S.acervo], a = ACERVOS[S.acervo];
   $("#home-title").replaceChildren(c.h1[0], h("em", { text: c.h1[1] }));
   $("#intro-copy").textContent = c.intro;
@@ -54,9 +64,16 @@ function renderCopy() {
 function renderCounts(mods) {
   const live = mods.filter(m => m.live).length, a = ACERVOS[S.acervo], n = mats().length;
   const box = $("#counts");
-  if (!ready()) { box.textContent = S.dbState === "loading" ? "Carregando o acervo…" : ""; return; }
-  box.replaceChildren(h("i", { "aria-hidden": "true" }), h("b", { text: String(n) }), ` ${n === 1 ? "material" : "materiais"} · `,
-    h("b", { text: `${live} de ${mods.length}` }), ` ${mods.length === 1 ? a.unit : a.units} com material`);
+  if (!ready()) { box.dataset.built = ""; box.textContent = S.dbState === "loading" ? "Carregando o acervo…" : ""; return; }
+  if (box.dataset.built !== "1") {
+    box.dataset.built = "1";
+    box.replaceChildren(h("i", { "aria-hidden": "true" }), h("b", { id: "count-n", text: "0" }), h("span", { id: "count-n-word" }), " · ",
+      h("b", { id: "count-live" }), h("span", { id: "count-unit" }));
+  }
+  countTo($("#count-n"), n);
+  $("#count-n-word").textContent = ` ${n === 1 ? "material" : "materiais"}`;
+  $("#count-live").textContent = `${live} de ${mods.length}`;
+  $("#count-unit").textContent = ` ${mods.length === 1 ? a.unit : a.units} com material`;
 }
 function renderResume() {
   const box = $("#resume");
@@ -135,9 +152,13 @@ export function renderHome() {
   if (ready()) renderShelves(resume);
   else ["#reading", "#recent-section", "#books-section", "#own-section", "#web-section"].forEach(s => { $(s).hidden = true; });
   drawMap(mods);
+  // Primeira chegada com dados: o conteúdo entra em cascata (o título já entrou na primeira pintura).
+  if (ready() && !revealed && S.view === "inicio") { revealed = true; requestAnimationFrame(() => revealIn($("#view-home"), REVEAL)); }
 }
 export function wireHome() {
   wireMap();
+  // Título por linhas assim que as fontes chegam, sem esperar o banco (não pisca quando os dados chegam depois).
+  if (S.view === "inicio") (document.fonts?.ready || Promise.resolve()).then(() => { renderCopy(); revealHeadline($("#home-title"), .05); });
   // "Ctrl K" só aparece onde há teclado físico provável.
   const mac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
   document.querySelectorAll(".kbd").forEach(k => { k.textContent = mac ? "⌘ K" : "Ctrl K"; });

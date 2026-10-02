@@ -82,7 +82,8 @@ body:has(dialog[open]) .proto-switch { display: none; }
   .index-row.is-discipline .index-num { font-size: 19px; }
   .mod.long { min-width: 84px; max-width: 40%; }
   .mod.long b { font-size: 16px; }
-  .module-hero h1.long { font-size: 52px; }
+  .module-hero h1.long { font-size: 52px; overflow-wrap: normal; }
+  .module-hero h1.xlong, .module-hero:has(.organ-view:not([hidden])) h1.xlong { font-size: 40px; }
   .brand-name { font-size: 25px; }
   body[data-concept="corpo"] .map { height: 520px; }
   body[data-concept="folha"] .brand-leaf { width: 22px; height: 22px; }
@@ -95,3 +96,42 @@ body:has(dialog[open]) .proto-switch { display: none; }
   /* marca + 4 ações cabem numa linha; "Todos os materiais" continua no índice e na busca */
   .top-actions [data-nav="todos"] { display: none; }
 }
+
+/* Mergulho no órgão: a interface se recolhe enquanto a câmera desce */
+body.diving .intro, body.diving .map-caption, body.diving .map-legend, body.diving .model-state, body.diving #modules .mod:not(.hot), body.diving .guides { opacity: 0; transition: opacity .35s var(--ease); }
+body.diving #modules .mod.hot { transform-origin: center; }
+
+/* Órgão em destaque no cabeçalho do módulo (conceito corpo) */
+.organ-view { width: clamp(220px, 26vw, 340px); aspect-ratio: 1; margin-left: auto; cursor: grab; touch-action: pan-y; position: relative; }
+/* Com o órgão: título e resumo empilhados à esquerda, órgão à direita */
+.module-hero:has(.organ-view:not([hidden])) { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; row-gap: 10px; }
+.module-hero:has(.organ-view:not([hidden])) h1 { grid-column: 1; grid-row: 1; }
+.module-hero:has(.organ-view:not([hidden])) .module-meta { grid-column: 1; grid-row: 2; }
+.module-hero:has(.organ-view:not([hidden])) .organ-view { grid-column: 2; grid-row: 1 / span 2; }
+.module-hero:has(.organ-view:not([hidden])) h1.long { font-size: clamp(54px, 6.2vw, 96px); }
+.organ-view:active { cursor: grabbing; }
+.organ-view canvas { width: 100% !important; height: 100% !important; display: block; }
+@media (max-width: 640px) {
+  /* No celular o órgão vem logo abaixo do resumo, com a largura toda */
+  .module-hero:has(.organ-view:not([hidden])) { grid-template-columns: 1fr; }
+  .module-hero:has(.organ-view:not([hidden])) .organ-view { grid-column: 1; grid-row: 3; width: 100%; height: 250px; aspect-ratio: auto; margin: 4px 0 0; }
+  .module-hero:has(.organ-view:not([hidden])) h1.long { font-size: 52px; }
+  .module-hero:has(.organ-view:not([hidden])) h1.xlong { font-size: 40px; }
+}
+
+/* Microanimações: anel do cursor, brilho que segue o ponteiro nos cartões e botões que varrem ao passar */
+.cursor-ring { position: fixed; left: 0; top: 0; z-index: 200; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 1.5px solid color-mix(in oklab, var(--violet-2) 70%, transparent);
+  pointer-events: none; opacity: 0; display: grid; place-items: center; transition: width .35s var(--ease), height .35s var(--ease), margin .35s var(--ease), background-color .35s var(--ease), border-color .35s var(--ease), opacity .3s; mix-blend-mode: normal; }
+.cursor-ring.on { opacity: 1; }
+.cursor-ring span { font: 600 10px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--bg); opacity: 0; transition: opacity .25s; }
+.cursor-ring[data-mode="link"] { width: 52px; height: 52px; margin: -26px 0 0 -26px; border-color: var(--flow); }
+.cursor-ring[data-mode="open"] { width: 74px; height: 74px; margin: -37px 0 0 -37px; background: var(--flow); border-color: var(--flow); }
+.cursor-ring[data-mode="open"] span { opacity: 1; }
+.cursor-ring[data-mode="text"] { width: 4px; height: 26px; margin: -13px 0 0 -2px; border-radius: 2px; }
+.mini-card, .book, .material { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -20%), color-mix(in oklab, var(--violet-2) 9%, transparent), transparent 55%), var(--paper); transform-style: preserve-3d; will-change: transform; }
+.btn, .toggle { position: relative; overflow: hidden; isolation: isolate; }
+.btn::before, .toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--surface); transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }
+.btn:hover::before, .toggle:hover::before { transform: scaleX(1); transform-origin: left; }
+.btn.primary::before { background: color-mix(in oklab, var(--action) 80%, white); }
+.line { padding-bottom: .04em; }
+@media (prefers-reduced-motion: reduce) { .cursor-ring { display: none; } .btn::before, .toggle::before { transition: none; } }
