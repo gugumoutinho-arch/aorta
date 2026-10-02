@@ -239,13 +239,14 @@ for (const scheme of ['light', 'dark']) {
     const tag = `${w}-${scheme} em produção`;
     let { ctx, page, errors } = await open(scheme, w, 'prod');
     ok(`${tag}: início mostra "Por onde começar" sem histórico`, await page.locator('#h-start').count() === 1 && await page.locator('#h-feature').count() === 0);
-    ok(`${tag}: portas por tipo (4) e módulos com material (2)`, await page.locator('.start .doors').nth(0).locator('.door').count() === 4 && await page.locator('.start .doors').nth(1).locator('.door').count() === 2);
-    ok(`${tag}: tipos sem material dizem "Em produção"`, await page.locator('.start .door.is-empty').count() === 2, String(await page.locator('.start .door.is-empty').count()));
-    ok(`${tag}: M3 a M8 numa linha "Em produção", depois de M1 e M2`, await page.locator('.start .start-prod .prod-link').count() === 6 && await page.evaluate(() => [...document.querySelectorAll('.start .doors:nth-of-type(2) a.door')].map(a => a.getAttribute('href')).join() === '#a-m1,#a-m2'));
-    ok(`${tag}: portas e links com alvo ≥ 44 px`, (await page.locator('.start a.door, .start .prod-link').evaluateAll(els => els.map(e => e.getBoundingClientRect().height))).every(n => n >= 44));
+    ok(`${tag}: capas por tipo (4) e lombadas de módulo (8)`, await page.locator('.type-shelf .type-door').count() === 4 && await page.locator('.spines .spine').count() === 8);
+    ok(`${tag}: tipos sem material dizem "Em produção"`, await page.locator('.type-door.is-empty').count() === 2, String(await page.locator('.type-door.is-empty').count()));
+    ok(`${tag}: lombadas na ordem do curso, M3 a M8 em produção`, await page.locator('.spines .spine.is-empty').count() === 6 && await page.evaluate(() => [...document.querySelectorAll('.spines .spine')].map(a => a.getAttribute('href')).join() === '#a-m1,#a-m2,#a-m3,#a-m4,#a-m5,#a-m6,#a-m7,#a-m8'));
+    ok(`${tag}: capas e lombadas com alvo ≥ 44 px`, (await page.locator('.start .type-door, .start .spine').evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return Math.min(r.width, r.height); }))).every(n => n >= 44));
+    ok(`${tag}: texto da lombada não invade o nome do módulo`, await page.evaluate(() => [...document.querySelectorAll('.spines .spine')].every(s => s.querySelector('.spine-n').getBoundingClientRect().top >= s.querySelector('.spine-name').getBoundingClientRect().bottom - 1)));
     ok(`${tag}: início sem acessibilidade quebrada`, !(await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations.length);
     await noOverflow(page, tag + ' início'); await shot(page, `em-producao-inicio@${tag.replace(' em produção', '')}`);
-    await page.locator('.start .prod-link[href="#a-m3"]').click(); await page.waitForTimeout(450);
+    await page.locator('.spines .spine[href="#a-m3"]').click(); await page.waitForTimeout(450);
     ok(`${tag}: tocar em módulo em produção mostra aviso claro`, await page.locator('#p-m3.is-production').isVisible() && /em produção/i.test(await page.locator('#p-m3 + .part-note').innerText()));
     ok(`${tag}: cabeça corrente acompanha o módulo em produção`, /M3.*Em produção/.test(await page.locator('#rh-title').innerText()), await page.locator('#rh-title').innerText());
     ok(`${tag}: aviso oferece voltar ao que tem conteúdo`, await page.locator('#p-m3 + .part-note a').getAttribute('href') === '#a-m1');
@@ -266,9 +267,49 @@ for (const scheme of ['light', 'dark']) {
 }
 {
   const { ctx, page } = await open('light', 375, 'prodLive');
-  ok('em produção: módulo some da lista ao receber o primeiro material', await page.locator('.start .prod-link[href="#a-m3"]').count() === 0 && await page.locator('.start .prod-link').count() === 5 && await page.locator('.start .doors').nth(1).locator('.door').count() === 3);
+  ok('em produção: módulo some da lista ao receber o primeiro material', await page.locator('.spines .spine.is-empty[href="#a-m3"]').count() === 0 && await page.locator('.spines .spine.is-empty').count() === 5 && await page.locator('.spines .spine').count() === 8);
   await hash(page, 'todos');
   ok('em produção: marca do M3 some, os outros cinco continuam', await page.locator('#p-m3.is-production').count() === 0 && await page.locator('#lib-results .part.is-production').count() === 5);
+  await ctx.close();
+}
+// Estante visual: capas em todos os materiais, grade/lista com escolha lembrada neste aparelho.
+for (const scheme of ['light', 'dark']) {
+  const { ctx, page, errors } = await open(scheme, 375);
+  await hash(page, 'todos');
+  const entries = await page.locator('#lib-results .entry').count();
+  ok(`375-${scheme} estante: padrão em grade, uma capa por material`, await page.locator('#lib-results[data-layout="shelf"]').count() === 1 && await page.locator('#lib-results .entry > .cover').count() === entries && entries >= 5);
+  ok(`375-${scheme} estante: capas ocultas para leitor de tela e com tipo visível`, await page.locator('#lib-results .entry > .cover[aria-hidden="true"] .cover-type').count() === entries);
+  const colX = await page.locator('#lib-results .sub-entries').first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length);
+  ok(`375-${scheme} estante: o tipo continua no texto para leitor de tela`, await page.evaluate(() => [...document.querySelectorAll('#lib-results .entry .e-line > span:first-child')].every(s => s.textContent.trim().length > 0 && getComputedStyle(s).display !== 'none' && getComputedStyle(s).visibility !== 'hidden')));
+  ok(`375-${scheme} estante: duas colunas no celular`, colX === 2, String(colX));
+  await noOverflow(page, `375-${scheme} estante`);
+  await shot(page, `estante@375-${scheme}`);
+  const btn = page.locator('#layout-toggle');
+  ok(`375-${scheme} estante: botão com alvo de 44 px e estado`, (await btn.evaluate(e => { const r = e.getBoundingClientRect(); return Math.min(r.width, r.height); })) >= 44 && await btn.getAttribute('aria-pressed') === 'true');
+  await btn.click(); await page.waitForTimeout(250);
+  ok(`375-${scheme} lista: botão troca para lista e guarda a escolha`, await page.locator('#lib-results[data-layout="list"]').count() === 1 && await btn.getAttribute('aria-pressed') === 'false' && await page.evaluate(() => localStorage.getItem('bm-layout') === 'list'));
+  ok(`375-${scheme} lista: capa ao lado do título`, await page.evaluate(() => { const e = document.querySelector('#lib-results .entry'); const c = e.querySelector('.cover').getBoundingClientRect(), t = e.querySelector('.entry-title').getBoundingClientRect(); return c.right <= t.left + 1 && Math.abs(c.top - t.top) < 24; }));
+  await noOverflow(page, `375-${scheme} lista`); await shot(page, `lista@375-${scheme}`);
+  await page.reload(); await page.waitForTimeout(600); await hash(page, 'todos');
+  ok(`375-${scheme} lista: recarregar mantém a escolha`, await page.locator('#lib-results[data-layout="list"]').count() === 1);
+  await btn.click(); await page.waitForTimeout(200);
+  ok(`375-${scheme} estante: voltar para grade`, await page.locator('#lib-results[data-layout="shelf"]').count() === 1);
+  ok(`375-${scheme} estante: sem erros de console`, errors.length === 0, errors.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+{
+  // retomada com capa, trilho horizontal de capas na seleção e capa na ficha
+  const { ctx, page } = await open('light', 375);
+  ok('retomada: o botão Lista/Estante só aparece no catálogo', await page.locator('#layout-toggle').isHidden());
+  ok('seleção: área e assunto continuam no texto dos itens do trilho', await page.evaluate(() => [...document.querySelectorAll('#home-focus .rail .entry .e-where')].every(e => e.textContent.trim().length > 0 && getComputedStyle(e).display !== 'none')));
+  ok('retomada: capa do material ao lado do título', await page.evaluate(() => { const f = document.querySelector('.feature'); const c = f.querySelector('.cover').getBoundingClientRect(), t = f.querySelector('.entry-title').getBoundingClientRect(); return c.right <= t.left + 1; }));
+  ok('seleção: trilho de capas sem rolagem lateral na página', await page.locator('#home-focus .rail .entry > .cover').count() >= 1 && (await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 1);
+  await hash(page, 'todos'); await page.locator('#lib-results .entry-title button').first().click(); await page.waitForTimeout(400);
+  ok('ficha: capa do material no topo', await page.locator('#d-reading .cover').count() === 1);
+  if (await page.getAttribute('#d-fav', 'aria-pressed') === 'true') { await page.locator('#d-fav').click(); await page.waitForTimeout(1000); }
+  ok('favorito: ficha começa sem estrela e sem salto', await page.getAttribute('#d-fav', 'aria-pressed') === 'false' && await page.locator('#d-fav.pop').count() === 0);
+  await page.locator('#d-fav').click(); await page.waitForTimeout(150);
+  ok('favorito: a estrela da ficha salta ao marcar', await page.getAttribute('#d-fav', 'aria-pressed') === 'true' && await page.locator('#d-fav.pop').count() === 1);
   await ctx.close();
 }
 // Leitura e edição separadas na interface: toda ação de edição leva [data-edit]; nada é escondido nesta rodada.

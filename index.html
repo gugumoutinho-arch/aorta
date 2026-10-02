@@ -12,6 +12,7 @@
   --feature:#173e36; --feature-ink:#f2f8f1; --feature-muted:#c8dbd1; --feature-action:#e1eddc; --feature-line:#749b84;
   --t-hema:#4338a8; --t-eosin:#bb1d58; --t-giemsa:#1762a8; --t-masson:#22703a; --t-pas:#8d2ea6; --t-safra:#b13a0a; --t-neutral:#565c69; --t-on:#ffffff;
   --hit:#ffe066; --hit-ink:#15171c; --focus:#1762a8; --danger:#b42318; --danger-bg:#fdeceb; --danger-ink:#ffffff; --fav:#9a5b00;
+  --shade:rgb(0 0 0 / .17); --shade-2:rgb(0 0 0 / .13); --gloss:rgb(255 255 255 / .2); --gloss-edge:rgb(255 255 255 / .22); --cover-drop:rgb(21 23 28 / .2); --cover-lift:rgb(21 23 28 / .6);
   --scrim:rgba(14,15,19,.5); --lift:0 1px 2px rgba(21,23,28,.06),0 10px 28px -18px rgba(21,23,28,.4); --shadow:0 24px 56px -28px rgba(21,23,28,.55);
   --serif:"Literata",Georgia,"Times New Roman",serif; --sans:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --ease:cubic-bezier(.23,1,.32,1); --ease-drawer:cubic-bezier(.32,.72,0,1);
@@ -162,7 +163,6 @@ main{min-width:0;padding:4px 16px calc(var(--bar) + 40px + env(safe-area-inset-b
 .study-tabs.no-motion::after{transition:none}
 .study-selection .shelf{padding-top:14px}
 .study-selection .block-h h2{font-size:17px}
-.study-selection .entry{display:block}
 .study-selection .entry-title{font-size:17px}
 .study-empty{padding:20px 0;color:var(--ink-2);font-size:14px}
 .study-selection:only-child{grid-column:1 / -1}
@@ -556,24 +556,100 @@ dialog.no-motion[open]{animation:none}
 .start{padding:4px 0 14px;border-bottom:1px solid var(--rule)}
 .start h2{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.02em;padding-top:6px}
 .start-note{padding:4px 0 10px;font-size:13.5px;color:var(--ink-3)}
-.doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-bottom:10px}
-.door{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:56px;padding:8px 12px;border:1px solid var(--edge);border-radius:var(--r);color:var(--ink);text-decoration:none;background:var(--page)}
-.door-name{font-weight:600;font-size:15px;overflow-wrap:anywhere}
-.door-n{font-size:12.5px;color:var(--ink-3)}
-a.door:active{background:var(--page-2);box-shadow:inset 0 0 0 2px currentColor;transition:none}
-a.door:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.door.is-empty{border-style:dashed;color:var(--ink-3)}
 .part.is-production h2,.part.is-production a{color:var(--ink-3)}
 .part.is-production .num{font-style:italic}
-.start-prod{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px;padding:0 0 4px;font-size:13.5px;color:var(--ink-3)}
-.start-prod span{margin-right:4px;font-style:italic}
-.prod-link{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 8px;color:var(--ink-2);font-weight:600;text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:4px}
-.prod-link:active{background:var(--page-2);box-shadow:inset 0 0 0 2px currentColor}
 .part-note{display:flex;flex-wrap:wrap;align-items:center;gap:0 14px;padding:0 0 8px;color:var(--ink-3);font-size:14px}
 .part-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-weight:600}
 .t-flag{margin-left:8px;font-size:12px;font-weight:500;font-variant:normal;letter-spacing:0;color:var(--ink-3);font-style:italic}
 .t-unit .t-flag{margin-left:auto}
-@media (min-width:700px){.doors{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* ---------- Estante visual: capas por tipo, lombadas de módulo e prateleiras ---------- */
+.cover{position:relative;flex:none;display:grid;grid-template-rows:auto 1fr auto;justify-items:center;align-items:center;width:64px;aspect-ratio:3/4;padding:8px 6px 7px 13px;border-radius:3px 7px 7px 3px;background:var(--t);color:var(--t-on);overflow:hidden;text-align:center;
+  box-shadow:inset 6px 0 0 var(--shade),inset 7px 0 0 var(--gloss),inset -1px 0 0 var(--gloss-edge),0 1px 2px var(--cover-drop),0 8px 14px -10px var(--cover-lift);
+  transition:transform .16s var(--ease),box-shadow .16s var(--ease)}
+.cover::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.15}
+.cover[data-pattern="lines"]::before{background:repeating-linear-gradient(0deg,currentColor 0 1px,transparent 1px 9px)}
+.cover[data-pattern="dots"]::before{background:radial-gradient(currentColor 1.1px,transparent 1.6px) 0 0/10px 10px}
+.cover > *{position:relative}
+.cover-type{font-size:8.5px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;line-height:1.1;overflow-wrap:anywhere}
+.cover svg{width:44%;max-width:34px;height:auto;stroke-width:1.7;opacity:.96}
+.cover-sub{min-height:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif);font-weight:650;font-size:11px;line-height:1.1}
+.entry{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:start;padding:12px 0 8px}
+.entry > .cover{grid-row:1/3}
+.entry > .entry-main,.entry > .e-line{grid-column:2}
+.entry .e-line > span:first-child,.rail .e-where{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.entry:has(.entry-title button:active) .cover{transform:scale(.95);transition:none}
+@media (hover:hover){.entry:hover .cover{transform:translateY(-3px) rotate(-1.2deg);box-shadow:inset 6px 0 0 var(--shade),inset 7px 0 0 var(--gloss),inset -1px 0 0 var(--gloss-edge),0 2px 3px var(--cover-drop),0 14px 16px -10px var(--cover-lift)}}
+/* estante: capas em grade, título embaixo */
+#lib-results[data-layout="shelf"] .sub-entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px;padding:8px 0 6px}
+#lib-results[data-layout="shelf"] .entry{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;border-bottom:0}
+#lib-results[data-layout="shelf"] .entry > .cover{width:100%;padding:12px 8px 10px 16px;box-shadow:inset 8px 0 0 var(--shade),inset 9px 0 0 var(--gloss),inset -1px 0 0 var(--gloss-edge),0 1px 2px var(--cover-drop),0 10px 16px -12px var(--cover-lift)}
+#lib-results[data-layout="shelf"] .cover-type{font-size:10.5px}
+#lib-results[data-layout="shelf"] .cover-sub{font-size:15px}
+#lib-results[data-layout="shelf"] .cover svg{max-width:44px}
+#lib-results[data-layout="shelf"] .entry-main{margin-top:10px}
+#lib-results[data-layout="shelf"] .entry-title{font-size:15.5px;line-height:1.35}
+#lib-results[data-layout="shelf"] .e-dots{display:none}
+#lib-results[data-layout="shelf"] .e-line{margin-top:2px}
+@media (min-width:700px){#lib-results[data-layout="shelf"] .sub-entries{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
+/* retomada: a capa do material à esquerda */
+.feature{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
+.feature > .cover{width:84px;grid-row:1}
+.feature > .entry-main{grid-column:2}
+.feature > .e-line{grid-column:1/-1}
+/* prateleiras da seleção: trilho horizontal de capas */
+.rail{display:flex;gap:14px;overflow-x:auto;margin-inline:-16px;padding:8px 16px 12px;scroll-snap-type:x proximity;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.rail .entry{flex:0 0 132px;display:flex;flex-direction:column;align-items:stretch;padding:0;border-bottom:0;scroll-snap-align:start}
+.rail .entry > .cover{width:100%;padding:11px 7px 9px 15px}
+.rail .entry-main{margin-top:10px}
+.rail .entry-title{font-size:14.5px;line-height:1.35}
+.rail .e-dots{display:none}
+@media (min-width:700px){.rail{margin-inline:-8px;padding-inline:8px}}
+/* por onde começar: capas por tipo e lombadas de módulo numa prateleira */
+.type-shelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:8px 0 6px}
+.type-door{display:flex;flex-direction:column;gap:2px;color:var(--ink);text-decoration:none;min-width:0}
+.type-door .cover{width:100%;margin-bottom:8px}
+.type-door-name{font-weight:650;font-size:13.5px;line-height:1.2;overflow-wrap:anywhere}
+.type-door .cover{padding-inline:11px 4px}
+.type-door .cover-type{font-size:7.8px;letter-spacing:.04em}
+.type-door-n{font-size:12px;color:var(--ink-3)}
+a.type-door:active .cover{transform:scale(.95);transition:none}
+a.type-door:focus-visible{outline:2px solid var(--focus);outline-offset:4px;border-radius:4px}
+@media (hover:hover){a.type-door:hover .cover{transform:translateY(-3px) rotate(-1.2deg)}}
+.type-door.is-empty{color:var(--ink-3)}
+.type-door.is-empty .cover{background:transparent;color:var(--ink-3);box-shadow:none;outline:1.5px dashed var(--rule-2);outline-offset:-3px}
+.spines{display:flex;align-items:flex-end;gap:6px;margin:12px -16px 4px;padding:10px 16px 0;overflow-x:auto;scrollbar-width:none;border-bottom:4px solid var(--rule-2)}
+.spines::-webkit-scrollbar{display:none}
+.spine{--sh:116px;flex:none;position:relative;display:grid;grid-template-rows:auto 1fr;justify-items:center;gap:8px;width:54px;min-height:var(--sh);padding:9px 0 10px;border-radius:5px 5px 0 0;background:var(--t);color:var(--t-on);text-decoration:none;box-shadow:inset 3px 0 0 var(--gloss),inset -3px 0 0 var(--shade-2);transition:transform .16s var(--ease)}
+.spine:nth-child(3n+2){--sh:104px}
+.spine:nth-child(3n){--sh:126px}
+.spine-name{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1}
+.spine-n{align-self:end;writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:650;letter-spacing:.04em;white-space:nowrap}
+.spine:active{transform:translateY(-3px);transition:none}
+.spine:focus-visible{outline:2px solid var(--focus);outline-offset:-4px}
+@media (hover:hover){.spine:hover{transform:translateY(-6px)}}
+.spine.is-empty{background:transparent;color:var(--ink-3);box-shadow:none;outline:1.5px dashed var(--rule-2);outline-offset:-3px}
+@media (min-width:700px){.spines{margin-inline:0;padding-inline:0}}
+/* ficha: a capa ao lado de onde o material fica */
+#d-reading{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"cover where" "title title";column-gap:14px;row-gap:12px;align-items:center}
+#d-reading .cover{grid-area:cover;width:60px}
+#d-reading .dlg-where{grid-area:where}
+#d-reading h2{grid-area:title}
+/* botão Lista/Estante */
+.route-tabs .layout-btn{margin-left:auto;display:inline-grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;border-radius:var(--r);background:transparent;color:var(--ink-3);cursor:pointer;transition:background-color .12s ease,color .12s ease}
+.layout-btn svg{width:22px;height:22px}
+.layout-btn[aria-pressed="true"]{color:var(--ink);background:var(--page-2)}
+.layout-btn:active{box-shadow:inset 0 0 0 2px currentColor;transition:none}
+.layout-btn:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+@media (hover:hover){.layout-btn:hover{color:var(--ink)}}
+/* estrela que "salta" ao favoritar */
+@keyframes star-pop{0%{transform:scale(.6)}55%{transform:scale(1.35)}100%{transform:scale(1)}}
+.entry-fav.pop svg,#d-fav.pop svg{animation:star-pop .26s var(--ease) var(--pop-delay,0ms)}
+@media (prefers-reduced-motion:reduce){
+  .cover,.spine{transition:none}
+  .entry:hover .cover,a.type-door:hover .cover,.spine:hover,.entry:has(.entry-title button:active) .cover,a.type-door:active .cover,.spine:active{transform:none}
+  .entry-fav.pop svg,#d-fav.pop svg{animation:none}
+}
 .study-tabs button:active,.route-tabs a:active,.study-disclosure > summary:active{background:var(--page-2);color:var(--ink);transition:none}
 .statusset label:active{box-shadow:inset 0 0 0 2px currentColor;transition:none}
 #theme-open{flex-shrink:0}
@@ -689,7 +765,7 @@ a.door:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
       <button class="btn ghost" type="button" id="clear-filters">Limpar</button>
     </div>
   </div>
-  <nav class="route-tabs" aria-label="Materiais"><a href="#inicio" data-route="inicio">Retomar</a><a href="#todos" data-route="lib">Catálogo</a></nav>
+  <nav class="route-tabs" aria-label="Materiais"><a href="#inicio" data-route="inicio">Retomar</a><a href="#todos" data-route="lib">Catálogo</a><button class="layout-btn" id="layout-toggle" type="button" aria-pressed="true" aria-label="Exibir em estante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="9" rx="1"/><rect x="13" y="4" width="7" height="9" rx="1"/><path d="M3 17h18M3 21h18"/></svg></button></nav>
 </div>
 
 <main id="main" tabindex="-1">
@@ -899,6 +975,38 @@ function h(tag, attrs, ...kids) {
 const svg = d => { const t = document.createElement("template"); t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`; return t.content.firstChild; };
 const ICON_STAR = '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>';
 const ICON_EXT = '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>';
+/* Capas: cada material ganha uma capa na cor da matéria, com o ícone e o rótulo do tipo e, quando há, o período. Só CSS e SVG inline; nada de imagem externa. */
+const COVER_ICONS = {
+  "Prova": '<path d="M6 3h9l3 3v15H6z"/><path d="m9 12 1.6 1.6L13.6 10M9 17h6"/>',
+  "Questões": '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/>',
+  "Monitoria": '<path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
+  "Slides": '<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 21h8M12 17v4"/>',
+  "Resumo": '<path d="M5 5h14M5 10h14M5 15h9M5 20h6"/>',
+  "Anotação": '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="m14 7 3 3"/>',
+  "Estudo dirigido": '<path d="m4 6 1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17M11 6h9M11 12h9M11 18h9"/>',
+  "Caso clínico": '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
+  "Imagem / lâmina": '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2"/>',
+  "Artigo": '<path d="M5 4h10v16H5zM15 8h4v12h-4"/><path d="M8 8h4M8 12h4M8 16h4"/>',
+  "Livro": '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+  "Apostila": '<path d="M8 4h11v13H8z"/><path d="M5 7v13h11"/>',
+  "Link": '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/>'
+};
+const COVER_PATTERN = { "Prova": "lines", "Questões": "lines", "Resumo": "lines", "Anotação": "lines", "Estudo dirigido": "lines", "Apostila": "lines", "Caso clínico": "dots", "Imagem / lâmina": "dots", "Monitoria": "dots" };
+const COVER_LABEL = { "Estudo dirigido": "Estudo", "Imagem / lâmina": "Lâmina" };
+const iconCache = new Map();
+const coverIcon = type => { const k = COVER_ICONS[type] ? type : "Link"; if (!iconCache.has(k)) iconCache.set(k, svg(COVER_ICONS[k])); return iconCache.get(k).cloneNode(true); };
+function cover(m) {
+  const type = m.type || "Link", sub = String(m.period || "").trim();
+  return h("span", { class: "cover", "data-pattern": COVER_PATTERN[type] || "plain", "aria-hidden": "true" },
+    h("span", { class: "cover-type", text: COVER_LABEL[type] || type }), coverIcon(type), h("span", { class: "cover-sub", text: sub }));
+}
+/* Exibição do catálogo: estante (capas em grade) ou lista; a escolha fica neste aparelho. */
+let layout = "shelf";
+try { if (localStorage.getItem("bm-layout") === "list") layout = "list"; } catch (_) {}
+/* Estrela que salta ao favoritar: dura 260 ms; quem for redesenhado nesse intervalo continua a animação do ponto em que ela está, em vez de recomeçar. */
+let popId = "", popAt = 0;
+const POP_MS = 260;
+const popping = id => popId === id && performance.now() - popAt < POP_MS;
 const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 const cmpName = (a, b) => String(a).localeCompare(String(b), "pt-BR", { sensitivity: "base", numeric: true });
 const validDate = iso => !!iso && !isNaN(new Date(iso));
@@ -1010,13 +1118,13 @@ function marked(text, toks) {
 /* Material: título completo abre a ficha; ação externa permanece independente. */
 function entry(m, o = {}) {
   const st = m.status || "nao-iniciado", toks = o.toks || [];
-  return h("article", { class: "entry", style: tabVar(m.areaId) },
+  return h("article", { class: "entry", style: tabVar(m.areaId) }, cover(m),
     h("div", { class: "entry-main" },
       h(o.tag || "h5", { class: "entry-title" }, h("button", { type: "button", "data-mid": m.id, onclick: () => openDetail(m.id) }, marked(m.title || "(sem título)", toks))),
       o.where ? h("p", { class: "e-where" }, h("i", { "aria-hidden": "true" }), h("span", { text: (pathOf(m.areaId).slice(1).map(a => a.name).join(" › ") || areaLabel(m.areaId) || "Sem área") + (m.subject ? " · " + m.subject : "") }))
         : h("p", { class: "sr", text: "Em " + (areaLabel(m.areaId) || "sem área") + (m.subject ? ", " + m.subject : "") })),
     h("p", { class: "e-line" }, h("span", { text: m.type || "Link" }), st !== "nao-iniciado" ? statusChip(st) : null,
-      m.favorite ? h("span", { class: "entry-fav" }, svg(ICON_STAR), h("span", { class: "sr", text: "Favorito" })) : null,
+      m.favorite ? h("span", { class: "entry-fav" + (popping(m.id) ? " pop" : ""), style: popping(m.id) ? `--pop-delay:-${Math.round(performance.now() - popAt)}ms` : null }, svg(ICON_STAR), h("span", { class: "sr", text: "Favorito" })) : null,
       h("span", { class: "e-dots", "aria-hidden": "true" }), openLink(m), o.extra || null));
 }
 function skeleton() {
@@ -1057,7 +1165,7 @@ function shelf(title, items, more, note, id) {
   id = id || "sh-" + (++shelfN);
   return h("section", { class: "shelf", "aria-labelledby": id },
     h("div", { class: "block-h" }, h("h2", { id, text: title }), more || null),
-    items.map(m => entry(m, { where: true, tag: "h3" })),
+    h("div", { class: "rail" }, items.map(m => entry(m, { where: true, tag: "h3" }))),
     note ? h("p", { class: "shelf-note", text: note }) : null);
 }
 function feature(m) {
@@ -1070,19 +1178,25 @@ function feature(m) {
 let homeShelf = "";
 /* Entrada de quem chega pela primeira vez: o que mais se procura e os módulos. Só dados que existem; o que ainda não tem material diz "Em produção". */
 const DOORS = [["Prova", "Provas antigas"], ["Monitoria", "Monitoria"], ["Resumo", "Resumos"], ["Caso clínico", "Casos clínicos"]];
+const DOOR_STAIN = { "Prova": "eosin", "Monitoria": "giemsa", "Resumo": "masson", "Caso clínico": "safra" };
 function startHere() {
   const live = areasWithContent();
-  const door = (label, count, attrs) => { const empty = !count; return h(empty ? "div" : "a", { class: "door" + (empty ? " is-empty" : ""), ...(empty ? {} : attrs) }, h("span", { class: "door-name", text: label }), h("span", { class: "door-n", text: empty ? IN_PRODUCTION : plural(count, "material", "materiais") })); };
-  const byType = DOORS.map(([type, label]) => door(label, S.materials.filter(m => m.type === type).length, { href: "#todos", onclick: () => presetFilters({ type }) }));
-  const all = childrenOf("");
-  const mods = all.filter(mod => live.has(mod.id)).map(mod => { const ids = descIds(mod.id); return h("a", { class: "door", href: "#a-" + mod.id }, h("span", { class: "door-name", text: "Módulo " + mod.name }), h("span", { class: "door-n", text: plural(S.materials.filter(m => ids.has(m.areaId)).length, "material", "materiais") })); });
-  const producing = all.filter(mod => !live.has(mod.id)).map(mod => h("a", { class: "prod-link", href: "#a-" + mod.id, text: mod.name }));
+  const door = ([type, label]) => {
+    const count = S.materials.filter(m => m.type === type).length, empty = !count;
+    return h(empty ? "div" : "a", { class: "type-door" + (empty ? " is-empty" : ""), style: stainVar(DOOR_STAIN[type]), ...(empty ? {} : { href: "#todos", onclick: () => presetFilters({ type }) }) },
+      cover({ type }), h("span", { class: "type-door-name", text: label }), h("span", { class: "type-door-n", text: empty ? IN_PRODUCTION : plural(count, "material", "materiais") }));
+  };
+  const spines = childrenOf("").map((mod, i) => {
+    const on = live.has(mod.id), ids = descIds(mod.id), n = on ? S.materials.filter(m => ids.has(m.areaId)).length : 0;
+    return h("a", { class: "spine" + (on ? "" : " is-empty"), href: "#a-" + mod.id, style: stainVar(STAINS[i % STAINS.length]) },
+      h("span", { class: "spine-name", text: mod.name }), h("span", { class: "spine-n", text: on ? plural(n, "material", "materiais") : IN_PRODUCTION }),
+      h("span", { class: "sr", text: " — módulo " + mod.name }));
+  });
   return h("section", { class: "start", "aria-labelledby": "h-start" },
     h("h2", { id: "h-start", text: "Por onde começar" }),
     h("p", { class: "start-note", text: "Escolha o tipo de material que procura ou o módulo que está cursando." }),
-    h("div", { class: "doors", role: "group", "aria-label": "Tipos de material" }, byType),
-    mods.length ? h("div", { class: "doors", role: "group", "aria-label": "Módulos com material" }, mods) : null,
-    producing.length ? h("p", { class: "start-prod" }, h("span", { text: IN_PRODUCTION + ":" }), producing) : null);
+    h("div", { class: "type-shelf", role: "group", "aria-label": "Tipos de material" }, DOORS.map(door)),
+    spines.length ? h("div", { class: "spines", role: "group", "aria-label": "Módulos" }, spines) : null);
 }
 function renderHome() {
   const focus = $("#home-focus"); focus.replaceChildren(); shelfN = 0;
@@ -1117,7 +1231,7 @@ function renderHome() {
     select(options[e.key==="Home"?0:e.key==="End"?2:(i+(e.key==="ArrowRight"?1:2))%3][0],true);
   });
   select(homeShelf);
-  const disclosure = h("details", { class:"study-disclosure", open:false },
+  const disclosure = h("details", { class:"study-disclosure", open:true },
     h("summary", { text:"Em estudo, favoritos e recentes" }),
     h("section", { class:"study-selection", "aria-label":"Seleção de estudo" }, tabs,panel));
   focus.append(disclosure);
@@ -1307,6 +1421,9 @@ function goTo(el, instant) {
 }
 function renderLibrary() {
   if (S.view === "organizar") return;
+  $("#lib-results").dataset.layout = layout;
+  $("#layout-toggle").hidden = S.view !== "lib";
+  $("#layout-toggle").setAttribute("aria-pressed", String(layout === "shelf"));
   fillSelect($("#f-type"), [["", "Todos os tipos"], ...TYPES.map(t => [t, t])], S.f.type);
   fillSelect($("#f-status"), [["", "Todas"], ...STATUS], S.f.status);
   fillSelect($("#f-coll"), [["", "Todas"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
@@ -1499,7 +1616,7 @@ async function updateMaterial(id, patch, message) {
   if (current) Object.assign(current, ok ? patch : before);
   renderAll();
 }
-async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; await updateMaterial(id, { favorite: on }, on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
+async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; if (on) { popId = id; popAt = performance.now(); setTimeout(() => { popId = ""; }, POP_MS * 2); } await updateMaterial(id, { favorite: on }, on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
 async function setStatus(id, s) { const m = find(id); if (!m || (m.status || "nao-iniciado") === s) return; await updateMaterial(id, { status: s, statusAt: nowIso() }, "Status: " + STATUS_LABEL[s]); }
 function markOpened(id) { if (S.db) S.db.doc("materials/" + id).update({ lastOpenedAt: nowIso() }).catch(e => console.error(e)); }
 async function removeMaterial(id) {
@@ -1612,7 +1729,10 @@ function renderDetail() {
   $("#d-tab").textContent = p[p.length - 1]?.name || "Sem área";
   $("#d-code").textContent = (p.map(a => a.name).join(" · ") || "Sem área") + (m.subject ? " — " + m.subject : "");
   $("#d-title").textContent = m.title || "(sem título)";
-  const fav = $("#d-fav"); fav.setAttribute("aria-pressed", m.favorite ? "true" : "false"); fav.setAttribute("aria-label", m.favorite ? "Remover dos favoritos" : "Favoritar"); fav.onclick = () => toggleFav(m.id);
+  const reading = $("#d-reading"); reading.querySelector(".cover")?.remove(); reading.prepend(cover(m));
+  const fav = $("#d-fav");
+  if (popping(m.id) && m.favorite && fav.dataset.popAt !== String(popAt)) { fav.dataset.popAt = String(popAt); fav.classList.remove("pop"); void fav.offsetWidth; fav.classList.add("pop"); }
+ fav.setAttribute("aria-pressed", m.favorite ? "true" : "false"); fav.setAttribute("aria-label", m.favorite ? "Remover dos favoritos" : "Favoritar"); fav.onclick = () => toggleFav(m.id);
   const pending = materialWrites.has(m.id);
   fav.setAttribute("aria-disabled", String(pending));
   fav.setAttribute("aria-busy", String(pending));
@@ -1722,6 +1842,12 @@ $("#rh-where").addEventListener("click", () => {
 });
 $("#dlg-toc").addEventListener("click", e => { if (e.target.closest("a[href^='#']")) closeDlg($("#dlg-toc"), true); });
 window.atlasTheme.sync();
+$("#d-fav").addEventListener("animationend", () => $("#d-fav").classList.remove("pop"));
+$("#layout-toggle").addEventListener("click", () => {
+  layout = layout === "shelf" ? "list" : "shelf";
+  try { localStorage.setItem("bm-layout", layout); } catch (_) {}
+  renderLibrary();
+});
 $("#theme-open").addEventListener("click", () => { window.atlasTheme.sync(); openDlg($("#dlg-theme")); });
 $("#dlg-theme").addEventListener("change", e => {
   if (!e.target.matches('input[name="theme"]')) return;
