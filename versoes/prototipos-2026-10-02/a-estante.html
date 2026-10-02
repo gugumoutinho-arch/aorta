@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proposta A — Estante do M1 (dados fictícios)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f0e6; --paper-2:#ebe5d6; --ink:#1b2a25; --ink-2:#44564f; --ink-3:#5d6e67; --rule:#cdc5b1; --green:#173e36;
+  --hema:#4338a8; --eosin:#bb1d58; --giemsa:#1762a8; --masson:#22703a; --focus:#1762a8;
+  --serif:"Literata",Georgia,serif; --sans:"Schibsted Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none} h1,h2,h3,p{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding:0 16px 40px}
+.top{display:flex;align-items:center;gap:6px;height:56px}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding-right:10px;font-weight:600;font-size:14px;color:var(--ink-2)}
+.top .grow{flex:1}
+.ibtn{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;color:var(--ink-2)}
+.crumb{font-size:12.5px;color:var(--ink-3);padding-top:6px}
+.title{display:flex;align-items:flex-end;gap:14px;padding-top:4px}
+.title .n{font-family:var(--serif);font-weight:700;font-size:clamp(84px,24vw,104px);line-height:.82;letter-spacing:-.06em;color:var(--hema)}
+.title p{font-size:14.5px;color:var(--ink-2);padding-bottom:6px;line-height:1.35}
+.title p b{display:block;font-family:var(--serif);font-weight:600;font-size:20px;color:var(--ink);letter-spacing:-.015em}
+.tabs{display:flex;gap:0;margin-top:20px;border-bottom:2px solid var(--ink);overflow-x:auto;scrollbar-width:none}
+.tabs a{flex:none;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px 0 0;margin-right:10px;font-weight:600;font-size:15px;color:var(--ink-3);position:relative}
+.tabs a[aria-current]{color:var(--ink)}
+.tabs a[aria-current]::after{content:"";position:absolute;left:0;right:10px;bottom:-2px;height:4px;background:var(--hema)}
+.tabs small{font-weight:500;font-size:12px}
+.tools{display:flex;align-items:center;gap:8px;padding:12px 0 4px}
+.pill{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 14px;border:1.5px solid var(--ink);border-radius:999px;font-weight:600;font-size:14px;background:transparent}
+.tools .grow{flex:1}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden}
+.seg a{display:grid;place-items:center;width:44px;height:41px;color:var(--ink-2)}
+.seg a[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.layout{display:block}
+.rail{display:none}
+.group{padding-top:26px}
+.group h2{display:flex;align-items:baseline;gap:10px;font-family:var(--serif);font-weight:600;font-size:26px;letter-spacing:-.025em;line-height:1.1;padding-bottom:12px}
+.group h2::before{content:"";align-self:center;width:12px;height:26px;background:var(--c);border-radius:2px 0 0 2px;box-shadow:inset 3px 0 0 rgb(255 255 255/.28)}
+.group h2 small{margin-left:auto;font-family:var(--sans);font-weight:500;font-size:12.5px;color:var(--ink-3)}
+.shelf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px}
+.item{display:flex;flex-direction:column;gap:8px;min-width:0}
+/* capas tipográficas */
+.cv{--c:var(--eosin);position:relative;display:flex;flex-direction:column;min-height:300px;padding:14px 12px 12px 20px;border-radius:3px 8px 8px 3px;background:color-mix(in srgb,var(--c) 10%,#fffdf7);color:var(--ink);overflow:hidden;
+  box-shadow:inset 7px 0 0 var(--c),inset 8px 0 0 rgb(255 255 255/.25),0 1px 2px rgb(27 42 37/.22),0 14px 18px -14px rgb(27 42 37/.6)}
+.cv .tp{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:10.5px;font-weight:750;letter-spacing:.09em;text-transform:uppercase;color:var(--c)}
+.cv .tp svg{width:18px;height:18px}
+.cv h3{font-family:var(--serif);font-weight:600;letter-spacing:-.02em;line-height:1.14;overflow-wrap:anywhere}
+.cv .ft{margin-top:auto;padding-top:12px;font-size:12px;line-height:1.3;color:var(--ink-2)}
+.cv .ft b{display:block;font-weight:650;color:var(--ink);font-size:12.5px}
+.cv.s h3{font-size:19px}.cv.l h3{font-size:13.5px;line-height:1.28}
+/* Resumo: papel pautado e marca-texto */
+.cv.resumo{background:repeating-linear-gradient(0deg,transparent 0 23px,color-mix(in srgb,var(--c) 22%,transparent) 23px 24px),#fffdf7}
+.cv.resumo h3{padding-top:18px}
+.cv.resumo .ft b{display:block;width:fit-content;background:linear-gradient(transparent 55%,#ffe066 55%);padding:0 2px;margin-bottom:2px}
+/* Slides: tela em destaque com o título dentro */
+.cv.slides{padding-top:12px}
+.cv.slides .scr{margin:14px 0 4px -6px;border-radius:5px;background:var(--c);color:#fff;padding:14px 12px 12px;box-shadow:0 8px 14px -10px rgb(0 0 0/.6);min-height:150px;display:flex;align-items:center}
+.cv.slides .scr h3{color:#fff}
+.cv.slides .scr h3.l{font-size:13.5px}
+/* Caso clínico: eletrocardiograma */
+.cv.caso .ecg{margin:12px -12px 12px -20px;height:54px;background:var(--c);display:grid;place-items:center;color:#fff}
+.cv.caso .ecg svg{width:100%;height:30px}
+.cv.caso h3{font-size:19px}
+/* Livro: capa cheia com faixas */
+.cv.livro{background:var(--c);color:#fff;box-shadow:inset 7px 0 0 rgb(0 0 0/.2),inset 8px 0 0 rgb(255 255 255/.22),0 1px 2px rgb(27 42 37/.22),0 14px 18px -14px rgb(27 42 37/.6);justify-content:space-between}
+.cv.livro .tp,.cv.livro .ft,.cv.livro .ft b{color:#fff}
+.cv.livro h3{font-size:21px;text-align:center;padding:26px 6px;border-top:2px solid rgb(255 255 255/.55);border-bottom:2px solid rgb(255 255 255/.55);margin:8px 0}
+.cap{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;min-height:44px;font-size:13px;color:var(--ink-2)}
+.cap .chip{white-space:nowrap}
+.cap .open{white-space:nowrap;font-size:13.5px}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:650;border:1.5px solid var(--ink)}
+.chip.on{background:var(--ink);color:var(--paper)}
+.cap .open{display:inline-flex;align-items:center;gap:5px;min-height:44px;font-weight:700;color:var(--c)}
+.cap .chip + .star + .open,.cap .chip + .open{flex-basis:100%;margin-top:-4px}
+.star{color:#9a5b00}
+.note{position:fixed;right:12px;bottom:12px;background:var(--ink);color:var(--paper);font-size:11.5px;padding:6px 10px;border-radius:4px;opacity:.9}
+@media (min-width:900px){
+  .wrap{padding:0 56px 56px}
+  .top{height:76px}
+  .layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:56px;margin-top:26px}
+  .rail{display:block;position:sticky;top:20px;align-self:start;border-top:2px solid var(--ink);padding-top:12px}
+  .rail h2{font-size:12.5px;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);padding-bottom:8px}
+  .rail a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:48px;border-bottom:1px solid var(--rule);font-family:var(--serif);font-weight:600;font-size:18px}
+  .rail a small{font-family:var(--sans);font-weight:500;font-size:12.5px;color:var(--ink-3)}
+  .rail a.off{color:var(--ink-3);font-weight:500;font-style:italic}
+  .rail i{width:10px;height:20px;background:var(--c);border-radius:2px 0 0 2px;margin-right:10px}
+  .rail a span{display:flex;align-items:center}
+  .title{padding-top:12px}
+  .title .n{font-size:150px}
+  .title p b{font-size:28px}
+  .title p{font-size:16px}
+  .tabs{display:none}
+  .shelf{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:30px 22px}
+  .group:first-child{padding-top:0}
+  .cv{min-height:330px}
+  .cv.s h3{font-size:22px}.cv.l h3{font-size:14.5px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="back" href="a-sumario.html"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>Início</a>
+    <span class="grow"></span>
+    <button class="ibtn" aria-label="Buscar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <button class="ibtn" aria-label="Tema"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+  </header>
+
+  <p class="crumb">Biblioteca de Medicina › Módulos</p>
+  <div class="title"><span class="n">M1</span><p><b>CIS 1 · BBIO 1</b>4 materiais</p></div>
+  <nav class="tabs" aria-label="Unidades"><a href="#" aria-current="page">Tudo <small>4</small></a><a href="#">CIS 1 <small>4</small></a><a href="#" style="font-style:italic">BBIO 1 <small>Em produção</small></a></nav>
+
+  <div class="layout">
+    <aside class="rail" aria-label="Neste módulo">
+      <h2>Neste módulo</h2>
+      <a href="#" style="--c:var(--eosin)"><span><i></i>Práticas Médicas</span><small>2</small></a>
+      <a href="#" style="--c:var(--hema)"><span><i></i>Anatomia</span><small>2</small></a>
+      <a href="#" class="off" style="--c:var(--rule)"><span><i></i>BBIO 1</span><small>Em produção</small></a>
+    </aside>
+
+    <main>
+      <div class="tools"><a class="pill" href="#">Tipo <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></a><a class="pill" href="#">Situação <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></a><span class="grow"></span>
+        <span class="seg"><a href="#" aria-pressed="true" aria-label="Estante"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="7" height="9" rx="1"/><rect x="13" y="4" width="7" height="9" rx="1"/><path d="M3 17h18M3 21h18"/></svg></a><a href="#" aria-label="Lista"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></a></span></div>
+
+      <section class="group" style="--c:var(--eosin)">
+        <h2>Práticas Médicas <small>2 materiais</small></h2>
+        <div class="shelf">
+          <div class="item" style="--c:var(--eosin)">
+            <article class="cv slides l" style="--c:var(--eosin)"><div class="tp"><span>Slides</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 21h8M12 17v4"/></svg></div>
+              <div class="scr"><h3 class="l">Exemplo — slides de placentação com casos clínicos de placenta percreta e gêmeos monocoriônicos (título longo de propósito)</h3></div>
+              <div class="ft"><b>Placentação</b>M1 › CIS 1 › Práticas Médicas</div></article>
+            <div class="cap"><span class="chip on">Em estudo</span><span class="star">★</span><a class="open" href="#">Abrir original ↗</a></div>
+          </div>
+          <div class="item" style="--c:var(--eosin)">
+            <article class="cv resumo s" style="--c:var(--eosin)"><div class="tp"><span>Resumo</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 5h14M5 10h14M5 15h9M5 20h6"/></svg></div>
+              <h3>Exemplo — resumo de tecido epitelial</h3>
+              <div class="ft"><b>Tecido epitelial</b>M1 › CIS 1 › Práticas Médicas</div></article>
+            <div class="cap"><span class="chip">✓ Revisado</span><a class="open" href="#">Abrir original ↗</a></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="group" style="--c:var(--hema)">
+        <h2>Anatomia <small>2 materiais</small></h2>
+        <div class="shelf">
+          <div class="item">
+            <article class="cv caso s" style="--c:var(--hema)"><div class="tp"><span>Caso clínico</span></div>
+              <div class="ecg"><svg viewBox="0 0 200 30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" preserveAspectRatio="none"><path d="M0 16h52l6-12 8 24 7-18 5 6h122"/></svg></div>
+              <h3>Exemplo — caso clínico de fratura do colo do fêmur</h3>
+              <div class="ft"><b>Membro inferior</b>M1 › CIS 1 › Anatomia</div></article>
+            <div class="cap"><a class="open" href="#">Abrir original ↗</a></div>
+          </div>
+          <div class="item">
+            <article class="cv livro" style="--c:var(--hema)"><div class="tp"><span>Livro</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg></div>
+              <h3>Exemplo — livro de anatomia</h3>
+              <div class="ft"><b>Anatomia</b>M1 › CIS 1</div></article>
+            <div class="cap"><a class="open" href="#">Abrir original ↗</a></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <p style="margin-top:28px;font-size:12.5px;color:var(--ink-3)">Proposta A · Estante do M1 · dados fictícios</p>
+</div>
+</body>
+</html>

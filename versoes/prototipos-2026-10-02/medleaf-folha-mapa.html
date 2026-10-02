@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f0b1a">
+<title>MedLeaf — folha-mapa (protótipo, dados fictícios)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,600&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Lista aprovada (AGENTS.md › Direção MedLeaf), versões fixas com SRI -->
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js" integrity="sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/SplitText.min.js" integrity="sha384-SWJ0lLVRoipvHh59xj0pL7uC7Ih51F+5smaFtrG+2nr+TlDZU5SYJHmxfolbeNTr" crossorigin="anonymous"></script>
+<script type="importmap">{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js",
+    "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+  },
+  "integrity": {
+    "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js": "sha384-EU5UWigB3OuXjAXooUegndJSqYber3YSJHDoMZs6rV96yY/ol/B4W8logw4CKWkA",
+    "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js": "sha384-ktZslgpl0L71WZcQ5wKV96Z04i9QSjtmiU/kYpjDQSfJ5NJ8B79qDF63oNTbQySl"
+  }
+}</script>
+<style>
+:root{
+  --night:#0f0b1a; --night-2:#1b1431; --violet:#8b6cff; --violet-2:#c2b2ff; --leaf:#93e38a;
+  --cream:#f5efe3; --cream-2:#d9d1e6; --mute:#b1a8c6; --ink:#17112a;
+  --serif:"Literata",Georgia,serif; --sans:"Schibsted Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box} html{-webkit-tap-highlight-color:transparent;background:var(--night);overflow-x:clip}
+body{margin:0;min-height:100vh;color:var(--cream);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(120% 900px at 75% -200px,#2e1f5c 0,#170f2d 45%,var(--night) 78%) no-repeat,var(--night)}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+a{color:inherit;text-decoration:none} h1,h2,h3,p{margin:0} button,input{font:inherit;color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.wrap{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand svg{width:30px;height:30px;color:var(--leaf);filter:drop-shadow(0 4px 10px rgb(147 227 138 / .35))}
+.brand b{font-family:var(--serif);font-weight:700;font-size:21px;letter-spacing:-.03em}
+.brand b span{color:var(--leaf)}
+.brand small{display:block;font-size:11px;letter-spacing:.06em;color:var(--mute);margin-top:-3px}
+.ibtn{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;color:var(--cream-2);border-radius:12px;cursor:pointer}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(36px,10.4vw,48px);line-height:1.03;letter-spacing:-.035em;padding-top:6px;max-width:12ch}
+h1 em{font-style:italic;color:var(--violet-2)}
+.lead{margin-top:10px;color:var(--cream-2);font-size:15.5px;max-width:34ch}
+.plate{margin-top:18px;display:flex;align-items:center;gap:12px;height:58px;padding:0 6px 0 16px;border-radius:16px;cursor:text;
+  background:linear-gradient(180deg,#fbf7ee,#ebe3d2);color:var(--ink);box-shadow:0 1px 0 #fff inset,0 -2px 0 rgb(0 0 0 / .1) inset,0 16px 32px -16px rgb(0 0 0 / .95)}
+.plate svg{width:20px;height:20px;flex:none}
+.plate input{flex:1;min-width:0;height:100%;border:0;background:transparent;font-size:17px;color:var(--ink);outline:0}
+.plate .go{display:grid;place-items:center;width:46px;height:46px;border:0;border-radius:12px;background:var(--violet);color:#fff}
+.plate:focus-within{box-shadow:0 1px 0 #fff inset,0 0 0 3px rgb(139 108 255 / .6),0 26px 44px -18px rgb(0 0 0 / .95)}
+.marked{position:relative;margin-top:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;min-height:60px;padding:10px 16px 10px 30px;border-radius:4px 14px 14px 4px;
+  background:rgb(255 255 255 / .05);border:1px solid rgb(255 255 255 / .09)}
+.marked::before{content:"";position:absolute;left:12px;top:-4px;width:9px;height:40px;background:var(--leaf);clip-path:polygon(0 0,100% 0,100% 100%,50% 80%,0 100%)}
+.marked small{display:block;font-size:11.5px;color:var(--mute)}
+.marked strong{display:block;font-weight:600;font-size:14px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.marked em{font-style:normal;font-weight:650;font-size:13.5px;color:var(--leaf)}
+.legend{margin-top:22px;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--mute)}
+.legend .lg{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px;background:var(--leaf);box-shadow:0 0 8px var(--leaf)}
+.legend .lg-mod{background:var(--violet-2);box-shadow:0 0 8px var(--violet-2)}
+.legend .lg-off{background:transparent;border-top:2px dashed var(--mute);box-shadow:none;height:0}
+
+/* ---------- a folha-mapa ---------- */
+.map{position:relative;height:min(82vh,700px);min-height:540px;margin:14px -16px 0;touch-action:pan-y;overflow:hidden}
+.map canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block;outline:0}
+.map-h{position:absolute;left:16px;top:6px;z-index:3;font-size:12px;font-weight:650;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.mods{list-style:none;margin:0;padding:0;position:absolute;inset:0;z-index:2;pointer-events:none}
+.mods li{position:absolute;left:0;top:0;will-change:transform}
+.mod{pointer-events:auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;min-width:56px;min-height:46px;padding:5px 12px;border-radius:12px;cursor:pointer;
+  background:rgb(15 11 26 / .72);border:1px solid color-mix(in oklab,var(--c) 70%,transparent);color:var(--cream);
+  box-shadow:0 0 0 0 transparent,0 10px 22px -12px rgb(0 0 0 / .9);transition:box-shadow .35s,background-color .35s,border-color .35s;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.mod b{font-family:var(--serif);font-weight:700;font-size:18px;line-height:1.05;color:var(--c)}
+.mod small{font-size:11.5px;color:var(--cream-2);white-space:nowrap}
+.mod.off{border-style:dashed;border-color:rgb(194 178 255 / .35);background:rgb(15 11 26 / .55)}
+.mod.off b{color:var(--mute)} .mod.off small{color:var(--mute);font-style:italic}
+.mod.right{align-items:flex-end;text-align:right}
+.mod:hover,.mod:focus-visible,.mod.hot{background:rgb(27 20 49 / .92);border-color:var(--c);box-shadow:0 0 0 3px color-mix(in oklab,var(--c) 35%,transparent),0 14px 28px -12px rgb(0 0 0 / .95)}
+.mod:focus-visible{outline:2px solid var(--violet-2);outline-offset:2px}
+/* sem WebGL: as mesmas nervuras como lista */
+.map.flat{height:auto;min-height:0;margin:14px 0 0}
+.map.flat .mods{position:static;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-top:34px}
+.map.flat .mods li{position:static;transform:none!important}
+.map.flat .mod{width:100%;min-height:64px;align-items:flex-start;text-align:left;border-left:4px solid var(--c)}
+.map.flat .mod.off{border-left:4px dashed rgb(194 178 255 / .35)}
+.toast{position:fixed;left:50%;bottom:24px;z-index:40;translate:-50% 0;padding:10px 16px;border-radius:12px;background:var(--cream);color:var(--ink);font-weight:600;font-size:14px;box-shadow:0 14px 30px -12px rgb(0 0 0 / .9);opacity:0;pointer-events:none}
+
+/* ---------- resumo do módulo ---------- */
+.panel{position:fixed;z-index:30;left:0;right:0;bottom:0;max-height:78vh;overflow:auto;padding:22px 20px 26px;border-radius:24px 24px 0 0;visibility:hidden;
+  background:linear-gradient(180deg,color-mix(in oklab,var(--c) 26%,var(--night-2)),var(--night-2) 60%);border-top:1px solid color-mix(in oklab,var(--c) 60%,transparent);
+  box-shadow:0 -30px 60px -20px rgb(0 0 0 / .9)}
+.panel.on{visibility:visible}
+.panel .x{position:absolute;right:12px;top:12px;width:44px;height:44px;border-radius:50%;border:0;background:rgb(255 255 255 / .08);display:grid;place-items:center;cursor:pointer}
+.panel .kick{font-size:11.5px;font-weight:750;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.panel .num{font-family:var(--serif);font-weight:700;font-size:96px;line-height:.85;letter-spacing:-.06em;color:var(--c);margin-top:6px}
+.panel .units{margin-top:16px;display:grid;gap:2px;font-size:14.5px}
+.panel .units span{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid rgb(255 255 255 / .1)}
+.panel .units em{font-style:italic;color:var(--mute)}
+.panel .sub{margin-top:14px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+.panel .mats span{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:var(--cream-2)}
+.panel .cta{margin-top:18px;display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:0 18px;border-radius:14px;background:var(--cream);color:var(--ink);font-weight:700}
+.panel .cta:focus-visible,.panel .x:focus-visible{outline:3px solid var(--violet-2);outline-offset:3px}
+.foot{margin-top:28px;font-size:12.5px;color:var(--mute)}
+
+@media (min-width:900px){
+  .wrap{padding:0 56px 56px}
+  .top{height:84px}
+  .stage{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:24px;align-items:center;min-height:calc(100vh - 110px)}
+  h1{font-size:clamp(54px,5vw,76px);max-width:11ch}
+  .lead{font-size:19px;margin-top:16px}
+  .plate{height:66px;max-width:520px;margin-top:26px}
+  .plate input{font-size:20px}
+  .marked{max-width:520px}
+  .map{height:calc(100vh - 120px);min-height:620px;margin:0}
+  .map.flat{height:auto}
+  .panel{left:auto;right:28px;bottom:28px;top:auto;width:380px;border-radius:24px;border:1px solid color-mix(in oklab,var(--c) 50%,transparent)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="#" aria-label="MedLeaf, início">
+      <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 26C5 15 10 7 26 5c1 13-5 21-17 21z" fill="currentColor" fill-opacity=".16"/><path d="M6 26 19 12"/><path d="M12 19.5h5M14.5 16.5h5"/></svg>
+      <span><b>Med<span>Leaf</span></b><small>biblioteca de medicina</small></span>
+    </a>
+    <button class="ibtn" type="button" aria-label="Tema"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+  </header>
+
+  <div class="stage">
+    <section class="hero" aria-labelledby="h1">
+      <h1 id="h1">O que você vai estudar <em>hoje?</em></h1>
+      <p class="lead" id="lead">O curso inteiro numa folha. Cada nervura é um módulo: toque para abrir.</p>
+      <label class="plate" id="plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="sr">Buscar no acervo</span><input id="q" type="search" placeholder="Buscar assunto ou material" enterkeyhint="search" autocomplete="off"><span class="go" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></label>
+      <a class="marked" id="marked" href="#"><span><small>Continuar de onde parou · M1 › Práticas Médicas</small><strong>Exemplo — slides de placentação com casos clínicos de placenta percreta e gêmeos monocoriônicos (título longo de propósito)</strong></span><em>Abrir ›</em></a>
+      <p class="legend" aria-hidden="true"><span><i class="lg"></i>o curso</span><span><i class="lg lg-mod"></i>módulo com material</span><span><i class="lg lg-off"></i>em produção</span></p>
+    </section>
+
+    <section class="map" id="map" aria-labelledby="map-h">
+      <h2 class="map-h" id="map-h">Mapa do curso</h2>
+      <ol class="mods" id="mods"></ol>
+    </section>
+  </div>
+  <p class="foot">O site guarda links; os arquivos continuam no Google Drive. · MedLeaf · protótipo com dados fictícios · Three.js 0.186 + GSAP 3.15</p>
+</div>
+
+<aside class="panel" id="panel" role="dialog" aria-modal="false" aria-labelledby="pn-num">
+  <button class="x" id="pn-x" type="button" aria-label="Fechar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <span class="kick">Módulo</span>
+  <h2 class="num" id="pn-num" tabindex="-1"></h2>
+  <div class="units" id="pn-units"></div>
+  <p class="sub">Matérias com material</p>
+  <div class="mats" id="pn-mats"></div>
+  <a class="cta" id="pn-cta" href="medleaf-folhas.html"><span id="pn-cta-t"></span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+</aside>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+/* Dados fictícios (tools/seed.json). Módulos sem material: "Em produção", deduzido dos dados. */
+const MODS = [
+  { id:"m1", name:"M1", c:"#a99dff", n:4, units:[["CIS 1","4 materiais",true],["BBIO 1","Em produção",false]], mats:[["Práticas Médicas",2],["Anatomia",2]] },
+  { id:"m2", name:"M2", c:"#ff8db5", n:2, units:[["CIS 2","Em produção",false],["BBIO 2","2 materiais",true]], mats:[["Imunologia",1],["Microbiologia",1]] },
+  ...[3,4,5,6,7,8].map(k => ({ id:"m"+k, name:"M"+k, c:"#7d74a3", off:true, units:[] }))
+];
+const $ = s => document.querySelector(s);
+const map = $("#map"), list = $("#mods"), panel = $("#panel"), toast = $("#toast");
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fine = matchMedia("(pointer: fine)").matches;
+
+/* rótulos = botões reais (teclado, leitor de tela); também são a versão sem WebGL */
+const buttons = MODS.map((m, i) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "mod" + (m.off ? " off" : ""); b.style.setProperty("--c", m.c);
+  b.innerHTML = `<b>${m.name}</b><small>${m.off ? "Em produção" : m.n + " materiais"}</small>`;
+  b.setAttribute("aria-label", m.off ? `Módulo ${m.name}, em produção` : `Módulo ${m.name}, ${m.n} materiais. Abrir resumo`);
+  const li = document.createElement("li"); li.append(b); list.append(li);
+  return b;
+});
+
+const say = text => { toast.textContent = text; const g = window.gsap; if (!g) return; g.killTweensOf(toast); g.timeline().to(toast, { opacity: 1, y: -6, duration: .3, ease: "back.out(2)" }).to(toast, { opacity: 0, y: 0, duration: .3, delay: 1.6 }); };
+
+/* resumo do módulo */
+let openIdx = -1, onOpen = () => {}, onClose = () => {};
+function openPanel(i) {
+  const m = MODS[i]; openIdx = i;
+  panel.style.setProperty("--c", m.c);
+  $("#pn-num").textContent = m.name;
+  $("#pn-units").innerHTML = m.units.map(([u, s, on]) => `<span><b>${u}</b>${on ? `<i>${s}</i>` : `<em>${s}</em>`}</span>`).join("");
+  $("#pn-mats").innerHTML = m.mats.map(([t, n]) => `<span><span>${t}</span><span>${n}</span></span>`).join("");
+  $("#pn-cta-t").textContent = `Folhear o ${m.name}`;
+  panel.classList.add("on");
+  const g = window.gsap;
+  if (g && !reduce) g.fromTo(panel, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: .7, ease: "expo.out" });
+  onOpen(i);
+  setTimeout(() => $("#pn-num").focus({ preventScroll: true }), reduce ? 0 : 250);
+}
+function closePanel() {
+  if (openIdx < 0) return;
+  const i = openIdx; openIdx = -1;
+  const g = window.gsap, done = () => { panel.classList.remove("on"); buttons[i].focus({ preventScroll: true }); };
+  onClose(i);
+  if (g && !reduce) g.to(panel, { y: 60, opacity: 0, duration: .35, ease: "power3.in", onComplete: done }); else done();
+}
+$("#pn-x").addEventListener("click", closePanel);
+addEventListener("keydown", e => { if (e.key === "Escape") closePanel(); });
+let shake = () => {};
+buttons.forEach((b, i) => b.addEventListener("click", () => {
+  if (MODS[i].off) { shake(i, b); if (navigator.vibrate) navigator.vibrate(18); say(`${MODS[i].name} ainda está em produção`); return; }
+  openPanel(i);
+}));
+
+/* sem WebGL ou aparelho fraco: a mesma navegação em lista */
+const canGL = (() => { try { const c = document.createElement("canvas"); return !!(c.getContext("webgl2") || c.getContext("webgl")); } catch (_) { return false; } })();
+const weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.connection && navigator.connection.saveData);
+if (!canGL || weak) { map.classList.add("flat"); }
+else {
+  /* a folha só carrega depois da primeira tela */
+  const start = () => import("three").then(buildLeaf).catch(err => { console.error(err); map.classList.add("flat"); });
+  ("requestIdleCallback" in window) ? requestIdleCallback(start, { timeout: 600 }) : setTimeout(start, 120);
+}
+
+function buildLeaf(THREE) {
+  const gsap = window.gsap;
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.domElement.setAttribute("aria-hidden", "true");
+  map.prepend(renderer.domElement);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, .1, 100);
+  const camHome = new THREE.Vector3(0, 0, 14.5);
+  camera.position.copy(camHome);
+  const look = new THREE.Vector3(0, 0, 0);
+
+  const root = new THREE.Group(); scene.add(root);      // inclinação pelo ponteiro
+  const leaf = new THREE.Group(); root.add(leaf);       // pose base da folha
+
+  /* forma da folha: meia-largura analítica e leve curvatura (folha côncava) */
+  const L = 3.1;
+  const hw = y => { const t = (y + L) / (2 * L); if (t <= 0 || t >= 1) return 0; return 1.75 * Math.pow(Math.sin(Math.PI * t), .82) * (1 - .22 * t); };
+  const bend = (x, y) => -.16 * x * x + .22 * Math.sin(y * .55) - .04 * y;
+
+  /* lâmina: grade deformada, shader com gradiente, borda iluminada, nervuras finas e luz do ponteiro */
+  const geo = new THREE.PlaneGeometry(2, 2 * L, 36, 120);
+  const pos = geo.attributes.position, edge = new Float32Array(pos.count);
+  for (let i = 0; i < pos.count; i++) {
+    const u = pos.getX(i), y = pos.getY(i), x = u * hw(y);
+    pos.setXYZ(i, x, y, bend(x, y)); edge[i] = Math.abs(u);
+  }
+  geo.setAttribute("aEdge", new THREE.BufferAttribute(edge, 1));
+  geo.computeVertexNormals();
+  const uni = { uLight: { value: new THREE.Vector2(0, .5) }, uGlow: { value: 0 }, uReveal: { value: reduce ? 1 : 0 } };
+  const blade = new THREE.Mesh(geo, new THREE.ShaderMaterial({
+    uniforms: uni, transparent: true, depthWrite: false, side: THREE.DoubleSide,
+    vertexShader: `attribute float aEdge; varying float vEdge; varying vec2 vXY; varying vec3 vN;
+      void main(){ vEdge=aEdge; vXY=position.xy; vN=normalize(normalMatrix*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+    fragmentShader: `uniform vec2 uLight; uniform float uGlow; uniform float uReveal; varying float vEdge; varying vec2 vXY; varying vec3 vN;
+      void main(){
+        float t=(vXY.y+${L.toFixed(2)})/${(2*L).toFixed(2)};
+        vec3 deep=vec3(.10,.07,.22), mid=vec3(.22,.15,.45), rim=vec3(.55,.42,1.);
+        vec3 col=mix(deep,mid,smoothstep(0.,1.,t)*.85+.15*(1.-vEdge));
+        float fine=smoothstep(.46,.5,abs(fract((vXY.y*1.15+abs(vXY.x)*.95)*3.2)-.5))*(1.-vEdge)*.10;
+        float cell=smoothstep(.47,.5,abs(fract((vXY.y*3.1-abs(vXY.x)*2.3)*1.6)-.5))*.045;
+        col+=vec3(.75,.65,1.)*(fine+cell);
+        float r=smoothstep(.72,1.,vEdge); col=mix(col,rim,r*.55);
+        float l=exp(-distance(vXY,uLight)*.75)*(.22+uGlow*.3); col+=vec3(.6,.5,1.)*l;
+        float fres=pow(1.-abs(vN.z),2.)*.35; col+=rim*fres;
+        float a=(.84+r*.12)*smoothstep(0.,.05,uReveal-(1.-t)*.0);
+        gl_FragColor=vec4(col,a*uReveal);
+      }`
+  }));
+  leaf.add(blade);
+
+  /* nervuras: tubos que crescem (drawRange); halo aditivo nas que têm material */
+  const tubes = [];
+  const curveOn = pts2 => new THREE.CatmullRomCurve3(pts2.map(([x, y, lift = .02]) => new THREE.Vector3(x, y, bend(x, y) + lift)));
+  function vein(curve, r, color, glow, opacity = 1, haloK = 3.4, haloA = .2) {
+    const g = new THREE.TubeGeometry(curve, 96, r, 10, false);
+    const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color, transparent: true, opacity }));
+    leaf.add(m); const full = g.index.count; g.setDrawRange(0, reduce ? full : 0);
+    const item = { mesh: m, full, halo: null };
+    if (glow) {
+      const hg = new THREE.TubeGeometry(curve, 96, r * haloK, 10, false);
+      const h = new THREE.Mesh(hg, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: haloA, blending: THREE.AdditiveBlending, depthWrite: false }));
+      leaf.add(h); hg.setDrawRange(0, reduce ? hg.index.count : 0); item.halo = { mesh: h, full: hg.index.count };
+    }
+    tubes.push(item); return item;
+  }
+  /* brilho pontual (sprite com gradiente radial) */
+  const dot = (() => { const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d"); const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.25, "rgba(255,255,255,.55)"); gr.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+
+  const LEAF_GREEN = new THREE.Color("#93e38a");
+  const midrib = vein(curveOn([[0, -L - .45, .03], [.02, -L, .03], [-.02, -1, .04], [.03, 1.2, .04], [0, L - .12, .03]]), .03, LEAF_GREEN, true, 1, 2.4, .14);
+
+  const ends = [];
+  MODS.forEach((m, i) => {
+    const y0 = -L + 2 * L * (.13 + i * .088), side = i % 2 ? 1 : -1, ye = Math.min(L - .6, y0 + .95);
+    const xe = side * .86 * hw(ye), xc = side * .5 * hw(y0 + .45);
+    const curve = curveOn(Array.from({ length: 9 }, (_, k) => { const s = k / 8, a = (1 - s) * (1 - s), b = 2 * (1 - s) * s, c = s * s; return [b * xc + c * xe, a * y0 + b * (y0 + .38) + c * ye]; }));
+    const col = new THREE.Color(m.c);
+    const v = vein(curve, m.off ? .016 : .03, col, !m.off, m.off ? .55 : 1);
+    /* nervuras secundárias: as unidades do módulo */
+    const branches = (m.units || []).map(([, , on], j) => {
+      const p = curve.getPoint(.42 + j * .26), dir = curve.getTangent(.42 + j * .26);
+      const bx = p.x + (dir.y * side * .6) + side * .1, by = p.y + .48 + j * .05;
+      return vein(curveOn([[p.x, p.y], [(p.x + bx) / 2, (p.y + by) / 2 - .05], [bx, by]]), on ? .016 : .009, col, false, on ? .9 : .32);
+    });
+    const tip = curve.getPoint(1);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: dot, color: col, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: m.off ? .35 : .95 }));
+    s.position.copy(tip); s.scale.setScalar(reduce ? (m.off ? .32 : .6) : .0001); leaf.add(s);
+    ends.push({ m, side, tip, sprite: s, vein: v, branches, base: m.off ? .32 : .6 });
+  });
+
+  /* poeira de luz: pontos com profundidade que se movem só com o ponteiro (paralaxe) */
+  const N = 220, pg = new THREE.BufferGeometry(), pp = new Float32Array(N * 3);
+  for (let i = 0; i < N; i++) { pp[i * 3] = (Math.random() - .5) * 16; pp[i * 3 + 1] = (Math.random() - .5) * 11; pp[i * 3 + 2] = -2 - Math.random() * 6; }
+  pg.setAttribute("position", new THREE.BufferAttribute(pp, 3));
+  const dust = new THREE.Points(pg, new THREE.PointsMaterial({ map: dot, size: .09, color: "#b9a6ff", transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending }));
+  scene.add(dust);
+
+  /* pose e enquadramento: diagonal no computador, de pé no celular */
+  let wide = false;
+  const fit = () => {
+    const w = map.clientWidth, h = map.clientHeight; renderer.setSize(w, h, false);
+    camera.aspect = w / h; camera.updateProjectionMatrix(); wide = w > 640;
+    leaf.rotation.set(wide ? -.42 : -.3, wide ? .18 : .05, wide ? -.62 : -.08);
+    const s = wide ? 1 : Math.min(1, (w / h) * 1.55); leaf.scale.setScalar(s);
+    leaf.position.set(wide ? .2 : 0, wide ? -.1 : -.25, 0);
+    dirty = 2;
+  };
+
+  /* inclinação suave pelo ponteiro ou pelo arrasto do dedo; a luz da lâmina segue o ponteiro */
+  let tx = 0, ty = 0, cx = 0, cy = 0, dirty = 2, hotUntil = performance.now() + 3200, focusSide = 0;
+  const pointer = (x, y) => { const r = map.getBoundingClientRect(); tx = ((x - r.left) / r.width - .5) * 2; ty = ((y - r.top) / r.height - .5) * 2; hotUntil = performance.now() + 900; };
+  if (!reduce) {
+    if (fine) addEventListener("pointermove", e => pointer(e.clientX, e.clientY), { passive: true });
+    else { map.addEventListener("pointermove", e => pointer(e.clientX, e.clientY), { passive: true }); map.addEventListener("pointerup", () => { tx = ty = 0; hotUntil = performance.now() + 1200; }); }
+  }
+
+  /* destacar uma nervura: halo forte, ponto maior, folha vira um pouco para ela */
+  const light = (i, on) => {
+    const e = ends[i]; if (!gsap || e.m.off) return;
+    buttons[i].classList.toggle("hot", on);
+    if (e.vein.halo) gsap.to(e.vein.halo.mesh.material, { opacity: on ? .55 : .2, duration: .4 });
+    gsap.to(e.sprite.scale, { x: on ? 1.15 : e.base, y: on ? 1.15 : e.base, duration: .5, ease: "back.out(2.5)" });
+    gsap.to(uni.uGlow, { value: on ? 1 : 0, duration: .5 });
+    focusSide = on ? e.side : 0; hotUntil = performance.now() + 900;
+  };
+  buttons.forEach((b, i) => {
+    b.addEventListener("pointerenter", () => light(i, true)); b.addEventListener("pointerleave", () => openIdx !== i && light(i, false));
+    b.addEventListener("focus", () => light(i, true)); b.addEventListener("blur", () => openIdx !== i && light(i, false));
+  });
+
+  /* abrir: a câmera se aproxima da ponta da nervura; fechar: volta */
+  const tmp = new THREE.Vector3();
+  onOpen = i => {
+    if (!gsap || reduce) { light(i, true); return; }
+    light(i, true);
+    ends[i].sprite.getWorldPosition(tmp);
+    /* no celular o painel cobre a parte de baixo: aproxima pouco e sobe a folha */
+    const to = wide ? tmp.clone().multiplyScalar(.55) : new THREE.Vector3(tmp.x * .25, -1.6, 0);
+    gsap.to(camera.position, { x: to.x, y: to.y, z: wide ? 9.2 : 12.6, duration: 1.1, ease: "expo.inOut", onUpdate: () => (hotUntil = performance.now() + 200) });
+    gsap.to(look, { x: to.x * .9, y: to.y * .9, duration: 1.1, ease: "expo.inOut" });
+    const e = ends[i];
+    const surge = { p: 0 }; gsap.to(surge, { p: 1, duration: .9, ease: "power2.out", onUpdate: () => { if (e.vein.halo) e.vein.halo.mesh.material.opacity = .2 + Math.sin(surge.p * Math.PI) * .7; hotUntil = performance.now() + 100; } });
+  };
+  onClose = i => {
+    light(i, false);
+    if (!gsap || reduce) return;
+    gsap.to(camera.position, { x: camHome.x, y: camHome.y, z: camHome.z, duration: 1, ease: "expo.inOut", onUpdate: () => (hotUntil = performance.now() + 200) });
+    gsap.to(look, { x: 0, y: 0, duration: 1, ease: "expo.inOut" });
+  };
+  shake = (i, b) => {
+    if (!gsap || reduce) return;
+    const s = ends[i].sprite;
+    gsap.fromTo(s.position, { x: s.position.x }, { keyframes: { x: [s.position.x - .12, s.position.x + .1, s.position.x - .06, s.position.x] }, duration: .45, ease: "power2.out", onUpdate: () => (hotUntil = performance.now() + 100) });
+    gsap.fromTo(b, { x: 0 }, { keyframes: { x: [-8, 7, -4, 0] }, duration: .45 });
+  };
+
+  /* rótulos presos às pontas das nervuras */
+  const proj = new THREE.Vector3();
+  /* cada lado da folha empilha seus rótulos sem sobreposição (distância mínima vertical) */
+  const place = () => {
+    const w = map.clientWidth, h = map.clientHeight, rows = [];
+    ends.forEach((e, i) => {
+      e.sprite.getWorldPosition(proj); proj.project(camera);
+      const x = (proj.x * .5 + .5) * w, y = (-proj.y * .5 + .5) * h;
+      const bw = buttons[i].offsetWidth, bh = buttons[i].offsetHeight, right = x > w / 2;
+      buttons[i].classList.toggle("right", !right);
+      rows.push({ i, right, bh, y: y - bh / 2, lx: right ? Math.min(w - bw - 8, x + 14) : Math.max(8, x - bw - 14) });
+    });
+    [true, false].forEach(side => {
+      const col = rows.filter(r => r.right === side).sort((a, b) => a.y - b.y);
+      for (let k = 1; k < col.length; k++) { const min = col[k - 1].y + col[k - 1].bh + 6; if (col[k].y < min) col[k].y = min; }
+    });
+    rows.forEach(r => { r.y = Math.max(30, Math.min(h - r.bh - 6, r.y)); });
+    rows.forEach(r => { buttons[r.i].parentElement.style.transform = `translate(${r.lx.toFixed(1)}px, ${r.y.toFixed(1)}px)`; });
+  };
+
+  /* entrada: a lâmina aparece, a nervura central cresce, depois as laterais, as unidades e os pontos */
+  if (gsap && !reduce) {
+    gsap.to(uni.uReveal, { value: 1, duration: 1.4, ease: "power2.out" });
+    const grow = (it, d, dur) => { const o = { k: 0 }; gsap.to(o, { k: 1, delay: d, duration: dur, ease: "power3.inOut", onUpdate: () => { it.mesh.geometry.setDrawRange(0, Math.floor(o.k * it.full / 3) * 3); if (it.halo) it.halo.mesh.geometry.setDrawRange(0, Math.floor(o.k * it.halo.full / 3) * 3); } }); };
+    grow(midrib, .15, 1.1);
+    ends.forEach((e, i) => { grow(e.vein, .8 + i * .09, .75); e.branches.forEach((b, j) => grow(b, 1.35 + i * .09 + j * .08, .5)); gsap.to(e.sprite.scale, { x: e.base, y: e.base, delay: 1.35 + i * .09, duration: .6, ease: "back.out(3)" }); });
+    gsap.from(list.children, { opacity: 0, y: 8, stagger: .07, delay: 1.2, duration: .6, ease: "expo.out" });
+  }
+
+  /* desenha só quando algo muda: economiza bateria */
+  const loop = now => {
+    requestAnimationFrame(loop);
+    if (document.hidden) return;
+    const nx = tx + focusSide * .25, k = .075;
+    const moving = Math.abs(nx - cx) > .0008 || Math.abs(ty - cy) > .0008;
+    if (!moving && !dirty && now > hotUntil) return;
+    cx += (nx - cx) * k; cy += (ty - cy) * k;
+    root.rotation.y = cx * .28; root.rotation.x = cy * .16;
+    dust.position.x = -cx * .5; dust.position.y = cy * .35;
+    uni.uLight.value.set(cx * 1.6, -cy * 2.2 + .6);
+    camera.lookAt(look);
+    renderer.render(scene, camera); place();
+    if (dirty) dirty--;
+  };
+  new ResizeObserver(fit).observe(map); fit();
+  requestAnimationFrame(loop);
+}
+
+/* entrada do texto (GSAP + SplitText), com movimento reduzido respeitado */
+addEventListener("DOMContentLoaded", () => {
+  const g = window.gsap; if (!g || reduce) return;
+  if (window.SplitText) { g.registerPlugin(SplitText); const s = SplitText.create("#h1", { type: "words,chars", mask: "words" }); g.from(s.chars, { yPercent: 110, duration: 1, stagger: .018, ease: "expo.out" }); }
+  g.from(["#lead", "#plate", "#marked", ".legend"], { opacity: 0, y: 16, duration: .9, stagger: .08, delay: .35, ease: "expo.out" });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aorta — quadro de referências</title>
+<style>
+:root{--bg:#0d0817;--card:#170f27;--line:#2c2140;--tx:#f6eee8;--mu:#b4a6c4;--cr:#ff4f7e;--fl:#ff8fb0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,Segoe UI,sans-serif}
+.w{max-width:1320px;margin:0 auto;padding:32px 20px 80px}
+h1{font:600 40px/1.05 Georgia,serif;letter-spacing:-.03em;margin:0}h1 em{color:var(--fl)}
+.sub{color:var(--mu);max-width:80ch;margin:10px 0 0}
+.grid{display:grid;gap:22px;margin-top:30px}
+.ref{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:22px;padding:18px;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.shots{display:grid;grid-template-columns:3fr 1fr;gap:10px;align-items:start}
+.shots img{width:100%;border-radius:10px;border:1px solid var(--line);display:block}
+.tag{display:inline-block;font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--fl);border:1px solid #ff8fb055;border-radius:99px;padding:5px 9px}
+h2{margin:8px 0 2px;font:600 24px/1.1 Georgia,serif}
+a{color:var(--fl)}
+dl{margin:12px 0 0;display:grid;gap:10px}dt{font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--mu)}dd{margin:4px 0 0}
+.no dd{color:#d9c7d4}
+.map{margin-top:40px;padding:22px;border-radius:18px;border:1px solid #ff4f7e55;background:linear-gradient(160deg,#2a1033,#170f27)}
+.map h2{margin-top:0}.map ol{margin:10px 0 0;padding-left:20px}.map li{margin:6px 0}
+@media (max-width:860px){.ref{grid-template-columns:1fr}}
+</style></head><body><div class="w">
+<span class="tag">Aorta · estudo interno, não publicar</span>
+<h1>O que pegar dos <em>melhores</em> sites</h1>
+<p class="sub">Capturas feitas em 02/10/2026 (computador 1440 × 900 e celular 390 × 844). Prêmios conferidos no Awwwards. Cada referência diz o que aproveitar, onde entra no Aorta e o que <b>não</b> copiar. Usamos ideias e padrões, nunca código, texto ou imagens deles.</p>
+<div class="grid" id="g"></div>
+<section class="map">
+  <h2>Como isso vira o Aorta (versão 2 da home)</h2>
+  <ol>
+    <li><b>Abertura com significado</b> (Lusion, Igloo): enquanto o coração de 4 MB carrega, um contador grande e o primeiro batimento. A espera vira identidade, e a busca já funciona por cima.</li>
+    <li><b>Título em dois tons e serifa itálica</b> (Linear, Stripe, Lando): a frase principal clara, o complemento apagado, a palavra-chave em itálico na cor do fluxo.</li>
+    <li><b>Busca de verdade com Ctrl/⌘ + K</b> (Raycast, Linear): uma paleta de comandos que acha matéria, assunto ou material de qualquer tela.</li>
+    <li><b>Rótulos técnicos em monoespaçada</b> (Linear "FIG 0.1"): "ART. 01 · DESCENDENTE ANTERIOR", que dão o ar de atlas anatômico sem desenho decorativo.</li>
+    <li><b>Números reais e vivos</b> (Stripe): quantos materiais e módulos irrigados, vindos do banco, sem inventar nada.</li>
+    <li><b>Controle de pausar o movimento</b> (Apple): um botão "Pausar batimento", visível e acessível.</li>
+    <li><b>Seção "Como funciona" em grade com linhas finas</b> (Linear): três colunas com desenhos de linha (artéria, fluxo, em produção).</li>
+    <li><b>Contenção</b> (Messenger, Vercel): um objeto central com muito ar; uma única cor de ação forte (carmim), como o verde-limão do Lando.</li>
+  </ol>
+</section>
+</div>
+<script>
+const R = [
+ ["igloo","Igloo Inc","Site do Ano 2024 no Awwwards (feito pelo estúdio Abeto)","https://www.igloo.inc/",
+  "Cena 3D ocupando a tela inteira, com névoa, luz suave e linhas de wireframe flutuando: o objeto central parece estar num lugar, não num fundo.",
+  "Dar atmosfera ao coração: névoa roxa, luz volumétrica e linhas finas de profundidade ao redor, só reagindo ao ponteiro.",
+  "Tela de carregamento longa e navegação escondida: o aluno precisa achar material em segundos."],
+ ["lando","Lando Norris","Site do Ano 2025 no Awwwards (estúdio OFF+BRAND)","https://landonorris.com/",
+  "Tipografia que mistura serifa itálica colorida com grotesca em caixa alta; linhas topográficas no fundo; um botão de ação em cor neon; cartão pequeno de informação no canto.",
+  "Título com a palavra-chave em serifa itálica na cor do fluxo; linhas de contorno sutis como 'vasos' no fundo; o carmim como a única cor de ação forte; cartão de canto para 'Continuar de onde parou'.",
+  "Texto gigante em caixa alta ocupando a tela inteira (no celular, empurraria a busca para longe)."],
+ ["messenger","Messenger","Site de Desenvolvedor do Ano 2025 no Awwwards (Abeto; Three.js)","https://messenger.abeto.co/",
+  "Um mundo pequeno no centro, cor chapada, muito ar ao redor: o objeto é o herói, sem interface competindo.",
+  "Coragem de deixar o coração sozinho no centro, com poucos elementos em volta.",
+  "Ser um jogo: o aluno não quer explorar, quer abrir o material."],
+ ["lusion","Lusion","Estúdio de 3D para web (referência de acabamento)","https://lusion.co/",
+  "Abertura com contador grande ('100') e a marca em 3D antes de revelar o site.",
+  "Enquanto o modelo carrega: contador grande e o primeiro batimento, com a busca já utilizável por cima.",
+  "Bloquear o uso até a animação terminar."],
+ ["linear","Linear","Produto de software (referência de interface escura)","https://linear.app/",
+  "Título em dois tons (frase clara + complemento cinza); legendas técnicas em monoespaçada ('FIG 0.1'); grade de três colunas com linhas finas e desenhos isométricos; a interface real do produto mostrada como prova.",
+  "Título em dois tons; rótulos 'ART. 01' em monoespaçada; seção 'Como funciona' em grade fina; mostrar uma folha de material real como prova.",
+  "Excesso de cinza: nosso escuro é arroxeado e tem calor."],
+ ["raycast","Raycast","Produto de software (busca por atalho)","https://www.raycast.com/",
+  "Título central grande sobre feixes diagonais de luz vermelha com grão; o produto é uma barra de comandos aberta pelo teclado.",
+  "Busca como paleta de comandos (Ctrl/⌘ + K) acessível de qualquer tela; feixes de luz carmim com grão como textura da marca.",
+  "Feixes cobrindo o conteúdo no celular."],
+ ["stripe","Stripe","Produto de software (referência de clareza)","https://stripe.com/",
+  "Título em dois tons; faixa de gradiente animada à direita; número vivo no topo ('PIB global em execução'); duas ações claras.",
+  "Números reais do acervo (materiais, módulos irrigados) atualizados do banco; duas ações claras: Buscar e Explorar o coração.",
+  "Número que não vem dos dados (nunca inventar atividade)."],
+ ["vercel","Vercel","Produto de software (contenção)","https://vercel.com/",
+  "Marca central com brilho, três frases curtas de valor à direita, navegação mínima, botão principal escuro e secundário claro.",
+  "Navegação mínima no topo; hierarquia clara entre ação principal e secundária.",
+  "Faixa de logos de clientes (não temos e não inventamos)."],
+ ["apple","Apple · AirPods Pro","Página de produto (narrativa por rolagem)","https://www.apple.com/airpods-pro/",
+  "Mídia grande em cartão arredondado; carrossel com barra de progresso e botão de pausar; títulos curtos de seção ('Take a closer look.').",
+  "Botão 'Pausar batimento' visível; barra de progresso no maço de destaques; títulos curtos de seção.",
+  "Vídeos pesados em sequência."]
+];
+const g = document.getElementById("g");
+R.forEach(([k, nome, fato, url, viu, pegar, nao]) => {
+  g.insertAdjacentHTML("beforeend", `<article class="ref">
+    <div class="shots"><img src="${k}-desktop${k==='igloo'||k==='lando'||k==='linear'?'-rolagem':''}.png" alt="${nome} no computador"><img src="${k}-celular.png" alt="${nome} no celular"></div>
+    <div><span class="tag">${fato}</span><h2>${nome}</h2><a href="${url}">${url}</a>
+      <dl><div><dt>O que vimos</dt><dd>${viu}</dd></div><div><dt>O que pegar para o Aorta</dt><dd>${pegar}</dd></div><div class="no"><dt>O que não copiar</dt><dd>${nao}</dd></div></dl></div></article>`);
+});
+</script></body></html>

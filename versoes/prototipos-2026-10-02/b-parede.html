@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Proposta B — Parede de estantes (dados fictícios)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --wall:#0f1f1b; --wall-2:#172a25; --cream:#f3eddc; --cream-2:#cfd8cd; --mute:#9db2aa; --plank:#2c4740; --plank-hi:#4a6a60;
+  --hema:#8f84ff; --eosin:#ff7fae; --giemsa:#6fb2ff; --masson:#74d28a; --pas:#e08cf2; --safra:#ff9a62;
+  --serif:"Literata",Georgia,serif; --sans:"Schibsted Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--wall);color:var(--cream);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;min-height:100vh;
+  background-image:radial-gradient(120% 60% at 20% 0%,#1d3a33 0,transparent 60%)}
+a{color:inherit;text-decoration:none} h1,h2,p{margin:0}
+.wrap{max-width:1360px;margin:0 auto;padding:0 16px 40px}
+.top{display:flex;align-items:center;justify-content:space-between;height:56px}
+.mark{font-family:var(--serif);font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px}
+.mark i{width:10px;height:22px;background:var(--cream);border-radius:2px 0 0 2px;display:inline-block;opacity:.9}
+.theme{width:44px;height:44px;border:0;background:none;display:grid;place-items:center;color:var(--cream-2)}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(40px,11.5vw,52px);line-height:1.02;letter-spacing:-.035em;padding-top:18px;max-width:12ch}
+.lead{margin-top:12px;color:var(--cream-2);font-size:16px;max-width:32ch}
+.plate{margin-top:20px;display:flex;align-items:center;gap:12px;height:56px;padding:0 6px 0 16px;background:var(--cream);color:#1b2a25;border-radius:6px;box-shadow:0 1px 0 #fff inset,0 10px 24px -14px rgb(0 0 0/.8)}
+.plate svg{width:20px;height:20px;flex:none}
+.plate span{flex:1;font-size:17px;color:#5d6e67}
+.plate b{display:grid;place-items:center;width:44px;height:44px;border-radius:4px;background:#173e36;color:var(--cream)}
+.ribbon{margin-top:16px;display:grid;grid-template-columns:1fr;position:relative;padding:10px 16px 14px;background:#b2315f;color:#fff;max-width:420px;clip-path:polygon(0 0,100% 0,100% 100%,50% calc(100% - 9px),0 100%)}
+.ribbon small{display:block;font-size:11.5px;opacity:.9}
+.ribbon strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600;font-size:14.5px;line-height:1.3;margin-top:2px}
+.shelf-h{display:flex;align-items:baseline;gap:12px;margin:30px 0 10px;font-size:12.5px;font-weight:650;letter-spacing:.09em;text-transform:uppercase;color:var(--mute)}
+.shelf-h small{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:500}
+.shelf{position:relative;margin:0 -16px;padding:0 16px}
+.spines{display:flex;align-items:flex-end;gap:7px;overflow-x:auto;padding:10px 16px 0;margin:0 -16px;scrollbar-width:none}
+.spines::-webkit-scrollbar{display:none}
+.spine{flex:none;width:58px;display:grid;grid-template-rows:auto 1fr auto;justify-items:center;gap:10px;padding:12px 0;border-radius:4px 4px 0 0;color:#14211d;background:var(--c);position:relative;box-shadow:inset 3px 0 0 rgb(255 255 255/.22),inset -3px 0 0 rgb(0 0 0/.16)}
+.spine::before,.spine::after{content:"";position:absolute;left:6px;right:6px;height:2px;background:rgb(0 0 0/.22)}
+.spine::before{top:42px}.spine::after{bottom:44px}
+.spine b{font-family:var(--serif);font-weight:700;font-size:20px;line-height:1}
+.spine .t{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:650;font-size:12.5px;letter-spacing:.04em;white-space:nowrap;align-self:center}
+.spine .c{font-family:var(--serif);font-weight:700;font-size:15px}
+.spine.off{background:transparent;color:var(--mute);box-shadow:none;outline:1.5px dashed rgb(157 178 170/.5);outline-offset:-3px}
+.spine.off::before,.spine.off::after{display:none}
+.plank{height:14px;margin:0 -16px;background:linear-gradient(var(--plank-hi),var(--plank));box-shadow:0 14px 22px -10px rgb(0 0 0/.7)}
+.stacks{display:grid;grid-template-columns:1fr 1fr;gap:26px 18px;padding-top:14px}
+.stack{display:flex;flex-direction:column;justify-content:flex-end;gap:10px}
+.slabs{display:flex;flex-direction:column-reverse;gap:3px;align-items:flex-start;min-height:62px;border-bottom:10px solid var(--plank-hi);box-shadow:0 12px 14px -10px rgb(0 0 0/.7)}
+.slab{height:22px;border-radius:2px 5px 5px 2px;background:var(--c);box-shadow:inset 6px 0 0 rgb(255 255 255/.25)}
+.slab:nth-child(2){width:92%;margin-left:6px}.slab:nth-child(3){width:96%}.slab:nth-child(1){width:100%}
+.stack.off .slab{background:transparent;box-shadow:none;outline:1.5px dashed rgb(157 178 170/.5);outline-offset:-2px;width:100%;margin:0}
+.stack h2{font-family:var(--serif);font-weight:600;font-size:19px;letter-spacing:-.015em}
+.stack p{font-size:12.5px;color:var(--mute)}
+.stack.off h2{font-style:italic;font-weight:500;color:var(--mute)}
+.foot{margin-top:30px;font-size:12.5px;color:var(--mute)}
+.note{position:fixed;right:12px;bottom:12px;background:var(--cream);color:#1b2a25;font-size:11.5px;padding:6px 10px;border-radius:4px;opacity:.9}
+@media (min-width:900px){
+  .wrap{padding:0 56px 56px}
+  .top{height:76px}
+  .hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr);gap:56px;align-items:end}
+  h1{font-size:clamp(56px,5.2vw,78px);max-width:10ch;padding-top:12px}
+  .lead{font-size:19px;margin-top:14px}
+  .plate{height:64px;max-width:600px;margin-top:22px}
+  .plate span{font-size:21px}
+  .ribbon{margin-top:0;justify-self:end;width:340px;padding:16px 20px 24px}
+  .shelf{margin:0}
+  .shelf-h{margin-top:30px}
+  .spines{margin:0;padding-inline:0;gap:12px}
+  .spine{width:104px;padding:18px 0}
+  .spine b{font-size:30px}
+  .spine .t{font-size:15px}
+  .spine::before{top:64px}.spine::after{bottom:60px}
+  .plank{margin:0 -56px;height:18px}
+  .stacks{grid-template-columns:repeat(6,1fr);gap:0 28px}
+  .stack{min-height:170px}
+  .stack h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="mark"><i></i>Biblioteca de Medicina</div>
+    <button class="theme" aria-label="Tema"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg></button>
+  </header>
+
+  <section class="hero">
+    <div>
+      <h1>O que você vai estudar hoje?</h1>
+      <p class="lead">Encontre materiais por módulo, matéria ou tipo.</p>
+      <a class="plate" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar assunto ou material</span><b><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></b></a>
+    </div>
+    <a class="ribbon" href="#"><small>Continuar de onde parou</small><strong>Exemplo — slides de placentação com casos clínicos de placenta percreta e gêmeos monocoriônicos (título longo de propósito)</strong></a>
+  </section>
+
+  <div class="shelf-h">Explorar por módulo <small>2 com material</small></div>
+  <div class="shelf">
+    <div class="spines" role="group" aria-label="Módulos">
+      <a class="spine" href="#" style="--c:var(--hema);height:236px"><b>M1</b><span class="t">CIS 1 · BBIO 1</span><span class="c">4</span></a>
+      <a class="spine" href="#" style="--c:var(--eosin);height:208px"><b>M2</b><span class="t">CIS 2 · BBIO 2</span><span class="c">2</span></a>
+      <a class="spine off" href="#" style="height:196px"><b>M3</b><span class="t">Em produção</span><span class="c">&nbsp;</span></a>
+      <a class="spine off" href="#" style="height:180px"><b>M4</b><span class="t">Em produção</span><span class="c">&nbsp;</span></a>
+      <a class="spine off" href="#" style="height:196px"><b>M5</b><span class="t">Em produção</span><span class="c">&nbsp;</span></a>
+      <a class="spine off" href="#" style="height:180px"><b>M6</b><span class="t">Em produção</span><span class="c">&nbsp;</span></a>
+      <a class="spine off" href="#" style="height:196px"><b>M7</b><span class="t">Em produção</span><span class="c">&nbsp;</span></a>
+      <a class="spine off" href="#" style="height:180px"><b>M8</b><span class="t">Em produção</span><span class="c">&nbsp;</span></a>
+    </div>
+    <div class="plank"></div>
+  </div>
+
+  <div class="shelf-h">Por tipo de material</div>
+  <div class="shelf">
+    <div class="plank" style="margin-top:0;display:none"></div>
+    <div class="stacks">
+      <a class="stack" href="#" style="--c:var(--masson)"><div class="slabs"><i class="slab"></i><i class="slab"></i></div><div><h2>Resumos</h2><p>2 materiais</p></div></a>
+      <a class="stack" href="#" style="--c:var(--safra)"><div class="slabs"><i class="slab"></i></div><div><h2>Casos clínicos</h2><p>1 material</p></div></a>
+      <a class="stack" href="#" style="--c:var(--giemsa)"><div class="slabs"><i class="slab"></i><i class="slab"></i></div><div><h2>Slides</h2><p>2 materiais</p></div></a>
+      <a class="stack" href="#" style="--c:var(--pas)"><div class="slabs"><i class="slab"></i></div><div><h2>Livros</h2><p>1 material</p></div></a>
+      <a class="stack off" href="#"><div class="slabs"><i class="slab"></i></div><div><h2>Provas</h2><p>Em produção</p></div></a>
+      <a class="stack off" href="#"><div class="slabs"><i class="slab"></i></div><div><h2>Monitoria</h2><p>Em produção</p></div></a>
+    </div>
+  </div>
+  <p class="foot">O site guarda links; os arquivos continuam no Google Drive. · Proposta B · dados fictícios</p>
+</div>
+</body>
+</html>
