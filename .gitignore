@@ -6,7 +6,9 @@ node_modules/
 tools/reports/
 
 # Configurações locais das ferramentas
-.claude/
+.claude/*
+!.claude/agents/
+!.claude/skills/
 .vscode/
 .env
 .env.*

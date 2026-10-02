@@ -13,6 +13,19 @@ Este projeto é **um único arquivo de site**: `index.html`. É uma biblioteca p
 
 Os agentes **não** têm acesso ao conteúdo dos arquivos do Drive; o catálogo guarda só os links e os metadados.
 
+## Direção MedLeaf (decidida pelo dono em 02/10/2026; vale acima das regras antigas de identidade, movimento e dependências)
+
+O site passa a se chamar **MedLeaf**: um acervo aberto e visualmente ambicioso para estudantes de medicina (ver `PRODUCT.md`). As prioridades mudaram de "discreto e leve" para **"lindo, marcante e ainda rápido de usar"**.
+
+- **Identidade:** noite arroxeada como fundo, roxo vivo como luz e ação, verde-folha como marca, creme no texto e no papel. Conceito **Folhas**: módulos e materiais são folhas que se folheiam; as nervuras da folha representam a hierarquia do curso (módulo › unidade › matéria); a folha de planta aparece na marca, não como decoração solta. Tema escuro é o padrão; o claro continua obrigatório e precisa ser desenhado, não invertido. Literata + Schibsted Grotesk continuam.
+- **Movimento é protagonista, sempre com função:** cada animação explica navegação, estado ou resposta ao toque (entrar, abrir, folhear, confirmar). Nada de loop decorativo infinito. Com `prefers-reduced-motion`, tudo funciona sem animação (troca instantânea ou esmaecimento curto).
+- **Dependências aprovadas** (versão fixa; no navegador por CDN com SRI, ou pelo `npm` depois da migração para Vite): GSAP (com SplitText, Flip, ScrollTrigger), Swiper, Three.js e Lenis. Qualquer outra biblioteca precisa de pedido explícito do dono e deve ser registrada aqui e em `CHANGES.md`.
+- **Desempenho ("rico, mas rápido para chegar"):** a primeira tela útil (marca, título, busca e as folhas dos módulos) precisa aparecer em menos de 2,5 s num celular médio em 4G (LCP < 2,5 s, CLS < 0,1, INP < 200 ms). WebGL, shaders e efeitos pesados carregam **depois** da primeira tela, por cima dela, e têm versão mais simples para aparelho fraco, falta de WebGL ou movimento reduzido. O Lighthouse deixa de exigir 100; desempenho mínimo de 85 no celular, acessibilidade e boas práticas continuam 100.
+- **O que não muda:** acessibilidade (teclado, foco visível, contraste 4,5:1, leitor de tela, alvos de 44 px, 375 px sem rolagem lateral), honestidade da interface (links, não arquivos), regras do banco e das chaves, um agente editando por vez, registro em `CHANGES.md`.
+- **Arquitetura:** está aprovada a migração do fragmento único para um projeto **Vite** com vários arquivos, publicado pelo GitHub Pages. Até a migração acontecer, as regras de "O arquivo certo" e "Formato do arquivo" abaixo continuam valendo. Quem fizer a migração reescreve essas seções.
+- **Revisão de design:** antes de cada commit de interface, rode o agente `medleaf-design-reviewer` (`.claude/agents/medleaf-design-reviewer.md`) e siga a skill `medleaf-design` (`.claude/skills/medleaf-design/SKILL.md`). O Codex lê as mesmas regras nesses arquivos.
+- **Protótipos:** propostas visuais ficam em `_fora-do-site/propostas-home/` e não são o site. A referência aprovada até agora é `medleaf-folhas.html`.
+
 ## O arquivo certo (leia antes de editar qualquer coisa)
 
 - **Editar somente:** `C:\claude e codexx\index.html`. É a única fonte do site.
@@ -27,7 +40,7 @@ Os agentes **não** têm acesso ao conteúdo dos arquivos do Drive; o catálogo 
 `index.html` continua sendo um **fragmento**: começa com `<title>Biblioteca de Medicina</title>` e **não** tem `<!doctype>`, `<html>`, `<head>` nem `<body>`. O claude.ai e o `tools/build-pages.mjs` envolvem o fragmento num documento completo.
 
 - Ordem: `<title>`, `<link>` de fontes, `<style>`, bootstrap síncrono do tema (antes do conteúdo visível), HTML da página, `<script>` principal. O bootstrap evita piscar o tema salvo na primeira pintura.
-- CSS e JS dentro do arquivo. Scripts externos só com versão fixada (hoje: `@supabase/supabase-js@2.117.2` no jsDelivr, carregado apenas fora do claude.ai); estilos externos só do Google Fonts.
+- CSS e JS dentro do arquivo. Scripts externos só com versão fixada: `@supabase/supabase-js@2.117.2` no jsDelivr (carregado apenas fora do claude.ai) e as bibliotecas da lista aprovada na seção "Direção MedLeaf", sempre com SRI. Estilos externos só do Google Fonts; CSS de bibliotecas é embutido.
 
 ## Banco de dados
 
@@ -57,8 +70,8 @@ Regras:
 - **Cores só por tokens** em `:root`, com versões clara e escura (`prefers-color-scheme` + `[data-theme]`).
 - **Celular primeiro:** 375 px sem rolagem horizontal, gutter lateral de 16 px, áreas de toque de pelo menos 44 px.
 - **Acessibilidade:** foco visível, teclado, contraste mínimo de 4,5:1, `aria-*` nos controles, respeito a `prefers-reduced-motion`.
-- Movimento só onde ajuda a entender uma ação.
-- Identidade visual atual: "Atlas digital" (ver `DESIGN.md`; produto em `PRODUCT.md`): Literata nos capítulos e Schibsted Grotesk nos materiais, superfícies claras ou carvão esverdeado, retomada em verde profundo e tintas por matéria. No celular, “Explorar” abre o sumário com índice de arraste; o conteúdo usa toda a largura. No computador, sumário contextual à esquerda e abas discretas na borda. Desde 02/10/2026 o catálogo é uma "estante visual": capas por tipo de material (CSS/SVG, sem imagens), lombadas de módulo e prateleiras de capas (ver `DESIGN.md`). Mudanças de identidade só com pedido do usuário.
+- Movimento: ver "Direção MedLeaf" (protagonista, sempre com função, com versão sem animação).
+- Identidade visual **implementada hoje** (até a rodada MedLeaf entrar no site): "Atlas digital" (ver `DESIGN.md`; produto em `PRODUCT.md`): Literata nos capítulos e Schibsted Grotesk nos materiais, superfícies claras ou carvão esverdeado, retomada em verde profundo e tintas por matéria. No celular, “Explorar” abre o sumário com índice de arraste; o conteúdo usa toda a largura. No computador, sumário contextual à esquerda e abas discretas na borda. Desde 02/10/2026 o catálogo é uma "estante visual": capas por tipo de material (CSS/SVG, sem imagens), lombadas de módulo e prateleiras de capas (ver `DESIGN.md`). Mudanças de identidade só com pedido do usuário.
 
 ## Verificações automáticas (`tools/`)
 
@@ -66,7 +79,7 @@ Depois de editar `index.html`, rode dentro de `tools/`:
 
 ```bash
 npm run check        # formato, sintaxe, CSS, HTML, 24 telas, console e acessibilidade
-npm run lighthouse   # desempenho, acessibilidade e boas práticas
+npm run lighthouse   # desempenho (mínimo 85 no celular), acessibilidade e boas práticas (100)
 node flows.mjs       # fluxos (detalhe, favorito, status, remover/Desfazer, filtros, foco, alvos de 44 px) e capturas em tools/reports/flows/
 ```
 
