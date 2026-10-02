@@ -1,9 +1,9 @@
 /* Busca rápida (Ctrl/⌘ + K ou "/"): materiais, matérias, unidades e módulos, sem acento e sem maiúscula.
    Quem já sabe o que procura chega à ficha em dois toques; quem não sabe vê os caminhos que existem. */
-import { S, ready } from "../core/state.js";
+import { S, ACERVOS, ready } from "../core/state.js";
 import { $, $$, h } from "../core/dom.js";
 import { tokens, marked, norm, plural } from "../core/text.js";
-import { moduleList, pathOf, treeOrder, countIn, countLabel } from "../core/areas.js";
+import { moduleList, pathOf, treeOrder, countIn, countLabel, acervoOf } from "../core/areas.js";
 import { openDlg, closeDlg } from "../ui/dialogs.js";
 import { openDetail } from "./detail.js";
 import { moduleToken } from "./cards.js";
@@ -16,14 +16,19 @@ function results(q) {
   const toks = tokens(q), groups = [];
   if (!ready()) return [{ label: S.dbState === "loading" ? "Carregando o acervo…" : "O acervo não está disponível agora.", items: [] }];
   const mods = moduleList();
+  const tag = id => ACERVOS[acervoOf(id)].label;
   if (!toks.length) {
-    groups.push({ label: "Módulos", items: mods.map(m => ({ kind: "area", id: m.id, title: m.name, sub: `${countLabel(m.count)} · ${m.art}`, token: m.token, badge: m.name })) });
+    // Sem texto: os caminhos dos dois acervos, o atual primeiro.
+    for (const key of [S.acervo, ...Object.keys(ACERVOS).filter(k => k !== S.acervo)]) {
+      const list = moduleList(key);
+      if (list.length) groups.push({ label: `${ACERVOS[key].label} · ${ACERVOS[key].units}`, items: list.map(m => ({ kind: "area", id: m.id, title: m.name, sub: countLabel(m.count), token: m.token, badge: m.name.slice(0, 3) })) });
+    }
     return groups;
   }
   const mats = S.materials.filter(m => toks.every(t => hay(m).includes(t))).slice(0, 8);
-  if (mats.length) groups.push({ label: "Materiais", items: mats.map(m => ({ kind: "material", id: m.id, title: m.title || "(sem título)", sub: [pathOf(m.areaId).map(a => a.name).join(" › ") || "Sem área definida", m.subject, m.type].filter(Boolean).join(" · "), token: moduleToken(m.areaId), badge: (m.type || "Link").slice(0, 2) })) });
+  if (mats.length) groups.push({ label: "Materiais", items: mats.map(m => ({ kind: "material", id: m.id, title: m.title || "(sem título)", sub: [tag(m.areaId), pathOf(m.areaId).map(a => a.name).join(" › ") || "Sem área definida", m.subject, m.type].filter(Boolean).join(" · "), token: moduleToken(m.areaId), badge: (m.type || "Link").slice(0, 2) })) });
   const areas = treeOrder().filter(([a]) => toks.every(t => norm(pathOf(a.id).map(x => x.name).join(" ")).includes(t))).slice(0, 6);
-  if (areas.length) groups.push({ label: "Módulos, unidades e matérias", items: areas.map(([a]) => ({ kind: "area", id: a.id, title: pathOf(a.id).map(x => x.name).join(" › "), sub: countLabel(countIn(a.id)), token: moduleToken(a.id), badge: pathOf(a.id)[0]?.name || "" })) });
+  if (areas.length) groups.push({ label: "Módulos, unidades e matérias", items: areas.map(([a]) => ({ kind: "area", id: a.id, title: pathOf(a.id).map(x => x.name).join(" › "), sub: `${tag(a.id)} · ${countLabel(countIn(a.id))}`, token: moduleToken(a.id), badge: (pathOf(a.id)[0]?.name || "").slice(0, 3) })) });
   if (!groups.length) groups.push({ label: "Nenhum resultado", empty: `Nada encontrado para “${q.trim()}”. A busca usa título, matéria, assunto, tipo e etiquetas, não o texto dos arquivos. Caminhos que já têm material:`,
     items: mods.filter(m => m.live).map(m => ({ kind: "area", id: m.id, title: m.name, sub: plural(m.count, "material", "materiais"), token: m.token, badge: m.name })) });
   return groups;

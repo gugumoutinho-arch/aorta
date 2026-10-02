@@ -2,11 +2,11 @@
 import { STATUS_LABEL } from "../core/state.js";
 import { h, svg, ICON } from "../core/dom.js";
 import { marked, validUrl } from "../core/text.js";
-import { modules, pathOf, areaLabel } from "../core/areas.js";
+import { modules, pathOf, areaLabel, acervoOf } from "../core/areas.js";
 import { markOpened, popping, pop, materialWrites } from "../core/actions.js";
 
 export const moduleToken = areaId => {
-  const mod = pathOf(areaId)[0]; const i = mod ? modules().findIndex(a => a.id === mod.id) : -1;
+  const mod = pathOf(areaId)[0]; const i = mod ? modules(acervoOf(areaId)).findIndex(a => a.id === mod.id) : -1;
   return i < 0 ? "--muted" : `--m${(i % 8) + 1}`;
 };
 export const whereText = (m, from = "") => (areaLabel(m.areaId, from) || "Sem área definida");

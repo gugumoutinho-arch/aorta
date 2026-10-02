@@ -6,7 +6,9 @@ import { ARTERIES, extraArtery } from "./arteries.js";
 export const areaById = id => S.areas.find(a => a.id === id);
 export const byOrder = (a, b) => ((a.order ?? 999) - (b.order ?? 999)) || cmpName(a.name, b.name);
 export const childrenOf = pid => S.areas.filter(a => (a.parentId || "") === (pid || "")).sort(byOrder);
-export const modules = () => childrenOf("");
+/* Raízes da árvore = módulos (IDOMED) ou disciplinas (medicina geral), filtradas pelo acervo. */
+export const acervoOfRoot = a => (a && a.acervo === "geral") ? "geral" : "idomed";
+export const modules = (acervo = S.acervo) => childrenOf("").filter(a => acervoOfRoot(a) === acervo);
 
 export function pathOf(id) {
   const out = []; let a = areaById(id), guard = 0;
@@ -15,6 +17,8 @@ export function pathOf(id) {
 }
 export const depthOf = id => pathOf(id).length - 1;
 export const moduleOf = id => pathOf(id)[0] || null;
+/* Material ou área sem raiz (sem área definida) fica no acervo IDOMED, como sempre esteve. */
+export const acervoOf = id => acervoOfRoot(moduleOf(id));
 
 export function descIds(id) {
   const set = new Set([id]); let grew = true;
@@ -44,11 +48,13 @@ export function areasWithContent() {
 }
 export const countLabel = n => n ? plural(n, "material", "materiais") : IN_PRODUCTION;
 
-export function moduleList() {
+export function moduleList(acervo = S.acervo) {
   const live = areasWithContent();
-  return modules().map((a, i) => {
+  return modules(acervo).map((a, i) => {
     const artery = ARTERIES[i] || extraArtery(i);
     return { id: a.id, name: a.name, index: i, token: `--m${(i % 8) + 1}`, art: artery.art, path: artery.path, count: countIn(a.id), live: live.has(a.id) };
   });
 }
-export const moduleNumber = i => `Art. ${String(i + 1).padStart(2, "0")}`;
+/* "Art. 01" no coração (artéria), "Nerv. 01" na folha (nervura). */
+export const moduleNumber = i => `${S.concept === "folha" ? "Nerv." : "Art."} ${String(i + 1).padStart(2, "0")}`;
+export const inAcervo = (m, acervo = S.acervo) => acervoOf(m.areaId) === acervo;

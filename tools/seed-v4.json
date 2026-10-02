@@ -1,0 +1,777 @@
+{
+ "_aviso": "DADOS FICTÍCIOS SÓ PARA O PROTÓTIPO V4. Livros reais com links de exemplo; materiais abertos com os endereços oficiais.",
+ "areas": [
+  {
+   "id": "m1",
+   "name": "M1",
+   "parentId": "",
+   "order": 1,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "m2",
+   "name": "M2",
+   "parentId": "",
+   "order": 2,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "cis1",
+   "name": "CIS 1",
+   "short": "CIS1",
+   "parentId": "m1",
+   "order": 1,
+   "stain": "hema"
+  },
+  {
+   "id": "bbio1",
+   "name": "BBIO 1",
+   "short": "BBIO1",
+   "parentId": "m1",
+   "order": 2,
+   "stain": "giemsa"
+  },
+  {
+   "id": "cis1-pm",
+   "name": "Práticas Médicas",
+   "short": "PM",
+   "parentId": "cis1",
+   "order": 1,
+   "stain": "eosin"
+  },
+  {
+   "id": "cis1-anat",
+   "name": "Anatomia",
+   "short": "ANAT",
+   "parentId": "cis1",
+   "order": 2,
+   "stain": "hema"
+  },
+  {
+   "id": "cis2",
+   "name": "CIS 2",
+   "short": "CIS2",
+   "parentId": "m2",
+   "order": 1,
+   "stain": "hema"
+  },
+  {
+   "id": "bbio2",
+   "name": "BBIO 2",
+   "short": "BBIO2",
+   "parentId": "m2",
+   "order": 2,
+   "stain": "pas"
+  },
+  {
+   "id": "cis2-anat",
+   "name": "Anatomia",
+   "short": "ANAT",
+   "parentId": "cis2",
+   "order": 1,
+   "stain": "hema"
+  },
+  {
+   "id": "cis2-pm",
+   "name": "Práticas Médicas",
+   "short": "PM",
+   "parentId": "cis2",
+   "order": 2,
+   "stain": "eosin"
+  },
+  {
+   "id": "cis2-fisio",
+   "name": "Fisiologia",
+   "short": "FISIO",
+   "parentId": "cis2",
+   "order": 3,
+   "stain": "masson"
+  },
+  {
+   "id": "bbio2-imuno",
+   "name": "Imunologia",
+   "short": "IMUNO",
+   "parentId": "bbio2",
+   "order": 1,
+   "stain": "pas"
+  },
+  {
+   "id": "bbio2-micro",
+   "name": "Microbiologia",
+   "short": "MICRO",
+   "parentId": "bbio2",
+   "order": 2,
+   "stain": "safra"
+  },
+  {
+   "id": "m3",
+   "name": "M3",
+   "parentId": "",
+   "order": 3,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "m4",
+   "name": "M4",
+   "parentId": "",
+   "order": 4,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "m5",
+   "name": "M5",
+   "parentId": "",
+   "order": 5,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "m6",
+   "name": "M6",
+   "parentId": "",
+   "order": 6,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "m7",
+   "name": "M7",
+   "parentId": "",
+   "order": 7,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "m8",
+   "name": "M8",
+   "parentId": "",
+   "order": 8,
+   "stain": "",
+   "acervo": "idomed"
+  },
+  {
+   "id": "g-anat",
+   "name": "Anatomia",
+   "parentId": "",
+   "order": 20,
+   "stain": "hema",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-anat-livros",
+   "name": "Livros de referência",
+   "parentId": "g-anat",
+   "order": 1,
+   "stain": "hema"
+  },
+  {
+   "id": "g-anat-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-anat",
+   "order": 2,
+   "stain": "hema"
+  },
+  {
+   "id": "g-anat-internet",
+   "name": "Da internet",
+   "parentId": "g-anat",
+   "order": 3,
+   "stain": "hema"
+  },
+  {
+   "id": "g-fisio",
+   "name": "Fisiologia",
+   "parentId": "",
+   "order": 21,
+   "stain": "masson",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-fisio-livros",
+   "name": "Livros de referência",
+   "parentId": "g-fisio",
+   "order": 1,
+   "stain": "masson"
+  },
+  {
+   "id": "g-fisio-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-fisio",
+   "order": 2,
+   "stain": "masson"
+  },
+  {
+   "id": "g-fisio-internet",
+   "name": "Da internet",
+   "parentId": "g-fisio",
+   "order": 3,
+   "stain": "masson"
+  },
+  {
+   "id": "g-histo",
+   "name": "Histologia",
+   "parentId": "",
+   "order": 22,
+   "stain": "eosin",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-histo-livros",
+   "name": "Livros de referência",
+   "parentId": "g-histo",
+   "order": 1,
+   "stain": "eosin"
+  },
+  {
+   "id": "g-histo-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-histo",
+   "order": 2,
+   "stain": "eosin"
+  },
+  {
+   "id": "g-histo-internet",
+   "name": "Da internet",
+   "parentId": "g-histo",
+   "order": 3,
+   "stain": "eosin"
+  },
+  {
+   "id": "g-embrio",
+   "name": "Embriologia",
+   "parentId": "",
+   "order": 23,
+   "stain": "pas",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-embrio-livros",
+   "name": "Livros de referência",
+   "parentId": "g-embrio",
+   "order": 1,
+   "stain": "pas"
+  },
+  {
+   "id": "g-embrio-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-embrio",
+   "order": 2,
+   "stain": "pas"
+  },
+  {
+   "id": "g-embrio-internet",
+   "name": "Da internet",
+   "parentId": "g-embrio",
+   "order": 3,
+   "stain": "pas"
+  },
+  {
+   "id": "g-pato",
+   "name": "Patologia",
+   "parentId": "",
+   "order": 24,
+   "stain": "safra",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-pato-livros",
+   "name": "Livros de referência",
+   "parentId": "g-pato",
+   "order": 1,
+   "stain": "safra"
+  },
+  {
+   "id": "g-pato-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-pato",
+   "order": 2,
+   "stain": "safra"
+  },
+  {
+   "id": "g-pato-internet",
+   "name": "Da internet",
+   "parentId": "g-pato",
+   "order": 3,
+   "stain": "safra"
+  },
+  {
+   "id": "g-farmaco",
+   "name": "Farmacologia",
+   "parentId": "",
+   "order": 25,
+   "stain": "giemsa",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-farmaco-livros",
+   "name": "Livros de referência",
+   "parentId": "g-farmaco",
+   "order": 1,
+   "stain": "giemsa"
+  },
+  {
+   "id": "g-farmaco-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-farmaco",
+   "order": 2,
+   "stain": "giemsa"
+  },
+  {
+   "id": "g-farmaco-internet",
+   "name": "Da internet",
+   "parentId": "g-farmaco",
+   "order": 3,
+   "stain": "giemsa"
+  },
+  {
+   "id": "g-semio",
+   "name": "Semiologia",
+   "parentId": "",
+   "order": 26,
+   "stain": "hema",
+   "acervo": "geral"
+  },
+  {
+   "id": "g-semio-livros",
+   "name": "Livros de referência",
+   "parentId": "g-semio",
+   "order": 1,
+   "stain": "hema"
+  },
+  {
+   "id": "g-semio-proprios",
+   "name": "Materiais próprios",
+   "parentId": "g-semio",
+   "order": 2,
+   "stain": "hema"
+  },
+  {
+   "id": "g-semio-internet",
+   "name": "Da internet",
+   "parentId": "g-semio",
+   "order": 3,
+   "stain": "hema"
+  }
+ ],
+ "collections": [
+  {
+   "id": "c1",
+   "name": "Exemplo: revisão da prova"
+  },
+  {
+   "id": "c2",
+   "name": "Exemplo: casos clínicos"
+  }
+ ],
+ "materials": [
+  {
+   "id": "t1",
+   "title": "Exemplo — slides de placentação com casos clínicos de placenta percreta e gêmeos monocoriônicos (título longo de propósito)",
+   "url": "https://example.com/t1",
+   "areaId": "cis1-pm",
+   "subject": "Placentação",
+   "type": "Slides",
+   "tags": [
+    "exemplo",
+    "embriologia"
+   ],
+   "collectionIds": [
+    "c1"
+   ],
+   "status": "em-estudo",
+   "favorite": true,
+   "createdAt": "2026-09-01T10:00:00Z",
+   "lastOpenedAt": "2026-09-20T10:00:00Z"
+  },
+  {
+   "id": "t2",
+   "title": "Exemplo — resumo de tecido epitelial",
+   "url": "https://example.com/t2",
+   "areaId": "cis1-pm",
+   "subject": "Tecido epitelial",
+   "type": "Resumo",
+   "tags": [
+    "exemplo"
+   ],
+   "collectionIds": [
+    "c1"
+   ],
+   "status": "revisado",
+   "favorite": false,
+   "createdAt": "2026-09-02T10:00:00Z"
+  },
+  {
+   "id": "t3",
+   "title": "Exemplo — caso clínico de fratura do colo do fêmur",
+   "url": "https://example.com/t3",
+   "areaId": "cis1-anat",
+   "subject": "Membro inferior",
+   "type": "Caso clínico",
+   "tags": [
+    "exemplo",
+    "fratura"
+   ],
+   "collectionIds": [
+    "c2"
+   ],
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-03T10:00:00Z"
+  },
+  {
+   "id": "t4",
+   "title": "Exemplo — livro de anatomia",
+   "url": "https://example.com/t4",
+   "areaId": "cis1-anat",
+   "type": "Livro",
+   "tags": [],
+   "collectionIds": [],
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-04T10:00:00Z"
+  },
+  {
+   "id": "t5",
+   "title": "Exemplo — revisão de imunologia",
+   "url": "https://example.com/t5",
+   "areaId": "bbio2-imuno",
+   "subject": "Imunidade inata",
+   "type": "Resumo",
+   "tags": [
+    "exemplo"
+   ],
+   "collectionIds": [],
+   "status": "em-estudo",
+   "favorite": true,
+   "createdAt": "2026-09-05T10:00:00Z"
+  },
+  {
+   "id": "t6",
+   "title": "Exemplo — cocos piogênicos",
+   "url": "https://example.com/t6",
+   "areaId": "bbio2-micro",
+   "subject": "Bacteriologia",
+   "type": "Slides",
+   "tags": [
+    "exemplo"
+   ],
+   "collectionIds": [
+    "c1"
+   ],
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-06T10:00:00Z"
+  },
+  {
+   "id": "t7",
+   "title": "Exemplo — material sem área definida",
+   "url": "https://example.com/t7",
+   "areaId": "",
+   "type": "Link",
+   "tags": [],
+   "collectionIds": [],
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-07T10:00:00Z"
+  },
+  {
+   "id": "g1",
+   "title": "Moore — Anatomia orientada para a clínica",
+   "url": "https://example.com/livro/moore-anatomia",
+   "areaId": "g-anat-livros",
+   "subject": "Anatomia geral",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "em-estudo",
+   "favorite": true,
+   "createdAt": "2026-09-12T12:00:00Z"
+  },
+  {
+   "id": "g2",
+   "title": "Netter — Atlas de anatomia humana",
+   "url": "https://example.com/livro/netter",
+   "areaId": "g-anat-livros",
+   "subject": "Atlas",
+   "type": "Livro",
+   "tags": [
+    "livro",
+    "atlas"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-11T12:00:00Z"
+  },
+  {
+   "id": "g3",
+   "title": "Sobotta — Atlas de anatomia humana",
+   "url": "https://example.com/livro/sobotta",
+   "areaId": "g-anat-livros",
+   "subject": "Atlas",
+   "type": "Livro",
+   "tags": [
+    "livro",
+    "atlas"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-09T12:00:00Z"
+  },
+  {
+   "id": "g4",
+   "title": "Exemplo — resumo de membro superior (plexo braquial e lesões)",
+   "url": "https://example.com/proprio/membro-superior",
+   "areaId": "g-anat-proprios",
+   "subject": "Membro superior",
+   "type": "Resumo",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-20T12:00:00Z"
+  },
+  {
+   "id": "g5",
+   "title": "TeachMeAnatomy — anatomia por regiões, com ilustrações",
+   "url": "https://teachmeanatomy.info/",
+   "areaId": "g-anat-internet",
+   "subject": "Anatomia geral",
+   "type": "Link",
+   "tags": [
+    "internet",
+    "gratuito"
+   ],
+   "collectionIds": [],
+   "source": "TeachMeAnatomy (gratuito)",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-18T12:00:00Z"
+  },
+  {
+   "id": "g6",
+   "title": "Kenhub — artigos e vídeos de anatomia",
+   "url": "https://www.kenhub.com/",
+   "areaId": "g-anat-internet",
+   "subject": "Anatomia geral",
+   "type": "Link",
+   "tags": [
+    "internet"
+   ],
+   "collectionIds": [],
+   "source": "Kenhub (parte gratuita)",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-17T12:00:00Z"
+  },
+  {
+   "id": "g7",
+   "title": "Guyton & Hall — Tratado de fisiologia médica",
+   "url": "https://example.com/livro/guyton",
+   "areaId": "g-fisio-livros",
+   "subject": "Fisiologia geral",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-08T12:00:00Z"
+  },
+  {
+   "id": "g8",
+   "title": "OpenStax — Anatomy and Physiology 2e (livro aberto, em inglês)",
+   "url": "https://openstax.org/details/books/anatomy-and-physiology-2e",
+   "areaId": "g-fisio-internet",
+   "subject": "Fisiologia geral",
+   "type": "Livro",
+   "tags": [
+    "internet",
+    "livro aberto"
+   ],
+   "collectionIds": [],
+   "source": "OpenStax (livro aberto, CC BY 4.0)",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-19T12:00:00Z"
+  },
+  {
+   "id": "g9",
+   "title": "Junqueira & Carneiro — Histologia básica",
+   "url": "https://example.com/livro/junqueira",
+   "areaId": "g-histo-livros",
+   "subject": "Histologia geral",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-07T12:00:00Z"
+  },
+  {
+   "id": "g10",
+   "title": "Exemplo — atlas de lâminas de epitélio, com legendas",
+   "url": "https://example.com/proprio/laminas-epitelio",
+   "areaId": "g-histo-proprios",
+   "subject": "Tecido epitelial",
+   "type": "Imagem / lâmina",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "revisado",
+   "favorite": false,
+   "createdAt": "2026-09-21T12:00:00Z"
+  },
+  {
+   "id": "g11",
+   "title": "Moore & Persaud — Embriologia clínica",
+   "url": "https://example.com/livro/moore-embriologia",
+   "areaId": "g-embrio-livros",
+   "subject": "Embriologia geral",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-06T12:00:00Z"
+  },
+  {
+   "id": "g12",
+   "title": "Exemplo — mapa mental de placentação",
+   "url": "https://example.com/proprio/placentacao",
+   "areaId": "g-embrio-proprios",
+   "subject": "Placentação",
+   "type": "Resumo",
+   "tags": [
+    "proprio"
+   ],
+   "collectionIds": [],
+   "source": "Material próprio do Aorta",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-22T12:00:00Z"
+  },
+  {
+   "id": "g13",
+   "title": "Robbins & Cotran — Bases patológicas das doenças",
+   "url": "https://example.com/livro/robbins",
+   "areaId": "g-pato-livros",
+   "subject": "Patologia geral",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-05T12:00:00Z"
+  },
+  {
+   "id": "g14",
+   "title": "StatPearls — revisões clínicas abertas (NCBI Bookshelf, em inglês)",
+   "url": "https://www.ncbi.nlm.nih.gov/books/NBK430685/",
+   "areaId": "g-pato-internet",
+   "subject": "Revisões clínicas",
+   "type": "Artigo",
+   "tags": [
+    "internet",
+    "aberto"
+   ],
+   "collectionIds": [],
+   "source": "NCBI Bookshelf (aberto)",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-16T12:00:00Z"
+  },
+  {
+   "id": "g15",
+   "title": "Katzung — Farmacologia básica e clínica",
+   "url": "https://example.com/livro/katzung",
+   "areaId": "g-farmaco-livros",
+   "subject": "Farmacologia geral",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-04T12:00:00Z"
+  },
+  {
+   "id": "g16",
+   "title": "Porto — Semiologia médica",
+   "url": "https://example.com/livro/porto",
+   "areaId": "g-semio-livros",
+   "subject": "Exame físico",
+   "type": "Livro",
+   "tags": [
+    "livro"
+   ],
+   "collectionIds": [],
+   "source": "Biblioteca digital da faculdade ou editora · link de exemplo",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-03T12:00:00Z"
+  },
+  {
+   "id": "g17",
+   "title": "Radiopaedia — casos e artigos de imagem",
+   "url": "https://radiopaedia.org/",
+   "areaId": "g-semio-internet",
+   "subject": "Imagem",
+   "type": "Link",
+   "tags": [
+    "internet",
+    "gratuito"
+   ],
+   "collectionIds": [],
+   "source": "Radiopaedia (gratuito)",
+   "notes": "",
+   "status": "nao-iniciado",
+   "favorite": false,
+   "createdAt": "2026-09-15T12:00:00Z"
+  }
+ ]
+}

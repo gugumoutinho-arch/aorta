@@ -1,10 +1,10 @@
 /* Orquestra: rotas, desenho das telas e assinatura do banco. */
-import { S, ready } from "./core/state.js";
+import { S, ACERVOS, ready, remember } from "./core/state.js";
 import { $, $$ } from "./core/dom.js";
 import { cmpName } from "./core/text.js";
 import { materialWrites } from "./core/actions.js";
 import { renderBanner } from "./views/banner.js";
-import { renderHome, homeLeft, homeReturned } from "./views/home.js";
+import { renderHome, homeLeft, homeReturned, homeSwitched } from "./views/home.js";
 import { renderModule, moduleEntered } from "./views/module.js";
 import { renderOrg } from "./views/organize.js";
 import { renderDetail } from "./views/detail.js";
@@ -12,6 +12,8 @@ import { renderDatalists } from "./views/form.js";
 
 export function renderNav() {
   document.body.dataset.view = S.view;
+  document.body.dataset.acervo = S.acervo;
+  $$("[data-acervo-tab]").forEach(a => a.dataset.acervoTab === S.acervo && S.view !== "organizar" ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
   $$(".view[data-view]").forEach(s => { s.hidden = s.dataset.view !== S.view; });
   $$("[data-nav]").forEach(a => {
     const on = a.dataset.nav === S.view || (a.dataset.nav === "todos" && S.view === "modulo" && S.scope === "todos");
@@ -37,8 +39,13 @@ export function renderAll() {
   if (key && (!document.activeElement || document.activeElement === document.body)) $$(key).find(e => !e.closest("[hidden],dialog:not([open])"))?.focus({ preventScroll: true });
 }
 
-/* Rotas: #inicio (coração), #todos (todos os materiais), #a-<área> (módulo; unidade e matéria já escolhidas
-   quando a área é mais funda), #organizar. As rotas #a- antigas continuam valendo. */
+/* Rotas: #inicio (início do acervo atual), #idomed e #geral (início de cada acervo), #todos (todos os materiais do
+   acervo), #a-<área> (módulo ou disciplina; o acervo vem da área; unidade e matéria já escolhidas quando a área é mais
+   funda), #organizar. As rotas #a- antigas continuam valendo. */
+export function setAcervo(acervo) {
+  if (!ACERVOS[acervo] || acervo === S.acervo) return false;
+  S.acervo = acervo; remember("aorta-acervo", acervo); return true;
+}
 export function route(focus) {
   let hs = "";
   try { hs = decodeURIComponent(location.hash.slice(1)); } catch (_) { /* endereço colado pela metade: vai para o início */ }
@@ -46,11 +53,12 @@ export function route(focus) {
   if (hs === "organizar") S.view = "organizar";
   else if (hs === "todos") { S.view = "modulo"; S.pendingArea = "todos"; }
   else if (hs.startsWith("a-")) { S.view = "modulo"; S.pendingArea = hs.slice(2); }
-  else S.view = "inicio";
+  else { S.view = "inicio"; if (ACERVOS[hs]) S.acervoSwitched = setAcervo(hs); }
   if (was === "inicio" && S.view !== "inicio") homeLeft();
   renderAll();
   if (!focus) return;
   if (S.view === "modulo") moduleEntered();
+  else if (S.view === "inicio" && S.acervoSwitched) { S.acervoSwitched = false; homeSwitched(); }
   else if (S.view === "inicio" && was !== "inicio") homeReturned();
   else { window.scrollTo(0, 0); $("#main").focus({ preventScroll: true }); }
 }

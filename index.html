@@ -47,11 +47,15 @@
 <header class="top shell">
   <div class="brand-wrap">
     <a class="brand" href="#inicio" aria-label="Aorta, início">
-      <svg viewBox="0 0 32 40" aria-hidden="true"><path d="M7 36V19c0-7 4-11 10-11s9 4 9 9v8M13 9V3m8 6V2M26 20l4 3M7 20l-4 5"/></svg>
+      <svg class="brand-heart" viewBox="0 0 32 40" aria-hidden="true"><path d="M7 36V19c0-7 4-11 10-11s9 4 9 9v8M13 9V3m8 6V2M26 20l4 3M7 20l-4 5"/></svg>
+      <svg class="brand-leaf" viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26C5 15 10 7 26 5c1 13-5 21-17 21z"/><path d="M6 26 19 12M12 19.5h5M14.5 16.5h5"/></svg>
       <span class="brand-name">Aorta</span>
     </a>
-    <p class="brand-note">Acervo de medicina,<br>módulo a módulo.</p>
   </div>
+  <nav class="acervo-tabs" aria-label="Acervos">
+    <a href="#idomed" data-acervo-tab="idomed"><b>IDOMED</b><small>Do M1 ao M8</small></a>
+    <a href="#geral" data-acervo-tab="geral"><b>Medicina geral</b><small>Livros e clássicos</small></a>
+  </nav>
   <nav class="top-actions" aria-label="Ações">
     <button class="icon" type="button" data-search aria-haspopup="dialog" aria-controls="palette" aria-label="Buscar no acervo (Ctrl ou Command + K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
     <a class="icon" href="#todos" data-nav="todos" aria-label="Todos os materiais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
@@ -68,7 +72,7 @@
     <div class="hero">
       <div class="intro">
         <h1 id="home-title">O que você vai estudar <em>hoje?</em></h1>
-        <p class="intro-copy">Provas, resumos e monitoria, organizados do jeito que o curso é.</p>
+        <p class="intro-copy" id="intro-copy">Provas, resumos e monitoria, organizados do jeito que o curso é.</p>
         <button class="search-plate" type="button" data-search aria-haspopup="dialog" aria-controls="palette">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
           <span class="search-label">Buscar assunto, matéria ou material</span>
@@ -76,13 +80,14 @@
           <span class="search-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </button>
         <p class="counts" id="counts"></p>
+        <p class="acervo-note" id="acervo-note"></p>
         <div class="resume" id="resume" hidden></div>
       </div>
       <div class="atlas" id="atlas">
         <div class="map-caption"><h2 class="mono" id="map-title">Mapa do curso · vista anterior</h2><button class="quiet" type="button" id="pause" aria-pressed="false">Pausar batimento</button></div>
         <div class="map" id="map">
           <svg class="flat-map" id="flat-map" viewBox="0 0 600 560" aria-hidden="true" focusable="false">
-            <g class="contours" fill="none" stroke="currentColor" stroke-width="1"><path d="M271 81C228 45 180 134 169 206S179 349 253 408C295 450 328 488 350 457S441 348 444 256S407 113 353 113L336 65M271 81L271 46M296 78L301 33M318 97L329 50"/><path d="M283 155C202 126 183 233 215 305S287 397 339 436M294 160C337 123 399 184 406 255S375 358 347 425M295 170Q326 254 321 361"/></g>
+            <g class="contours" id="flat-outline" fill="none" stroke="currentColor" stroke-width="1"></g>
             <g id="flat-arteries" fill="none" stroke-width="3" stroke-linecap="round"></g>
           </svg>
           <svg class="guides" id="guides" aria-hidden="true" focusable="false"></svg>
@@ -100,6 +105,19 @@
     <section class="reading-section" id="reading" aria-labelledby="reading-title" hidden>
       <div class="section-heading"><h2 id="reading-title">Sua mesa de estudo</h2><span class="mono">Em estudo e favoritos</span></div>
       <div class="card-row" id="reading-list"></div>
+    </section>
+    <section class="books-section" id="books-section" aria-labelledby="books-title" hidden>
+      <div class="section-heading"><h2 id="books-title">Livros de referência</h2><span class="mono">Onde ler: biblioteca digital, editora ou livro aberto</span></div>
+      <div class="book-row" id="books"></div>
+      <p class="legal-note">O Aorta aponta onde o livro pode ser lido de forma legítima: a biblioteca digital da faculdade, a editora ou edições abertas. Não hospedamos cópias de livros com direitos autorais.</p>
+    </section>
+    <section class="shelf-section" id="own-section" aria-labelledby="own-title" hidden>
+      <div class="section-heading"><h2 id="own-title">Materiais próprios</h2><span class="mono">Feitos para o Aorta</span></div>
+      <div class="card-row" id="own"></div>
+    </section>
+    <section class="shelf-section" id="web-section" aria-labelledby="web-title" hidden>
+      <div class="section-heading"><h2 id="web-title">O melhor da internet</h2><span class="mono">Gratuitos e conhecidos</span></div>
+      <div class="card-row" id="web"></div>
     </section>
     <section class="recent-section" id="recent-section" aria-labelledby="recent-title" hidden>
       <div class="section-heading"><h2 id="recent-title">Acabou de chegar</h2><a class="quiet" href="#todos">Ver todos os materiais</a></div>
@@ -171,9 +189,9 @@
 </main>
 
 <footer class="footer shell">
-  <p class="footer-brand">Aorta<span>O curso inteiro, irrigado módulo a módulo.</span></p>
+  <p class="footer-brand"><span class="brand-name">Aorta</span><span id="footer-line">O curso inteiro, irrigado módulo a módulo.</span></p>
   <p>O site guarda <b>links</b>; os arquivos continuam onde estão, no Google Drive. Nada é copiado nem sincronizado.</p>
-  <p class="credit">Modelo 3D: <a href="https://humanatlas.io/3d-reference-library" target="_blank" rel="noopener noreferrer">3D Reference Organ for Heart, Male, v1.3</a> — HuBMAP / Human Reference Atlas, a partir do Visible Human Male (National Library of Medicine), licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. As artérias são um traçado estilizado sobre o modelo, não anatomia para estudo.</p>
+  <p class="credit credit-heart">Modelo 3D: <a href="https://humanatlas.io/3d-reference-library" target="_blank" rel="noopener noreferrer">3D Reference Organ for Heart, Male, v1.3</a> — HuBMAP / Human Reference Atlas, a partir do Visible Human Male (National Library of Medicine), licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. As artérias são um traçado estilizado sobre o modelo, não anatomia para estudo.</p>
 </footer>
 
 <dialog class="palette" id="palette" aria-labelledby="palette-title">
@@ -232,5 +250,10 @@
 <datalist id="dl-subjects"></datalist>
 <datalist id="dl-periods"></datalist>
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+<div class="proto-switch" role="group" aria-label="Protótipo: escolher o conceito visual">
+  <span>Protótipo</span>
+  <a href="?conceito=coracao" data-concept-link="coracao">Coração</a>
+  <a href="?conceito=folha" data-concept-link="folha">Folha</a>
+</div>
 </body>
 </html>

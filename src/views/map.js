@@ -1,43 +1,33 @@
-/* Coração-mapa: rótulos HTML dos módulos (links de verdade), linhas-guia até a ponta de cada artéria,
-   mapa em linhas (SVG) como base sempre presente e o coração 3D por cima, carregado depois da primeira tela. */
+/* Mapa do acervo (coração ou folha, ver concept.js): rótulos HTML dos módulos (links de verdade), linhas-guia até a
+   ponta de cada caminho, mapa em linhas (SVG) como base sempre presente e o 3D por cima, carregado depois da primeira tela. */
 import { ready, reducedMotion } from "../core/state.js";
 import { $, $$, h } from "../core/dom.js";
 import { moduleNumber, countLabel } from "../core/areas.js";
 import { noteFlight } from "./module.js";
 import { onThemeChange } from "../ui/theme.js";
+import { concept } from "./concept.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const MODEL = `${import.meta.env.BASE_URL}modelos/heart-hra-v1.3.glb`;
 let mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
 
-/* Mapa em linhas: mesma projeção frontal do 3D (azimute/elevação → x/y), para os lados baterem com os rótulos. */
-const flatPoint = ([az, el]) => {
-  const a = az * Math.PI / 180, e = el * Math.PI / 180;
-  return [300 + 175 * Math.sin(a) * Math.cos(e), 272 - 205 * Math.sin(e)];
-};
-function smooth(points) {
-  const p = points.map(flatPoint); let d = `M${p[0][0].toFixed(1)} ${p[0][1].toFixed(1)}`;
-  for (let i = 0; i < p.length - 1; i++) {
-    const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
-    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
-    d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
-  }
-  return d;
-}
 function flatTips() {
   const map = $("#map"), w = map.clientWidth, hgt = map.clientHeight, s = Math.min(w / 600, hgt / 560);
-  const ox = (w - 600 * s) / 2, oy = (hgt - 560 * s) / 2;
-  return mods.map(m => { const [x, y] = flatPoint(m.path.at(-1)); return { x: ox + x * s, y: oy + y * s }; });
+  const ox = (w - 600 * s) / 2, oy = (hgt - 560 * s) / 2, c = concept();
+  return mods.map(m => { const [x, y] = c.flat(m, mods.length).tip; return { x: ox + x * s, y: oy + y * s }; });
+}
+function drawOutline() {
+  $("#flat-outline").replaceChildren(...concept().outline().map(d => { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); return p; }));
 }
 
 function buildLabels() {
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
   // O nome acessível é o próprio texto visível ("Art. 01 M1 4 materiais"), como pede o WCAG 2.5.3.
-  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off"), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
+  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
     h("span", { class: "mono", text: moduleNumber(m.index) + " " }), h("b", { text: m.name }), h("small", { text: " " + countLabel(m.count) }))));
   $("#flat-arteries").replaceChildren(...mods.map(m => {
     const p = document.createElementNS(NS, "path");
-    p.setAttribute("d", smooth(m.path)); p.dataset.flat = String(m.index);
+    p.setAttribute("d", concept().flat(m, mods.length).d); p.dataset.flat = String(m.index);
     p.setAttribute("style", `stroke:var(${m.token})`);
     if (!m.live) p.setAttribute("class", "off");
     return p;
@@ -46,7 +36,7 @@ function buildLabels() {
   if (focused) nav.querySelector(`[data-module="${focused}"]`)?.focus({ preventScroll: true });
 }
 
-/* Duas colunas, cada rótulo do lado em que a artéria termina, na ordem da altura da ponta. Nada atravessa o coração. */
+/* Duas colunas, cada rótulo do lado em que o caminho termina, na ordem da altura da ponta. Nada atravessa o desenho. */
 function layout() {
   layoutFrame = 0;
   const map = $("#map"), w = $("#modules").clientWidth, hgt = map.clientHeight;
@@ -54,7 +44,9 @@ function layout() {
   // Ordem de cada coluna = altura da ponta na tela (projetada), para as linhas-guia não se cruzarem.
   const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0;
   for (const right of [false, true]) {
-    const side = mods.filter(m => (m.path.at(-1)[0] >= 0) === right).sort((a, b) => y(a) - y(b));
+    // Lado = onde a ponta aparece na tela (vale para o 3D girado e para o mapa em linhas).
+    const isRight = m => ends[m.index] ? ends[m.index].x > map.clientWidth / 2 : concept().side(m, mods.length) === "right";
+    const side = mods.filter(m => isRight(m) === right).sort((a, b) => y(a) - y(b));
     side.forEach((m, row) => {
       const b = $(`#modules [data-module="${m.id}"]`); if (!b) return;
       b.dataset.side = right ? "right" : "left";
@@ -87,10 +79,11 @@ function highlight(i, on) {
 
 function setState(text) { $("#model-state").textContent = text; }
 function canUse3D() {
-  if (reducedMotion()) return "Mapa em linhas · movimento reduzido.";
-  if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || navigator.connection?.saveData) return "Mapa em linhas · modo econômico do aparelho.";
-  try { const c = document.createElement("canvas"); const gl = c.getContext("webgl2"); if (!gl) return "Mapa em linhas · este navegador não desenha 3D."; gl.getExtension("WEBGL_lose_context")?.loseContext(); }
-  catch (_) { return "Mapa em linhas · este navegador não desenha 3D."; }
+  const what = concept().flatWhat;
+  if (reducedMotion()) return what + " · movimento reduzido.";
+  if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || navigator.connection?.saveData) return what + " · modo econômico do aparelho.";
+  try { const c = document.createElement("canvas"); const gl = c.getContext("webgl2"); if (!gl) return what + " · este navegador não desenha 3D."; gl.getExtension("WEBGL_lose_context")?.loseContext(); }
+  catch (_) { return what + " · este navegador não desenha 3D."; }
   return "";
 }
 function stopHeart() { boot++; scene?.dispose(); scene = null; sceneKey = ""; $("#map").classList.remove("ready"); $("#loader").hidden = true; $("#pause").hidden = true; tips = null; requestLayout(); }
@@ -101,15 +94,16 @@ async function startHeart() {
   if (why) { stopHeart(); setState(why); return; }
   const token = ++boot, key = geometry;
   scene?.dispose(); scene = null;
-  $("#loader").hidden = false; $("#progress").textContent = ""; $("#load-text").textContent = "Preparando o coração";
-  setState("Artérias estilizadas · escolha um módulo.");
+  const c = concept();
+  $("#loader").hidden = false; $("#progress").textContent = ""; $("#load-text").textContent = c.loading;
+  setState(c.state3d);
   try {
-    const { createHeart } = await import("../heart/heart.js");
+    const create = await c.load();
     if (token !== boot) return;
-    const created = await createHeart({
+    const created = await create({
       map: $("#map"), modules: mods, model: MODEL,
       // Content-Length pode vir comprimido e os bytes lidos, não: o número nunca passa de 100%.
-      onProgress: (got, total) => { if (token !== boot) return; $("#load-text").textContent = "Carregando o coração"; $("#progress").textContent = total ? Math.min(100, Math.round(got / total * 100)) + "%" : Math.round(got / 1024) + " KB"; },
+      onProgress: (got, total) => { if (token !== boot) return; $("#load-text").textContent = c.loadingModel; $("#progress").textContent = total ? Math.min(100, Math.round(got / total * 100)) + "%" : Math.round(got / 1024) + " KB"; },
       onProject: points => guides(points),
       onLost: () => { if (token === boot) { scene = null; toFlat("O 3D foi interrompido pelo navegador. O mapa em linhas funciona do mesmo jeito."); } },
       isCurrent: () => token === boot,
@@ -144,7 +138,7 @@ export function drawMap(list) {
   if (sig !== signature) { signature = sig; buildLabels(); }
   requestLayout();
   if (!ready() || !list.length) return;
-  geometry = JSON.stringify(list.map(m => [m.id, m.path]));
+  geometry = concept().geometryKey(list);
   // Mesma estrutura: só acende ou apaga artérias. Módulo novo ou removido: o coração é refeito.
   if (scene) { if (geometry !== sceneKey) scheduleHeart(); else scene.update(list.map(m => m.live)); }
   else if (!started) { started = true; scheduleHeart(); }
@@ -172,10 +166,12 @@ export function wireMap() {
     noteFlight(a.getBoundingClientRect(), a.dataset.module, a.querySelector("b")?.textContent || a.textContent);
   });
   $("#pause").hidden = true;
+  $("#pause").textContent = concept().pause[0];
+  drawOutline();
   $("#pause").addEventListener("click", () => {
     paused = !paused;
     $("#pause").setAttribute("aria-pressed", String(paused));
-    $("#pause").textContent = paused ? "Retomar batimento" : "Pausar batimento";
+    $("#pause").textContent = concept().pause[paused ? 1 : 0];
     scene?.pause(paused);
   });
   new ResizeObserver(requestLayout).observe($("#map"));

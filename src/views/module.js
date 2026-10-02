@@ -1,10 +1,11 @@
 /* Página do módulo (ou de todo o acervo): numeral e artéria no cabeçalho, unidades como abas, matérias ao lado,
    materiais como folhas. Também é aqui que a transição a partir do coração termina. */
 import gsap from "gsap";
-import { S, TYPES, STATUS, STATUS_LABEL, EMPTY_FILTERS, IN_PRODUCTION, ready, reducedMotion, collName, savePrefs } from "../core/state.js";
+import { S, ACERVOS, TYPES, STATUS, STATUS_LABEL, EMPTY_FILTERS, IN_PRODUCTION, ready, reducedMotion, collName, savePrefs, remember } from "../core/state.js";
 import { $, $$, h, svg, ICON } from "../core/dom.js";
-import { tokens, plural, cmpName, byKey, pad2 } from "../core/text.js";
-import { childrenOf, modules, moduleList, pathOf, descIds, areaById, areasWithContent, areaLabel, treeOrder } from "../core/areas.js";
+import { tokens, plural, cmpName, byKey } from "../core/text.js";
+import { childrenOf, modules, moduleList, moduleNumber, pathOf, descIds, areaById, areasWithContent, areaLabel, treeOrder, acervoOf, inAcervo } from "../core/areas.js";
+import { concept } from "./concept.js";
 import { materialCard } from "./cards.js";
 import { openForm } from "./form.js";
 import { rememberModule } from "./home.js";
@@ -21,18 +22,24 @@ function resolvePending() {
   }
   if (scope !== S.scope) { S.q = ""; S.f = { ...EMPTY_FILTERS }; }
   S.scope = scope; S.unit = unit; S.subject = subject;
+  // Abrir uma área de outro acervo (pela busca ou por um link) leva junto o acervo.
+  if (scope !== "todos" && acervoOf(scope) !== S.acervo) {
+    S.acervo = acervoOf(scope); remember("aorta-acervo", S.acervo); document.body.dataset.acervo = S.acervo;
+    $$("[data-acervo-tab]").forEach(a => a.dataset.acervoTab === S.acervo ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
+  }
   return true;
 }
 const scopeRoot = () => S.unit || (S.scope === "todos" ? "" : S.scope);
 function baseList() {
   const root = scopeRoot();
-  if (!root) return S.materials.slice();
+  if (!root) return S.materials.filter(m => inAcervo(m));
   const set = descIds(root); return S.materials.filter(m => set.has(m.areaId));
 }
 /* Matérias (folhas da árvore) disponíveis no recorte atual, com o caminho curto para desambiguar nomes iguais. */
 function subjectsIn(root) {
   const inside = root ? descIds(root) : null;
-  return treeOrder().filter(([a, depth]) => depth === 2 && (!inside || inside.has(a.id))).map(([a]) => a);
+  const roots = new Set(modules().map(m => m.id));
+  return treeOrder().filter(([a, depth]) => depth === 2 && (inside ? inside.has(a.id) : roots.has(pathOf(a.id)[0]?.id))).map(([a]) => a);
 }
 
 /* ---------- filtros ---------- */
@@ -66,14 +73,16 @@ function renderHeader(mod) {
   const view = $("#view-module");
   if (S.scope === "todos") {
     view.style.setProperty("--selected", "var(--violet-2)");
-    title.textContent = "Acervo"; meta.textContent = "Todos os módulos";
-    const live = moduleList().filter(m => m.live).length;
-    sum.textContent = `${plural(S.materials.length, "material", "materiais")} · ${live} de ${plural(modules().length, "módulo", "módulos")} com material`;
+    const a = ACERVOS[S.acervo], list = moduleList(), all = S.materials.filter(m => inAcervo(m)).length;
+    title.textContent = a.label; title.classList.toggle("long", a.label.length > 4); meta.textContent = `Todos os materiais · ${a.units}`;
+    sum.textContent = `${plural(all, "material", "materiais")} · ${list.filter(m => m.live).length} de ${plural(list.length, a.unit, a.units)} com material`;
     $("#module-step").hidden = true; return;
   }
   view.style.setProperty("--selected", `var(${mod.token})`);
   title.textContent = mod.name;
-  meta.textContent = `${"ART. " + pad2(mod.index + 1)} · ${mod.art}`;
+  title.classList.toggle("long", mod.name.length > 4);
+  meta.textContent = S.concept === "coracao" ? `${moduleNumber(mod.index)} · ${mod.art}` : `${moduleNumber(mod.index)} · ${ACERVOS[S.acervo].label}`;
+  $("#back-home").textContent = concept().back;
   const units = childrenOf(mod.id), live = areasWithContent();
   const waiting = units.filter(u => !live.has(u.id));
   sum.textContent = mod.count
@@ -83,13 +92,12 @@ function renderHeader(mod) {
 }
 function renderUnits(mod) {
   const box = $("#units"), live = areasWithContent();
-  const parent = S.scope === "todos" ? "" : S.scope;
-  const kids = childrenOf(parent);
-  box.setAttribute("aria-label", S.scope === "todos" ? "Módulos" : "Unidades");
+  const kids = S.scope === "todos" ? modules() : childrenOf(S.scope);
+  box.setAttribute("aria-label", S.scope === "todos" ? ACERVOS[S.acervo].units : "Unidades");
   box.hidden = !kids.length;
-  const all = S.scope === "todos" ? S.materials.length : mod?.count || 0;
+  const all = S.scope === "todos" ? S.materials.filter(m => inAcervo(m)).length : mod?.count || 0;
   const tab = (id, label, n, on) => h("button", { type: "button", "data-unit": id, "aria-pressed": String(on) }, label, h("small", { text: n ? plural(n, "material", "materiais") : IN_PRODUCTION }));
-  box.replaceChildren(tab("", S.scope === "todos" ? "Todos os módulos" : "Todas as unidades", all, !S.unit),
+  box.replaceChildren(tab("", S.scope === "todos" ? `Todos (${ACERVOS[S.acervo].units})` : "Todas as unidades", all, !S.unit),
     ...kids.map(u => { const n = live.has(u.id) ? baseCount(u.id) : 0; return tab(u.id, u.name, n, S.unit === u.id); }));
 }
 const baseCount = id => { const set = descIds(id); return S.materials.filter(m => set.has(m.areaId)).length; };
