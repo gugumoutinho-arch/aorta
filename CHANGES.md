@@ -2,6 +2,17 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-02 — Claude — Estante visual: capas, lombadas, prateleiras e microinterações — não publicado
+
+- **Pedido do dono:** o site estava "básico"; dos três caminhos propostos escolheu a **estante visual (capas)** e pediu melhorar cores/identidade, tipografia/hierarquia, movimento e estrutura das telas.
+- **Capas:** cada material ganha uma capa na cor da matéria, com lombada, ícone e rótulo do tipo, textura por tipo e o período (`cover()`, só CSS e SVG inline; tokens `--shade`, `--gloss`, `--cover-*`). Tipo "Prova" mostra o período em destaque, o que prepara as provas por período.
+- **Estrutura:** catálogo em grade de capas (padrão) ou lista com capa, botão Lista/Estante no catálogo com escolha guardada neste aparelho; retomada com capa ao lado do título; seleção em trilho horizontal de capas; "Por onde começar" com capas por tipo e uma prateleira de lombadas de módulo (as em produção, tracejadas); ficha com a capa no topo.
+- **Movimento:** capa sobe e inclina no hover (ponteiro fino) e afunda ao pressionar; lombada "sai da estante" no hover/toque; estrela salta ao favoritar (260 ms, continua se o item for redesenhado). Tudo respeita `prefers-reduced-motion`.
+- **Acessibilidade e revisão:** capas `aria-hidden`; o tipo e "onde fica" continuam no texto para leitor de tela (visualmente ocultos); alvos de 44 px; revisão de código independente sem achados críticos ou altos, cinco médios corrigidos (leitor de tela, texto da lombada, botão Lista/Estante só no catálogo, foco cortado nos trilhos, estrela que recomeçava) e cache dos ícones por tipo.
+- **Testado (dados fictícios; nenhum acesso ao Supabase):** `npm.cmd run check` — 0 erros/avisos; `node flows.mjs` — 321/321, incluindo capas em todos os materiais, grade/lista, escolha lembrada após recarregar, nos dois temas, trilho, capa na ficha e na retomada, estrela, lombadas sem sobreposição e o cenário M1–M8; `npm.cmd run lighthouse` — mobile 99/100/100 (LCP 1,5 s, CLS 0,018, TBT 110 ms) e desktop 99/100/100 (LCP 0,9 s, CLS 0,018), SEO 54 (`noindex` intencional medido no servidor local); antes desta rodada o mobile era 100. Capturas em `tools/reports/flows/` (`estante@`, `lista@`, `em-producao-inicio@`).
+- **Não testado:** aparelho físico (rolagem horizontal das lombadas e do trilho no toque), Safari/Firefox, leitor de tela real, teclado virtual, milhares de materiais (cache de ícones feito, desempenho de pintura das capas não medido), Supabase real.
+- **Ponto de retorno:** `79d581f`.
+
 ## 2026-10-01 — Claude — Entrada do recém-chegado, módulos "Em produção" e edição separada da leitura — não publicado
 
 - **Pedido:** completar a rodada pós-arena com o que o dono decidiu depois que o Codex começou (acervo aberto a estudantes de medicina, módulos M1 a M8 criados desde já, módulos vazios sinalizados). O Codex já tinha entregue tema, "dono", marcador editorial, toque e cabeçalho dos testes (commits `9fd1992` e `3bc266d`); aqui entra só o restante.

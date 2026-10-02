@@ -58,7 +58,7 @@ Regras:
 - **Celular primeiro:** 375 px sem rolagem horizontal, gutter lateral de 16 px, áreas de toque de pelo menos 44 px.
 - **Acessibilidade:** foco visível, teclado, contraste mínimo de 4,5:1, `aria-*` nos controles, respeito a `prefers-reduced-motion`.
 - Movimento só onde ajuda a entender uma ação.
-- Identidade visual atual: "Atlas digital" (ver `DESIGN.md`; produto em `PRODUCT.md`): Literata nos capítulos e Schibsted Grotesk nos materiais, superfícies claras ou carvão esverdeado, retomada em verde profundo e tintas por matéria. No celular, “Explorar” abre o sumário com índice de arraste; o conteúdo usa toda a largura. No computador, sumário contextual à esquerda e abas discretas na borda. Mudanças de identidade só com pedido do usuário.
+- Identidade visual atual: "Atlas digital" (ver `DESIGN.md`; produto em `PRODUCT.md`): Literata nos capítulos e Schibsted Grotesk nos materiais, superfícies claras ou carvão esverdeado, retomada em verde profundo e tintas por matéria. No celular, “Explorar” abre o sumário com índice de arraste; o conteúdo usa toda a largura. No computador, sumário contextual à esquerda e abas discretas na borda. Desde 02/10/2026 o catálogo é uma "estante visual": capas por tipo de material (CSS/SVG, sem imagens), lombadas de módulo e prateleiras de capas (ver `DESIGN.md`). Mudanças de identidade só com pedido do usuário.
 
 ## Verificações automáticas (`tools/`)
 
