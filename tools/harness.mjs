@@ -53,7 +53,7 @@ export const FAILING = '<script>window.claude={aortaTest:true,use:()=>Promise.re
 
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.glb': 'model/gltf-binary', '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png' };
 /* Servidor estático do dist/; a página recebe "inject" logo depois de <head>. "block" devolve 404 para caminhos que casarem. */
-export function startServer({ withDb: db = true, inject, block } = {}) {
+export function startServer({ withDb: db = true, inject, block, port = 0 } = {}) {
   const html = pageHtml().replace('<head>', '<head>' + (inject ?? (db ? withDb() : '')));
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(req.url.split('?')[0]);
@@ -66,7 +66,7 @@ export function startServer({ withDb: db = true, inject, block } = {}) {
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Content-Length': body.length });
     res.end(body);
   });
-  return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve({ server, url: `http://127.0.0.1:${server.address().port}/`, html })));
+  return new Promise(resolve => server.listen(port, '127.0.0.1', () => resolve({ server, url: `http://127.0.0.1:${server.address().port}/`, html })));
 }
 
 export function chromePath() {
