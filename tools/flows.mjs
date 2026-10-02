@@ -18,10 +18,20 @@ function serve(html) {
 const base = pageHtml();
 const withDb = data => base.replace('<head>', '<head><script>' + mockDbScript(data) + '</script>');
 const noHistory = (() => { const d = seed(); d.materials.forEach(m => { delete m.lastOpenedAt; }); return d; })();
+// M1 a M8 criados; só M1 e M2 têm material (os demais devem aparecer como "Em produção"). Dados só na memória do teste.
+const eightModules = (d, withNewMaterial = false) => {
+  const x = JSON.parse(JSON.stringify(d));
+  for (let i = 3; i <= 8; i++) x.areas.push({ id: 'm' + i, name: 'M' + i, parentId: '', order: i, stain: '', short: null });
+  if (withNewMaterial) x.materials.push({ ...x.materials[0], id: 'novo-m3', title: 'Primeiro material do M3 (teste)', areaId: 'm3' });
+  return x;
+};
 const loading = base.replace('<head>', '<head><script>window.claude={use:()=>new Promise(()=>{})}</script>');
 
 const browser = await chromium.launch({ executablePath: chromePath(), headless: true });
-const srv = { main: await serve(withDb(seed())), none: await serve(withDb(noHistory)), load: await serve(loading) };
+const srv = {
+  main: await serve(withDb(seed())), none: await serve(withDb(noHistory)), load: await serve(loading),
+  prod: await serve(withDb(eightModules(noHistory))), prodLive: await serve(withDb(eightModules(noHistory, true))),
+};
 
 async function open(scheme, w, which = 'main') {
   const ctx = await browser.newContext({ viewport: { width: w, height: w < 500 ? 812 : 900 }, colorScheme: scheme, reducedMotion: 'no-preference' });
@@ -222,6 +232,55 @@ for(const block of ['get','set']){
   await edit.hover();await page.mouse.down();
   ok('redução: Editar responde por borda sem escala',await edit.evaluate((x,old)=>getComputedStyle(x).transform==='none' && getComputedStyle(x).boxShadow!==old,before));
   await page.mouse.move(1,1);await page.mouse.up();await ctx.close();
+}
+// Recém-chegado e módulos "Em produção": M1 a M8 criados, só M1 e M2 com material.
+for (const scheme of ['light', 'dark']) {
+  for (const w of [375, 1440]) {
+    const tag = `${w}-${scheme} em produção`;
+    let { ctx, page, errors } = await open(scheme, w, 'prod');
+    ok(`${tag}: início mostra "Por onde começar" sem histórico`, await page.locator('#h-start').count() === 1 && await page.locator('#h-feature').count() === 0);
+    ok(`${tag}: portas por tipo (4) e módulos com material (2)`, await page.locator('.start .doors').nth(0).locator('.door').count() === 4 && await page.locator('.start .doors').nth(1).locator('.door').count() === 2);
+    ok(`${tag}: tipos sem material dizem "Em produção"`, await page.locator('.start .door.is-empty').count() === 2, String(await page.locator('.start .door.is-empty').count()));
+    ok(`${tag}: M3 a M8 numa linha "Em produção", depois de M1 e M2`, await page.locator('.start .start-prod .prod-link').count() === 6 && await page.evaluate(() => [...document.querySelectorAll('.start .doors:nth-of-type(2) a.door')].map(a => a.getAttribute('href')).join() === '#a-m1,#a-m2'));
+    ok(`${tag}: portas e links com alvo ≥ 44 px`, (await page.locator('.start a.door, .start .prod-link').evaluateAll(els => els.map(e => e.getBoundingClientRect().height))).every(n => n >= 44));
+    ok(`${tag}: início sem acessibilidade quebrada`, !(await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()).violations.length);
+    await noOverflow(page, tag + ' início'); await shot(page, `em-producao-inicio@${tag.replace(' em produção', '')}`);
+    await page.locator('.start .prod-link[href="#a-m3"]').click(); await page.waitForTimeout(450);
+    ok(`${tag}: tocar em módulo em produção mostra aviso claro`, await page.locator('#p-m3.is-production').isVisible() && /em produção/i.test(await page.locator('#p-m3 + .part-note').innerText()));
+    ok(`${tag}: cabeça corrente acompanha o módulo em produção`, /M3.*Em produção/.test(await page.locator('#rh-title').innerText()), await page.locator('#rh-title').innerText());
+    ok(`${tag}: aviso oferece voltar ao que tem conteúdo`, await page.locator('#p-m3 + .part-note a').getAttribute('href') === '#a-m1');
+    await shot(page, `em-producao-modulo@${tag.replace(' em produção', '')}`);
+    await hash(page, 'a-m8'); await page.waitForTimeout(250);
+    ok(`${tag}: último módulo em produção (fim do livro) também nomeia a cabeça corrente`, /M8.*Em produção/.test(await page.locator('#rh-title').innerText()), await page.locator('#rh-title').innerText());
+    await hash(page, 'todos');
+    ok(`${tag}: seis módulos marcados, M1 e M2 sem marca`, await page.locator('#lib-results .part.is-production').count() === 6 && await page.locator('#p-m1.is-production, #p-m2.is-production').count() === 0);
+    ok(`${tag}: módulos com conteúdo vêm primeiro no livro`, await page.evaluate(() => { const o = id => document.getElementById(id).compareDocumentPosition(document.getElementById('p-m3')) & Node.DOCUMENT_POSITION_FOLLOWING; return !!o('p-m1') && !!o('p-m2'); }));
+    await noOverflow(page, tag + ' livro');
+    if (w === 375) { await page.click('.tabbar [data-action="toc"]'); await page.waitForTimeout(400); } else await page.waitForTimeout(100);
+    const flags = await page.locator((w === 375 ? '#dlg-toc ' : '#toc-tree ') + '.t-mod .t-flag').count();
+    ok(`${tag}: Explorar marca os seis módulos em produção`, flags === 6, String(flags));
+    if (w === 375) { await shot(page, `em-producao-explorar@${tag.replace(' em produção', '')}`); await page.keyboard.press('Escape'); await page.waitForTimeout(200); }
+    ok(`${tag}: sem erros de console`, errors.length === 0, errors.slice(0, 2).join(' | '));
+    await ctx.close();
+  }
+}
+{
+  const { ctx, page } = await open('light', 375, 'prodLive');
+  ok('em produção: módulo some da lista ao receber o primeiro material', await page.locator('.start .prod-link[href="#a-m3"]').count() === 0 && await page.locator('.start .prod-link').count() === 5 && await page.locator('.start .doors').nth(1).locator('.door').count() === 3);
+  await hash(page, 'todos');
+  ok('em produção: marca do M3 some, os outros cinco continuam', await page.locator('#p-m3.is-production').count() === 0 && await page.locator('#lib-results .part.is-production').count() === 5);
+  await ctx.close();
+}
+// Leitura e edição separadas na interface: toda ação de edição leva [data-edit]; nada é escondido nesta rodada.
+{
+  const { ctx, page } = await open('light', 1440);
+  ok('edição: Adicionar link e Organizar marcados e visíveis (computador)', await page.locator('.acts [data-edit]').count() === 2 && await page.locator('.acts [data-edit]').first().isVisible());
+  ok('edição: barra do celular também marcada', await page.locator('.tabbar [data-edit]').count() === 2);
+  ok('edição: Adicionar link deixou de ser o botão primário', await page.locator('.acts [data-edit].primary').count() === 0);
+  await hash(page, 'todos'); await page.locator('#lib-results .entry-title button').first().click(); await page.waitForTimeout(400);
+  ok('edição: Editar e Remover da ficha marcados', await page.locator('#dlg-detail [data-edit]').count() === 2);
+  ok('edição: tipo "Monitoria" disponível no formulário e no filtro', await page.locator('#f-type option[value="Monitoria"]').count() === 1);
+  await ctx.close();
 }
 await browser.close(); Object.values(srv).forEach(x => x.s.close());
 console.log(log.join('\n') + `\n\n${log.length - fails} de ${log.length} verificações aprovadas, ${fails} falha(s). Capturas em tools/reports/flows/`);

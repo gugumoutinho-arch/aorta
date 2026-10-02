@@ -552,6 +552,28 @@ dialog.no-motion[open]{animation:none}
 .sec{padding-top:22px}
 .part{padding-top:18px}
 .btn:active,.toggle:active,.open:active{box-shadow:inset 0 0 0 2px currentColor}
+/* Entrada de quem chega e "Em produção". Marcador [data-edit]: toda ação de edição o leva; a próxima rodada de acesso o esconde de quem não edita com uma única regra (body:not([data-can-edit]) [data-edit]{display:none}), ainda não ativada. */
+.start{padding:4px 0 14px;border-bottom:1px solid var(--rule)}
+.start h2{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.02em;padding-top:6px}
+.start-note{padding:4px 0 10px;font-size:13.5px;color:var(--ink-3)}
+.doors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-bottom:10px}
+.door{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:56px;padding:8px 12px;border:1px solid var(--edge);border-radius:var(--r);color:var(--ink);text-decoration:none;background:var(--page)}
+.door-name{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.door-n{font-size:12.5px;color:var(--ink-3)}
+a.door:active{background:var(--page-2);box-shadow:inset 0 0 0 2px currentColor;transition:none}
+a.door:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.door.is-empty{border-style:dashed;color:var(--ink-3)}
+.part.is-production h2,.part.is-production a{color:var(--ink-3)}
+.part.is-production .num{font-style:italic}
+.start-prod{display:flex;flex-wrap:wrap;align-items:center;gap:0 4px;padding:0 0 4px;font-size:13.5px;color:var(--ink-3)}
+.start-prod span{margin-right:4px;font-style:italic}
+.prod-link{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0 8px;color:var(--ink-2);font-weight:600;text-decoration:underline;text-decoration-color:var(--rule-2);text-underline-offset:4px}
+.prod-link:active{background:var(--page-2);box-shadow:inset 0 0 0 2px currentColor}
+.part-note{display:flex;flex-wrap:wrap;align-items:center;gap:0 14px;padding:0 0 8px;color:var(--ink-3);font-size:14px}
+.part-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-weight:600}
+.t-flag{margin-left:8px;font-size:12px;font-weight:500;font-variant:normal;letter-spacing:0;color:var(--ink-3);font-style:italic}
+.t-unit .t-flag{margin-left:auto}
+@media (min-width:700px){.doors{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .study-tabs button:active,.route-tabs a:active,.study-disclosure > summary:active{background:var(--page-2);color:var(--ink);transition:none}
 .statusset label:active{box-shadow:inset 0 0 0 2px currentColor;transition:none}
 #theme-open{flex-shrink:0}
@@ -620,7 +642,7 @@ dialog.no-motion[open]{animation:none}
 <aside class="toc" aria-label="Sumário e busca">
   <div class="toc-brand">
     <a class="brandline" href="#inicio" aria-label="Biblioteca de Medicina, início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5h11a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2z"/><path d="M17 7h3v3h-3M17 12h3v3h-3"/></svg>Biblioteca de Medicina</a>
-    <div class="acts"><button class="btn primary" type="button" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar link</button><a class="btn" href="#organizar" data-nav="organizar">Organizar</a></div>
+    <div class="acts"><button class="btn" type="button" data-action="add" data-edit><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar link</button><a class="btn" href="#organizar" data-nav="organizar" data-edit>Organizar</a></div>
   </div>
   <p class="toc-h">Sumário</p>
   <nav class="toc-tree" id="toc-tree" aria-label="Sumário do curso"></nav>
@@ -716,8 +738,8 @@ dialog.no-motion[open]{animation:none}
 <nav class="tabbar" aria-label="Atalhos">
   <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5h11a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2z"/><path d="M17 7h3v3h-3M17 12h3v3h-3"/></svg>Índice</a>
   <button type="button" data-action="toc" aria-haspopup="dialog" aria-controls="dlg-toc" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>Explorar</button>
-  <button type="button" class="tab-add" data-action="add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
-  <a href="#organizar" data-nav="organizar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg>Organizar</a>
+  <button type="button" class="tab-add" data-action="add" data-edit><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
+  <a href="#organizar" data-nav="organizar" data-edit><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg>Organizar</a>
 </nav>
 
 <dialog id="dlg-toc" aria-labelledby="toc-title">
@@ -835,7 +857,7 @@ dialog.no-motion[open]{animation:none}
 <script>
 (() => {
 "use strict";
-const TYPES = ["Slides","Apostila","Resumo","Anotação","Estudo dirigido","Questões","Prova","Caso clínico","Imagem / lâmina","Artigo","Livro","Link"];
+const TYPES = ["Slides","Apostila","Resumo","Anotação","Estudo dirigido","Questões","Prova","Monitoria","Caso clínico","Imagem / lâmina","Artigo","Livro","Link"];
 const STATUS = [["nao-iniciado","Não iniciado"],["em-estudo","Em estudo"],["revisado","Revisado"]];
 const STATUS_LABEL = Object.fromEntries(STATUS);
 const STAINS = ["hema","eosin","giemsa","masson","pas","safra"];
@@ -1002,7 +1024,7 @@ function skeleton() {
     h("div", { class: "skel-bar big", "aria-hidden": "true" }), ...Array.from({ length: 5 }, () => h("div", { "aria-hidden": "true", style: "display:grid;gap:9px" }, h("div", { class: "skel-bar" }), h("div", { class: "skel-bar short" }))));
 }
 function emptyState(title, text, withAdd, areaId) {
-  return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), withAdd && S.db ? h("button", { class: "btn primary", type: "button", onclick: () => openForm(null, areaId), text: "Adicionar material" }) : null);
+  return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), withAdd && S.db ? h("button", { class: "btn primary", type: "button", "data-edit": "", onclick: () => openForm(null, areaId), text: "Adicionar material" }) : null);
 }
 
 /* ---------- telas ---------- */
@@ -1046,12 +1068,29 @@ function feature(m) {
       h("span", { class: "feature-when", text: fmtDate(m.lastOpenedAt) })), it);
 }
 let homeShelf = "";
+/* Entrada de quem chega pela primeira vez: o que mais se procura e os módulos. Só dados que existem; o que ainda não tem material diz "Em produção". */
+const DOORS = [["Prova", "Provas antigas"], ["Monitoria", "Monitoria"], ["Resumo", "Resumos"], ["Caso clínico", "Casos clínicos"]];
+function startHere() {
+  const live = areasWithContent();
+  const door = (label, count, attrs) => { const empty = !count; return h(empty ? "div" : "a", { class: "door" + (empty ? " is-empty" : ""), ...(empty ? {} : attrs) }, h("span", { class: "door-name", text: label }), h("span", { class: "door-n", text: empty ? IN_PRODUCTION : plural(count, "material", "materiais") })); };
+  const byType = DOORS.map(([type, label]) => door(label, S.materials.filter(m => m.type === type).length, { href: "#todos", onclick: () => presetFilters({ type }) }));
+  const all = childrenOf("");
+  const mods = all.filter(mod => live.has(mod.id)).map(mod => { const ids = descIds(mod.id); return h("a", { class: "door", href: "#a-" + mod.id }, h("span", { class: "door-name", text: "Módulo " + mod.name }), h("span", { class: "door-n", text: plural(S.materials.filter(m => ids.has(m.areaId)).length, "material", "materiais") })); });
+  const producing = all.filter(mod => !live.has(mod.id)).map(mod => h("a", { class: "prod-link", href: "#a-" + mod.id, text: mod.name }));
+  return h("section", { class: "start", "aria-labelledby": "h-start" },
+    h("h2", { id: "h-start", text: "Por onde começar" }),
+    h("p", { class: "start-note", text: "Escolha o tipo de material que procura ou o módulo que está cursando." }),
+    h("div", { class: "doors", role: "group", "aria-label": "Tipos de material" }, byType),
+    mods.length ? h("div", { class: "doors", role: "group", "aria-label": "Módulos com material" }, mods) : null,
+    producing.length ? h("p", { class: "start-prod" }, h("span", { text: IN_PRODUCTION + ":" }), producing) : null);
+}
 function renderHome() {
   const focus = $("#home-focus"); focus.replaceChildren(); shelfN = 0;
   focus.hidden = S.view !== "inicio" || anyFilter() || !ready();
   if (focus.hidden || !S.materials.length) return;
   const ms = S.materials;
   const opened = ms.filter(m => validDate(m.lastOpenedAt)).sort((a, b) => b.lastOpenedAt.localeCompare(a.lastOpenedAt));
+  if (!opened.length) focus.append(startHere());
   const others = ms.filter(m => m !== opened[0]);
   const studying = others.filter(m => m.status === "em-estudo").sort((a,b) => cmpName(a.title || "", b.title || ""));
   const favs = others.filter(m => m.favorite).sort((a,b) => cmpName(a.title || "", b.title || ""));
@@ -1078,7 +1117,7 @@ function renderHome() {
     select(options[e.key==="Home"?0:e.key==="End"?2:(i+(e.key==="ArrowRight"?1:2))%3][0],true);
   });
   select(homeShelf);
-  const disclosure = h("details", { class:"study-disclosure", open:!opened.length },
+  const disclosure = h("details", { class:"study-disclosure", open:false },
     h("summary", { text:"Em estudo, favoritos e recentes" }),
     h("section", { class:"study-selection", "aria-label":"Seleção de estudo" }, tabs,panel));
   focus.append(disclosure);
@@ -1097,6 +1136,13 @@ function renderActiveFilters() {
   box.replaceChildren(...items.map(([label, clear]) => h("button", { class: "af", type: "button", "aria-label": "Remover filtro: " + label, onclick: () => { clear(); renderAll(); $("#lib-q").focus(); } }, label, svg(ICON_X))));
 }
 
+/* "Em produção": módulo, unidade ou matéria sem nenhum material nela nem abaixo dela. Deduzido dos dados; some sozinho no primeiro material. */
+const IN_PRODUCTION = "Em produção";
+function areasWithContent() {
+  const set = new Set(), byId = new Map(S.areas.map(a => [a.id, a]));
+  S.materials.forEach(m => { let a = byId.get(m.areaId), guard = 0; while (a && !set.has(a.id) && guard++ < 8) { set.add(a.id); a = byId.get(a.parentId); } });
+  return set;
+}
 /* ---------- o livro: parte (módulo) › capítulo (unidade) › seção (matéria) › subseção (assunto) ---------- */
 function bookOf(list) {
   const by = new Map(); list.forEach(m => { const k = areaById(m.areaId) ? m.areaId : ""; if (!by.has(k)) by.set(k, []); by.get(k).push(m); });
@@ -1109,8 +1155,11 @@ function bookOf(list) {
     } else chaps.push({ area: mod, secs: by.has(mod.id) ? [{ area: mod, items: by.get(mod.id), direct: true }] : [] });
     return { mod, chaps };
   });
+  // módulos com conteúdo primeiro; os em produção ficam depois, na ordem em que o dono os criou
+  const live = areasWithContent();
+  parts.sort((a, b) => Number(live.has(b.mod.id)) - Number(live.has(a.mod.id)));
   const orphans = by.get("") || [];
-  return { parts, orphans };
+  return { parts, orphans, live };
 }
 const groupKey = m => S.group === "period" ? (m.period || "").trim() : S.group === "none" ? "" : (m.subject || "").trim();
 const groupEmpty = () => S.group === "period" ? "Sem período" : "Sem assunto";
@@ -1130,20 +1179,27 @@ function secNode(sec, toks) {
 }
 function renderBook(list) {
   const box = $("#lib-results"), toks = tokens(S.q), filt = anyFilter();
-  const { parts, orphans } = bookOf(list);
+  const { parts, orphans, live } = bookOf(list);
+  const firstLive = parts.find(p => live.has(p.mod.id));
   const out = [], sections = [];
   parts.forEach(({ mod, chaps }) => {
     const total = chaps.reduce((n, c) => n + c.secs.reduce((k, s) => k + s.items.length, 0), 0);
     if (filt && !total) return;
-    out.push(h("p", { class: "part", id: "p-" + mod.id }, h("a", { href: "#a-" + mod.id, text: "Módulo " + mod.name }), h("span", { class: "num", text: plural(total, "material", "materiais") })));
+    const producing = !live.has(mod.id);
+    out.push(h("p", { class: "part" + (producing ? " is-production" : ""), id: "p-" + mod.id }, h("a", { href: "#a-" + mod.id, text: "Módulo " + mod.name }), h("span", { class: "num", text: producing ? IN_PRODUCTION : plural(total, "material", "materiais") })));
+    if (producing && !childrenOf(mod.id).length) {
+      out.push(h("p", { class: "part-note" }, "Este módulo está em produção. Os materiais aparecem aqui quando forem publicados.",
+        firstLive ? h("a", { href: "#a-" + firstLive.mod.id, text: "Ver o que já tem conteúdo (Módulo " + firstLive.mod.name + ")" }) : null));
+      return;
+    }
     chaps.forEach(c => {
       const n = c.secs.reduce((k, s) => k + s.items.length, 0);
       if (filt && !n) return;
       const kids = childrenOf(c.area.id);
       const node = h("section", { class: "chap", id: "c-" + c.area.id, "aria-labelledby": "h-c-" + c.area.id },
         h("header", { class: "chap-head" }, h("h2", { class: "chap-title", id: "h-c-" + c.area.id, text: c.area.name }),
-          h("p", { class: "chap-sub", text: [kids.length ? plural(kids.length, "matéria", "matérias") : "", plural(n, "material", "materiais")].filter(Boolean).join(" · ") })));
-      if (!c.secs.length) node.append(h("p", { class: "chap-empty" }, "Nenhum material ainda.", S.db ? h("button", { class: "btn", type: "button", text: "Adicionar material", onclick: () => openForm(null, c.area.id) }) : null));
+          h("p", { class: "chap-sub", text: n ? [kids.length ? plural(kids.length, "matéria", "matérias") : "", plural(n, "material", "materiais")].filter(Boolean).join(" · ") : IN_PRODUCTION })));
+      if (!c.secs.length) node.append(h("p", { class: "chap-empty" }, "Em produção. Os materiais desta unidade ainda estão sendo montados.", S.db ? h("button", { class: "btn", type: "button", "data-edit": "", text: "Adicionar material", onclick: () => openForm(null, c.area.id) }) : null));
       c.secs.forEach(s => { node.append(secNode(s, toks)); sections.push({ s, chap: c }); });
       out.push(node);
     });
@@ -1190,17 +1246,16 @@ function renderThumbs(sections) {
 }
 /* Sumário: a árvore do curso com contagens; no computador fica na página da esquerda, no celular abre como folha. */
 function tocTree(list) {
-  const { parts, orphans } = bookOf(list), filt = anyFilter(), toks = tokens(S.q);
+  const { parts, orphans, live } = bookOf(list), filt = anyFilter(), toks = tokens(S.q);
   const out = [h("a", { class: "tree-all", href: "#todos" }, "Todos os materiais", h("span", { class: "num", text: String(list.length) }))];
   parts.forEach(({ mod, chaps }) => {
     const total = chaps.reduce((n, c) => n + c.secs.reduce((k, s) => k + s.items.length, 0), 0);
     if (filt && !total) return;
-    out.push(h("a", { class: "t-mod", href: "#a-" + mod.id, text: "Módulo " + mod.name }));
+    out.push(h("a", { class: "t-mod", href: "#a-" + mod.id }, "Módulo " + mod.name, live.has(mod.id) ? null : h("span", { class: "t-flag", text: IN_PRODUCTION })));
     chaps.forEach(c => {
       const n = c.secs.reduce((k, s) => k + s.items.length, 0);
       if (filt && !n) return;
-      if (c.area.id !== mod.id) out.push(h("a", { class: "t-unit", href: "#a-" + c.area.id }, c.area.name, h("span", { class: "num", text: String(n) })));
-      if (!c.secs.length) out.push(h("p", { class: "t-empty", text: "Nenhum material ainda" }));
+      if (c.area.id !== mod.id) out.push(h("a", { class: "t-unit", href: "#a-" + c.area.id }, c.area.name, h("span", { class: n ? "num" : "num t-flag", text: n ? String(n) : IN_PRODUCTION })));
       c.secs.forEach(s => {
         out.push(h("a", { class: "t-mat", href: "#a-" + s.area.id, style: tabVar(s.area.id), "data-toc": "s-" + s.area.id }, h("i", { "aria-hidden": "true" }), s.direct ? s.area.name + " (geral)" : s.area.name, h("span", { class: "num", text: String(s.items.length) })));
         const subs = subsOf(s).filter(x => x.label);
@@ -1228,7 +1283,13 @@ function spy() {
   const chap = sec ? sec.closest(".chap") : null;
   $$("#thumbs .thumb").forEach(t => { const on = sec && (t.dataset.target === sec.id || (chap && t.dataset.target === chap.id)); on ? t.setAttribute("aria-current", "location") : t.removeAttribute("aria-current"); });
   $$("[data-toc]").forEach(a => { const on = (sub && a.dataset.toc === sub.id) || (sec && a.dataset.toc === sec.id); on ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current"); });
-  if (sec) {
+  // módulo em produção não tem seção: a cabeça corrente passa a dizer o módulo, em vez de ficar na matéria anterior
+  // no fim do livro um módulo em produção pode não chegar ao topo: vale o que foi pedido, se estiver à vista
+  const hintedPart = spyHint && document.contains(spyHint) && spyHint.classList.contains("part") && scrollY + innerHeight >= document.documentElement.scrollHeight - 2 && spyHint.getBoundingClientRect().top < innerHeight ? spyHint : null;
+  const part = hintedPart || $$("#lib-results .part").filter(p => p.getBoundingClientRect().top <= y).pop();
+  const prod = part && part.classList.contains("is-production") && (!sec || (sec.compareDocumentPosition(part) & Node.DOCUMENT_POSITION_FOLLOWING)) ? part : null;
+  if (prod) { $("#rh-path").textContent = "Biblioteca de Medicina"; $("#rh-title").textContent = prod.querySelector("a").textContent + " · " + IN_PRODUCTION; }
+  else if (sec) {
     const id = sec.dataset.sec, p = id === "sem-area" ? [] : pathOf(id);
     $("#rh-path").textContent = [p.slice(0, -1).map(a => a.name).join(" · "), sub && sub.dataset.sub !== sec.dataset.name ? sub.dataset.sub : ""].filter(Boolean).join(" — ") || "Fora da estrutura";
     $("#rh-title").textContent = sec.dataset.name;
@@ -1580,9 +1641,9 @@ function renderDetail() {
   if (confirmRemove) body.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: "Remover este material do catálogo? Só o registro sai daqui. O arquivo original (por exemplo, no Google Drive) não é apagado nem alterado." }),
     h("div", { class: "acts" }, h("button", { class: "btn danger", type: "button", id: "d-rm-yes", text: "Remover do catálogo", onclick: () => { confirmRemove = false; removeMaterial(m.id); } }), h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { confirmRemove = false; renderDetail(); } }))));
   $("#d-foot").replaceChildren(h("div", { class: "d-actions" }, openLink(m)), h("div", { class: "d-secondary" },
-    h("button", { class: "btn", type: "button", text: "Editar", disabled: pending, onclick: () => { closeDlg($("#dlg-detail"), true); openForm(m.id); } }),
+    h("button", { class: "btn", type: "button", "data-edit": "", text: "Editar", disabled: pending, onclick: () => { closeDlg($("#dlg-detail"), true); openForm(m.id); } }),
     h("span", { class: "spacer" }),
-    h("button", { class: "btn ghost", type: "button", text: "Remover do catálogo", disabled: pending, onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } })));
+    h("button", { class: "btn ghost", type: "button", "data-edit": "", text: "Remover do catálogo", disabled: pending, onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } })));
 }
 function openForm(id, areaId) {
   if (!ready()) return;
