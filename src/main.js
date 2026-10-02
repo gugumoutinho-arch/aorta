@@ -29,6 +29,11 @@ function applyConcept() {
   $$(".brand-name").forEach(el => { el.textContent = c.brand; });
   $$(".brand").forEach(el => el.setAttribute("aria-label", `${c.brand}, início`));
   document.getElementById("footer-line").textContent = c.footer;
+  // O corpo usa também a pele do HuBMAP: o crédito (CC BY 4.0) cita os dois modelos.
+  if (S.concept === "corpo") {
+    const link = document.querySelector(".credit-heart a");
+    if (link) link.textContent = "3D Reference Organs: Skin, Male, v1.3 e Heart, Male, v1.3 (malhas simplificadas)";
+  }
   $$("[data-concept-link]").forEach(a => {
     a.dataset.conceptLink === S.concept ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current");
     a.addEventListener("click", e => { e.preventDefault(); location.href = `?conceito=${a.dataset.conceptLink}${location.hash}`; });
