@@ -1,687 +1,21 @@
-<title>Biblioteca de Medicina</title>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0d0817">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Aorta: acervo de links de materiais de medicina, organizado como o curso.">
+<title>Aorta</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 40'%3E%3Cpath d='M7 36V19c0-7 4-11 10-11s9 4 9 9v8M13 9V3m8 6V2M26 20l4 3' fill='none' stroke='%23ff4f7e' stroke-width='3.2' stroke-linecap='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:wght@500..600&family=Schibsted+Grotesk:wght@400..700&display=swap" media="print" onload="this.media='all'">
-<style>
-/* Índice de dedo: a biblioteca é um livro de referência do curso. A borda direita tem o índice de dedo
-   (uma aba impressa por matéria, com altura proporcional ao que ela guarda); cada material é uma entrada
-   de sumário que termina em "Abrir original". Cores só por tokens; temas claro e escuro desenhados à parte. */
-:root{
-  --desk:#edf1ed; --page:#f7f8f6; --page-2:#eaf0eb; --surface:#ffffff; --ink:#203731; --ink-2:#425b53; --ink-3:#53665f;
-  --rule:#dce5de; --rule-2:#c0cec4; --edge:#75877c; --dots:#b4b9c3;
-  --feature:#173e36; --feature-ink:#f2f8f1; --feature-muted:#c8dbd1; --feature-action:#e1eddc; --feature-line:#749b84;
-  --t-hema:#4338a8; --t-eosin:#bb1d58; --t-giemsa:#1762a8; --t-masson:#22703a; --t-pas:#8d2ea6; --t-safra:#b13a0a; --t-neutral:#565c69; --t-on:#ffffff;
-  --hit:#ffe066; --hit-ink:#15171c; --focus:#1762a8; --danger:#b42318; --danger-bg:#fdeceb; --danger-ink:#ffffff; --fav:#9a5b00;
-  --shade:rgb(0 0 0 / .17); --shade-2:rgb(0 0 0 / .13); --gloss:rgb(255 255 255 / .2); --gloss-edge:rgb(255 255 255 / .22); --cover-drop:rgb(21 23 28 / .2); --cover-lift:rgb(21 23 28 / .6);
-  --scrim:rgba(14,15,19,.5); --lift:0 1px 2px rgba(21,23,28,.06),0 10px 28px -18px rgba(21,23,28,.4); --shadow:0 24px 56px -28px rgba(21,23,28,.55);
-  --serif:"Literata",Georgia,"Times New Roman",serif; --sans:"Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --ease:cubic-bezier(.23,1,.32,1); --ease-drawer:cubic-bezier(.32,.72,0,1);
-  --rh:56px; --tabs:52px; --bar:64px; --r:10px;
-  color-scheme:light;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --desk:#0e1719; --page:#131d20; --page-2:#263536; --surface:#1c292c; --ink:#edf4ef; --ink-2:#c4d5ce; --ink-3:#afc2bc;
-  --rule:#324447; --rule-2:#4b6264; --edge:#849b96; --dots:#4a4e57;
-  --feature:#203f36; --feature-ink:#f2f8f1; --feature-muted:#c8dbd1; --feature-action:#e1eddc; --feature-line:#749b84;
-  --t-hema:#a99dff; --t-eosin:#ff8db5; --t-giemsa:#79bcff; --t-masson:#7fd892; --t-pas:#e19af2; --t-safra:#ffa46e; --t-neutral:#b3b8c2; --t-on:#111216;
-  --hit:#f5d443; --hit-ink:#111216; --focus:#79bcff; --danger:#ff8a7e; --danger-bg:#3a1a17; --danger-ink:#1c0705; --fav:#f0c050;
-  --scrim:rgba(0,0,0,.66); --lift:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.9); --shadow:0 24px 56px -24px rgba(0,0,0,.95);
-  color-scheme:dark;}}
-:root[data-theme="dark"]{
-  --desk:#0e1719; --page:#131d20; --page-2:#263536; --surface:#1c292c; --ink:#edf4ef; --ink-2:#c4d5ce; --ink-3:#afc2bc;
-  --rule:#324447; --rule-2:#4b6264; --edge:#849b96; --dots:#4a4e57;
-  --feature:#203f36; --feature-ink:#f2f8f1; --feature-muted:#c8dbd1; --feature-action:#e1eddc; --feature-line:#749b84;
-  --t-hema:#a99dff; --t-eosin:#ff8db5; --t-giemsa:#79bcff; --t-masson:#7fd892; --t-pas:#e19af2; --t-safra:#ffa46e; --t-neutral:#b3b8c2; --t-on:#111216;
-  --hit:#f5d443; --hit-ink:#111216; --focus:#79bcff; --danger:#ff8a7e; --danger-bg:#3a1a17; --danger-ink:#1c0705; --fav:#f0c050;
-  --scrim:rgba(0,0,0,.66); --lift:0 1px 2px rgba(0,0,0,.4),0 10px 28px -18px rgba(0,0,0,.9); --shadow:0 24px 56px -24px rgba(0,0,0,.95);
-  color-scheme:dark;}
-
-/* ---------- base ---------- */
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html{-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--rh) + 12px)}
-body{margin:0;min-width:320px;background:var(--page);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4,h5,p{margin:0}
-a{color:inherit;text-underline-offset:3px}
-button,input,select,textarea{font:inherit;color:inherit}
-button,a,summary{touch-action:manipulation}
-button,summary,.btn,.thumb,.tabbar a{-webkit-user-select:none;user-select:none}
-:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-::selection{background:var(--hit);color:var(--hit-ink)}
-input,textarea{caret-color:var(--ink)}
-svg{flex:none}
-svg[aria-hidden="true"]{stroke-width:1.9}
-.skip{position:fixed;left:12px;top:-80px;z-index:70;min-height:44px;padding:0 16px;border:0;border-radius:var(--r);background:var(--ink);color:var(--page);font-weight:650;cursor:pointer}
-.skip:focus{top:12px}
-.sr{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
-.muted{color:var(--ink-2)} .small{font-size:14px}
-.num,.count{font-variant-numeric:tabular-nums;color:var(--ink-3);font-size:13px}
-.caps{font-variant:all-small-caps;letter-spacing:.08em}
-mark.hit{background:var(--hit);color:var(--hit-ink);border-radius:2px;padding:0 1px}
-
-/* ---------- controles ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;border-radius:var(--r);border:1px solid var(--edge);background:var(--page);color:var(--ink);font-weight:600;font-size:15px;line-height:1;cursor:pointer;text-decoration:none;white-space:nowrap;transition:transform .14s var(--ease),background-color .15s,color .15s,border-color .15s}
-.btn:active{transform:scale(.97)}
-.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--page)}
-.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
-.btn.danger{background:var(--danger);border-color:var(--danger);color:var(--danger-ink)}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn svg{width:18px;height:18px}
-.iconbtn{width:44px;height:44px;padding:0;display:inline-grid;place-items:center;flex:none;border:0;border-radius:var(--r);background:transparent;color:var(--ink-2);cursor:pointer;transition:transform .14s var(--ease),background-color .15s,color .15s}
-.iconbtn:active{transform:scale(.94)}
-.iconbtn svg{width:22px;height:22px}
-.star[aria-pressed="true"]{color:var(--fav)}
-.star[aria-pressed="true"] svg path{fill:currentColor}
-input[type="search"],input[type="text"],input[type="url"],input[type="email"],select,textarea{width:100%;min-height:44px;padding:10px 12px;border-radius:var(--r);border:1px solid var(--edge);background:var(--page);color:var(--ink);font-size:16px}
-select{padding-right:34px;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink-2) 50%),linear-gradient(135deg,var(--ink-2) 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;font-weight:500}
-option{background:var(--page);color:var(--ink)}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--focus);outline-offset:0;border-color:var(--focus)}
-input::placeholder,textarea::placeholder{color:var(--ink-3)}
-input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none}
-textarea{min-height:96px;resize:vertical}
-.chip{display:inline-flex;align-items:center;gap:4px;padding:0 7px;border-radius:5px;font-weight:600;font-size:12px;line-height:1.6;white-space:nowrap;border:1px solid transparent}
-.status[data-s="nao-iniciado"]{border-color:var(--rule-2);color:var(--ink-2)}
-.status[data-s="em-estudo"]{background:var(--ink);color:var(--page)}
-.status[data-s="revisado"]{border-color:var(--rule-2);color:var(--ink-2)}
-.status[data-s="revisado"]::before{content:"✓" / ""}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tag{font-size:13px;padding:2px 9px;border-radius:6px;background:var(--page-2);color:var(--ink-2);border:1px solid var(--rule)}
-
-/* ---------- folha: grade de duas páginas no computador, uma no celular ---------- */
-.spread{position:relative;min-width:0}
-/* cabeça corrente: onde você está no livro */
-.rh{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:4px;height:var(--rh);padding:0 6px 0 4px;padding-top:env(safe-area-inset-top,0px);background:var(--page);border-bottom:1px solid var(--rule)}
-.mark{display:grid;place-items:center;width:44px;height:44px;color:var(--ink);text-decoration:none;border-radius:var(--r)}
-.mark svg{width:24px;height:24px}
-.rh-where{flex:1;min-width:0;display:grid;align-content:center;min-height:44px;padding:0 6px;border:0;border-radius:var(--r);background:none;text-align:left;line-height:1.15;cursor:pointer}
-.rh-path{font-size:11.5px;font-variant:all-small-caps;letter-spacing:.08em;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rh-title{font-family:var(--serif);font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* coluna do sumário: no celular só a busca e o refinar */
-.toc{min-width:0}
-.search-dock{min-width:0;padding:12px 16px 0}
-.route-tabs{display:flex;gap:24px;border-bottom:1px solid var(--rule);margin-top:8px}
-.route-tabs a{position:relative;display:inline-flex;align-items:center;min-height:44px;text-decoration:none;font-weight:600;color:var(--ink-3)}
-.route-tabs a[aria-current="page"]{color:var(--ink)}
-.route-tabs a[aria-current="page"]::after{content:"";position:absolute;inset:auto 0 -1px;height:3px;background:var(--ink)}
-body[data-mode="organizar"] .route-tabs{display:none}
-.toc-brand,.toc-tree,.toc-h{display:none}
-.finder{display:grid;gap:8px}
-.find-row{display:flex;gap:8px;align-items:flex-start}
-.field{position:relative;flex:1;min-width:0}
-.field svg{position:absolute;left:12px;top:23px;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-3);pointer-events:none}
-.field input{height:46px;padding-left:38px;padding-right:40px;background:var(--surface);border-radius:8px}
-.field:focus-within svg{color:var(--focus)}
-.kbd{position:absolute;right:10px;top:23px;transform:translateY(-50%);min-width:22px;padding:1px 6px;border:1px solid var(--rule-2);border-radius:5px;font-size:12px;text-align:center;color:var(--ink-3);pointer-events:none}
-.more{flex:none}
-.more summary{display:flex;align-items:center;justify-content:center;gap:6px;min-width:46px;height:46px;padding:0 12px;border:1px solid var(--edge);border-radius:var(--r);background:var(--page);font-weight:600;cursor:pointer;list-style:none}
-.more summary::-webkit-details-marker{display:none}
-.more summary svg{width:18px;height:18px}
-.more[open] summary{background:var(--ink);border-color:var(--ink);color:var(--page)}
-.more-count{font-variant-numeric:tabular-nums}
-.more-in select{font-size:15px;padding-right:30px}
-.more-in{display:grid;gap:10px;padding:14px;margin-top:8px;border:1px solid var(--rule-2);border-radius:12px;background:var(--page-2)}
-.find-row:has(.more[open]){flex-wrap:wrap}
-.find-row:has(.more[open]) .more{flex-basis:100%;order:2}
-.find-row:has(.more[open]) .more summary{width:auto;justify-self:start}
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fgrid .wide{grid-column:1 / -1}
-.flabel{display:block;margin-bottom:4px;font-size:13px;font-weight:600;color:var(--ink-2)}
-.toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 14px;border:1px solid var(--edge);border-radius:var(--r);background:var(--page);cursor:pointer;font-weight:600;transition:transform .14s var(--ease)}
-.toggle:active{transform:scale(.97)}
-.toggle svg{width:17px;height:17px}
-.toggle[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--page)}
-.toggle[aria-pressed="true"] svg path{fill:currentColor}
-.active-filters{display:flex;flex-wrap:wrap;gap:6px}
-.af{position:relative;display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 8px 0 12px;border:1px solid var(--ink);border-radius:17px;background:var(--page);color:var(--ink);font-weight:600;font-size:13px;cursor:pointer}
-.af::after{content:"";position:absolute;inset:-6px -2px}
-.af svg{width:14px;height:14px}
-.result-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:32px}
-.result-line{font-size:13.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
-#clear-filters{min-height:44px;margin-block:-6px;padding:0 6px;font-size:14px;color:var(--ink)}
-#clear-filters:disabled{visibility:hidden}
-
-/* ---------- a página ---------- */
-main{min-width:0;padding:4px 16px calc(var(--bar) + 40px + env(safe-area-inset-bottom,0px))}
-#main:focus,#main:focus-visible{outline:none}
-.view{display:grid;align-content:start;min-width:0}
-.view > *{min-width:0}
-#state-banner{margin:12px 0 4px}
-.notice{border:1px solid var(--rule-2);border-radius:12px;background:var(--page-2);padding:18px;display:grid;gap:10px}
-.notice.error{background:var(--danger-bg);border-color:var(--danger)}
-.notice h2{font-family:var(--serif);font-weight:600;font-size:21px}
-.notice .find-row{margin-top:4px}
-.notice .field input{padding-left:12px}
-/* Retomada e seleção: dois ritmos, sem multiplicar listas no início. */
-#home-focus{display:grid;gap:20px;padding:18px 0 22px}
-.study-selection{min-width:0;align-self:start}
-.study-tabs{position:relative;display:flex;border-bottom:1px solid var(--rule);gap:0}
-.study-tabs::after{content:"";position:absolute;left:0;bottom:-1px;width:33.333%;height:2px;background:var(--ink);transform:translateX(0);transition:transform .16s var(--ease)}
-.study-tabs:has([data-shelf="favorites"][aria-selected="true"])::after{transform:translateX(100%)}
-.study-tabs:has([data-shelf="recent"][aria-selected="true"])::after{transform:translateX(200%)}
-.study-tabs button{flex:1;min-width:0;min-height:48px;padding:8px 2px;border:0;background:none;font-size:13px;color:var(--ink-3);cursor:pointer}
-.study-tabs button[aria-selected="true"]{color:var(--ink);font-weight:650}
-.study-tabs.no-motion::after{transition:none}
-.study-selection .shelf{padding-top:14px}
-.study-selection .block-h h2{font-size:17px}
-.study-selection .entry-title{font-size:17px}
-.study-empty{padding:20px 0;color:var(--ink-2);font-size:14px}
-.study-selection:only-child{grid-column:1 / -1}
-/* estantes do início */
-.shelf{padding:14px 0 4px}
-.block-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:8px}
-.block-h h2{font-family:var(--serif);font-weight:500;font-size:20px;letter-spacing:-.02em}
-.block-h a,.block-h span{font-size:13.5px;color:var(--ink-3)}
-.block-h a{display:inline-flex;align-items:center;min-height:44px;margin-block:-12px;color:var(--ink);font-weight:600}
-.shelf-note{padding-top:8px;font-size:13.5px;color:var(--ink-3)}
-/* livro: parte (módulo), capítulo (unidade), seção (matéria), subseção (assunto) */
-.part{display:flex;align-items:baseline;gap:10px;padding:22px 0 10px;scroll-margin-top:calc(var(--rh) + 8px);font-size:13px}
-.part h2{font-size:12.5px;font-weight:650;font-variant:all-small-caps;letter-spacing:.12em;color:var(--ink-3)}
-.part a{display:inline-flex;align-items:center;min-height:44px;margin-block:-12px;color:inherit;text-decoration:none}
-.part::after{content:"";flex:1;height:1px;background:var(--rule-2);align-self:center}
-.chap{padding-top:8px;scroll-margin-top:calc(var(--rh) + 8px)}
-.chap-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--page-2);border-radius:4px}
-.chap-head > *{min-width:0}
-.chap-title{font-family:var(--serif);font-weight:500;font-size:28px;line-height:1.15;letter-spacing:-.02em;overflow-wrap:anywhere}
-.chap-sub{max-width:18ch;font-size:12px;color:var(--ink-2);text-align:right}
-.filtering .part{display:none}
-.filtering .chap{padding-top:18px}
-.filtering .chap-title{font-size:22px}
-.filtering .chap-sub{display:none}
-.chap-empty{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 0 4px;color:var(--ink-3)}
-
-.sec{--t:var(--t-neutral);padding-top:18px;scroll-margin-top:calc(var(--rh) + 4px)}
-.sec-head{position:relative;display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 10px;padding:8px 0 12px;border-bottom:1px solid var(--t)}
-
-.sec-head h3{font-family:var(--sans);font-weight:600;font-size:20px;letter-spacing:-.025em;line-height:1.2;color:var(--ink)}
-.sec-head .num{margin-left:auto}
-.sub{scroll-margin-top:calc(var(--rh) + 4px);padding:12px 0 0}
-.sub-h{display:flex;align-items:baseline;gap:8px;min-height:28px;font-size:13px;font-weight:650;color:var(--t)}
-.sub-entries{min-width:0}
-.sub-h .num{font-weight:500;font-size:12px}
-/* entrada de sumário */
-.entry{--t:var(--t-neutral);position:relative;padding:8px 0 6px;margin:0;border-bottom:1px solid var(--rule);background:transparent;transition:background-color .1s ease}
-.entry-title{font-family:var(--sans);font-weight:500;font-size:18px;line-height:1.4;letter-spacing:-.015em;overflow-wrap:anywhere;text-wrap:pretty}
-.entry-title button{display:block;width:100%;appearance:none;background:none;border:0;padding:0;margin:0;text-align:left;color:inherit;font:inherit;cursor:pointer}
-.entry-title button::after{content:"";position:absolute;inset:0}
-.entry:has(.entry-title button:focus-visible){outline:2px solid var(--focus);outline-offset:4px}
-.entry-title button:focus-visible{outline:0}
-.e-where{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;margin-top:4px;font-size:13px;color:var(--ink-2)}
-.e-where i{width:9px;height:14px;border-radius:2px 0 0 2px;background:var(--t);flex:none}
-.e-line{display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;min-height:44px;font-size:13px;color:var(--ink-3)}
-.e-line .chip{flex:none}
-.e-dots{flex:1;min-width:8px}
-.entry-fav svg{width:14px;height:14px;color:var(--fav);vertical-align:-2px}
-.entry-fav svg path{fill:currentColor}
-.open{position:relative;z-index:1;display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 2px;color:var(--t);font-weight:650;font-size:14px;text-decoration:none;white-space:nowrap;transition:transform .14s var(--ease)}
-.open span{text-decoration:none}
-.open svg{width:15px;height:15px}
-.open:active{transform:scale(.97)}
-/* Retomada: cabeçalho de leitura e ação em uma superfície própria. */
-.resume{min-width:0;background:var(--feature);color:var(--feature-ink);border-radius:12px;overflow:hidden;align-self:start}
-.resume-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;padding:14px 18px;border-bottom:1px solid var(--feature-line)}
-.resume-head h2{font-family:var(--serif);font-size:17px;font-weight:500}
-.feature-when{font-size:12px;color:var(--feature-muted)}
-.feature{--t:var(--t-neutral);position:relative;padding:16px 18px 18px}
-.feature .entry-main{display:flex;flex-direction:column;gap:10px}
-.feature .entry-title{font-size:20px;font-weight:500;line-height:1.35;letter-spacing:-.02em}
-.feature .e-where{order:-1;margin:0;color:var(--feature-muted);font-size:12px}
-.feature .e-where i{display:none}
-.feature .e-line{margin-top:12px;gap:6px 8px;color:var(--feature-muted)}
-.feature .e-dots{flex:0 0 100%;height:0}
-.feature .e-line .open{padding:0 16px;border-radius:6px;background:var(--feature-action);color:var(--feature);flex:1;justify-content:center}
-.feature .e-line .btn{min-height:44px;padding:0 10px;font-size:14px;position:relative;z-index:1;background:transparent;border-color:transparent;color:var(--feature-ink)}
-.feature .chip{color:var(--feature-muted);background:transparent;border-color:var(--feature-line)}
-.feature .entry-fav svg{color:var(--feature-action)}
-.feature:has(.entry-title button:focus-visible){outline:2px solid var(--feature-ink);outline-offset:-4px}
-.feature .entry-title button:focus-visible{outline:none}
-/* carregando e vazio */
-.skel{display:grid;gap:22px;padding-top:24px}
-.skel-bar{height:16px;width:76%;border-radius:4px;background:var(--page-2);animation:pulse 1.4s ease-in-out infinite}
-.skel-bar.short{height:11px;width:38%}
-.skel-bar.big{height:30px;width:42%}
-@keyframes pulse{50%{opacity:.45}}
-.empty{display:grid;gap:8px;justify-items:start;padding:22px 0;border-top:2px solid var(--ink);margin-top:18px}
-.empty h2{font-family:var(--serif);font-weight:600;font-size:21px}
-.empty p{max-width:60ch;color:var(--ink-2)}
-.empty .btn{margin-top:6px}
-
-/* ---------- índice de dedo ---------- */
-.thumbs{z-index:15;width:var(--tabs);display:flex;flex-direction:column;gap:5px;touch-action:none;overflow-y:auto;scrollbar-width:none}
-.thumb{--t:var(--t-neutral);-webkit-user-drag:none;position:relative;flex:var(--n,1) 1 44px;min-height:44px;display:grid;place-content:center;justify-items:center;gap:1px;margin-left:8px;border-radius:10px 0 0 10px;border-left:3px solid var(--t);background:var(--page-2);color:var(--ink-2);text-decoration:none;font-weight:700;font-size:10px;letter-spacing:0;transform:translateX(0);transition:transform .18s var(--ease),background-color .2s,color .2s}
-.thumb small{font-weight:500;font-size:10px;opacity:.85;font-variant-numeric:tabular-nums;letter-spacing:0}
-.thumb[aria-current="location"]{transform:translateX(-8px);background:var(--t);color:var(--t-on)}
-.thumb.dim{opacity:.35}
-.thumb:focus-visible{outline-offset:-4px;outline-color:var(--ink)}
-.thumb[aria-current="location"]:focus-visible{outline-color:var(--t-on)}
-.bubble{position:fixed;right:calc(var(--tabs) + 14px);z-index:30;min-width:170px;max-width:250px;padding:10px 14px;border-radius:12px;background:var(--page);border:1px solid var(--rule-2);box-shadow:var(--shadow);transform:translateY(-50%);pointer-events:none}
-.bubble small{display:block;font-size:11.5px;font-variant:all-small-caps;letter-spacing:.08em;color:var(--ink-3)}
-.bubble b{display:block;font-family:var(--serif);font-weight:600;font-size:19px;line-height:1.2}
-body[data-mode="organizar"] .thumbs,body[data-mode="organizar"] .toc .finder,body[data-state="login"] .finder,body[data-state="denied"] .finder,body[data-state="unavailable"] .finder{display:none}
-
-/* ---------- sumário (árvore) ---------- */
-.tree-all{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;margin:0 -8px;border-radius:8px;font-weight:650;text-decoration:none;color:var(--ink)}
-.tree-all .num{margin-left:auto}
-.t-mod{display:flex;align-items:center;min-height:44px;margin-top:8px;font-size:12.5px;font-weight:650;font-variant:all-small-caps;letter-spacing:.12em;color:var(--ink-3);text-decoration:none}
-.t-unit{display:flex;align-items:center;gap:8px;min-height:44px;font-family:var(--serif);font-weight:600;font-size:19px;color:var(--ink);text-decoration:none}
-.t-unit .num{margin-left:auto;font-family:var(--sans)}
-.t-mat{--t:var(--t-neutral);display:flex;align-items:center;gap:8px;min-height:44px;padding:0 8px;margin:0 -8px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600}
-.t-mat i{width:10px;height:18px;border-radius:2px 0 0 2px;background:var(--t);flex:none}
-.t-mat .num{margin-left:auto}
-.t-mat[aria-current="location"]{background:var(--page-2)}
-.t-subs{list-style:none;margin:0 0 6px 4px;padding:0 0 0 12px;border-left:1px solid var(--rule-2)}
-.t-sub{--t:var(--t-neutral);display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0 8px;border:0;border-radius:6px;background:none;color:var(--ink-2);font-size:14px;text-align:left;cursor:pointer}
-.t-sub .num{margin-left:auto;font-size:12px}
-.t-sub[aria-current="location"]{color:var(--ink);font-weight:650;background:var(--page-2);box-shadow:inset 2px 0 0 var(--t)}
-.t-empty{padding:2px 0 6px;font-size:13.5px;color:var(--ink-3)}
-
-/* ---------- barra inferior (celular) ---------- */
-.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:grid;grid-template-columns:repeat(4,1fr);height:calc(var(--bar) + env(safe-area-inset-bottom,0px));padding-bottom:env(safe-area-inset-bottom,0px);background:var(--page);border-top:1px solid var(--rule-2)}
-.tabbar a,.tabbar button{position:relative;display:grid;justify-items:center;align-content:center;gap:2px;min-height:var(--bar);border:0;background:none;color:var(--ink-2);text-decoration:none;font-size:11.5px;font-weight:600;cursor:pointer;transition:transform .12s var(--ease)}
-.tabbar a:active,.tabbar button:active{transform:scale(.95)}
-.tabbar svg{width:22px;height:22px}
-.tabbar [aria-current="page"]{color:var(--ink)}
-.tabbar [aria-current="page"]::before{content:"";position:absolute;top:0;left:34%;right:34%;height:3px;border-radius:0 0 3px 3px;background:var(--ink)}
-.tabbar button:disabled{opacity:.45}
-
-/* ---------- organizar ---------- */
-.org-head{padding:22px 0 14px;display:grid;gap:6px}
-.org-head h1{font-family:var(--serif);font-weight:600;font-size:32px;letter-spacing:-.02em}
-.org{display:grid;gap:18px;align-items:start}
-.panel{border-top:2px solid var(--ink);padding:12px 0 0;display:grid;gap:12px;min-width:0}
-.panel h2{font-family:var(--serif);font-weight:600;font-size:20px}
-.tree,.tree ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.tree ul{margin:6px 0 0 10px;padding-left:12px;border-left:1px solid var(--rule-2)}
-.row{--stain:var(--t-neutral);display:flex;align-items:center;gap:6px;padding:2px 4px 2px 10px;border:1px solid var(--rule-2);border-radius:var(--r);background:var(--page);min-width:0;flex-wrap:wrap}
-.row .swatch{width:9px;height:16px;flex:none;border-radius:2px 0 0 2px;background:var(--stain)}
-.row .name{flex:1 1 120px;min-width:0;min-height:44px;overflow-wrap:anywhere;font-weight:650;background:none;border:0;text-align:left;padding:6px 0;cursor:pointer;color:var(--ink)}
-.row .lvl,.row .count{font-size:12.5px;color:var(--ink-3)}
-.row form{display:flex;gap:6px;flex:1 1 100%;min-width:0;flex-wrap:wrap;padding:4px 0}
-.row form input{flex:1 1 160px}
-.row .btn{padding:0 10px;font-size:14px}
-.confirm-inline{display:grid;gap:8px;padding:12px;border-radius:var(--r);background:var(--danger-bg);border:1px solid var(--danger)}
-.confirm-inline .acts{display:flex;gap:8px;flex-wrap:wrap}
-.addform{display:flex;gap:8px;flex-wrap:wrap}
-.addform input{flex:1 1 180px}
-.rows{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-
-/* ---------- painéis (diálogos) ---------- */
-dialog{border:1px solid var(--rule-2);border-radius:16px;padding:0;background:var(--page);color:var(--ink);width:min(620px,calc(100vw - 32px));max-height:calc(100dvh - 48px);box-shadow:var(--shadow);overscroll-behavior:contain}
-dialog::backdrop{background:var(--scrim)}
-dialog[open]{animation:dlg-in .2s var(--ease)}
-@keyframes dlg-in{from{opacity:0;transform:translateY(8px) scale(.985)}}
-.dlg{display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:calc(100dvh - 48px)}
-.dlg-head{position:relative;display:flex;align-items:flex-start;gap:2px;padding:18px 10px 10px 22px}
-.dlg-head h2{flex:1;min-width:0;font-family:var(--serif);font-weight:600;font-size:24px;line-height:1.2;letter-spacing:-.015em;overflow-wrap:anywhere;padding-top:2px}
-.dlg-head h2:focus{outline:none}
-.dlg-body{overflow:auto;overscroll-behavior:contain;padding:6px 22px 22px;display:grid;gap:18px;align-content:start}
-.dlg-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 22px;border-top:1px solid var(--rule)}
-.dlg-foot .spacer{flex:1}
-/* ficha do material: leva a aba da sua matéria */
-#dlg-detail{--t:var(--t-neutral)}
-#dlg-detail .dlg-head{align-items:center;padding:16px 16px 10px;gap:12px;border-bottom:1px solid var(--rule)}
-.d-tab{min-width:0;flex:1;font-weight:600;font-size:14px;color:var(--t);overflow-wrap:anywhere}
-.d-tools{display:flex;flex-direction:row-reverse;gap:4px;flex:none}
-.dlg-where{margin-bottom:12px;font-size:13px;color:var(--ink-2);overflow-wrap:anywhere}
-#d-reading h2{font-family:var(--sans);font-size:25px;font-weight:500;line-height:1.3;letter-spacing:-.025em;overflow-wrap:anywhere}
-#d-reading h2:focus{outline:none}
-#dlg-detail .dlg-body{padding:20px 22px;gap:20px}
-#d-foot{display:grid;gap:8px;padding-top:12px}
-.d-actions{display:flex;min-width:0}
-.d-actions .open{flex:1;justify-content:center;min-height:52px;border-radius:8px;background:var(--t);color:var(--t-on);font-size:16px}
-.d-actions .open span{text-decoration:none}
-.d-secondary{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.fld{display:grid;gap:6px}
-.fld > label,.fld > .lbl{font-size:13px;font-weight:600;color:var(--ink-2)}
-.fld .hint{font-size:13px;color:var(--ink-3)}
-.fld .err{font-size:14px;color:var(--danger);font-weight:600}
-.fld input[aria-invalid="true"]{border-color:var(--danger)}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.checks{display:flex;flex-wrap:wrap;gap:6px}
-.checks label{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:1px solid var(--edge);border-radius:var(--r);cursor:pointer;font-weight:500}
-.checks input{width:18px;height:18px;margin:0;accent-color:var(--ink)}
-.checks label:has(input:checked){background:var(--ink);border-color:var(--ink);color:var(--page)}
-.dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 16px;margin:0;padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--rule)}
-.dl div{display:grid;align-content:start;gap:5px;min-width:0;font-size:14px}
-.dl dt{color:var(--ink-3);font-size:12px}
-.dl dd{margin:0;overflow-wrap:anywhere;color:var(--ink);min-width:0}
-.notes{white-space:pre-wrap;background:var(--page-2);border-radius:var(--r);padding:10px 12px;font-family:var(--serif);font-size:15.5px}
-.statusset{min-width:0;margin:0;padding:0;border:0}
-.statusset legend{padding:0;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--ink-2)}
-.segwrap{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--edge);border-radius:12px;overflow:hidden}
-.statusset label{display:flex;align-items:center;justify-content:center;min-height:46px;padding:0 6px;cursor:pointer;font-weight:600;font-size:14px;text-align:center;color:var(--ink-2);transition:background-color .15s,color .15s}
-.statusset label + label{border-left:1px solid var(--rule-2)}
-.statusset input{position:absolute;opacity:0;width:1px;height:1px}
-.statusset label:has(input:checked){background:var(--ink);color:var(--page)}
-.statusset label:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:-3px}
-.d-note{font-size:13px;color:var(--ink-3);overflow-wrap:anywhere}
-
-/* ---------- avisos ---------- */
-.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--bar) + 12px + env(safe-area-inset-bottom,0px));z-index:50;display:grid;gap:8px;width:min(460px,calc(100vw - 32px));pointer-events:none}
-.toast{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border-radius:12px;background:var(--ink);color:var(--page);box-shadow:var(--shadow);transition:opacity .2s,transform .2s var(--ease)}
-@starting-style{.toast{opacity:0;transform:translateY(8px)}}
-.toast.error{background:var(--danger);color:var(--danger-ink)}
-.toast p{flex:1;font-weight:600;font-size:15px}
-.toast button{min-height:44px;background:transparent;border:1px solid currentColor;border-radius:var(--r);color:inherit;padding:0 14px;font-weight:700;cursor:pointer}
-
-/* ---------- mouse ---------- */
-@media (hover:hover) and (pointer:fine){
-  .btn:hover{background:var(--page-2)}
-  .btn.primary:hover{background:var(--ink-2);border-color:var(--ink-2)}
-  .btn.ghost:hover{background:var(--page-2);color:var(--ink)}
-  .iconbtn:hover,.rh-where:hover,.mark:hover{background:var(--page-2);color:var(--ink)}
-  .more summary:hover,.toggle:hover{border-color:var(--ink)}
-  .entry:hover .entry-title,.feature:hover .entry-title{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
-  .open:hover span{text-decoration:underline;text-underline-offset:4px}
-  .entry:hover{border-color:var(--edge)}
-  .thumb:hover{transform:translateX(-4px)}
-  .thumb[aria-current="location"]:hover{transform:translateX(-8px)}
-  .t-mat:hover,.t-sub:hover,.tree-all:hover{background:var(--page-2)}
-  .row .name:hover{text-decoration:underline}
-  .af:hover{background:var(--ink);color:var(--page)}
-}
-
-/* ---------- celular ---------- */
-@media (max-width:999px){
-  .two{grid-template-columns:1fr}
-  .more:not([open]) .more-in{display:none}
-  .more summary .lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-  .more[open] summary .lbl{position:static;width:auto;height:auto;clip-path:none}
-  dialog{width:100%;max-width:100%;margin:auto 0 0;border-width:1px 0 0;border-radius:18px 18px 0 0;max-height:94dvh}
-  dialog[open]{animation:sheet-in .22s var(--ease)}
-  .dlg{max-height:94dvh}
-  .dlg-head{padding-left:18px;padding-top:22px}
-  .dlg-head::before{content:"";position:absolute;top:8px;left:50%;width:36px;height:4px;margin-left:-18px;border-radius:2px;background:var(--rule-2)}
-  .dlg-body{padding-inline:18px}
-  .dlg-foot{padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px))}
-  #dlg-toc .dlg-body{padding-bottom:28px;display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:14px}
-  #toc-tree-m{min-width:0}
-  #explore-index{align-self:start;position:sticky;top:0}
-  #explore-index .thumbs{height:min(60dvh,480px)}
-  #dlg-toc .bubble{right:80px;max-width:calc(100vw - 100px);min-width:0}
-  #dlg-toc .t-sub{font-size:13px}
-  #dlg-toc .t-sub > span:first-child{overflow-wrap:anywhere}
-  .kbd{display:none}
-  .field input{padding-right:12px}
-  body[data-mode="organizar"] main{padding-right:16px}
-}
-@keyframes sheet-in{from{transform:translateY(28px);opacity:.3}}
-
-/* ---------- computador: duas páginas abertas ---------- */
-@media (min-width:1000px){
-  .more-in select{min-width:44px}
-  .more-in .toggle.wide{grid-column:1 / -1;min-width:44px;width:100%}
-  body{background:var(--desk)}
-  .spread{display:grid;grid-template-columns:280px minmax(0,1fr) var(--tabs);grid-template-rows:auto auto 1fr;grid-template-areas:"toc rh tabs" "toc search tabs" "toc page tabs";max-width:1440px;min-height:100vh;margin:0 auto;padding-right:0;background:var(--page)}
-  .toc{grid-area:toc;position:sticky;top:0;align-self:start;height:100vh;overflow:auto;padding:26px 20px 40px 24px;background:var(--desk);border-right:1px solid var(--rule);scrollbar-width:thin;scrollbar-color:var(--rule-2) transparent}
-  .toc-brand{display:grid;gap:14px;margin-bottom:22px}
-  .toc-brand .brandline{display:flex;align-items:center;gap:12px;min-height:44px;font-family:var(--serif);font-weight:500;font-size:21px;line-height:1.2;letter-spacing:-.03em;color:var(--ink);text-decoration:none}
-  .toc-brand .brandline svg{width:26px;height:26px}
-  .toc-brand .acts{display:flex;gap:8px;flex-wrap:wrap}
-  .toc-brand .acts .btn{font-size:13px;padding-inline:10px}
-  .toc-brand .acts .btn{flex:1}
-  .toc-h{display:block;margin:24px 0 6px;font-size:12.5px;font-weight:650;font-variant:all-small-caps;letter-spacing:.12em;color:var(--ink-3)}
-  .toc-tree{display:block}
-  .search-dock{grid-area:search;padding:22px 40px 0}
-  .search-dock .find-row{align-items:flex-start}
-  .search-dock .field{flex:1}
-  .search-dock .more[open]{flex-basis:100%}
-  .search-dock .fgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .field{flex:none}
-  .more summary{justify-content:flex-start}
-  .more summary .lbl{position:static;width:auto;height:auto;clip-path:none}
-  .rh{grid-area:rh;padding:0 20px 0 40px;height:72px;border-bottom:1px solid var(--rule)}
-  .rh .mark{display:none}
-  .rh-where{padding:0 8px;margin-left:-8px}
-  .rh-title{font-size:19px}
-  .tabbar{display:none}
-  main{grid-area:page;padding:10px 40px 120px}
-  .thumbs{grid-area:tabs;position:sticky;top:24px;bottom:auto;right:auto;align-self:start;height:calc(100vh - 48px)}
-  .bubble{right:max(66px,calc((100vw - 1440px) / 2 + var(--tabs) + 14px))}
-  .chap-title{font-size:30px}
-  .sec-head h3{font-size:22px}
-  .entry{padding:10px 0 8px}
-  .sub{display:grid;grid-template-columns:132px minmax(0,1fr);gap:24px;padding-top:18px}
-  .sub:not(:has(.sub-h)){grid-template-columns:1fr}
-  .sub-h{padding-top:12px;display:block;overflow-wrap:anywhere}
-  .sub-h .num{display:block;margin-top:6px}
-  #home-focus{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;padding:24px 0 30px}
-  .entry-title{font-size:19px;font-weight:500}
-  .e-line{min-width:0}
-  .org{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:32px}
-  .toasts{bottom:24px}
-  #dlg-detail{margin:0 0 0 auto;width:min(540px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;border-width:0 0 0 1px;border-radius:0}
-  #dlg-detail .dlg{height:100%;max-height:100dvh}
-  #dlg-detail[open]{animation:panel-in .22s var(--ease)}
-  body[data-mode="organizar"] .spread{grid-template-areas:"toc rh rh" "toc search search" "toc page page"}
-}
-@media (min-width:1000px) and (max-width:1300px){ .bubble{right:calc(var(--tabs) + 14px)} }
-@keyframes panel-in{from{transform:translateX(28px);opacity:0}}
-@keyframes fade{from{opacity:0}}
-@media (prefers-contrast:more){.entry,.row{border-color:var(--ink-2)} .e-dots{--dots:var(--ink-2)}}
-/* Atlas contínuo: a matéria organiza a leitura; o material não precisa de uma caixa. */
-.caps,.rh-path,.part h2,.t-mod,.toc-h{font-variant:normal;letter-spacing:0}
-.rh-path{font-size:12px}
-.part h2,.t-mod,.toc-h{font-size:12px;font-weight:600}
-.entry:has(.entry-title button:active){background:var(--page-2);transition:none}
-.entry-title button:active{color:var(--ink)}
-.entry .e-where{font-size:12px}
-.entry .e-where i{width:3px;height:12px;border-radius:0}
-.feature:has(.entry-title button:active){box-shadow:inset 0 0 0 2px var(--feature-action)}
-.feature .entry-title button:active{color:var(--feature-ink)}
-.btn,.iconbtn,.toggle,.open{transition:transform .1s var(--ease),background-color .12s ease,color .12s ease,border-color .12s ease}
-.btn:active,.toggle:active,.open:active{transform:scale(.98)}
-.iconbtn:active{transform:scale(.98);background:var(--page-2)}
-.star[aria-pressed="true"] svg path{fill:currentColor}
-.more summary,.af,.rh-where,.t-sub,.t-mat,.tree-all,.toast button{transition:background-color .1s ease,color .1s ease}
-.more summary:active,.af:active,.rh-where:active,.t-sub:active,.t-mat:active,.tree-all:active{background:var(--page-2);color:var(--ink);transition:none}
-.more[open] summary:active{background:var(--ink-2);color:var(--page)}
-.af{height:44px;border-radius:8px;padding-inline:10px}
-.af::after{inset:0}
-.more-in{padding:10px;gap:8px;border-radius:8px;background:transparent}
-.fgrid{gap:8px}
-.fgrid .wide{grid-column:auto}
-.flabel{margin-bottom:2px;font-size:12px}
-.more-in select{font-size:16px;min-height:44px;padding-left:8px}
-.toggle{font-size:13px;padding-inline:8px}
-.tabbar a,.tabbar button{transition:transform .1s var(--ease),background-color .1s ease}
-.tabbar a:active,.tabbar button:active{transform:scale(.98);background:var(--page-2)}
-.thumbs{gap:2px}
-.thumbs[data-scrollable="true"]{touch-action:pan-y}
-.thumb{flex:0 0 48px;margin-left:4px;border-radius:4px 0 0 4px;font-size:11px;gap:0;transition:transform .1s var(--ease),background-color .1s ease,color .1s ease}
-.thumb[aria-current="location"]{transform:translateX(-4px)}
-.thumb:active,.thumb.is-scrubbing{background:var(--t);color:var(--t-on);transform:translateX(-4px);transition:none}
-.bubble small{font-variant:normal;letter-spacing:0;font-size:12px}
-.bubble b{font-family:var(--sans);font-size:17px;font-weight:600}
-.explore-location{margin:0 18px 10px;padding:10px 12px;background:var(--page-2);border-radius:4px;font-size:13px;color:var(--ink)}
-.explore-hint{padding:0 18px 10px;font-size:12px;color:var(--ink-2)}
-.dl{border:0;border-top:1px solid var(--rule);border-radius:0;padding:14px 0 0;background:none;gap:14px 16px}
-.d-meta{border-top:1px solid var(--rule)}
-.d-meta summary{min-height:44px;display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--ink-2);font-size:13px}
-.d-meta summary::after{content:"+";margin-left:auto;font-size:20px}
-.d-meta[open] summary::after{content:"−"}
-.d-meta .dl{border:0;padding-top:0}
-.save-state{min-height:20px;font-size:12px;color:var(--ink-2)}
-.save-state:empty{display:none}
-.statusset[aria-busy="true"]{opacity:.75}
-.confirm-inline{animation:fade .15s var(--ease)}
-.toast{transition:opacity .15s var(--ease),transform .15s var(--ease)}
-.toast.leaving{opacity:0;transform:translateY(8px)}
-.toast button:active{background:var(--page);color:var(--ink)}
-dialog.no-motion[open]{animation:none}
-@media (min-width:1000px){
-  .toc-brand{margin-bottom:16px}
-}
-:root[data-input="keyboard"] .study-tabs::after{transition:none}
-:root[data-input="keyboard"] :is(.btn,.iconbtn,.toggle,.open,.tabbar a,.tabbar button):active{transform:none;transition:none}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-  .btn:active,.iconbtn:active,.toggle:active,.open:active,.tabbar a:active,.tabbar button:active{transform:none}
-  .thumb,.thumb:hover,.thumb:active,.thumb.is-scrubbing,.thumb[aria-current="location"]{transform:none}
-}
-/* Pós-arena: marcador de leitura, capítulos abertos e tintas como abas. */
-#home-focus{grid-template-columns:minmax(0,1fr);gap:0;padding:16px 0 0}
-.resume{background:none;color:var(--ink);border-radius:0;overflow:visible;border-left:4px solid var(--feature);padding-left:12px}
-.resume-head{padding:0;gap:4px 12px;border:0}
-.resume-head h2{font-family:var(--sans);font-size:13px;font-weight:650}
-.feature-when{color:var(--ink-3);font-size:11px}
-.feature{padding:10px 0 12px}
-.feature .entry-main{gap:6px}
-.feature .entry-title{font-size:20px;line-height:1.3}
-.feature .e-where,.feature .e-line{color:var(--ink-2)}
-.feature .e-line{margin-top:8px;gap:4px 8px}
-.feature .e-line .open{background:var(--feature);color:var(--feature-ink);border-radius:2px}
-.feature .e-line .btn{color:var(--ink)}
-.feature .chip{color:var(--ink-2);border-color:var(--edge)}
-.feature .entry-fav svg{color:var(--fav)}
-.feature:has(.entry-title button:active){background:var(--page-2);box-shadow:none}
-.feature .entry-title button:active{color:var(--ink)}
-.feature:has(.entry-title button:focus-visible){outline-color:var(--focus)}
-.study-disclosure{border-bottom:1px solid var(--rule);margin-top:2px}
-.study-disclosure > summary{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;font-size:13px;color:var(--ink-2);list-style:none}
-.study-disclosure > summary::-webkit-details-marker{display:none}
-.study-disclosure > summary::after{content:"+";font-size:22px}
-.study-disclosure[open] > summary::after{content:"−"}
-.study-selection{padding-bottom:12px}
-.study-selection .block-h h2{font-family:var(--sans);font-size:13px;color:var(--ink-3)}
-.chap-head{align-items:end;padding:8px 0 12px;background:none;border-radius:0;border-bottom:2px solid var(--ink)}
-.chap-title{font-size:44px;line-height:1.08;letter-spacing:-.04em}
-.chap-sub{font-size:11px;max-width:15ch}
-.sec-head{padding:0;gap:6px 10px;align-items:center}
-.sec-head h3{padding:10px 12px;background:var(--t);color:var(--t-on);font-size:17px;font-weight:600;border-radius:2px 2px 0 0}
-.sec-head .num{font-size:11px;padding-block:4px}
-.sec{padding-top:22px}
-.part{padding-top:18px}
-.btn:active,.toggle:active,.open:active{box-shadow:inset 0 0 0 2px currentColor}
-/* Entrada de quem chega e "Em produção". Marcador [data-edit]: toda ação de edição o leva; a próxima rodada de acesso o esconde de quem não edita com uma única regra (body:not([data-can-edit]) [data-edit]{display:none}), ainda não ativada. */
-.start{padding:4px 0 14px;border-bottom:1px solid var(--rule)}
-.start h2{font-family:var(--serif);font-weight:500;font-size:22px;letter-spacing:-.02em;padding-top:6px}
-.start-note{padding:4px 0 10px;font-size:13.5px;color:var(--ink-3)}
-.part.is-production h2,.part.is-production a{color:var(--ink-3)}
-.part.is-production .num{font-style:italic}
-.part-note{display:flex;flex-wrap:wrap;align-items:center;gap:0 14px;padding:0 0 8px;color:var(--ink-3);font-size:14px}
-.part-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--ink);font-weight:600}
-.t-flag{margin-left:8px;font-size:12px;font-weight:500;font-variant:normal;letter-spacing:0;color:var(--ink-3);font-style:italic}
-.t-unit .t-flag{margin-left:auto}
-/* ---------- Estante visual: capas por tipo, lombadas de módulo e prateleiras ---------- */
-.cover{position:relative;flex:none;display:grid;grid-template-rows:auto 1fr auto;justify-items:center;align-items:center;width:64px;aspect-ratio:3/4;padding:8px 6px 7px 13px;border-radius:3px 7px 7px 3px;background:var(--t);color:var(--t-on);overflow:hidden;text-align:center;
-  box-shadow:inset 6px 0 0 var(--shade),inset 7px 0 0 var(--gloss),inset -1px 0 0 var(--gloss-edge),0 1px 2px var(--cover-drop),0 8px 14px -10px var(--cover-lift);
-  transition:transform .16s var(--ease),box-shadow .16s var(--ease)}
-.cover::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.15}
-.cover[data-pattern="lines"]::before{background:repeating-linear-gradient(0deg,currentColor 0 1px,transparent 1px 9px)}
-.cover[data-pattern="dots"]::before{background:radial-gradient(currentColor 1.1px,transparent 1.6px) 0 0/10px 10px}
-.cover > *{position:relative}
-.cover-type{font-size:8.5px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;line-height:1.1;overflow-wrap:anywhere}
-.cover svg{width:44%;max-width:34px;height:auto;stroke-width:1.7;opacity:.96}
-.cover-sub{min-height:12px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--serif);font-weight:650;font-size:11px;line-height:1.1}
-.entry{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:start;padding:12px 0 8px}
-.entry > .cover{grid-row:1/3}
-.entry > .entry-main,.entry > .e-line{grid-column:2}
-.entry .e-line > span:first-child,.rail .e-where{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.entry:has(.entry-title button:active) .cover{transform:scale(.95);transition:none}
-@media (hover:hover){.entry:hover .cover{transform:translateY(-3px) rotate(-1.2deg);box-shadow:inset 6px 0 0 var(--shade),inset 7px 0 0 var(--gloss),inset -1px 0 0 var(--gloss-edge),0 2px 3px var(--cover-drop),0 14px 16px -10px var(--cover-lift)}}
-/* estante: capas em grade, título embaixo */
-#lib-results[data-layout="shelf"] .sub-entries{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px;padding:8px 0 6px}
-#lib-results[data-layout="shelf"] .entry{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;border-bottom:0}
-#lib-results[data-layout="shelf"] .entry > .cover{width:100%;padding:12px 8px 10px 16px;box-shadow:inset 8px 0 0 var(--shade),inset 9px 0 0 var(--gloss),inset -1px 0 0 var(--gloss-edge),0 1px 2px var(--cover-drop),0 10px 16px -12px var(--cover-lift)}
-#lib-results[data-layout="shelf"] .cover-type{font-size:10.5px}
-#lib-results[data-layout="shelf"] .cover-sub{font-size:15px}
-#lib-results[data-layout="shelf"] .cover svg{max-width:44px}
-#lib-results[data-layout="shelf"] .entry-main{margin-top:10px}
-#lib-results[data-layout="shelf"] .entry-title{font-size:15.5px;line-height:1.35}
-#lib-results[data-layout="shelf"] .e-dots{display:none}
-#lib-results[data-layout="shelf"] .e-line{margin-top:2px}
-@media (min-width:700px){#lib-results[data-layout="shelf"] .sub-entries{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
-/* retomada: a capa do material à esquerda */
-.feature{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:16px;align-items:start}
-.feature > .cover{width:84px;grid-row:1}
-.feature > .entry-main{grid-column:2}
-.feature > .e-line{grid-column:1/-1}
-/* prateleiras da seleção: trilho horizontal de capas */
-.rail{display:flex;gap:14px;overflow-x:auto;margin-inline:-16px;padding:8px 16px 12px;scroll-snap-type:x proximity;scrollbar-width:none}
-.rail::-webkit-scrollbar{display:none}
-.rail .entry{flex:0 0 132px;display:flex;flex-direction:column;align-items:stretch;padding:0;border-bottom:0;scroll-snap-align:start}
-.rail .entry > .cover{width:100%;padding:11px 7px 9px 15px}
-.rail .entry-main{margin-top:10px}
-.rail .entry-title{font-size:14.5px;line-height:1.35}
-.rail .e-dots{display:none}
-@media (min-width:700px){.rail{margin-inline:-8px;padding-inline:8px}}
-/* por onde começar: capas por tipo e lombadas de módulo numa prateleira */
-.type-shelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:8px 0 6px}
-.type-door{display:flex;flex-direction:column;gap:2px;color:var(--ink);text-decoration:none;min-width:0}
-.type-door .cover{width:100%;margin-bottom:8px}
-.type-door-name{font-weight:650;font-size:13.5px;line-height:1.2;overflow-wrap:anywhere}
-.type-door .cover{padding-inline:11px 4px}
-.type-door .cover-type{font-size:7.8px;letter-spacing:.04em}
-.type-door-n{font-size:12px;color:var(--ink-3)}
-a.type-door:active .cover{transform:scale(.95);transition:none}
-a.type-door:focus-visible{outline:2px solid var(--focus);outline-offset:4px;border-radius:4px}
-@media (hover:hover){a.type-door:hover .cover{transform:translateY(-3px) rotate(-1.2deg)}}
-.type-door.is-empty{color:var(--ink-3)}
-.type-door.is-empty .cover{background:transparent;color:var(--ink-3);box-shadow:none;outline:1.5px dashed var(--rule-2);outline-offset:-3px}
-.spines{display:flex;align-items:flex-end;gap:6px;margin:12px -16px 4px;padding:10px 16px 0;overflow-x:auto;scrollbar-width:none;border-bottom:4px solid var(--rule-2)}
-.spines::-webkit-scrollbar{display:none}
-.spine{--sh:116px;flex:none;position:relative;display:grid;grid-template-rows:auto 1fr;justify-items:center;gap:8px;width:54px;min-height:var(--sh);padding:9px 0 10px;border-radius:5px 5px 0 0;background:var(--t);color:var(--t-on);text-decoration:none;box-shadow:inset 3px 0 0 var(--gloss),inset -3px 0 0 var(--shade-2);transition:transform .16s var(--ease)}
-.spine:nth-child(3n+2){--sh:104px}
-.spine:nth-child(3n){--sh:126px}
-.spine-name{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1}
-.spine-n{align-self:end;writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:650;letter-spacing:.04em;white-space:nowrap}
-.spine:active{transform:translateY(-3px);transition:none}
-.spine:focus-visible{outline:2px solid var(--focus);outline-offset:-4px}
-@media (hover:hover){.spine:hover{transform:translateY(-6px)}}
-.spine.is-empty{background:transparent;color:var(--ink-3);box-shadow:none;outline:1.5px dashed var(--rule-2);outline-offset:-3px}
-@media (min-width:700px){.spines{margin-inline:0;padding-inline:0}}
-/* ficha: a capa ao lado de onde o material fica */
-#d-reading{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"cover where" "title title";column-gap:14px;row-gap:12px;align-items:center}
-#d-reading .cover{grid-area:cover;width:60px}
-#d-reading .dlg-where{grid-area:where}
-#d-reading h2{grid-area:title}
-/* botão Lista/Estante */
-.route-tabs .layout-btn{margin-left:auto;display:inline-grid;place-items:center;flex:none;width:44px;height:44px;padding:0;border:0;border-radius:var(--r);background:transparent;color:var(--ink-3);cursor:pointer;transition:background-color .12s ease,color .12s ease}
-.layout-btn svg{width:22px;height:22px}
-.layout-btn[aria-pressed="true"]{color:var(--ink);background:var(--page-2)}
-.layout-btn:active{box-shadow:inset 0 0 0 2px currentColor;transition:none}
-.layout-btn:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
-@media (hover:hover){.layout-btn:hover{color:var(--ink)}}
-/* estrela que "salta" ao favoritar */
-@keyframes star-pop{0%{transform:scale(.6)}55%{transform:scale(1.35)}100%{transform:scale(1)}}
-.entry-fav.pop svg,#d-fav.pop svg{animation:star-pop .26s var(--ease) var(--pop-delay,0ms)}
-@media (prefers-reduced-motion:reduce){
-  .cover,.spine{transition:none}
-  .entry:hover .cover,a.type-door:hover .cover,.spine:hover,.entry:has(.entry-title button:active) .cover,a.type-door:active .cover,.spine:active{transform:none}
-  .entry-fav.pop svg,#d-fav.pop svg{animation:none}
-}
-.study-tabs button:active,.route-tabs a:active,.study-disclosure > summary:active{background:var(--page-2);color:var(--ink);transition:none}
-.statusset label:active{box-shadow:inset 0 0 0 2px currentColor;transition:none}
-#theme-open{flex-shrink:0}
-#dlg-theme{max-width:400px}
-#dlg-theme .dlg{max-height:320px}
-.theme-options{border:0;padding:0;display:grid;gap:4px}
-.theme-options legend{margin-bottom:8px;font-size:13px;color:var(--ink-2)}
-.theme-options label{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;cursor:pointer;border:1px solid var(--rule);border-radius:4px}
-.theme-options label:has(:checked){border-color:var(--ink);background:var(--page-2)}
-.theme-options input{accent-color:var(--ink);width:18px;height:18px}
-.theme-options label:active{outline:2px solid var(--ink);outline-offset:-2px}
-:root[data-theme-switching] *,:root[data-theme-switching] *::before,:root[data-theme-switching] *::after{transition:none!important}
-@media (prefers-reduced-motion:reduce){
-  .study-tabs::after{display:none}
-  .study-tabs button[aria-selected="true"]{box-shadow:inset 0 -2px var(--ink)}
-}
-@media (min-width:1000px){
-  .resume{display:grid;grid-template-columns:132px minmax(0,1fr);gap:24px;padding-left:12px}
-  .resume-head{display:block;padding-top:12px}
-  .resume-head h2{margin-bottom:8px}
-  .feature .entry-title{font-size:26px}
-  .feature .e-dots{flex:1;height:auto}
-  .feature .e-line .open{flex:0 0 auto}
-  .study-disclosure{margin-left:172px}
-  .chap-title{font-size:64px}
-  .chap-sub{font-size:13px;max-width:none}
-}
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..600;1,7..72,400..500&family=Schibsted+Grotesk:wght@400..700&display=swap">
 <script>
-/* Executado antes do conteúdo visível, também no fragmento do Artifact. */
+/* Antes da primeira pintura: aplica o tema salvo (sem piscar o tema oposto). */
 (() => {
-  const root = document.documentElement, system = matchMedia("(prefers-color-scheme:dark)");
+  const root = document.documentElement, system = matchMedia("(prefers-color-scheme: dark)");
   let preference = "system", frame;
   const valid = value => ["light", "dark", "system"].includes(value) ? value : "system";
   try { preference = valid(localStorage.getItem("bm-theme")); } catch (_) {}
@@ -689,15 +23,14 @@ a.type-door:focus-visible{outline:2px solid var(--focus);outline-offset:4px;bord
     root.setAttribute("data-theme-switching", "");
     root.dataset.themePreference = preference;
     if (preference === "system") delete root.dataset.theme; else root.dataset.theme = preference;
-    const color = getComputedStyle(root).getPropertyValue("--page").trim();
-    document.querySelectorAll('meta[name="theme-color"]').forEach(meta => { meta.removeAttribute("media"); meta.content = color; });
+    const color = getComputedStyle(root).getPropertyValue("--bg").trim();
+    if (color) document.querySelectorAll('meta[name="theme-color"]').forEach(meta => { meta.content = color; });
     document.querySelectorAll('input[name="theme"]').forEach(input => { input.checked = input.value === preference; });
-    // Resolve estilos com transições desligadas; a própria troca tem duração zero.
     void root.offsetWidth;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => { frame = requestAnimationFrame(() => root.removeAttribute("data-theme-switching")); });
   }
-  window.atlasTheme = { set(value) {
+  window.aortaTheme = { set(value) {
     preference = valid(value);
     try { localStorage.setItem("bm-theme", preference); } catch (_) { preference = "system"; }
     apply();
@@ -706,84 +39,114 @@ a.type-door:focus-visible{outline:2px solid var(--focus);outline-offset:4px;bord
   apply();
 })();
 </script>
+<script type="module" src="/src/main.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Ir para o conteúdo</a>
 
-<button class="skip" type="button" id="skip">Ir para os materiais</button>
-<div class="spread">
-<header class="rh">
-  <a class="mark" href="#inicio" aria-label="Biblioteca de Medicina, início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5h11a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2z"/><path d="M17 7h3v3h-3M17 12h3v3h-3"/></svg></a>
-  <button class="rh-where" id="rh-where" type="button"><span class="rh-path" id="rh-path">Biblioteca de Medicina</span><span class="rh-title" id="rh-title">Índice do curso</span><span class="sr"> — explorar o curso</span></button>
-  <button class="iconbtn" id="theme-open" type="button" aria-label="Aparência: Sistema, Claro ou Escuro" aria-haspopup="dialog" aria-controls="dlg-theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+<header class="top shell">
+  <div class="brand-wrap">
+    <a class="brand" href="#inicio" aria-label="Aorta, início">
+      <svg viewBox="0 0 32 40" aria-hidden="true"><path d="M7 36V19c0-7 4-11 10-11s9 4 9 9v8M13 9V3m8 6V2M26 20l4 3M7 20l-4 5"/></svg>
+      <span class="brand-name">Aorta</span>
+    </a>
+    <p class="brand-note">Acervo de medicina,<br>módulo a módulo.</p>
+  </div>
+  <nav class="top-actions" aria-label="Ações">
+    <button class="icon" type="button" data-search aria-haspopup="dialog" aria-controls="palette" aria-label="Buscar no acervo (Ctrl ou Command + K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+    <a class="icon" href="#todos" data-nav="todos" aria-label="Todos os materiais"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg></a>
+    <button class="icon" type="button" data-action="add" data-edit aria-label="Adicionar link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+    <a class="icon" href="#organizar" data-nav="organizar" data-edit aria-label="Organizar a estrutura do curso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg></a>
+    <button class="icon" type="button" id="theme-open" aria-haspopup="dialog" aria-controls="dlg-theme" aria-label="Aparência: Sistema, Claro ou Escuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
+  </nav>
 </header>
 
-<aside class="toc" aria-label="Sumário e busca">
-  <div class="toc-brand">
-    <a class="brandline" href="#inicio" aria-label="Biblioteca de Medicina, início"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5h11a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2z"/><path d="M17 7h3v3h-3M17 12h3v3h-3"/></svg>Biblioteca de Medicina</a>
-    <div class="acts"><button class="btn" type="button" data-action="add" data-edit><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar link</button><a class="btn" href="#organizar" data-nav="organizar" data-edit>Organizar</a></div>
-  </div>
-  <p class="toc-h">Sumário</p>
-  <nav class="toc-tree" id="toc-tree" aria-label="Sumário do curso"></nav>
-</aside>
-
-<div class="search-dock">
-  <div class="finder" role="search">
-    <div class="find-row">
-      <div class="field">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <label class="sr" for="lib-q">Buscar no índice do curso</label>
-        <input id="lib-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Buscar assunto ou material" aria-describedby="q-note">
-        <span class="kbd" aria-hidden="true">/</span>
-      </div>
-      <details class="more" id="more">
-        <summary aria-label="Refinar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lbl">Refinar</span><span class="more-count" id="more-count"></span></summary>
-        <div class="more-in">
-          <div class="fgrid">
-            <div><label class="flabel" for="f-type">Tipo</label><select id="f-type"></select></div>
-            <div><label class="flabel" for="f-status">Situação</label><select id="f-status"></select></div>
-            <div class="wide"><label class="flabel" for="f-coll">Coleção</label><select id="f-coll"></select></div>
-            <div><label class="flabel" for="f-sort">Ordenar</label>
-              <select id="f-sort">
-                <option value="recent">Recentes</option>
-                <option value="old">Antigos</option>
-                <option value="az">A–Z</option>
-                <option value="za">Z–A</option>
-              </select></div>
-            <div><label class="flabel" for="f-group">Dividir por</label>
-              <select id="f-group">
-                <option value="subject">Assunto</option>
-                <option value="period">Período</option>
-                <option value="none">Sem divisão</option>
-              </select></div>
-            <button class="toggle wide" type="button" id="f-fav" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>Só favoritos</button>
-          </div>
-        </div>
-      </details>
-    </div>
-    <p class="sr" id="q-note">A busca consulta os dados do catálogo, não o texto dentro dos arquivos.</p>
-    <div class="active-filters" id="active-filters" role="group" aria-label="Filtros ativos" hidden></div>
-    <div class="result-bar" id="result-bar" hidden>
-      <p class="result-line" id="result-line" role="status"></p>
-      <button class="btn ghost" type="button" id="clear-filters">Limpar</button>
-    </div>
-  </div>
-  <nav class="route-tabs" aria-label="Materiais"><a href="#inicio" data-route="inicio">Retomar</a><a href="#todos" data-route="lib">Catálogo</a><button class="layout-btn" id="layout-toggle" type="button" aria-pressed="true" aria-label="Exibir em estante"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="7" height="9" rx="1"/><rect x="13" y="4" width="7" height="9" rx="1"/><path d="M3 17h18M3 21h18"/></svg></button></nav>
-</div>
-
-<main id="main" tabindex="-1">
+<main id="main" class="shell" tabindex="-1">
   <div id="state-banner" hidden></div>
 
-  <section class="view" id="view-lib" data-view="lib" aria-labelledby="h-lib">
-    <h1 class="sr" id="h-lib">Índice do curso</h1>
-    <div id="home-focus"></div>
-    <div id="lib-results"></div>
+  <section class="view" id="view-home" data-view="inicio" aria-labelledby="home-title">
+    <div class="hero">
+      <div class="intro">
+        <h1 id="home-title">O que você vai estudar <em>hoje?</em></h1>
+        <p class="intro-copy">Provas, resumos e monitoria, organizados do jeito que o curso é.</p>
+        <button class="search-plate" type="button" data-search aria-haspopup="dialog" aria-controls="palette">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <span class="search-label">Buscar assunto, matéria ou material</span>
+          <kbd class="kbd" aria-hidden="true">Ctrl K</kbd>
+          <span class="search-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </button>
+        <p class="counts" id="counts"></p>
+        <div class="resume" id="resume" hidden></div>
+      </div>
+      <div class="atlas" id="atlas">
+        <div class="map-caption"><h2 class="mono" id="map-title">Mapa do curso · vista anterior</h2><button class="quiet" type="button" id="pause" aria-pressed="false">Pausar batimento</button></div>
+        <div class="map" id="map">
+          <svg class="flat-map" id="flat-map" viewBox="0 0 600 560" aria-hidden="true" focusable="false">
+            <g class="contours" fill="none" stroke="currentColor" stroke-width="1"><path d="M271 81C228 45 180 134 169 206S179 349 253 408C295 450 328 488 350 457S441 348 444 256S407 113 353 113L336 65M271 81L271 46M296 78L301 33M318 97L329 50"/><path d="M283 155C202 126 183 233 215 305S287 397 339 436M294 160C337 123 399 184 406 255S375 358 347 425M295 170Q326 254 321 361"/></g>
+            <g id="flat-arteries" fill="none" stroke-width="3" stroke-linecap="round"></g>
+          </svg>
+          <svg class="guides" id="guides" aria-hidden="true" focusable="false"></svg>
+          <nav class="modules" id="modules" aria-labelledby="map-title"></nav>
+          <div class="loader" id="loader" aria-hidden="true"><span id="load-text">Preparando o coração</span><b id="progress"></b></div>
+        </div>
+        <div class="map-legend"><span><i></i>Com material</span><span><i class="dashed"></i>Em produção</span></div>
+        <p class="model-state" id="model-state" role="status"></p>
+      </div>
+    </div>
+    <section class="index-section" aria-labelledby="index-title">
+      <div class="section-heading"><h2 id="index-title">Módulos do curso</h2><span class="mono" id="index-meta"></span></div>
+      <div id="course-index"></div>
+    </section>
+    <section class="reading-section" id="reading" aria-labelledby="reading-title" hidden>
+      <div class="section-heading"><h2 id="reading-title">Sua mesa de estudo</h2><span class="mono">Em estudo e favoritos</span></div>
+      <div class="card-row" id="reading-list"></div>
+    </section>
+    <section class="recent-section" id="recent-section" aria-labelledby="recent-title" hidden>
+      <div class="section-heading"><h2 id="recent-title">Acabou de chegar</h2><a class="quiet" href="#todos">Ver todos os materiais</a></div>
+      <div class="card-row" id="recent"></div>
+    </section>
+  </section>
+
+  <section class="view" id="view-module" data-view="modulo" aria-labelledby="module-title" hidden>
+    <nav class="module-nav" aria-label="Navegação do módulo">
+      <a class="quiet back" href="#inicio" id="back-home">← Voltar ao coração</a>
+      <div class="module-step" id="module-step"><button class="icon" type="button" id="prev-module" aria-label="Módulo anterior">←</button><button class="icon" type="button" id="next-module" aria-label="Próximo módulo">→</button></div>
+    </nav>
+    <header class="module-hero">
+      <h1 id="module-title" tabindex="-1"></h1>
+      <div class="module-meta"><p class="mono" id="artery-name"></p><p class="module-summary" id="module-summary"></p></div>
+      <svg class="mini-artery" viewBox="0 0 160 180" aria-hidden="true" focusable="false"><path d="M70 5C72 55 115 74 102 173M76 62Q39 76 14 102M97 104Q119 96 145 111"/></svg>
+    </header>
+    <div class="units" id="units" role="group" aria-label="Unidades"></div>
+    <div class="module-body">
+      <nav class="subjects" id="subjects" aria-label="Matérias"></nav>
+      <div class="catalog">
+        <div class="filters" role="search" aria-label="Buscar e filtrar materiais">
+          <label class="f-q"><span class="sr">Buscar nos materiais desta página</span><input id="lib-q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Buscar nesta página" aria-describedby="q-note"></label>
+          <button class="toggle" type="button" id="f-fav" aria-pressed="false">Favoritos</button>
+          <button class="toggle f-more" type="button" id="f-more" aria-expanded="false" aria-controls="f-extra">Filtros<span id="f-count"></span></button>
+          <div class="f-extra" id="f-extra">
+            <label><span class="sr">Tipo de material</span><select id="f-type"></select></label>
+            <label><span class="sr">Situação de estudo</span><select id="f-status"></select></label>
+            <label><span class="sr">Coleção</span><select id="f-coll"></select></label>
+            <label><span class="sr">Ordenar</span><select id="f-sort"><option value="recent">Recentes</option><option value="old">Antigos</option><option value="az">A–Z</option><option value="za">Z–A</option></select></label>
+          </div>
+        </div>
+        <p class="sr" id="q-note">A busca consulta os dados do catálogo, não o texto dentro dos arquivos.</p>
+        <div class="active-filters" id="active-filters" role="group" aria-label="Filtros ativos" hidden></div>
+        <p class="result-line" id="result-line" role="status"></p>
+        <div class="materials" id="materials"></div>
+      </div>
+    </div>
   </section>
 
   <section class="view" id="view-organizar" data-view="organizar" aria-labelledby="h-org" hidden>
-    <div class="org-head">
-      <p class="small muted">Estrutura do curso</p>
+    <header class="org-head">
+      <p class="mono">Estrutura do curso</p>
       <h1 id="h-org">Organizar</h1>
-      <p class="muted" style="max-width:66ch">Módulos contêm unidades, e unidades contêm matérias. Um material fica em um lugar da estrutura e pode estar em várias coleções sem ser duplicado.</p>
-      <p class="small muted" id="account" hidden></p>
-    </div>
+      <p class="muted">Módulos contêm unidades, e unidades contêm matérias. Um material fica em um lugar da estrutura e pode estar em várias coleções sem ser duplicado.</p>
+      <p class="muted small" id="account" hidden></p>
+    </header>
     <div class="org">
       <div class="panel" aria-labelledby="h-tree">
         <h2 id="h-tree">Módulos, unidades e matérias</h2>
@@ -807,1185 +170,67 @@ a.type-door:focus-visible{outline:2px solid var(--focus);outline-offset:4px;bord
   </section>
 </main>
 
-<nav class="thumbs" id="thumbs" aria-label="Índice de dedo: matérias"></nav>
-</div>
-<div class="bubble" id="bubble" aria-hidden="true" hidden><small id="bubble-sec"></small><b id="bubble-sub"></b></div>
+<footer class="footer shell">
+  <p class="footer-brand">Aorta<span>O curso inteiro, irrigado módulo a módulo.</span></p>
+  <p>O site guarda <b>links</b>; os arquivos continuam onde estão, no Google Drive. Nada é copiado nem sincronizado.</p>
+  <p class="credit">Modelo 3D: <a href="https://humanatlas.io/3d-reference-library" target="_blank" rel="noopener noreferrer">3D Reference Organ for Heart, Male, v1.3</a> — HuBMAP / Human Reference Atlas, a partir do Visible Human Male (National Library of Medicine), licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. As artérias são um traçado estilizado sobre o modelo, não anatomia para estudo.</p>
+</footer>
 
-<nav class="tabbar" aria-label="Atalhos">
-  <a href="#inicio" data-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5h11a2 2 0 0 1 2 2V20H6a2 2 0 0 1-2-2z"/><path d="M17 7h3v3h-3M17 12h3v3h-3"/></svg>Índice</a>
-  <button type="button" data-action="toc" aria-haspopup="dialog" aria-controls="dlg-toc" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></svg>Explorar</button>
-  <button type="button" class="tab-add" data-action="add" data-edit><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Adicionar</button>
-  <a href="#organizar" data-nav="organizar" data-edit><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h6v6H4zM14 13h6v6h-6zM7 11v5h7"/></svg>Organizar</a>
-</nav>
-
-<dialog id="dlg-toc" aria-labelledby="toc-title">
-  <div class="dlg">
-    <div><div class="dlg-head"><h2 id="toc-title">Explorar o curso</h2><button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><p class="explore-location" id="explore-location" hidden></p><p class="explore-hint">Toque no assunto ou arraste pela régua à direita.</p></div>
-    <div class="dlg-body"><nav id="toc-tree-m" aria-label="Sumário do curso"></nav><div id="explore-index"></div></div>
+<dialog class="palette" id="palette" aria-labelledby="palette-title">
+  <div class="dialog-top"><h2 id="palette-title">Encontre seu material</h2><button class="icon" type="button" data-close aria-label="Fechar busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="pal-in">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <label class="sr" for="pq">Buscar assunto, matéria, módulo ou material</label>
+    <input id="pq" type="search" placeholder="Assunto, matéria, módulo ou material…" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="results" aria-autocomplete="list" enterkeyhint="go">
   </div>
+  <ul class="results" id="results" role="listbox" aria-label="Resultados"></ul>
+  <p class="pal-foot mono"><span class="kbd-hint">↑ ↓ navegar · Enter abrir · Esc fechar</span><span>Busca nos dados do acervo, não dentro dos arquivos.</span></p>
 </dialog>
 
-<dialog id="dlg-theme" aria-labelledby="theme-title">
-  <div class="dlg">
-    <div class="dlg-head"><h2 id="theme-title">Aparência</h2><button class="iconbtn" type="button" data-close aria-label="Fechar">×</button></div>
-    <div class="dlg-body"><fieldset class="theme-options"><legend>Tema da biblioteca</legend>
-      <label><input type="radio" name="theme" value="system" checked> Sistema</label>
-      <label><input type="radio" name="theme" value="light"> Claro</label>
-      <label><input type="radio" name="theme" value="dark"> Escuro</label>
-    </fieldset><p class="small muted" id="theme-note" role="status">Sistema acompanha a aparência do dispositivo.</p></div>
-  </div>
+<dialog class="sheet" id="dlg-detail" aria-labelledby="d-title">
+  <div class="drag-handle" id="drag-handle" aria-hidden="true"><span></span></div>
+  <div class="dialog-top"><span class="mono" id="d-type"></span><button class="icon" type="button" data-close aria-label="Fechar material"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="detail-body" id="d-body"></div>
 </dialog>
 
-<dialog id="dlg-form" aria-labelledby="form-title">
-  <form class="dlg" id="mat-form" novalidate>
-    <div>
-      <div class="dlg-head">
-        <h2 id="form-title">Adicionar material</h2>
-        <button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-      </div>
-    </div>
-    <div class="dlg-body">
-      <p class="small muted">Você cadastra um <b>link</b> para o material. O arquivo continua onde está (por exemplo, no seu Google Drive); nada é copiado nem sincronizado.</p>
-      <div class="fld">
-        <label for="m-title">Título *</label>
-        <input id="m-title" type="text" maxlength="200" required aria-describedby="m-title-err">
-        <span class="err" id="m-title-err" hidden></span>
-      </div>
-      <div class="fld">
-        <label for="m-url">Link do material *</label>
-        <input id="m-url" type="url" inputmode="url" autocapitalize="none" autocorrect="off" placeholder="https://drive.google.com/…" required aria-describedby="m-url-hint m-url-err">
-        <span class="hint" id="m-url-hint">Cole o endereço completo, começando com https://. No Drive: Compartilhar → Copiar link.</span>
-        <span class="err" id="m-url-err" hidden></span>
-      </div>
-      <div class="fld">
-        <label for="m-area">Onde fica</label>
-        <select id="m-area"></select>
+<dialog class="form-dlg" id="dlg-form" aria-labelledby="form-title">
+  <form id="mat-form" novalidate>
+    <div class="dialog-top"><h2 id="form-title">Adicionar material</h2><button class="icon" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+    <div class="form-body">
+      <p class="muted small">Você cadastra um <b>link</b> para o material. O arquivo continua onde está (por exemplo, no Google Drive); nada é copiado nem sincronizado.</p>
+      <div class="fld"><label for="m-title">Título *</label><input id="m-title" type="text" maxlength="200" required aria-describedby="m-title-err"><span class="err" id="m-title-err" hidden></span></div>
+      <div class="fld"><label for="m-url">Link do material *</label><input id="m-url" type="url" inputmode="url" autocapitalize="none" autocorrect="off" placeholder="https://drive.google.com/…" required aria-describedby="m-url-hint m-url-err"><span class="hint" id="m-url-hint">Cole o endereço completo, começando com https://. No Drive: Compartilhar → Copiar link.</span><span class="err" id="m-url-err" hidden></span></div>
+      <div class="fld"><label for="m-area">Onde fica</label><select id="m-area"></select></div>
+      <div class="two">
+        <div class="fld"><label for="m-type">Tipo</label><select id="m-type"></select></div>
+        <div class="fld"><label for="m-status">Situação de estudo</label><select id="m-status"></select></div>
       </div>
       <div class="two">
-        <div class="fld">
-          <label for="m-type">Tipo</label>
-          <select id="m-type"></select>
-        </div>
-        <div class="fld">
-          <label for="m-status">Status de estudo</label>
-          <select id="m-status"></select>
-        </div>
+        <div class="fld"><label for="m-subject">Assunto</label><input id="m-subject" type="text" list="dl-subjects" maxlength="120" placeholder="Ex.: Placentação"></div>
+        <div class="fld"><label for="m-period">Período</label><input id="m-period" type="text" list="dl-periods" maxlength="40" placeholder="Ex.: 2026.2"></div>
       </div>
-      <div class="two">
-        <div class="fld">
-          <label for="m-subject">Assunto</label>
-          <input id="m-subject" type="text" list="dl-subjects" maxlength="120" placeholder="Ex.: Placentação">
-        </div>
-        <div class="fld">
-          <label for="m-period">Período</label>
-          <input id="m-period" type="text" list="dl-periods" maxlength="40" placeholder="Ex.: 2026.2">
-        </div>
-      </div>
-      <div class="fld">
-        <label for="m-tags">Etiquetas</label>
-        <input id="m-tags" type="text" maxlength="300" placeholder="Separe por vírgula: PR2, caso clínico, revisão">
-      </div>
-      <div class="fld">
-        <span class="lbl" id="m-colls-lbl">Coleções</span>
-        <div class="checks" id="m-colls" role="group" aria-labelledby="m-colls-lbl"></div>
-        <label class="sr" for="m-coll-new">Nova coleção</label>
-        <input id="m-coll-new" type="text" maxlength="80" placeholder="Criar nova coleção e incluir este material">
-      </div>
-      <div class="fld">
-        <label for="m-origin">Origem</label>
-        <input id="m-origin" type="text" maxlength="120" placeholder="Ex.: Google Drive" aria-describedby="m-origin-hint">
-        <span class="hint" id="m-origin-hint">Se ficar vazio e o link for do Drive, preenchemos “Google Drive”.</span>
-      </div>
-      <div class="fld">
-        <label for="m-notes">Observações</label>
-        <textarea id="m-notes" maxlength="4000" placeholder="O que é importante lembrar sobre este material"></textarea>
-      </div>
+      <div class="fld"><label for="m-tags">Etiquetas</label><input id="m-tags" type="text" maxlength="300" placeholder="Separe por vírgula: PR2, caso clínico, revisão"></div>
+      <div class="fld"><span class="lbl" id="m-colls-lbl">Coleções</span><div class="checks" id="m-colls" role="group" aria-labelledby="m-colls-lbl"></div><label class="sr" for="m-coll-new">Nova coleção</label><input id="m-coll-new" type="text" maxlength="80" placeholder="Criar nova coleção e incluir este material"></div>
+      <div class="fld"><label for="m-origin">Origem</label><input id="m-origin" type="text" maxlength="120" placeholder="Ex.: Google Drive" aria-describedby="m-origin-hint"><span class="hint" id="m-origin-hint">Se ficar vazio e o link for do Drive, preenchemos “Google Drive”.</span></div>
+      <div class="fld"><label for="m-notes">Observações</label><textarea id="m-notes" maxlength="4000" placeholder="O que é importante lembrar sobre este material"></textarea></div>
       <div class="checks"><label><input type="checkbox" id="m-fav"> Favorito</label></div>
     </div>
-    <div class="dlg-foot">
-      <span class="spacer"></span>
-      <button class="btn ghost" type="button" data-close>Cancelar</button>
-      <button class="btn primary" type="submit" id="m-save">Salvar material</button>
-    </div>
+    <div class="form-foot"><button class="btn ghost" type="button" data-close>Cancelar</button><button class="btn primary" type="submit" id="m-save">Salvar material</button></div>
   </form>
 </dialog>
 
-<dialog id="dlg-detail" aria-labelledby="d-title">
-  <div class="dlg">
-    <div>
-      <div class="dlg-head">
-        <span class="d-tab" id="d-tab"></span>
-        <div class="d-tools">
-          <button class="iconbtn" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-          <button class="iconbtn star" type="button" id="d-fav" aria-pressed="false" aria-label="Favoritar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg></button>
-        </div>
-      </div>
-    </div>
-    <div class="dlg-body" id="d-body"><div id="d-reading"><p class="dlg-where" id="d-code"></p><h2 id="d-title" tabindex="-1"></h2></div></div>
-    <div class="dlg-foot" id="d-foot"></div>
-  </div>
+<dialog class="small-dlg" id="dlg-theme" aria-labelledby="theme-title">
+  <div class="dialog-top"><h2 id="theme-title">Aparência</h2><button class="icon" type="button" data-close aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <fieldset class="theme-options"><legend>Tema do Aorta</legend>
+    <label><input type="radio" name="theme" value="system" checked> Sistema</label>
+    <label><input type="radio" name="theme" value="light"> Claro</label>
+    <label><input type="radio" name="theme" value="dark"> Escuro</label>
+  </fieldset>
+  <p class="muted small" id="theme-note" role="status">Sistema acompanha a aparência do dispositivo.</p>
 </dialog>
 
 <datalist id="dl-subjects"></datalist>
 <datalist id="dl-periods"></datalist>
 <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
-
-<script>
-(() => {
-"use strict";
-const TYPES = ["Slides","Apostila","Resumo","Anotação","Estudo dirigido","Questões","Prova","Monitoria","Caso clínico","Imagem / lâmina","Artigo","Livro","Link"];
-const STATUS = [["nao-iniciado","Não iniciado"],["em-estudo","Em estudo"],["revisado","Revisado"]];
-const STATUS_LABEL = Object.fromEntries(STATUS);
-const STAINS = ["hema","eosin","giemsa","masson","pas","safra"];
-const LEVEL = ["Módulo","Unidade","Matéria"];
-const LAYOUTS = ["list","grid"], SORTS = ["recent","old","az","za"], GROUPS = ["subject","period","none"];
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-
-const S = {
-  db: null, dbState: "loading",
-  materials: [], areas: [], collections: [],
-  got: { m: false, a: false, c: false },
-  view: "inicio", area: "",
-  q: "", f: { type: "", status: "", coll: "", fav: false }, pendingGo: "",
-  sort: "recent", group: "subject", layout: "list",
-  detailId: null, editId: null, busy: false,
-};
-try {
-  const p = JSON.parse(localStorage.getItem("bm-prefs") || "{}");
-  if (LAYOUTS.includes(p.layout)) S.layout = p.layout;
-  if (SORTS.includes(p.sort)) S.sort = p.sort;
-  if (GROUPS.includes(p.group)) S.group = p.group; else if (p.group === "area") S.group = "subject";
-} catch (_) {}
-const savePrefs = () => { try { localStorage.setItem("bm-prefs", JSON.stringify({ layout: S.layout, sort: S.sort, group: S.group })); } catch (_) {} };
-
-function h(tag, attrs, ...kids) {
-  const el = document.createElement(tag);
-  if (attrs) for (const [k, v] of Object.entries(attrs)) {
-    if (v == null || v === false) continue;
-    if (k === "class") el.className = v;
-    else if (k === "text") el.textContent = v;
-    else if (k === "style") el.setAttribute("style", v);
-    else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
-    else el.setAttribute(k, v === true ? "" : v);
-  }
-  for (const k of kids.flat()) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
-  return el;
-}
-const svg = d => { const t = document.createElement("template"); t.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`; return t.content.firstChild; };
-const ICON_STAR = '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>';
-const ICON_EXT = '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>';
-/* Capas: cada material ganha uma capa na cor da matéria, com o ícone e o rótulo do tipo e, quando há, o período. Só CSS e SVG inline; nada de imagem externa. */
-const COVER_ICONS = {
-  "Prova": '<path d="M6 3h9l3 3v15H6z"/><path d="m9 12 1.6 1.6L13.6 10M9 17h6"/>',
-  "Questões": '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/>',
-  "Monitoria": '<path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/>',
-  "Slides": '<rect x="3" y="5" width="18" height="12" rx="1.5"/><path d="M8 21h8M12 17v4"/>',
-  "Resumo": '<path d="M5 5h14M5 10h14M5 15h9M5 20h6"/>',
-  "Anotação": '<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="m14 7 3 3"/>',
-  "Estudo dirigido": '<path d="m4 6 1.5 1.5L8 5M4 12l1.5 1.5L8 11M4 18l1.5 1.5L8 17M11 6h9M11 12h9M11 18h9"/>',
-  "Caso clínico": '<path d="M3 12h4l2-5 4 10 2-5h6"/>',
-  "Imagem / lâmina": '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2"/>',
-  "Artigo": '<path d="M5 4h10v16H5zM15 8h4v12h-4"/><path d="M8 8h4M8 12h4M8 16h4"/>',
-  "Livro": '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
-  "Apostila": '<path d="M8 4h11v13H8z"/><path d="M5 7v13h11"/>',
-  "Link": '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/>'
-};
-const COVER_PATTERN = { "Prova": "lines", "Questões": "lines", "Resumo": "lines", "Anotação": "lines", "Estudo dirigido": "lines", "Apostila": "lines", "Caso clínico": "dots", "Imagem / lâmina": "dots", "Monitoria": "dots" };
-const COVER_LABEL = { "Estudo dirigido": "Estudo", "Imagem / lâmina": "Lâmina" };
-const iconCache = new Map();
-const coverIcon = type => { const k = COVER_ICONS[type] ? type : "Link"; if (!iconCache.has(k)) iconCache.set(k, svg(COVER_ICONS[k])); return iconCache.get(k).cloneNode(true); };
-function cover(m) {
-  const type = m.type || "Link", sub = String(m.period || "").trim();
-  return h("span", { class: "cover", "data-pattern": COVER_PATTERN[type] || "plain", "aria-hidden": "true" },
-    h("span", { class: "cover-type", text: COVER_LABEL[type] || type }), coverIcon(type), h("span", { class: "cover-sub", text: sub }));
-}
-/* Exibição do catálogo: estante (capas em grade) ou lista; a escolha fica neste aparelho. */
-let layout = "shelf";
-try { if (localStorage.getItem("bm-layout") === "list") layout = "list"; } catch (_) {}
-/* Estrela que salta ao favoritar: dura 260 ms; quem for redesenhado nesse intervalo continua a animação do ponto em que ela está, em vez de recomeçar. */
-let popId = "", popAt = 0;
-const POP_MS = 260;
-const popping = id => popId === id && performance.now() - popAt < POP_MS;
-const norm = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
-const cmpName = (a, b) => String(a).localeCompare(String(b), "pt-BR", { sensitivity: "base", numeric: true });
-const validDate = iso => !!iso && !isNaN(new Date(iso));
-const fmtDate = iso => validDate(iso) ? new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "";
-const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
-const nowIso = () => new Date().toISOString();
-function validUrl(v) { try { const u = new URL(v.trim()); return (u.protocol === "https:" || u.protocol === "http:") && u.hostname.includes("."); } catch (_) { return false; } }
-const isDrive = v => { try { return /(^|\.)(drive|docs)\.google\.com$/.test(new URL(v).hostname); } catch (_) { return false; } };
-const stainVar = k => { const s = STAINS.includes(k) ? k : "neutral"; return `--t:var(--t-${s});--stain:var(--t-${s})`; };
-
-/* ---------- estrutura (áreas) ---------- */
-const areaById = id => S.areas.find(a => a.id === id);
-const byOrder = (a, b) => ((a.order ?? 999) - (b.order ?? 999)) || cmpName(a.name, b.name);
-const childrenOf = pid => S.areas.filter(a => (a.parentId || "") === (pid || "")).sort(byOrder);
-function pathOf(id) { const out = []; let a = areaById(id), guard = 0; while (a && guard++ < 8) { out.unshift(a); a = areaById(a.parentId); } return out; }
-function descIds(id) { const set = new Set([id]); let grew = true; while (grew) { grew = false; for (const a of S.areas) if (set.has(a.parentId) && !set.has(a.id)) { set.add(a.id); grew = true; } } return set; }
-function stainOf(id) { const p = pathOf(id); for (let i = p.length - 1; i >= 0; i--) if (p[i].stain) return p[i].stain; return ""; }
-const areaLabel = (id, from = "") => { const p = pathOf(id); const i = from ? p.findIndex(a => a.id === from) : -1; return p.slice(i + 1).map(a => a.name).join(" › "); };
-function treeOrder() { const out = []; const walk = (pid, d) => childrenOf(pid).forEach(a => { out.push([a, d]); if (d < 2) walk(a.id, d + 1); }); walk("", 0); return out; }
-const depthOf = id => pathOf(id).length - 1;
-
-/* ---------- avisos ---------- */
-function toast(msg, opts = {}) {
-  const box = $("#toasts");
-  const t = h("div", { class: "toast" + (opts.error ? " error" : "") }, h("p", { text: msg }));
-  if (opts.action) t.append(h("button", { type: "button", text: opts.action.label, onclick: () => { clearTimeout(timer); t.remove(); opts.action.run(); } }));
-  box.append(t);
-  const dismiss = () => {
-    if (t.matches(":hover") || t.contains(document.activeElement)) { timer = setTimeout(dismiss, 1000); return; }
-    t.classList.add("leaving");
-    setTimeout(() => t.remove(), matchMedia("(prefers-reduced-motion:reduce)").matches ? 0 : 150);
-  };
-  let timer = setTimeout(dismiss, opts.action ? 10000 : 4000);
-  // Um aviso de gravação nunca elimina um Desfazer ainda disponível.
-  const plain = $$(".toast", box).filter(el => !el.querySelector("button"));
-  while (plain.length > 3) plain.shift().remove();
-}
-const failMsg = e => (e && e.code === "quota_exceeded") ? "O catálogo atingiu o limite de armazenamento. Remova itens antigos e tente de novo." : "Não foi possível salvar agora. Verifique a conexão e tente de novo.";
-async function write(fn, okMsg, opts) {
-  if (!S.db) { toast("O catálogo não está disponível nesta visualização.", { error: true }); return false; }
-  try { await fn(); if (okMsg) toast(okMsg, opts); return true; }
-  catch (e) { console.error(e); toast(failMsg(e), { error: true }); return false; }
-}
-async function ensureCollection(name) {
-  const n = name.trim(); if (!n) return "";
-  const hit = S.collections.find(c => norm(c.name) === norm(n)); if (hit) return hit.id;
-  const ref = S.db.collection("collections").doc(); await ref.set({ name: n, createdAt: nowIso() }); return ref.id;
-}
-function subscribe() {
-  const onErr = e => { console.error(e); S.dbState = "unavailable"; renderAll(); };
-  const map = snap => snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  S.db.collection("materials").onSnapshot(s => {
-    S.materials = map(s).map(m => ({ ...m, ...(materialWrites.get(m.id)?.patch || {}) }));
-    S.got.m = true; renderAll();
-  }, onErr);
-  S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
-  S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
-}
-const ready = () => S.dbState === "ready" && S.got.m && S.got.a && S.got.c;
-const collName = id => (S.collections.find(c => c.id === id) || {}).name || "";
-
-/* ---------- filtragem ---------- */
-const haystack = m => norm([m.title, pathOf(m.areaId).map(a => a.name).join(" "), m.subject, m.type, (m.tags || []).join(" ")].join(" "));
-const tokens = q => norm(q).split(/\s+/).filter(Boolean);
-function matches(m, toks) { if (!toks.length) return true; const hs = haystack(m); return toks.every(t => hs.includes(t)); }
-function filtered() {
-  const toks = tokens(S.q);
-  return S.materials.filter(m => {
-    if (S.f.type && m.type !== S.f.type) return false;
-    if (S.f.status && (m.status || "nao-iniciado") !== S.f.status) return false;
-    if (S.f.coll && !(m.collectionIds || []).includes(S.f.coll)) return false;
-    if (S.f.fav && !m.favorite) return false;
-    return matches(m, toks);
-  });
-}
-function sorter() {
-  const t = m => m.createdAt || "";
-  return { recent: (a, b) => t(b).localeCompare(t(a)), old: (a, b) => t(a).localeCompare(t(b)), az: (a, b) => cmpName(a.title || "", b.title || ""), za: (a, b) => cmpName(b.title || "", a.title || "") }[S.sort];
-}
-const activeFilters = () => [S.f.type, S.f.status, S.f.coll, S.f.fav].filter(Boolean).length;
-const anyFilter = () => !!(S.q.trim() || activeFilters());
-const countIn = id => { const set = descIds(id); return S.materials.filter(m => set.has(m.areaId)).length; };
-/* Ordem do curso para assuntos: "1ª semana" antes de "1ª e 2ª semanas", que vem antes de "2ª semana"; depois, alfabética. */
-const ordKey = s => { const n = [...String(s || "").matchAll(/(\d+)\s*[ªº°]/g)].map(x => +x[1]); return n.length ? n[0] * 100 + (n[n.length - 1] - n[0]) : 1e6; };
-const byKey = (a, b) => (a === "") - (b === "") || ordKey(a) - ordKey(b) || cmpName(a, b);
-const slug = s => norm(s).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "sem";
-
-/* ---------- componentes ---------- */
-const tabVar = id => stainVar(stainOf(id));
-const shortOf = a => !a ? "S/A" : (a.short || norm(a.name).replace(/[^a-z0-9 ]/g, "").split(" ").filter(Boolean).map((w, i, arr) => arr.length > 1 ? w.slice(0, 1) : w.slice(0, 4)).join("").toUpperCase().slice(0, 5));
-function statusChip(s) { const v = s || "nao-iniciado"; return h("span", { class: "chip status", "data-s": v, text: STATUS_LABEL[v] }); }
-function openLink(m, cls = "open", label = "Abrir original") {
-  if (!m.url || !validUrl(m.url)) return h("span", { class: "small muted", text: "Sem link válido" });
-  const a = h("a", { class: cls, href: m.url, target: "_blank", rel: "noopener noreferrer", "aria-label": "Abrir original (nova aba): " + m.title, onclick: () => markOpened(m.id) }, h("span", { text: label }));
-  a.append(svg(ICON_EXT)); return a;
-}
-/* Grifo: marca no texto original os trechos que combinam com a busca, ignorando acentos e maiúsculas. */
-function marked(text, toks) {
-  const s = String(text || "");
-  if (!toks || !toks.length || !s) return [s];
-  let flat = ""; const at = [];
-  for (let i = 0; i < s.length; i++) { const c = s[i].normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); for (const ch of c) { flat += ch; at.push(i); } }
-  const hit = new Array(s.length).fill(false);
-  for (const t of toks) { let p = flat.indexOf(t); while (p !== -1) { for (let k = p; k < p + t.length; k++) hit[at[k]] = true; p = flat.indexOf(t, p + t.length); } }
-  const out = []; let i = 0;
-  while (i < s.length) { let j = i; while (j < s.length && hit[j] === hit[i]) j++; out.push(hit[i] ? h("mark", { class: "hit", text: s.slice(i, j) }) : s.slice(i, j)); i = j; }
-  return out;
-}
-/* Material: título completo abre a ficha; ação externa permanece independente. */
-function entry(m, o = {}) {
-  const st = m.status || "nao-iniciado", toks = o.toks || [];
-  return h("article", { class: "entry", style: tabVar(m.areaId) }, cover(m),
-    h("div", { class: "entry-main" },
-      h(o.tag || "h5", { class: "entry-title" }, h("button", { type: "button", "data-mid": m.id, onclick: () => openDetail(m.id) }, marked(m.title || "(sem título)", toks))),
-      o.where ? h("p", { class: "e-where" }, h("i", { "aria-hidden": "true" }), h("span", { text: (pathOf(m.areaId).slice(1).map(a => a.name).join(" › ") || areaLabel(m.areaId) || "Sem área") + (m.subject ? " · " + m.subject : "") }))
-        : h("p", { class: "sr", text: "Em " + (areaLabel(m.areaId) || "sem área") + (m.subject ? ", " + m.subject : "") })),
-    h("p", { class: "e-line" }, h("span", { text: m.type || "Link" }), st !== "nao-iniciado" ? statusChip(st) : null,
-      m.favorite ? h("span", { class: "entry-fav" + (popping(m.id) ? " pop" : ""), style: popping(m.id) ? `--pop-delay:-${Math.round(performance.now() - popAt)}ms` : null }, svg(ICON_STAR), h("span", { class: "sr", text: "Favorito" })) : null,
-      h("span", { class: "e-dots", "aria-hidden": "true" }), openLink(m), o.extra || null));
-}
-function skeleton() {
-  return h("div", { class: "skel" }, h("p", { class: "sr", role: "status", text: "Carregando seu catálogo…" }),
-    h("div", { class: "skel-bar big", "aria-hidden": "true" }), ...Array.from({ length: 5 }, () => h("div", { "aria-hidden": "true", style: "display:grid;gap:9px" }, h("div", { class: "skel-bar" }), h("div", { class: "skel-bar short" }))));
-}
-function emptyState(title, text, withAdd, areaId) {
-  return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), withAdd && S.db ? h("button", { class: "btn primary", type: "button", "data-edit": "", onclick: () => openForm(null, areaId), text: "Adicionar material" }) : null);
-}
-
-/* ---------- telas ---------- */
-function renderBanner() {
-  const b = $("#state-banner");
-  if (S.dbState === "login") { if (b.dataset.state !== "login") { b.hidden = false; b.replaceChildren(loginPanel()); } }
-  else if (S.dbState === "denied") {
-    b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Este e-mail não tem acesso" }),
-      h("p", { text: `Você entrou como ${S.user || "um e-mail sem permissão"}, que não é um dos e-mails desta biblioteca.` }),
-      h("div", null, h("button", { class: "btn", type: "button", text: "Sair e usar outro e-mail", onclick: signOut }))));
-  } else if (S.dbState === "unavailable") {
-    b.hidden = false; b.replaceChildren(h("div", { class: "notice error", role: "alert" }, h("h2", { text: "Não foi possível abrir o seu catálogo" }),
-      h("p", { text: "O banco de dados da biblioteca não respondeu. Verifique a conexão e recarregue a página." }),
-      h("div", null, h("button", { class: "btn", type: "button", text: "Tentar de novo", onclick: () => location.reload() }))));
-  } else if (!ready()) { b.hidden = false; b.replaceChildren(h("p", { class: "sr", role: "status", text: "Carregando seu catálogo…" })); }
-  else b.hidden = true;
-  b.dataset.state = S.dbState; document.body.dataset.state = S.dbState;
-  $$("[data-action='add']").forEach(x => x.disabled = !ready());
-  const acc = $("#account"); acc.hidden = !S.user;
-  if (S.user) acc.replaceChildren(`Conectado como ${S.user}. `, h("button", { class: "btn ghost", type: "button", text: "Sair", onclick: signOut }));
-}
-function renderNav() {
-  document.body.dataset.mode = S.view === "organizar" ? "organizar" : "livro";
-  $$("[data-route]").forEach(a => a.dataset.route === S.view ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
-  if (S.view === "organizar") { $("#rh-path").textContent = "Estrutura do curso"; $("#rh-title").textContent = "Organizar"; $$("[data-toc]").forEach(a => a.removeAttribute("aria-current")); }
-  $$("[data-nav]").forEach(a => (a.dataset.nav === S.view || (a.dataset.nav === "inicio" && S.view === "lib")) ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
-}
-let shelfN = 0;
-function shelf(title, items, more, note, id) {
-  id = id || "sh-" + (++shelfN);
-  return h("section", { class: "shelf", "aria-labelledby": id },
-    h("div", { class: "block-h" }, h("h2", { id, text: title }), more || null),
-    h("div", { class: "rail" }, items.map(m => entry(m, { where: true, tag: "h3" }))),
-    note ? h("p", { class: "shelf-note", text: note }) : null);
-}
-function feature(m) {
-  const it = entry(m, { where: true, tag: "h3", extra: h("button", { class: "btn", type: "button", text: "Detalhes", onclick: () => openDetail(m.id) }) });
-  it.className = "feature";
-  return h("section", { class: "resume", "aria-labelledby": "h-feature" },
-    h("div", { class: "resume-head" }, h("h2", { id: "h-feature", text: "Aberto por último" }),
-      h("span", { class: "feature-when", text: fmtDate(m.lastOpenedAt) })), it);
-}
-let homeShelf = "";
-/* Entrada de quem chega pela primeira vez: o que mais se procura e os módulos. Só dados que existem; o que ainda não tem material diz "Em produção". */
-const DOORS = [["Prova", "Provas antigas"], ["Monitoria", "Monitoria"], ["Resumo", "Resumos"], ["Caso clínico", "Casos clínicos"]];
-const DOOR_STAIN = { "Prova": "eosin", "Monitoria": "giemsa", "Resumo": "masson", "Caso clínico": "safra" };
-function startHere() {
-  const live = areasWithContent();
-  const door = ([type, label]) => {
-    const count = S.materials.filter(m => m.type === type).length, empty = !count;
-    return h(empty ? "div" : "a", { class: "type-door" + (empty ? " is-empty" : ""), style: stainVar(DOOR_STAIN[type]), ...(empty ? {} : { href: "#todos", onclick: () => presetFilters({ type }) }) },
-      cover({ type }), h("span", { class: "type-door-name", text: label }), h("span", { class: "type-door-n", text: empty ? IN_PRODUCTION : plural(count, "material", "materiais") }));
-  };
-  const spines = childrenOf("").map((mod, i) => {
-    const on = live.has(mod.id), ids = descIds(mod.id), n = on ? S.materials.filter(m => ids.has(m.areaId)).length : 0;
-    return h("a", { class: "spine" + (on ? "" : " is-empty"), href: "#a-" + mod.id, style: stainVar(STAINS[i % STAINS.length]) },
-      h("span", { class: "spine-name", text: mod.name }), h("span", { class: "spine-n", text: on ? plural(n, "material", "materiais") : IN_PRODUCTION }),
-      h("span", { class: "sr", text: " — módulo " + mod.name }));
-  });
-  return h("section", { class: "start", "aria-labelledby": "h-start" },
-    h("h2", { id: "h-start", text: "Por onde começar" }),
-    h("p", { class: "start-note", text: "Escolha o tipo de material que procura ou o módulo que está cursando." }),
-    h("div", { class: "type-shelf", role: "group", "aria-label": "Tipos de material" }, DOORS.map(door)),
-    spines.length ? h("div", { class: "spines", role: "group", "aria-label": "Módulos" }, spines) : null);
-}
-function renderHome() {
-  const focus = $("#home-focus"); focus.replaceChildren(); shelfN = 0;
-  focus.hidden = S.view !== "inicio" || anyFilter() || !ready();
-  if (focus.hidden || !S.materials.length) return;
-  const ms = S.materials;
-  const opened = ms.filter(m => validDate(m.lastOpenedAt)).sort((a, b) => b.lastOpenedAt.localeCompare(a.lastOpenedAt));
-  if (!opened.length) focus.append(startHere());
-  const others = ms.filter(m => m !== opened[0]);
-  const studying = others.filter(m => m.status === "em-estudo").sort((a,b) => cmpName(a.title || "", b.title || ""));
-  const favs = others.filter(m => m.favorite).sort((a,b) => cmpName(a.title || "", b.title || ""));
-  const recent = [...others].sort((a,b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
-  if (opened.length) focus.append(feature(opened[0]));
-  if (!homeShelf) homeShelf = studying.length ? "studying" : favs.length ? "favorites" : "recent";
-  const options = [["studying", "Em estudo", studying], ["favorites", "Favoritos", favs], ["recent", "Recentes", recent]];
-  const tabs = h("div", { class: "study-tabs", role: "tablist", "aria-label": "Sua seleção de materiais" });
-  const panel = h("div", { id: "study-panel", role: "tabpanel", tabindex: "0" });
-  const select = (key, moveFocus = false) => {
-    homeShelf = key;
-    tabs.classList.toggle("no-motion", keyboardInput);
-    $$("button", tabs).forEach(b => { const on=b.dataset.shelf === key; b.setAttribute("aria-selected", String(on)); b.tabIndex=on?0:-1; if(on && moveFocus) b.focus(); });
-    panel.setAttribute("aria-labelledby", "study-"+key);
-    const [,label,items] = options.find(o=>o[0]===key);
-    const more = h("a", { href: "#todos", text: "Ver todos", onclick: () => presetFilters(key === "studying" ? {status:"em-estudo"} : key === "favorites" ? {fav:true} : {}) });
-    panel.replaceChildren(items.length ? shelf(key === "recent" ? "Recém-incluídos" : label, items.slice(0,3), more) :
-      h("p", { class: "study-empty", text: key === "favorites" ? "Nenhum outro favorito. Marque a estrela na ficha de um material." : key === "recent" ? "Os materiais mais recentes já estão nesta página." : "Nenhum outro material em estudo. Escolha um nos recentes ou no catálogo." }));
-  };
-  options.forEach(([key,label])=>tabs.append(h("button", { type:"button", role:"tab", id:"study-"+key, "data-shelf":key, "aria-controls":"study-panel", onclick:()=>select(key), text:label })));
-  tabs.addEventListener("keydown", e=>{
-    if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key)) return;
-    e.preventDefault();const i=options.findIndex(o=>o[0]===homeShelf);
-    select(options[e.key==="Home"?0:e.key==="End"?2:(i+(e.key==="ArrowRight"?1:2))%3][0],true);
-  });
-  select(homeShelf);
-  const disclosure = h("details", { class:"study-disclosure", open:true },
-    h("summary", { text:"Em estudo, favoritos e recentes" }),
-    h("section", { class:"study-selection", "aria-label":"Seleção de estudo" }, tabs,panel));
-  focus.append(disclosure);
-}
-function fillSelect(sel, options, value) { sel.replaceChildren(...options.map(([v, l]) => h("option", { value: v, text: l }))); sel.value = options.some(o => o[0] === value) ? value : options[0][0]; }
-const ICON_X = '<path d="M6 6l12 12M18 6 6 18"/>';
-function renderActiveFilters() {
-  const box = $("#active-filters");
-  const items = [];
-  if (S.q.trim()) items.push([`Busca: “${S.q.trim()}”`, () => { S.q = ""; }]);
-  if (S.f.type) items.push([S.f.type, () => { S.f.type = ""; }]);
-  if (S.f.status) items.push([STATUS_LABEL[S.f.status] || S.f.status, () => { S.f.status = ""; }]);
-  if (S.f.coll) items.push(["Coleção: " + (collName(S.f.coll) || "removida"), () => { S.f.coll = ""; }]);
-  if (S.f.fav) items.push(["Favoritos", () => { S.f.fav = false; }]);
-  box.hidden = !items.length;
-  box.replaceChildren(...items.map(([label, clear]) => h("button", { class: "af", type: "button", "aria-label": "Remover filtro: " + label, onclick: () => { clear(); renderAll(); $("#lib-q").focus(); } }, label, svg(ICON_X))));
-}
-
-/* "Em produção": módulo, unidade ou matéria sem nenhum material nela nem abaixo dela. Deduzido dos dados; some sozinho no primeiro material. */
-const IN_PRODUCTION = "Em produção";
-function areasWithContent() {
-  const set = new Set(), byId = new Map(S.areas.map(a => [a.id, a]));
-  S.materials.forEach(m => { let a = byId.get(m.areaId), guard = 0; while (a && !set.has(a.id) && guard++ < 8) { set.add(a.id); a = byId.get(a.parentId); } });
-  return set;
-}
-/* ---------- o livro: parte (módulo) › capítulo (unidade) › seção (matéria) › subseção (assunto) ---------- */
-function bookOf(list) {
-  const by = new Map(); list.forEach(m => { const k = areaById(m.areaId) ? m.areaId : ""; if (!by.has(k)) by.set(k, []); by.get(k).push(m); });
-  const secsUnder = top => { const out = []; const walk = pid => childrenOf(pid).forEach(a => { if (by.has(a.id)) out.push({ area: a, items: by.get(a.id) }); walk(a.id); }); walk(top); return out; };
-  const parts = childrenOf("").map(mod => {
-    const units = childrenOf(mod.id), chaps = [];
-    if (units.length) {
-      if (by.has(mod.id)) chaps.push({ area: mod, secs: [{ area: mod, items: by.get(mod.id), direct: true }] });
-      units.forEach(u => chaps.push({ area: u, secs: [...(by.has(u.id) ? [{ area: u, items: by.get(u.id), direct: true }] : []), ...secsUnder(u.id)] }));
-    } else chaps.push({ area: mod, secs: by.has(mod.id) ? [{ area: mod, items: by.get(mod.id), direct: true }] : [] });
-    return { mod, chaps };
-  });
-  // módulos com conteúdo primeiro; os em produção ficam depois, na ordem em que o dono os criou
-  const live = areasWithContent();
-  parts.sort((a, b) => Number(live.has(b.mod.id)) - Number(live.has(a.mod.id)));
-  const orphans = by.get("") || [];
-  return { parts, orphans, live };
-}
-const groupKey = m => S.group === "period" ? (m.period || "").trim() : S.group === "none" ? "" : (m.subject || "").trim();
-const groupEmpty = () => S.group === "period" ? "Sem período" : "Sem assunto";
-const subId = (areaId, key) => "u-" + areaId + "-" + slug(key);
-function subsOf(sec) {
-  const map = new Map(); sec.items.forEach(m => { const k = groupKey(m); if (!map.has(k)) map.set(k, []); map.get(k).push(m); });
-  return [...map.keys()].sort(byKey).map(k => ({ key: k, label: S.group === "none" ? "" : (k || groupEmpty()), items: map.get(k).sort(sorter()), id: subId(sec.area.id, S.group === "none" ? "todos" : k) }));
-}
-function secNode(sec, toks) {
-  const a = sec.area, subs = subsOf(sec), name = sec.direct ? a.name + " — geral" : a.name;
-  const n = sec.items.length, ns = subs.filter(s => s.label).length;
-  return h("section", { class: "sec", id: "s-" + a.id, style: tabVar(a.id), "data-sec": a.id, "data-name": name, "aria-labelledby": "h-s-" + a.id },
-    h("header", { class: "sec-head" }, h("h3", { id: "h-s-" + a.id, text: name }), h("span", { class: "num", text: plural(n, "material", "materiais") + (ns ? " · " + plural(ns, S.group === "period" ? "período" : "assunto", S.group === "period" ? "períodos" : "assuntos") : "") })),
-    subs.map(s => h("div", { class: "sub", id: s.id, "data-sub": s.label || name },
-      s.label ? h("h4", { class: "sub-h", tabindex: "-1" }, h("span", null, marked(s.label, toks)), h("span", { class: "num", text: String(s.items.length) })) : null,
-      h("div", { class: "sub-entries" }, s.items.map(m => entry(m, { toks }))))));
-}
-function renderBook(list) {
-  const box = $("#lib-results"), toks = tokens(S.q), filt = anyFilter();
-  const { parts, orphans, live } = bookOf(list);
-  const firstLive = parts.find(p => live.has(p.mod.id));
-  const out = [], sections = [];
-  parts.forEach(({ mod, chaps }) => {
-    const total = chaps.reduce((n, c) => n + c.secs.reduce((k, s) => k + s.items.length, 0), 0);
-    if (filt && !total) return;
-    const producing = !live.has(mod.id);
-    out.push(h("p", { class: "part" + (producing ? " is-production" : ""), id: "p-" + mod.id }, h("a", { href: "#a-" + mod.id, text: "Módulo " + mod.name }), h("span", { class: "num", text: producing ? IN_PRODUCTION : plural(total, "material", "materiais") })));
-    if (producing && !childrenOf(mod.id).length) {
-      out.push(h("p", { class: "part-note" }, "Este módulo está em produção. Os materiais aparecem aqui quando forem publicados.",
-        firstLive ? h("a", { href: "#a-" + firstLive.mod.id, text: "Ver o que já tem conteúdo (Módulo " + firstLive.mod.name + ")" }) : null));
-      return;
-    }
-    chaps.forEach(c => {
-      const n = c.secs.reduce((k, s) => k + s.items.length, 0);
-      if (filt && !n) return;
-      const kids = childrenOf(c.area.id);
-      const node = h("section", { class: "chap", id: "c-" + c.area.id, "aria-labelledby": "h-c-" + c.area.id },
-        h("header", { class: "chap-head" }, h("h2", { class: "chap-title", id: "h-c-" + c.area.id, text: c.area.name }),
-          h("p", { class: "chap-sub", text: n ? [kids.length ? plural(kids.length, "matéria", "matérias") : "", plural(n, "material", "materiais")].filter(Boolean).join(" · ") : IN_PRODUCTION })));
-      if (!c.secs.length) node.append(h("p", { class: "chap-empty" }, "Em produção. Os materiais desta unidade ainda estão sendo montados.", S.db ? h("button", { class: "btn", type: "button", "data-edit": "", text: "Adicionar material", onclick: () => openForm(null, c.area.id) }) : null));
-      c.secs.forEach(s => { node.append(secNode(s, toks)); sections.push({ s, chap: c }); });
-      out.push(node);
-    });
-  });
-  if (orphans.length) {
-    const s = { area: { id: "sem-area", name: "Sem área", stain: "" }, items: orphans };
-    out.push(h("p", { class: "part", id: "p-sem-area" }, h("span", { text: "Fora da estrutura" }), h("span", { class: "num", text: plural(orphans.length, "material", "materiais") })),
-      h("section", { class: "chap", id: "c-sem-area" }, h("header", { class: "chap-head" }, h("h2", { class: "chap-title", text: "Sem área" }), h("p", { class: "chap-sub", text: "Edite o material e escolha onde ele fica." })), secNode(s, toks)));
-    sections.push({ s, chap: { area: s.area } });
-  }
-  box.replaceChildren(...out);
-  box.classList.toggle("filtering", filt);
-  return sections;
-}
-/* Índice de dedo: uma aba por matéria, com altura proporcional; se não couber, uma por unidade, depois por módulo. */
-function renderThumbs(sections) {
-  const nav = $("#thumbs"); nav.replaceChildren();
-  let level = "matérias";
-  nav.dataset.scrollable = "false";
-  nav.hidden = !sections.length || S.view === "organizar";
-  if (nav.hidden) return;
-  const tab = (id, area, target, n, label) => h("a", { class: "thumb", draggable: "false", href: "#a-" + area.id, style: tabVar(area.id) + ";--n:" + Math.max(n, 1), "data-target": target, "data-name": label },
-    h("span", { text: shortOf(area.id === "sem-area" ? null : area) }), h("span", { class: "sr", text: " " + label + "," }), h("small", { text: String(n) }), h("span", { class: "sr", text: n === 1 ? " material" : " materiais" }));
-  sections.forEach(({ s }) => nav.append(tab(s.area.id, s.area, "s-" + s.area.id, s.items.length, s.direct ? s.area.name + " (geral)" : s.area.name)));
-  const availableHeight = matchMedia("(max-width:999px)").matches ? Math.min(innerHeight * .6, 480) : innerHeight - 48;
-  if (sections.length * 49 > availableHeight) {
-    const chaps = new Map(); sections.forEach(({ s, chap }) => { const k = chap.area.id; chaps.set(k, (chaps.get(k) || { area: chap.area, n: 0 })); chaps.get(k).n += s.items.length; });
-    nav.replaceChildren(...[...chaps.values()].map(c => tab(c.area.id, c.area, "c-" + c.area.id, c.n, c.area.name)));
-    level = "unidades";
-    if (chaps.size * 50 > availableHeight) {
-      const modules = new Map();
-      sections.forEach(({ s }) => {
-        const area = pathOf(s.area.id)[0] || s.area;
-        const item = modules.get(area.id) || { area, n: 0 };
-        item.n += s.items.length; modules.set(area.id, item);
-      });
-      nav.replaceChildren(...[...modules.values()].map(m => tab(m.area.id, m.area, "p-" + m.area.id, m.n, m.area.name)));
-      level = "módulos";
-    }
-  }
-  nav.dataset.scrollable = String(nav.children.length * 50 > availableHeight);
-  nav.setAttribute("aria-label", "Índice do curso: " + level);
-  $(".explore-hint").textContent = nav.dataset.scrollable === "true" ? "Toque no assunto ou role a régua de " + level + " à direita." : "Toque no assunto ou arraste pela régua de " + level + " à direita.";
-}
-/* Sumário: a árvore do curso com contagens; no computador fica na página da esquerda, no celular abre como folha. */
-function tocTree(list) {
-  const { parts, orphans, live } = bookOf(list), filt = anyFilter(), toks = tokens(S.q);
-  const out = [h("a", { class: "tree-all", href: "#todos" }, "Todos os materiais", h("span", { class: "num", text: String(list.length) }))];
-  parts.forEach(({ mod, chaps }) => {
-    const total = chaps.reduce((n, c) => n + c.secs.reduce((k, s) => k + s.items.length, 0), 0);
-    if (filt && !total) return;
-    out.push(h("a", { class: "t-mod", href: "#a-" + mod.id }, "Módulo " + mod.name, live.has(mod.id) ? null : h("span", { class: "t-flag", text: IN_PRODUCTION })));
-    chaps.forEach(c => {
-      const n = c.secs.reduce((k, s) => k + s.items.length, 0);
-      if (filt && !n) return;
-      if (c.area.id !== mod.id) out.push(h("a", { class: "t-unit", href: "#a-" + c.area.id }, c.area.name, h("span", { class: n ? "num" : "num t-flag", text: n ? String(n) : IN_PRODUCTION })));
-      c.secs.forEach(s => {
-        out.push(h("a", { class: "t-mat", href: "#a-" + s.area.id, style: tabVar(s.area.id), "data-toc": "s-" + s.area.id }, h("i", { "aria-hidden": "true" }), s.direct ? s.area.name + " (geral)" : s.area.name, h("span", { class: "num", text: String(s.items.length) })));
-        const subs = subsOf(s).filter(x => x.label);
-        if (subs.length) out.push(h("ul", { class: "t-subs" }, subs.map(x => h("li", null, h("button", { class: "t-sub", type: "button", style: tabVar(s.area.id), "data-toc": x.id, "data-go": x.id }, h("span", null, marked(x.label, toks)), h("span", { class: "num", text: String(x.items.length) }))))));
-      });
-    });
-  });
-  if (orphans.length) out.push(h("a", { class: "t-mod", href: "#a-sem-area", text: "Sem área · " + orphans.length }));
-  return out;
-}
-function renderToc(list) {
-  $("#toc-tree").replaceChildren(...tocTree(list));
-  if ($("#dlg-toc").open || matchMedia("(max-width:999px)").matches) $("#toc-tree-m").replaceChildren(...tocTree(list));
-}
-/* Onde você está: cabeça corrente, aba saliente e item do sumário, conforme a rolagem. */
-const rhBottom = () => { const r = $(".rh").getBoundingClientRect(); return Math.max(r.bottom, 0); };
-function spy() {
-  if (S.view === "organizar") return;
-  const y = rhBottom() + 6; let sub = null, sec = null;
-  for (const s of $$("#lib-results .sub")) { if (s.getBoundingClientRect().top <= y) sub = s; else break; }
-  for (const s of $$("#lib-results .sec")) { if (s.getBoundingClientRect().top <= y) sec = s; else break; }
-  // no fim do livro a última seção não chega ao topo: vale a que foi pedida (aba ou sumário), se estiver à vista
-  if (spyHint && document.contains(spyHint) && scrollY + innerHeight >= document.documentElement.scrollHeight - 2) { const r = spyHint.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > y) { sec = spyHint.closest(".sec") || spyHint.querySelector(".sec") || sec; sub = spyHint.classList.contains("sub") ? spyHint : (sec && sec.querySelector(".sub")); } }
-  if (sub && sec && !sec.contains(sub)) sub = null;
-  const chap = sec ? sec.closest(".chap") : null;
-  $$("#thumbs .thumb").forEach(t => { const on = sec && (t.dataset.target === sec.id || (chap && t.dataset.target === chap.id)); on ? t.setAttribute("aria-current", "location") : t.removeAttribute("aria-current"); });
-  $$("[data-toc]").forEach(a => { const on = (sub && a.dataset.toc === sub.id) || (sec && a.dataset.toc === sec.id); on ? a.setAttribute("aria-current", "location") : a.removeAttribute("aria-current"); });
-  // módulo em produção não tem seção: a cabeça corrente passa a dizer o módulo, em vez de ficar na matéria anterior
-  // no fim do livro um módulo em produção pode não chegar ao topo: vale o que foi pedido, se estiver à vista
-  const hintedPart = spyHint && document.contains(spyHint) && spyHint.classList.contains("part") && scrollY + innerHeight >= document.documentElement.scrollHeight - 2 && spyHint.getBoundingClientRect().top < innerHeight ? spyHint : null;
-  const part = hintedPart || $$("#lib-results .part").filter(p => p.getBoundingClientRect().top <= y).pop();
-  const prod = part && part.classList.contains("is-production") && (!sec || (sec.compareDocumentPosition(part) & Node.DOCUMENT_POSITION_FOLLOWING)) ? part : null;
-  if (prod) { $("#rh-path").textContent = "Biblioteca de Medicina"; $("#rh-title").textContent = prod.querySelector("a").textContent + " · " + IN_PRODUCTION; }
-  else if (sec) {
-    const id = sec.dataset.sec, p = id === "sem-area" ? [] : pathOf(id);
-    $("#rh-path").textContent = [p.slice(0, -1).map(a => a.name).join(" · "), sub && sub.dataset.sub !== sec.dataset.name ? sub.dataset.sub : ""].filter(Boolean).join(" — ") || "Fora da estrutura";
-    $("#rh-title").textContent = sec.dataset.name;
-  } else { $("#rh-path").textContent = "Biblioteca de Medicina"; $("#rh-title").textContent = S.view === "inicio" && !anyFilter() ? "Índice do curso" : "Todos os materiais"; }
-}
-let spyRaf = 0; window.addEventListener("scroll", () => { if (!spyRaf) spyRaf = requestAnimationFrame(() => { spyRaf = 0; spy(); }); }, { passive: true });
-/* Ir até uma área do livro (rota #a-…) e mostrar a chegada com o fio da seção. */
-let spyHint = null;
-function goTo(el, instant) {
-  if (!el) return;
-  spyHint = el;
-  window.scrollTo({ top: Math.max(0, scrollY + el.getBoundingClientRect().top - $(".rh").offsetHeight + 1), behavior: "instant" });
-
-  spy();
-}
-function renderLibrary() {
-  if (S.view === "organizar") return;
-  $("#lib-results").dataset.layout = layout;
-  $("#layout-toggle").hidden = S.view !== "lib";
-  $("#layout-toggle").setAttribute("aria-pressed", String(layout === "shelf"));
-  fillSelect($("#f-type"), [["", "Todos os tipos"], ...TYPES.map(t => [t, t])], S.f.type);
-  fillSelect($("#f-status"), [["", "Todas"], ...STATUS], S.f.status);
-  fillSelect($("#f-coll"), [["", "Todas"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
-  if ($("#lib-q").value !== S.q) $("#lib-q").value = S.q;
-  $("#f-fav").setAttribute("aria-pressed", S.f.fav ? "true" : "false");
-  $("#f-sort").value = S.sort; $("#f-group").value = S.group;
-  const nf = activeFilters(); $("#more-count").textContent = nf ? ` · ${nf}` : "";
-  renderActiveFilters();
-  $("#clear-filters").disabled = !anyFilter();
-  const box = $("#lib-results"), line = $("#result-line");
-  $("#result-bar").hidden = !anyFilter() || !ready();
-  if (!ready()) { box.replaceChildren(S.dbState === "loading" ? skeleton() : ""); renderThumbs([]); $("#toc-tree").replaceChildren(); return; }
-  if (!S.materials.length && !S.areas.length) { box.replaceChildren(emptyState("Sua biblioteca está vazia", "Crie a estrutura do curso em Organizar e cadastre o link do primeiro material. O site guarda links; os arquivos continuam onde estão.", true)); renderThumbs([]); renderToc([]); return; }
-  const list = filtered();
-  line.textContent = anyFilter() ? (list.length ? `${plural(list.length, "material", "materiais")} de ${S.materials.length}` : `Nada encontrado entre ${plural(S.materials.length, "material", "materiais")}`) : "";
-  if (anyFilter() && !list.length) {
-    box.replaceChildren(h("div", { class: "empty" }, h("h2", { text: "Nenhum material encontrado" }), h("p", { text: "Nada combina com a busca e os filtros atuais. A busca procura no título, matéria, assunto, tipo e etiquetas, não no texto dos arquivos." }), h("button", { class: "btn", type: "button", onclick: clearFilters, text: "Limpar busca e filtros" })));
-    renderThumbs([]); renderToc([]); spy(); return;
-  }
-  const sections = renderBook(list);
-  renderThumbs(sections); renderToc(list);
-  if (S.pendingGo) { const id = S.pendingGo; const el = $("#s-" + id) || $("#c-" + id) || $("#p-" + id); if (el) { S.pendingGo = ""; requestAnimationFrame(() => goTo(el)); } }
-  spy();
-}
-/* Folhear pela borda: arrastar o polegar pelo índice percorre os assuntos, com um balão que mostra onde se está. */
-(() => {
-  const nav = $("#thumbs"), bub = $("#bubble"); let down = false, moved = false, y0 = 0, destination = null;
-  let geometry = [], frame = 0, latestY = 0, selected = null;
-  const measure = () => {
-    geometry = $$(".thumb", nav).map(t => {
-      const r = t.getBoundingClientRect(), target = document.getElementById(t.dataset.target);
-      return { t, top: r.top, bottom: r.bottom, height: r.height, target, subs: target ? $$(".sub", target) : [] };
-    });
-  };
-  nav.addEventListener("scroll", () => { if (down) measure(); }, { passive: true });
-  const at = y => {
-    if (!geometry.length) return null;
-    const hit = geometry.find(g => y >= g.top - 1 && y <= g.bottom + 1) || (y < geometry[0].top ? geometry[0] : geometry[geometry.length - 1]);
-    if (!hit.target) return null;
-    const f = Math.min(.999, Math.max(0, (y - hit.top) / hit.height));
-    return { t: hit.t, el: hit.subs.length ? hit.subs[Math.floor(f * hit.subs.length)] : hit.target };
-  };
-  const paint = () => {
-    frame = 0;
-    const hit = at(latestY); if (!hit) return;
-    if (selected !== hit.t) { if (selected) selected.classList.remove("is-scrubbing"); selected = hit.t; selected.classList.add("is-scrubbing"); }
-    if (destination !== hit.el) { destination = hit.el; goTo(hit.el, true); }
-    bub.hidden = false; bub.style.top = latestY + "px"; $("#bubble-sec").textContent = hit.t.dataset.name; $("#bubble-sub").textContent = hit.el.dataset.sub || hit.t.dataset.name;
-  };
-  nav.addEventListener("pointerdown", e => { if (e.button || nav.dataset.scrollable === "true") return; down = true; moved = false; destination = null; y0 = e.clientY; measure(); });
-  nav.addEventListener("pointermove", e => {
-    if (!down) return; if (!moved && Math.abs(e.clientY - y0) < 8) return;
-    if (!moved) { moved = true; try { nav.setPointerCapture(e.pointerId); } catch (_) {} }
-    latestY = e.clientY;
-    if (!frame) frame = requestAnimationFrame(paint);
-  });
-  const end = e => {
-    if (frame) { cancelAnimationFrame(frame); if (e.type === "pointerup") paint(); frame = 0; }
-    down = false; bub.hidden = true;
-    if (selected) selected.classList.remove("is-scrubbing"); selected = null;
-    if (e.type === "pointerup" && moved && destination && $("#dlg-toc").open) {
-      const target = destination; closeDlg($("#dlg-toc"), true);
-      requestAnimationFrame(() => { goTo(target, true); const first = target.querySelector("[data-mid]") || target.nextElementSibling?.querySelector("[data-mid]"); if (first) first.focus({ preventScroll: true }); });
-    }
-  };
-  nav.addEventListener("pointerup", end); nav.addEventListener("pointercancel", end);
-  nav.addEventListener("click", e => { if (moved) { e.preventDefault(); moved = false; } }, true);
-  nav.addEventListener("dragstart", e => e.preventDefault());
-  nav.addEventListener("keydown", e => {
-    if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
-    const tabs = $$(".thumb", nav), i = tabs.indexOf(document.activeElement); if (i < 0) return; e.preventDefault();
-    const j = e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : Math.min(tabs.length - 1, Math.max(0, i + (e.key === "ArrowDown" ? 1 : -1)));
-    tabs[j].focus();
-  });
-})();
-document.addEventListener("click", e => {
-  const go = e.target.closest("[data-go]"); if (!go) return;
-  const el = document.getElementById(go.dataset.go); if (!el) return;
-  if (go.closest("#dlg-toc")) closeDlg($("#dlg-toc"), true);
-  if (S.view !== "lib" && S.view !== "inicio") location.hash = "todos";
-  requestAnimationFrame(() => { goTo(el); const hd = el.querySelector(".sub-h"); if (hd) hd.focus({ preventScroll: true }); });
-});
-
-/* organizar */
-const orgUI = { editing: null, confirming: null, adding: null };
-function renderOrg() {
-  const tree = $("#tree"); tree.replaceChildren();
-  const dis = !ready();
-  const rowFor = (a, d) => {
-    const li = h("li");
-    const key = a.id;
-    if (orgUI.editing === key) {
-      const inp = h("input", { type: "text", value: a.name, maxlength: "60", "aria-label": "Novo nome de " + a.name });
-      li.append(h("div", { class: "row", style: stainVar(stainOf(a.id)) }, h("form", { onsubmit: e => { e.preventDefault(); renameArea(a.id, inp.value); } }, inp,
-        h("button", { class: "btn primary", type: "submit", text: "Salvar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.editing = null; renderOrg(); } }))));
-      setTimeout(() => inp.focus(), 0);
-    } else {
-      const kids = childrenOf(a.id);
-      li.append(h("div", { class: "row", style: stainVar(stainOf(a.id)) },
-        h("span", { class: "swatch", "aria-hidden": "true" }),
-        h("button", { class: "name", type: "button", title: "Abrir " + a.name, onclick: () => { location.hash = "a-" + a.id; }, text: a.name }),
-        h("span", { class: "lvl", text: LEVEL[d] }), h("span", { class: "count", text: plural(countIn(a.id), "item", "itens") }),
-        d < 2 ? h("button", { class: "btn ghost", type: "button", disabled: dis, text: d === 0 ? "+ Unidade" : "+ Matéria", onclick: () => { orgUI.adding = a.id; orgUI.editing = orgUI.confirming = null; renderOrg(); } }) : null,
-        h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Renomear", "aria-label": "Renomear " + a.name, onclick: () => { orgUI.editing = key; orgUI.confirming = orgUI.adding = null; renderOrg(); } }),
-        h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Excluir", "aria-label": "Excluir " + a.name, onclick: () => {
-          if (kids.length) { toast(`${a.name} tem ${plural(kids.length, "subdivisão", "subdivisões")}. Exclua o que está dentro primeiro.`, { error: true }); return; }
-          orgUI.confirming = key; orgUI.editing = orgUI.adding = null; renderOrg(); } })));
-      if (orgUI.confirming === key) {
-        const n = countIn(a.id), parent = areaById(a.parentId);
-        const yes = h("button", { class: "btn danger", type: "button", text: "Excluir", onclick: () => deleteArea(a.id) });
-        li.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: `Excluir “${a.name}”? ${n ? plural(n, "material vai", "materiais vão") + " para " + (parent ? parent.name : "“sem área”") + "." : "Não há materiais aqui."} Nenhum arquivo é apagado.` }),
-          h("div", { class: "acts" }, yes, h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { orgUI.confirming = null; renderOrg(); } }))));
-        setTimeout(() => yes.focus(), 0);
-      }
-    }
-    const kids = childrenOf(a.id);
-    if (kids.length || orgUI.adding === a.id) {
-      const ul = h("ul"); kids.forEach(k => ul.append(rowFor(k, d + 1)));
-      if (orgUI.adding === a.id) {
-        const inp = h("input", { type: "text", maxlength: "60", placeholder: d === 0 ? "Nome da unidade (ex.: CIS 3)" : "Nome da matéria (ex.: Fisiologia)", "aria-label": "Nome da nova " + (d === 0 ? "unidade" : "matéria") });
-        ul.append(h("li", null, h("div", { class: "row" }, h("form", { onsubmit: e => { e.preventDefault(); addArea(a.id, inp.value); } }, inp,
-          h("button", { class: "btn primary", type: "submit", text: "Criar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.adding = null; renderOrg(); } })))));
-        setTimeout(() => inp.focus(), 0);
-      }
-      li.append(ul);
-    }
-    return li;
-  };
-  const roots = childrenOf("");
-  if (!roots.length) tree.append(h("li", { class: "muted small", text: dis ? (S.dbState === "loading" ? "Carregando módulos…" : "Módulos indisponíveis nesta visualização.") : "Nenhum módulo ainda. Crie o primeiro abaixo." }));
-  roots.forEach(r => tree.append(rowFor(r, 0)));
-  const orphan = S.materials.filter(m => !areaById(m.areaId)).length;
-  if (orphan) tree.append(h("li", { class: "muted small", text: `${plural(orphan, "material está", "materiais estão")} sem área definida. Encontre em Todos e edite o campo “Onde fica”.` }));
-  // coleções
-  const ul = $("#coll-rows"); ul.replaceChildren();
-  if (!S.collections.length) ul.append(h("li", { class: "muted small", text: dis ? (S.dbState === "loading" ? "Carregando coleções…" : "Coleções indisponíveis nesta visualização.") : "Nenhuma coleção ainda. Crie a primeira abaixo." }));
-  S.collections.forEach(c => {
-    const n = S.materials.filter(m => (m.collectionIds || []).includes(c.id)).length, key = "c:" + c.id;
-    if (orgUI.editing === key) {
-      const inp = h("input", { type: "text", value: c.name, maxlength: "80", "aria-label": "Novo nome de " + c.name });
-      ul.append(h("li", { class: "row" }, h("form", { onsubmit: e => { e.preventDefault(); renameColl(c.id, inp.value); } }, inp, h("button", { class: "btn primary", type: "submit", text: "Salvar" }), h("button", { class: "btn ghost", type: "button", text: "Cancelar", onclick: () => { orgUI.editing = null; renderOrg(); } }))));
-      setTimeout(() => inp.focus(), 0); return;
-    }
-    ul.append(h("li", { class: "row" }, h("button", { class: "name", type: "button", onclick: () => { presetFilters({ coll: c.id }); location.hash = "todos"; }, text: c.name }), h("span", { class: "count", text: plural(n, "item", "itens") }),
-      h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Renomear", "aria-label": "Renomear " + c.name, onclick: () => { orgUI.editing = key; orgUI.confirming = null; renderOrg(); } }),
-      h("button", { class: "btn ghost", type: "button", disabled: dis, text: "Excluir", "aria-label": "Excluir " + c.name, onclick: () => { orgUI.confirming = key; orgUI.editing = null; renderOrg(); } })));
-    if (orgUI.confirming === key) {
-      const yes = h("button", { class: "btn danger", type: "button", text: "Excluir", onclick: () => deleteColl(c.id, c.name) });
-      ul.append(h("li", { class: "confirm-inline", role: "alert" }, h("p", { text: `Excluir a coleção “${c.name}”? ${plural(n, "material sai", "materiais saem")} dela, mas continuam no catálogo.` }), h("div", { class: "acts" }, yes, h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { orgUI.confirming = null; renderOrg(); } }))));
-      setTimeout(() => yes.focus(), 0);
-    }
-  });
-  $$("#mod-add input, #mod-add button, #coll-add input, #coll-add button").forEach(x => x.disabled = dis);
-}
-function renderDatalists() {
-  const uniq = arr => [...new Set(arr.map(s => (s || "").trim()).filter(Boolean))].sort(cmpName);
-  $("#dl-subjects").replaceChildren(...uniq(S.materials.map(m => m.subject)).map(v => h("option", { value: v })));
-  $("#dl-periods").replaceChildren(...uniq(S.materials.map(m => m.period)).map(v => h("option", { value: v })));
-}
-function renderAll() { renderBanner(); renderNav(); renderHome(); renderLibrary(); renderOrg(); renderDatalists(); if ($("#dlg-detail").open) renderDetail(); }
-
-/* ---------- navegação ---------- */
-/* Rotas: #inicio (o livro com o que retomar), #todos (o livro desde o começo), #a-<área> (o livro aberto naquela área), #organizar. */
-function route(focus) {
-  const hs = location.hash.slice(1);
-  if (hs === "organizar") { S.view = "organizar"; S.area = ""; }
-  else if (hs === "todos") { S.view = "lib"; S.area = "todos"; }
-  else if (hs.startsWith("a-")) { S.view = "lib"; S.area = hs.slice(2); }
-  else { S.view = "inicio"; S.area = ""; }
-  $$("[data-view]").forEach(s => { s.hidden = s.dataset.view !== (S.view === "organizar" ? "organizar" : "lib"); });
-  S.pendingGo = S.view === "lib" && S.area !== "todos" ? S.area : "";
-  if (focus) { $("#main").focus({ preventScroll: true }); window.scrollTo(0, 0); }
-  renderNav(); renderHome(); renderLibrary();
-  if (S.pendingGo && S.pendingGo !== "sem-area" && ready() && !areaById(S.pendingGo)) location.hash = "todos";
-}
-function presetFilters(p) { S.f = { type: "", status: "", coll: "", fav: false, ...p }; S.q = ""; }
-function clearFilters() { S.q = ""; S.f = { type: "", status: "", coll: "", fav: false }; renderHome(); renderLibrary(); $("#lib-q").focus(); }
-
-/* ---------- ações ---------- */
-const find = id => S.materials.find(m => m.id === id);
-const materialWrites = new Map();
-async function updateMaterial(id, patch, message) {
-  const m = find(id); if (!m || !S.db || materialWrites.has(id)) return;
-  const before = Object.fromEntries(Object.keys(patch).map(k => [k, m[k]]));
-  materialWrites.set(id, { patch });
-  Object.assign(m, patch); renderAll();
-  const ok = await write(() => S.db.doc("materials/" + id).update(patch), message);
-  materialWrites.delete(id);
-  const current = find(id);
-  if (current) Object.assign(current, ok ? patch : before);
-  renderAll();
-}
-async function toggleFav(id) { const m = find(id); if (!m) return; const on = !m.favorite; if (on) { popId = id; popAt = performance.now(); setTimeout(() => { popId = ""; }, POP_MS * 2); } await updateMaterial(id, { favorite: on }, on ? "Adicionado aos favoritos" : "Removido dos favoritos"); }
-async function setStatus(id, s) { const m = find(id); if (!m || (m.status || "nao-iniciado") === s) return; await updateMaterial(id, { status: s, statusAt: nowIso() }, "Status: " + STATUS_LABEL[s]); }
-function markOpened(id) { if (S.db) S.db.doc("materials/" + id).update({ lastOpenedAt: nowIso() }).catch(e => console.error(e)); }
-async function removeMaterial(id) {
-  const m = find(id); if (!m) return; const { id: _i, ...body } = m;
-  const ok = await write(() => S.db.doc("materials/" + id).delete(), "Removido do catálogo. O arquivo original não foi alterado.", { action: { label: "Desfazer", run: () => write(() => S.db.doc("materials/" + id).set(body), "Material restaurado") } });
-  if (ok) closeDlg($("#dlg-detail"));
-}
-async function addArea(parentId, name) {
-  name = name.trim(); if (!name) return;
-  if (childrenOf(parentId).some(a => norm(a.name) === norm(name))) { toast("Já existe um item com esse nome aqui.", { error: true }); return; }
-  const d = parentId ? depthOf(parentId) + 1 : 0;
-  const used = S.areas.map(a => a.stain).filter(Boolean);
-  const stain = d === 0 ? "" : STAINS.find(s => !used.includes(s)) || STAINS[S.areas.length % STAINS.length];
-  const ok = await write(() => S.db.collection("areas").doc().set({ name, parentId: parentId || "", order: childrenOf(parentId).length + 1, stain, createdAt: nowIso() }), ["Módulo criado", "Unidade criada", "Matéria criada"][d]);
-  if (ok) { orgUI.adding = null; renderOrg(); }
-}
-async function renameArea(id, name) {
-  name = name.trim(); if (!name) return; const a = areaById(id);
-  if (childrenOf(a.parentId).some(x => x.id !== id && norm(x.name) === norm(name))) { toast("Já existe um item com esse nome aqui.", { error: true }); return; }
-  if (await write(() => S.db.doc("areas/" + id).update({ name }), "Nome atualizado")) { orgUI.editing = null; renderOrg(); }
-}
-async function deleteArea(id) {
-  const a = areaById(id); if (!a) return; const affected = S.materials.filter(m => m.areaId === id);
-  const ok = await write(async () => { for (const m of affected) await S.db.doc("materials/" + m.id).update({ areaId: a.parentId || "" }); await S.db.doc("areas/" + id).delete(); }, `“${a.name}” excluído`);
-  if (ok) { orgUI.confirming = null; if (S.area === id) location.hash = a.parentId ? "a-" + a.parentId : "inicio"; renderAll(); }
-}
-async function addColl(input) {
-  const name = input.value.trim(); if (!name) { input.focus(); return; }
-  if (S.collections.some(c => norm(c.name) === norm(name))) { toast("Já existe uma coleção com esse nome.", { error: true }); return; }
-  if (await write(() => S.db.collection("collections").doc().set({ name, createdAt: nowIso() }), "Coleção criada")) input.value = "";
-}
-async function renameColl(id, name) {
-  name = name.trim(); if (!name) return;
-  if (S.collections.some(c => c.id !== id && norm(c.name) === norm(name))) { toast("Já existe uma coleção com esse nome.", { error: true }); return; }
-  if (await write(() => S.db.doc("collections/" + id).update({ name }), "Nome atualizado")) { orgUI.editing = null; renderOrg(); }
-}
-async function deleteColl(id, name) {
-  const affected = S.materials.filter(m => (m.collectionIds || []).includes(id));
-  const ok = await write(async () => { for (const m of affected) await S.db.doc("materials/" + m.id).update({ collectionIds: (m.collectionIds || []).filter(c => c !== id) }); await S.db.doc("collections/" + id).delete(); }, `Coleção “${name}” excluída`);
-  if (ok) { orgUI.confirming = null; if (S.f.coll === id) S.f.coll = ""; renderAll(); }
-}
-
-/* ---------- diálogos ---------- */
-let lastFocus = null, keyboardInput = false;
-const dialogExits = new WeakMap(), dialogReturns = new WeakMap(), dialogFocus = new WeakMap();
-document.addEventListener("keydown", () => { keyboardInput = true; document.documentElement.dataset.input = "keyboard"; }, true);
-document.addEventListener("pointerdown", () => { keyboardInput = false; delete document.documentElement.dataset.input; }, true);
-function openDlg(d) {
-  const exit = dialogExits.get(d);
-  if (exit) {
-    const style = getComputedStyle(d), from = { opacity: style.opacity, transform: style.transform };
-    dialogExits.delete(d); exit.cancel();
-    if (!keyboardInput && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
-      const motion = d.animate([from, { opacity: 1, transform: "none" }], { duration: 160, easing: getComputedStyle(document.documentElement).getPropertyValue("--ease").trim() });
-      dialogReturns.set(d, motion);
-      motion.finished.finally(() => { if (dialogReturns.get(d) === motion) dialogReturns.delete(d); }).catch(() => {});
-    }
-  }
-  d.classList.toggle("no-motion", keyboardInput);
-  if (!d.open) { lastFocus = document.activeElement; dialogFocus.set(d, lastFocus); d.showModal(); }
-}
-function closeDlg(d, immediate = false) {
-  if (!d.open) return;
-  const old = dialogExits.get(d);
-  if (immediate || keyboardInput || matchMedia("(prefers-reduced-motion:reduce)").matches) {
-    if (old) { dialogExits.delete(d); old.cancel(); }
-    const returning = dialogReturns.get(d);
-    if (returning) { dialogReturns.delete(d); returning.cancel(); }
-    d.close(); return;
-  }
-  if (old) return;
-  const mobile = matchMedia("(max-width:999px)").matches;
-  const panel = !mobile && d.id === "dlg-detail";
-  const style = getComputedStyle(d);
-  const from = { opacity: style.opacity, transform: style.transform };
-  const returning = dialogReturns.get(d);
-  if (returning) { dialogReturns.delete(d); returning.cancel(); }
-  const exit = d.animate([
-    from,
-    { opacity: 0, transform: panel ? "translateX(28px)" : "translateY(28px)" }
-  ], { duration: 160, easing: getComputedStyle(document.documentElement).getPropertyValue("--ease").trim(), fill: "forwards" });
-  dialogExits.set(d, exit);
-  exit.finished.then(() => {
-    if (dialogExits.get(d) !== exit) return;
-    dialogExits.delete(d); d.close(); exit.cancel();
-  }).catch(() => {});
-}
-$$("dialog").forEach(d => {
-  d.addEventListener("close", () => {
-    // a lista é redesenhada enquanto o painel está aberto; se o botão de origem foi substituído, volta ao mesmo material
-    const origin = dialogFocus.get(d) || lastFocus;
-    const back = origin && document.contains(origin) ? origin : (d.id === "dlg-detail" && S.detailId ? $$(`[data-mid="${S.detailId}"]`).find(b => !b.closest("[hidden]")) : null);
-    if (back && !document.querySelector("dialog[open]")) back.focus();
-    if (d.id === "dlg-detail") { S.detailId = null; confirmRemove = false; }
-  });
-  d.addEventListener("click", e => { if (e.target === d || e.target.closest("[data-close]")) closeDlg(d); });
-  d.addEventListener("cancel", e => { e.preventDefault(); closeDlg(d, true); });
-});
-let confirmRemove = false;
-function openDetail(id) { S.detailId = id; confirmRemove = false; renderDetail(); openDlg($("#dlg-detail")); setTimeout(() => $("#d-title").focus(), 0); }
-function renderDetail() {
-  const focused = document.activeElement;
-  const radioValue = focused && focused.matches('input[name="d-status"]') ? focused.value : null;
-  const metaOpen = !!$("#d-body .d-meta[open]");
-  const scroll = $("#d-body").scrollTop;
-  const m = find(S.detailId); if (!m) { closeDlg($("#dlg-detail")); return; }
-  // a ficha leva a aba da sua matéria, como uma página tirada do livro
-  const p = pathOf(m.areaId);
-  $("#dlg-detail").setAttribute("style", tabVar(m.areaId));
-  $("#d-tab").textContent = p[p.length - 1]?.name || "Sem área";
-  $("#d-code").textContent = (p.map(a => a.name).join(" · ") || "Sem área") + (m.subject ? " — " + m.subject : "");
-  $("#d-title").textContent = m.title || "(sem título)";
-  const reading = $("#d-reading"); reading.querySelector(".cover")?.remove(); reading.prepend(cover(m));
-  const fav = $("#d-fav");
-  if (popping(m.id) && m.favorite && fav.dataset.popAt !== String(popAt)) { fav.dataset.popAt = String(popAt); fav.classList.remove("pop"); void fav.offsetWidth; fav.classList.add("pop"); }
- fav.setAttribute("aria-pressed", m.favorite ? "true" : "false"); fav.setAttribute("aria-label", m.favorite ? "Remover dos favoritos" : "Favoritar"); fav.onclick = () => toggleFav(m.id);
-  const pending = materialWrites.has(m.id);
-  fav.setAttribute("aria-disabled", String(pending));
-  fav.setAttribute("aria-busy", String(pending));
-  const colls = (m.collectionIds || []).map(collName).filter(Boolean);
-  const rows = [["Tipo", m.type || "Link"], ["Assunto", m.subject], ["Período", m.period], ["Origem", m.source], ["Coleções", colls.join(", ")], ["Incluído em", fmtDate(m.createdAt)], ["Aberto por aqui em", fmtDate(m.lastOpenedAt)]].filter(r => r[1]);
-  const fields = list => h("dl", { class: "dl" }, list.map(([k, v]) => h("div", null, h("dt", { text: k }), h("dd", { text: v }))));
-  const secondary = ["Origem", "Incluído em", "Aberto por aqui em"];
-  const dl = fields(rows.filter(([k]) => !secondary.includes(k)));
-  const meta = h("details", { class: "d-meta", open: metaOpen }, h("summary", { text: "Origem e datas" }), fields(rows.filter(([k]) => secondary.includes(k))));
-  const cur = m.status || "nao-iniciado";
-  const fs = h("fieldset", { class: "statusset" }, h("legend", { text: "Situação de estudo" }), h("div", { class: "segwrap" }, STATUS.map(([v, l]) => h("label", null, h("input", { type: "radio", name: "d-status", value: v, checked: v === cur, onchange: () => { if (materialWrites.has(m.id)) renderDetail(); else setStatus(m.id, v); } }), l))));
-  fs.setAttribute("aria-busy", String(pending));
-  $$("input", fs).forEach(input => { input.setAttribute("aria-disabled", String(pending)); });
-  const parts = [$("#d-reading"), fs,
-    h("p", { class: "save-state", role: "status", text: pending ? "Salvando alteração…" : "" }), dl, meta,
-    (m.tags || []).length ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Etiquetas" }), h("div", { class: "tags" }, m.tags.map(t => h("span", { class: "tag", text: t })))) : null,
-    m.notes ? h("div", { class: "fld" }, h("span", { class: "lbl", text: "Observações" }), h("p", { class: "notes", text: m.notes })) : null,
-    h("p", { class: "d-note", text: (m.url || "Sem link") + " · o arquivo continua onde está; a biblioteca guarda só o link." })];
-  const body = $("#d-body");
-  body.replaceChildren(...parts.filter(Boolean));
-  body.scrollTop = scroll;
-  if (radioValue) {
-    const radio = $$('input[name="d-status"]', body).find(input => input.value === radioValue);
-    if (radio) radio.focus({ preventScroll: true });
-  }
-  if (confirmRemove) body.append(h("div", { class: "confirm-inline", role: "alert" }, h("p", { text: "Remover este material do catálogo? Só o registro sai daqui. O arquivo original (por exemplo, no Google Drive) não é apagado nem alterado." }),
-    h("div", { class: "acts" }, h("button", { class: "btn danger", type: "button", id: "d-rm-yes", text: "Remover do catálogo", onclick: () => { confirmRemove = false; removeMaterial(m.id); } }), h("button", { class: "btn", type: "button", text: "Cancelar", onclick: () => { confirmRemove = false; renderDetail(); } }))));
-  $("#d-foot").replaceChildren(h("div", { class: "d-actions" }, openLink(m)), h("div", { class: "d-secondary" },
-    h("button", { class: "btn", type: "button", "data-edit": "", text: "Editar", disabled: pending, onclick: () => { closeDlg($("#dlg-detail"), true); openForm(m.id); } }),
-    h("span", { class: "spacer" }),
-    h("button", { class: "btn ghost", type: "button", "data-edit": "", text: "Remover do catálogo", disabled: pending, onclick: () => { confirmRemove = true; renderDetail(); setTimeout(() => $("#d-rm-yes") && $("#d-rm-yes").focus(), 0); } })));
-}
-function openForm(id, areaId) {
-  if (!ready()) return;
-  S.editId = id; const m = id ? find(id) : null;
-  $("#form-title").textContent = m ? "Editar material" : "Adicionar material";
-  $("#m-save").textContent = m ? "Salvar alterações" : "Salvar material";
-  $("#m-title").value = m ? m.title || "" : ""; $("#m-url").value = m ? m.url || "" : "";
-  const areaOpts = [["", "Sem área"], ...treeOrder().map(([a]) => [a.id, pathOf(a.id).map(x => x.name).join(" › ")])];
-  const defArea = m ? m.areaId || "" : (areaId || (S.view === "lib" && S.area !== "todos" ? S.area : ""));
-  fillSelect($("#m-area"), areaOpts, defArea);
-  fillSelect($("#m-type"), [["", "Sem tipo"], ...TYPES.map(t => [t, t])], m ? m.type || "" : "");
-  fillSelect($("#m-status"), STATUS, m ? m.status || "nao-iniciado" : "nao-iniciado");
-  $("#m-subject").value = m ? m.subject || "" : ""; $("#m-period").value = m ? m.period || "" : "";
-  $("#m-tags").value = m ? (m.tags || []).join(", ") : ""; $("#m-origin").value = m ? m.source || "" : ""; $("#m-notes").value = m ? m.notes || "" : "";
-  $("#m-fav").checked = !!(m && m.favorite); $("#m-coll-new").value = "";
-  const sel = new Set(m ? m.collectionIds || [] : (S.f.coll ? [S.f.coll] : []));
-  $("#m-colls").replaceChildren(...(S.collections.length ? S.collections.map(c => h("label", null, h("input", { type: "checkbox", value: c.id, checked: sel.has(c.id) }), c.name)) : [h("span", { class: "small muted", text: "Nenhuma coleção ainda. Crie uma no campo abaixo, se quiser." })]));
-  ["title", "url"].forEach(k => fieldErr(k, ""));
-  openDlg($("#dlg-form")); setTimeout(() => $("#m-title").focus(), 0);
-}
-function fieldErr(k, msg) { const i = $("#m-" + k), e = $("#m-" + k + "-err"); if (msg) { e.textContent = msg; e.hidden = false; i.setAttribute("aria-invalid", "true"); } else { e.hidden = true; i.removeAttribute("aria-invalid"); } return !msg; }
-const BAD_URL = "Este link não parece válido. Ele precisa começar com https:// e ter um endereço completo.";
-$("#m-url").addEventListener("blur", () => { const v = $("#m-url").value.trim(); if (v) fieldErr("url", validUrl(v) ? "" : BAD_URL); });
-$("#mat-form").addEventListener("submit", async e => {
-  e.preventDefault(); if (S.busy) return;
-  const title = $("#m-title").value.trim(), url = $("#m-url").value.trim();
-  const okT = fieldErr("title", title ? "" : "Dê um título ao material.");
-  const okU = fieldErr("url", !url ? "Cole o link do material." : validUrl(url) ? "" : BAD_URL);
-  if (!okT || !okU) { (!okT ? $("#m-title") : $("#m-url")).focus(); return; }
-  S.busy = true; $("#m-save").disabled = true;
-  const ok = await write(async () => {
-    const collIds = $$("#m-colls input:checked").map(i => i.value);
-    const nc = $("#m-coll-new").value.trim(); if (nc) { const cid = await ensureCollection(nc); if (cid && !collIds.includes(cid)) collIds.push(cid); }
-    const tags = [...new Set($("#m-tags").value.split(",").map(t => t.trim()).filter(Boolean))];
-    let source = $("#m-origin").value.trim(); if (!source && isDrive(url)) source = "Google Drive";
-    const body = { title, url, areaId: $("#m-area").value, subject: $("#m-subject").value.trim(), period: $("#m-period").value.trim(), type: $("#m-type").value, tags, collectionIds: collIds, source, notes: $("#m-notes").value.trim(), status: $("#m-status").value, favorite: $("#m-fav").checked };
-    if (S.editId) await S.db.doc("materials/" + S.editId).update(body);
-    else await S.db.collection("materials").doc().set({ ...body, createdAt: nowIso() });
-  }, S.editId ? "Alterações salvas" : "Material salvo");
-  S.busy = false; $("#m-save").disabled = false;
-  if (ok) closeDlg($("#dlg-form"));
-});
-
-/* ---------- eventos ---------- */
-$$("[data-action='add']").forEach(b => b.addEventListener("click", () => openForm(null)));
-$("#skip").addEventListener("click", () => { if (S.view === "organizar") { $("#main").focus(); return; } const first = $("#view-lib [data-mid]"); if (first) { first.closest(".entry, .feature").scrollIntoView({ block: "center" }); first.focus({ preventScroll: true }); } else $("#lib-q").focus(); });
-/* Sumário em folha (celular): o mesmo índice da página da esquerda do computador. */
-function openToc() {
-  $("#toc-tree-m").replaceChildren(...tocTree(ready() ? filtered() : []));
-  spy();
-  const current = $("#lib-results .sec") && $("#toc-tree [aria-current='location']");
-  $("#explore-location").hidden = !current;
-  $("#explore-location").textContent = current ? "Você está em " + $("#rh-title").textContent + " · " + $("#rh-path").textContent : "";
-  openDlg($("#dlg-toc"));
-  $$("[data-action='toc']").forEach(button => button.setAttribute("aria-expanded", "true"));
-}
-$("#dlg-toc").addEventListener("close", () => {
-  $("#bubble").hidden = true;
-  $$("[data-action='toc']").forEach(button => button.setAttribute("aria-expanded", "false"));
-});
-const explorerMedia = matchMedia("(max-width:999px)");
-function syncExplorer() {
-  const dialog = $("#dlg-toc");
-  if (dialog.open) closeDlg(dialog, true);
-  (explorerMedia.matches ? $("#explore-index") : $(".spread")).append($("#thumbs"));
-  (explorerMedia.matches ? dialog : document.body).append($("#bubble"));
-}
-explorerMedia.addEventListener("change", syncExplorer);
-syncExplorer();
-$$("[data-action='toc']").forEach(b => b.addEventListener("click", openToc));
-$("#rh-where").addEventListener("click", () => {
-  if (matchMedia("(max-width:999px)").matches) { openToc(); return; }
-  // no computador o sumário já está aberto à esquerda: o foco vai para o item atual dele
-  const cur = $("#toc-tree [aria-current='location']") || $("#toc-tree a, #toc-tree button");
-  if (cur) { cur.scrollIntoView({ block: "center" }); cur.focus(); }
-});
-$("#dlg-toc").addEventListener("click", e => { if (e.target.closest("a[href^='#']")) closeDlg($("#dlg-toc"), true); });
-window.atlasTheme.sync();
-$("#d-fav").addEventListener("animationend", () => $("#d-fav").classList.remove("pop"));
-$("#layout-toggle").addEventListener("click", () => {
-  layout = layout === "shelf" ? "list" : "shelf";
-  try { localStorage.setItem("bm-layout", layout); } catch (_) {}
-  renderLibrary();
-});
-$("#theme-open").addEventListener("click", () => { window.atlasTheme.sync(); openDlg($("#dlg-theme")); });
-$("#dlg-theme").addEventListener("change", e => {
-  if (!e.target.matches('input[name="theme"]')) return;
-  const requested = e.target.value;
-  window.atlasTheme.set(requested);
-  $("#theme-note").textContent = document.documentElement.dataset.themePreference !== requested ?
-    "Não foi possível salvar a preferência. Usando o tema do sistema." : "Sistema acompanha a aparência do dispositivo.";
-});
-/* Um toque numa aba ou no sumário que aponta para a área já aberta também leva até ela. */
-document.addEventListener("click", e => {
-  const a = e.target.closest("a[href^='#a-']"); if (!a || e.defaultPrevented || a.getAttribute("href") !== location.hash) return;
-  const id = a.getAttribute("href").slice(3), el = $("#s-" + id) || $("#c-" + id) || $("#p-" + id);
-  if (el) { e.preventDefault(); goTo(el); }
-});
-/* Setas: do campo de busca para o primeiro material e entre os materiais; Esc volta ao campo. */
-document.addEventListener("keydown", e => {
-  if (!["ArrowDown", "ArrowUp", "Escape"].includes(e.key) || document.querySelector("dialog[open]")) return;
-  const t = e.target, field = t.id === "lib-q" ? t : null;
-  const scope = field ? $("#view-lib") : t.closest && t.closest("#view-lib");
-  if (!scope) return;
-  const items = $$("[data-mid]", scope).filter(b => b.offsetParent);
-  if (field) { if (e.key === "ArrowDown" && items.length) { e.preventDefault(); items[0].focus(); items[0].closest(".entry, .feature").scrollIntoView({ block: "nearest" }); } return; }
-  const i = items.indexOf(t); if (i < 0) return;
-  e.preventDefault();
-  if (e.key === "Escape") { $("#lib-q").focus(); return; }
-  const next = items[i + (e.key === "ArrowDown" ? 1 : -1)];
-  if (next) { next.focus(); next.closest(".entry, .feature").scrollIntoView({ block: "nearest" }); }
-  else if (e.key === "ArrowUp") $("#lib-q").focus();
-});
-const refresh = () => { renderHome(); renderLibrary(); };
-let qTimer; $("#lib-q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { S.q = e.target.value; refresh(); }, 120); });
-$("#lib-q").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); const first = $("#view-lib [data-mid]"); if (first && S.q.trim()) first.closest(".entry, .feature").scrollIntoView({ block: "nearest" }); } });
-$("#f-type").addEventListener("change", e => { S.f.type = e.target.value; refresh(); });
-$("#f-status").addEventListener("change", e => { S.f.status = e.target.value; refresh(); });
-$("#f-coll").addEventListener("change", e => { S.f.coll = e.target.value; refresh(); });
-$("#f-fav").addEventListener("click", () => { S.f.fav = !S.f.fav; refresh(); });
-$("#f-sort").addEventListener("change", e => { S.sort = e.target.value; savePrefs(); renderLibrary(); });
-$("#f-group").addEventListener("change", e => { S.group = e.target.value; savePrefs(); renderLibrary(); });
-$("#clear-filters").addEventListener("click", clearFilters);
-let rsT; window.addEventListener("resize", () => { clearTimeout(rsT); rsT = setTimeout(() => { if (S.view !== "organizar" && ready()) renderLibrary(); }, 150); });
-if (document.fonts && document.fonts.ready) document.fonts.ready.then(spy);
-$("#mod-add").addEventListener("submit", e => { e.preventDefault(); const i = $("#mod-new"); if (i.value.trim()) addArea("", i.value).then(() => { i.value = ""; }); });
-$("#coll-add").addEventListener("submit", e => { e.preventDefault(); addColl($("#coll-new")); });
-window.addEventListener("hashchange", () => route(true));
-// "/" leva à busca, como numa barra de comando; ignorado enquanto se digita ou com um painel aberto
-document.addEventListener("keydown", e => {
-  if (e.key !== "/" || e.ctrlKey || e.metaKey || e.altKey || document.querySelector("dialog[open]")) return;
-  const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
-  e.preventDefault();
-  if (S.view === "organizar") location.hash = "inicio";
-  if (matchMedia("(max-width:999px)").matches) window.scrollTo(0, 0);
-  setTimeout(() => $("#lib-q").focus(), 0);
-});
-
-try {
-  $("#more").open = false; // refinar fica recolhido: a busca e o livro vêm primeiro
-} catch (_) {}
-/* ---------- banco fora do claude.ai: Supabase ----------
-   Dentro do claude.ai o site usa window.claude.use("db"). No site próprio usa o Supabase, com a mesma interface
-   (collection/doc/onSnapshot/set/update/delete). A chave abaixo é a chave pública do projeto: o acesso aos dados
-   é protegido pelas regras do banco (só os e-mails do dono leem e gravam). */
-const SUPA = { url: "https://rmqfduksayyplucshqea.supabase.co", key: "sb_publishable_EG4jEqDNIiD_-ow5L4qh8w_XkUG7eDZ", lib: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" };
-const COLS = {
-  materials: ["title", "url", "areaId", "subject", "period", "type", "tags", "collectionIds", "source", "notes", "status", "favorite", "createdAt", "lastOpenedAt", "statusAt"],
-  areas: ["name", "parentId", "order", "stain", "short", "createdAt"],
-  collections: ["name", "createdAt"],
-};
-const toCol = k => k === "order" ? "sort_order" : k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
-const toKey = c => c === "sort_order" ? "order" : c.replace(/_([a-z])/g, (_, x) => x.toUpperCase());
-function rowOut(table, obj) { const r = {}; for (const k of COLS[table]) if (k in obj) r[toCol(k)] = /At$/.test(k) && !obj[k] ? null : obj[k]; return r; }
-function rowIn(r) { const o = {}; for (const [c, v] of Object.entries(r)) if (c !== "id") o[toKey(c)] = v == null && c.endsWith("_at") ? "" : v; return o; }
-function loadScript(src) { return new Promise((ok, fail) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = () => fail(new Error("Falha ao carregar " + src)); document.head.append(s); }); }
-function supaDb(sb) {
-  const listeners = {};
-  const refresh = async table => {
-    const { data, error } = await sb.from(table).select("*");
-    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: r.id, data: () => rowIn(r) })) });
-  };
-  const check = ({ error }) => { if (error) throw error; };
-  const ref = (table, id) => ({ id,
-    async set(obj) { check(await sb.from(table).upsert({ id, ...rowOut(table, obj) })); refresh(table); },
-    async update(obj) { check(await sb.from(table).update(rowOut(table, obj)).eq("id", id)); refresh(table); },
-    async delete() { check(await sb.from(table).delete().eq("id", id)); refresh(table); } });
-  return {
-    doc: path => { const [table, id] = path.split("/"); return ref(table, id); },
-    collection: table => ({
-      doc: id => ref(table, id || crypto.randomUUID()),
-      onSnapshot(next, err) {
-        (listeners[table] ||= []).push({ next, err }); refresh(table);
-        sb.channel("bm-" + table).on("postgres_changes", { event: "*", schema: "public", table }, () => refresh(table)).subscribe();
-      } }),
-  };
-}
-async function startSupabase() {
-  await loadScript(SUPA.lib);
-  const sb = window.supabase.createClient(SUPA.url, SUPA.key, { auth: { flowType: "pkce", persistSession: true, detectSessionInUrl: true } });
-  S.sb = sb;
-  const { data } = await sb.auth.getSession();
-  if (/[?&]code=/.test(location.search)) history.replaceState(null, "", location.pathname + location.hash);
-  if (!data.session) { S.dbState = "login"; renderAll(); return null; }
-  S.user = data.session.user.email || "";
-  const { data: allowed, error } = await sb.rpc("sou_bibliotecaria");
-  if (error) throw error;
-  if (!allowed) { S.dbState = "denied"; renderAll(); return null; }
-  return supaDb(sb);
-}
-async function signOut() { if (S.sb) await S.sb.auth.signOut(); location.reload(); }
-function loginPanel() {
-  const email = h("input", { type: "email", id: "login-email", autocomplete: "email", inputmode: "email", autocapitalize: "none", required: true, placeholder: "seu e-mail" });
-  const code = h("input", { type: "text", id: "login-code", inputmode: "numeric", autocomplete: "one-time-code", maxlength: "10", placeholder: "código do e-mail" });
-  const msg = h("p", { class: "small muted", role: "status" });
-  const step2 = h("form", { class: "find-row", hidden: true, onsubmit: async e => {
-    e.preventDefault(); if (!code.value.trim()) return;
-    const { error } = await S.sb.auth.verifyOtp({ email: email.value.trim(), token: code.value.trim(), type: "email" });
-    if (error) msg.textContent = "Código inválido ou vencido. Peça um novo link."; else location.reload();
-  } }, h("label", { class: "sr", for: "login-code", text: "Código recebido por e-mail" }), h("div", { class: "field" }, code), h("button", { class: "btn primary", type: "submit", text: "Entrar" }));
-  const step1 = h("form", { class: "find-row", onsubmit: async e => {
-    e.preventDefault(); const v = email.value.trim(); if (!v) { email.focus(); return; }
-    msg.textContent = "Enviando…";
-    const { error } = await S.sb.auth.signInWithOtp({ email: v, options: { emailRedirectTo: location.origin + location.pathname } });
-    if (error) { msg.textContent = "Não foi possível enviar agora. Confira o e-mail e tente de novo em um minuto."; return; }
-    msg.textContent = `Enviamos um link de acesso para ${v}. Abra o link neste mesmo navegador. Se o e-mail trouxer um código, digite-o abaixo.`;
-    step2.hidden = false;
-  } }, h("label", { class: "sr", for: "login-email", text: "E-mail" }), h("div", { class: "field" }, email), h("button", { class: "btn primary", type: "submit", text: "Enviar link" }));
-  return h("div", { class: "notice login" }, h("h2", { text: "Entrar na biblioteca" }),
-    h("p", { class: "muted", text: "O catálogo é privado: só os e-mails do dono desta biblioteca têm acesso. Você entra sem senha, por um link enviado ao e-mail." }), step1, step2, msg);
-}
-
-route(false); renderAll();
-(async () => {
-  let db = null;
-  try {
-    if (window.claude && typeof window.claude.use === "function") db = await window.claude.use("db");
-    else db = await startSupabase();
-  } catch (e) { console.error(e); }
-  if (S.dbState === "login" || S.dbState === "denied") return;
-  if (!db) { S.dbState = "unavailable"; renderAll(); return; }
-  S.db = db; S.dbState = "ready"; renderAll(); subscribe();
-})();
-})();
-</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "aorta",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Aorta: acervo de links de materiais de medicina organizado como o curso (módulo › unidade › matéria).",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.2",
+    "gsap": "3.15.0",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "vite": "8.3.2"
+  }
+}

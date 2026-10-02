@@ -1,92 +1,59 @@
 ---
-name: Biblioteca de Medicina
-description: Atlas digital — leitura ampla, retomada em verde profundo e explorador contextual do curso.
+name: Aorta
+description: Coração-mapa — o curso como um coração em que cada artéria é um módulo; folhas de material, busca por atalho e tema claro desenhado.
 ---
 
-# Atlas digital — sistema visual
+# Aorta — sistema visual implementado
 
-Atualizado em 01/10/2026 por Codex. Evolução da navegação “Índice de dedo”, com foco em recuperar largura no celular, tornar a busca uma faixa de trabalho e dar ao catálogo uma leitura editorial por margem.
+Atualizado em 02/10/2026 por Claude, na migração para Vite. Implementa a v3 do Codex (protótipo em `versoes/prototipos-2026-10-02/aorta-v3/`) sobre o site real, com as correções da revisão. A fonte das regras é a skill `.claude/skills/aorta-design/SKILL.md`; este arquivo descreve **o que está no código**. O sistema anterior ("Atlas digital", estante de capas, índice de dedo) está em `versoes/claude-2026-10-02-antes-vite.html`.
 
 ## Direção
 
-A biblioteca mantém módulo → unidade → matéria → assunto. A serifa identifica capítulos; materiais e controles usam sans. A cor da matéria orienta a seleção e o acesso ao original. O destaque de retomada tem composição e contraste próprios, sem exigir histórico para o restante do início funcionar.
+Escuro arroxeado como fundo, violeta como luz, carmim como ação e fluxo, creme no texto. O início é um mapa do curso: um coração anatômico translúcido (HuBMAP, CC BY 4.0, crédito no rodapé) em que cada artéria é um módulo. O pulso de luz só corre nas artérias de módulos com material; sem material, a artéria é tracejada ("Em produção", deduzido dos dados). As artérias são traçado estilizado, e isso está dito no rodapé.
 
-## Tokens
+## Tokens (`src/styles/tokens.css`)
 
-Todos os valores ficam em `:root`, com `prefers-color-scheme` e `[data-theme]`.
+Todas as cores ficam ali, com o escuro em `:root`, o claro em `@media (prefers-color-scheme: light)` (sem `data-theme`) e em `[data-theme="light"]`. Nenhum hexadecimal fora desse arquivo (o `check` confere).
 
-| Token | Claro | Escuro |
-|---|---|---|
-| desk | #edf1ed | #0e1719 |
-| page | #f7f8f6 | #131d20 |
-| page-2 | #eaf0eb | #263536 |
-| surface | #ffffff | #1c292c |
-| ink | #203731 | #edf4ef |
-| ink-2 | #425b53 | #c4d5ce |
-| ink-3 | #53665f | #afc2bc |
-| rule | #dce5de | #324447 |
-| rule-2 | #c0cec4 | #4b6264 |
-| edge | #75877c | #849b96 |
-| feature | #173e36 | #203f36 |
-| feature-ink | #f2f8f1 | #f2f8f1 |
-| feature-muted | #c8dbd1 | #c8dbd1 |
-| feature-action | #e1eddc | #e1eddc |
-
-Tintas das matérias continuam nos tokens `t-*`, derivadas de `areas.stain`. Estado inativo do índice usa superfície neutra e borda colorida; estado atual recebe a tinta como fundo e `t-on` no texto.
+| Token | Escuro | Claro | Uso |
+|---|---|---|---|
+| `--bg` | #0d0817 | #f6eee8 | página e `theme-color` |
+| `--surface` / `--paper` | #1a1030 / #221632 | #ede2dd / #fffaf4 | campos / folhas, cartões, diálogos |
+| `--text` / `--muted` | #f6eee8 / #b4a6c4 | #301930 / #6b5266 | texto / texto secundário |
+| `--line` / `--line-strong` | #3d2e52 / #5a4775 | #dccbcd / #b9a2aa | divisórias / bordas de controle |
+| `--action` | #ff4f7e | #a9204b | ação principal (Abrir original, busca) |
+| `--flow` | #ff8fb0 | #a9204b | itálico do título, links, pulso |
+| `--violet-2` / `--focus` | #c9b8ff | #5b3a8a | foco, segmento ativo |
+| `--m1` … `--m8` | violeta, rosa, lilás, verde-água, âmbar, azul, rosa-claro, oliva | versões escuras de mesma família | cor de cada módulo/artéria (rodízio a partir do nono) |
+| `--atrium` / `--ventricle` / `--valve` | — | — | materiais do coração 3D (relidos ao trocar o tema) |
 
 ## Tipografia
 
-- Literata: capítulos, marca, títulos curtos de seção.
-- Schibsted Grotesk: materiais, detalhe e interface.
-- Material: 17 px no celular / 18 px no computador; altura de linha 1,4; títulos completos.
-- Retomada: 22 px / 28 px, peso 500, altura de linha 1,3.
-- Detalhe: 25 px, peso 500; título com toda a largura do painel.
-- Fontes carregadas com `display=swap`; o comportamento de carregamento existente foi preservado.
+Literata (títulos, numerais de módulo, títulos de material), Schibsted Grotesk (interface), JetBrains Mono (rótulos técnicos "ART. 01", tipos de material). Google Fonts com `display=swap`.
 
-## Composição
+## Telas
 
-- Celular: gutter de 16 px nos dois lados. O índice não ocupa mais os 52 px permanentes. A primeira visita apresenta busca, abas “Retomar/Catálogo”, marcador de leitura aberto quando existe e o primeiro capítulo do curso. “Em estudo, favoritos e recentes” fica em disclosure nativo, sempre fechado; sem histórico, “Por onde começar” ocupa o início.
-- Computador: a busca ocupa uma faixa própria acima do conteúdo; a retomada e a seleção ocupam duas colunas antes do catálogo.
-- O catálogo usa módulo em linha, unidade em Literata grande sem caixa e matérias como abas preenchidas pela tinta da área; assuntos continuam em margem de 132 px no computador e materiais são linhas abertas com título e “Abrir original” alinhados.
-- “Explorar” na barra inferior abre `#dlg-toc`: árvore com nomes completos à esquerda e índice de matérias à direita. A cabeça corrente também abre o explorador.
-- Computador: sumário contextual de 280 px, conteúdo flexível, índice na borda. A área de retomada tem título largo e ações embaixo.
-- Materiais usam superfícies discretas e bordas suaves; foram removidos os pontilhados decorativos.
-- “Recém-incluídos” continua sendo a alternativa quando não há histórico, itens em estudo ou favoritos.
+- **Início** (`#inicio`, `src/views/home.js` + `map.js`): título em dois tons com "hoje?" em itálico; placa de busca clara que abre a busca rápida; números reais (materiais, módulos com material); "Continuar" com o último material aberto; coração-mapa com rótulos tipográficos ("ART. 01 / M1 / 4 materiais") em duas colunas, cada um do lado em que a artéria termina, ligados por linhas-guia finas à ponta da artéria; "Módulos do curso" (índice com unidades e artéria; os em produção numa linha à parte); "Sua mesa de estudo" (em estudo e favoritos) e "Acabou de chegar". No celular, o "Continuar" vem depois do coração, para não empurrar o mapa quando os dados chegam.
+- **Módulo** (`#a-<área>`, `#todos`, `src/views/module.js`): numeral grande na cor da artéria, "ART. 01 · DESCENDENTE ANTERIOR", resumo real (materiais, unidades, quais estão em produção), mini-artéria; unidades em abas; matérias ao lado (fichas em pílula no celular); busca e filtros (tipo, situação, coleção, ordem, favoritos) com chips removíveis; folhas agrupadas por matéria (ou por assunto, com uma matéria escolhida). `#todos` usa a mesma tela com os módulos como abas. A rota `#a-<id>` de uma unidade ou matéria abre o módulo já com ela escolhida.
+- **Ficha** (`src/views/detail.js`): painel à direita no computador, folha que sobe no celular (arrastar a alça para baixo fecha). Onde fica, título completo, assunto, favorito, situação em segmentos, "Abrir original" em carmim, aviso de que o site guarda o link, período, coleções, etiquetas, observações, "Origem e datas", e para quem edita Editar e Remover (com aviso de que o original não é apagado e Desfazer).
+- **Busca rápida** (Ctrl/⌘+K, "/" fora do módulo, placa e lupa): materiais, matérias/unidades e módulos; sem acento e sem maiúscula; grifo do termo; setas, Enter e Esc; sem resultado, sugere os módulos que têm material.
+- **Organizar** (`#organizar`) e **formulário** de material: mesmas funções de antes, no visual Aorta.
 
-## Componentes e interação
+## Movimento (GSAP, sempre interrompível)
 
-- `.resume`/`.feature`: retomada em verde profundo com cabeçalho de data, origem acima do título e ações abaixo. Não há arcos decorativos.
-- `.entry`: material legível, abertura do detalhe pelo título e link original separado; largura e altura acompanham o conteúdo.
-- `#thumbs`: um único elemento é movido para `#explore-index` no celular e para `.spread` no computador. Evita duplicação de IDs e de estado.
-- Toque na matéria fecha o explorador e navega. Arrastar percorre assuntos, mostra o balão e, ao soltar, fecha o explorador e foca um material do destino.
-- “Explorar” informa `aria-expanded`; Escape e o botão Fechar devolvem o foco.
-- Ao atravessar o breakpoint de 1000 px, o explorador fecha e o índice muda de posição.
-- Detalhe: marcador da matéria no cabeçalho, favorito/fechar alinhados no topo, abertura do original em destaque, metadados em grade de duas colunas.
-- Movimento curto, com alternativa para `prefers-reduced-motion`: pressão em 100 ms com `--ease`, painéis em 220 ms/160 ms com `--ease-drawer`; modo reduzido mantém apenas cor, borda e foco. Alvos de toque de 44 px ou mais.
-- `.start` ("Por onde começar"): aparece só sem histórico. Duas fileiras de portas (`.door`, 2 colunas no celular, 4 no computador): tipos (Provas antigas, Monitoria, Resumos, Casos clínicos) e módulos com material; porta sem material é tracejada e diz "Em produção". Módulos sem material ficam numa linha única "Em produção: M3 M4 …" (`.start-prod`, links de 44 px). Os módulos vêm dos dados; nada fixo em M1–M8.
-- "Em produção" (`IN_PRODUCTION`, `areasWithContent()`): módulo, unidade ou matéria sem material nela nem abaixo. Marca no livro (`.part.is-production`, aviso `.part-note` com atalho para o primeiro módulo com conteúdo), no Explorar (`.t-flag`) e na cabeça corrente. Módulos com conteúdo vêm primeiro; sem barra de progresso, porcentagem ou data.
-- **Estante visual** (decisão do dono em 02/10/2026): o catálogo é uma estante. `cover()` desenha uma capa por material só com CSS e SVG inline: cor da matéria, lombada à esquerda, rótulo e ícone do tipo (`COVER_ICONS`), textura por tipo (linhas, pontos ou lisa) e o período, quando existe. Sem imagem externa. Cores de sombra e brilho das capas vêm dos tokens `--shade`, `--gloss`, `--cover-*`.
-  - Catálogo: grade de capas (2 colunas no celular, `auto-fill` a partir de 700 px) ou lista com capa ao lado; botão Lista/Estante em `.route-tabs` (só no catálogo), escolha em `localStorage` (`bm-layout`), padrão estante. O tipo continua no texto (visualmente oculto) para leitor de tela.
-  - Retomada: capa de 84 px ao lado do título. Seleção (Em estudo, Favoritos, Recentes): trilho horizontal de capas (`.rail`).
-  - "Por onde começar": capas por tipo (`.type-shelf`) e lombadas de módulo (`.spines`) numa prateleira, na ordem do curso, cores das tintas em rodízio; lombada sem material é tracejada e diz "Em produção". Puxar a lombada (hover/toque) sobe 6 px.
-  - Ficha: capa de 60 px ao lado de onde o material fica.
-  - Movimento: capa sobe e inclina 1,2° no hover (só com ponteiro fino), afunda a .95 ao pressionar; estrela salta em 260 ms ao favoritar e continua a animação se o item for redesenhado; tudo some com `prefers-reduced-motion`.
-- `[data-edit]`: toda ação de edição (Adicionar link, Organizar, Editar, Remover, Adicionar material) o leva e fica em segundo plano (Adicionar link deixou de ser primário). A rodada de acesso o esconde de quem não edita com uma regra, ainda não ativada.
-- Aparência: o botão no cabeçalho abre radios nativos para Sistema, Claro e Escuro. A preferência é aplicada antes da primeira pintura, guardada em `bm-theme` quando possível, reage ao sistema e atualiza `theme-color`; falha de armazenamento volta a Sistema.
+- Coração: entrada crescendo até o tamanho (1,1 s, expo.out); batimento "lub-dub" (átrios 0,12 s, ventrículos a partir de 0,16 s com retorno elástico); pulso de luz de 1,1 s nas artérias irrigadas; repouso a cada 2,6 s, pausado fora da tela, com a aba escondida ou pelo botão "Pausar batimento". Apontar ou focar um rótulo realça a artéria e dispara o pulso só nela. Render sob demanda.
+- Do coração ao módulo: o nome tocado voa até o numeral do cabeçalho (0,7 s, expo.inOut) e o cabeçalho entra em cascata. Voltar devolve a rolagem e o foco ao rótulo de onde se veio.
+- Diálogos: entrada 0,32 s expo.out, saída 0,18 s; com teclado ou movimento reduzido, troca direta.
+- Estrela: salto de 280 ms que continua se o item for redesenhado.
+- Movimento reduzido: sem coração 3D (mapa em linhas), sem voo, sem deslocamentos; o resto funciona igual.
 
-## Figma e Higgsfield
+## Desempenho
 
-Proposta editável: https://www.figma.com/design/uK8IhxlrNvcPCEm4mki3Ar
-
-O arquivo contém três frames: Início 375 claro, Início 375 escuro e catálogo 1440 claro. São propostas com textos fictícios, não cópias do catálogo real. A implementação foi refinada para os títulos extensos e estados existentes.
-
-Higgsfield não estava conectado nesta sessão; a CLI também não estava disponível. Nenhum crédito foi gasto e nenhuma imagem externa foi adicionada. O visual utiliza CSS, fontes existentes e os ícones SVG do projeto.
+A primeira tela não depende do 3D. Three.js (~138 kB gz) e o modelo (4 MB) só carregam depois do `load`, com o navegador ocioso; a montagem devolve a vez ao navegador entre etapas; shaders compilam em paralelo quando possível; o traçado das artérias vem pré-calculado (`src/heart/arteries.json`). Sem WebGL, aparelho econômico (`deviceMemory ≤ 2`, `saveData`) ou modelo indisponível: mapa em linhas, com aviso discreto. Lighthouse (dados fictícios, 02/10/2026): celular 95, computador 99; acessibilidade e boas práticas 100.
 
 ## Para Codex e Claude
 
 - Preserve `window.claude.use("db")`, `supaDb()`, campos, RLS, login e rotas.
-- O catálogo continua guardando links. Remover mantém o original; Desfazer permanece.
-- Favoritos e status continuam sendo campos do catálogo; não representam progresso individual de múltiplos alunos.
-- Os testes de índice no celular precisam abrir “Explorar” antes de procurar as abas. A invisibilidade das abas no estado fechado é esperada.
-- `tools/flows.mjs` cobre abertura/fechamento do explorador, navegação, arraste, filtros, detalhe, favorito, status e remover/Desfazer.
-- Relatórios e capturas são de dados fictícios. Resultados e limites desta entrega estão em `CHANGES.md`.
+- O catálogo guarda links. Remover mantém o original; Desfazer permanece.
+- Favoritos e situação continuam sendo campos do catálogo (do dono), não progresso individual de cada aluno. Mudar isso é decisão de produto e de banco, separada do visual.
+- `[data-edit]` marca toda ação de edição (Adicionar, Organizar, Editar, Remover); a regra que as esconde de quem não edita entra com a rodada de acesso aberto.

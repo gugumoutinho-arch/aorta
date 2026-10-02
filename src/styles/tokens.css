@@ -1,0 +1,70 @@
+/* Tokens do Aorta. Escuro é o padrão; o claro é desenhado (papel creme, tinta ameixa, artérias vinho), não invertido.
+   "Sistema" = sem data-theme: segue prefers-color-scheme. Cores só por estes tokens. */
+:root {
+  --serif: "Literata", Georgia, serif;
+  --sans: "Schibsted Grotesk", system-ui, sans-serif;
+  --label: "Schibsted Grotesk", system-ui, sans-serif; /* rótulos técnicos em caixa alta ("ART. 01"), números tabulares */
+  --ease: cubic-bezier(.23, 1, .32, 1);
+  --radius: 6px;
+
+  --bg: #0d0817;
+  --surface: #1a1030;
+  --paper: #221632;
+  --paper-2: #2b1d40;
+  --text: #f6eee8;
+  --muted: #b4a6c4;
+  --line: #3d2e52;
+  --line-strong: #5a4775;
+  --action: #ff4f7e;
+  --action-ink: #220a17;
+  --flow: #ff8fb0;
+  --violet: #8b6cff;
+  --violet-2: #c9b8ff;
+  --focus: #c9b8ff;
+  --cream: #f6eee8;
+  --ink: #26142e;
+  --plate: #f6eee8;
+  --plate-ink: #26142e;
+  --shadow: rgb(5 0 12 / .5);
+  --scrim: rgb(8 3 16 / .66);
+  --haze: rgb(130 47 124 / .24);
+  --beam: rgb(255 79 126 / .12);
+  --error: #ff9bb5;
+  --ok: #b3d4cd;
+
+  --m1: #b8a8ff; --m2: #ff8fb0; --m3: #d7b4e7; --m4: #b3d4cd;
+  --m5: #e6bb97; --m6: #bccafa; --m7: #f0b9d4; --m8: #d3cf9e;
+  --t-hema: #b8a8ff; --t-eosin: #ff8fb0; --t-giemsa: #bccafa; --t-masson: #b3d4cd; --t-pas: #d7b4e7; --t-safra: #e6bb97; --t-neutral: #b4a6c4;
+
+  --atrium: #3a1f6e; --ventricle: #4a1f5e; --valve: #ff6f9a;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f6eee8; --surface: #ede2dd; --paper: #fffaf4; --paper-2: #f3e8e2;
+    --text: #301930; --muted: #6b5266; --line: #dccbcd; --line-strong: #b9a2aa;
+    --action: #a9204b; --action-ink: #fff9f2; --flow: #a9204b;
+    --violet: #674398; --violet-2: #5b3a8a; --focus: #5b3a8a;
+    --plate: #fffaf4; --plate-ink: #301930;
+    --shadow: rgb(80 30 55 / .16); --scrim: rgb(48 25 48 / .38); --haze: rgb(167 82 120 / .1); --beam: rgb(169 32 75 / .07);
+    --error: #9c1d3f; --ok: #2f6157;
+    --m1: #5f3c91; --m2: #a9204b; --m3: #7a4b82; --m4: #2f6157; --m5: #84461f; --m6: #44508a; --m7: #8f3d60; --m8: #5c571f;
+    --t-hema: #5f3c91; --t-eosin: #a9204b; --t-giemsa: #44508a; --t-masson: #2f6157; --t-pas: #7a4b82; --t-safra: #84461f; --t-neutral: #6b5266;
+    --atrium: #8a63a6; --ventricle: #b45a80; --valve: #962349;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f6eee8; --surface: #ede2dd; --paper: #fffaf4; --paper-2: #f3e8e2;
+  --text: #301930; --muted: #6b5266; --line: #dccbcd; --line-strong: #b9a2aa;
+  --action: #a9204b; --action-ink: #fff9f2; --flow: #a9204b;
+  --violet: #674398; --violet-2: #5b3a8a; --focus: #5b3a8a;
+  --plate: #fffaf4; --plate-ink: #301930;
+  --shadow: rgb(80 30 55 / .16); --scrim: rgb(48 25 48 / .38); --haze: rgb(167 82 120 / .1); --beam: rgb(169 32 75 / .07);
+  --error: #9c1d3f; --ok: #2f6157;
+  --m1: #5f3c91; --m2: #a9204b; --m3: #7a4b82; --m4: #2f6157; --m5: #84461f; --m6: #44508a; --m7: #8f3d60; --m8: #5c571f;
+  --t-hema: #5f3c91; --t-eosin: #a9204b; --t-giemsa: #44508a; --t-masson: #2f6157; --t-pas: #7a4b82; --t-safra: #84461f; --t-neutral: #6b5266;
+  --atrium: #8a63a6; --ventricle: #b45a80; --valve: #962349;
+  color-scheme: light;
+}
+:root[data-theme="dark"] { color-scheme: dark; }

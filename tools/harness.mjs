@@ -1,25 +1,31 @@
-// Documento compartilhado pelos testes e pelo GitHub Pages; banco fictício só no servidor de testes.
+// Base dos testes: monta o site com o Vite (dist/) e o serve localmente, com um banco fictício injetado.
+// O banco fictício imita window.claude.use("db"); nenhum teste toca no Supabase.
 import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export const here = path.dirname(fileURLToPath(import.meta.url));
-export const siteFile = path.resolve(here, '..', 'index.html');
+export const root = path.resolve(here, '..');
+export const dist = path.join(root, 'dist');
 export const reports = path.join(here, 'reports');
 
-export const SKELETON_HEAD =
-  '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">' +
-  '<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">' +
-  '<meta name="color-scheme" content="light dark">' +
-  '<meta name="theme-color" content="#f7f8f6">' +
-  '<meta name="robots" content="noindex, nofollow">' +
-  '<meta name="description" content="Biblioteca pessoal de materiais de medicina.">';
-export const SKELETON_TAIL = '</body></html>';
-
-export function readSite() { return fs.readFileSync(siteFile, 'utf8').replace(/\r\n/g, '\n'); }
-
 export function seed() { return JSON.parse(fs.readFileSync(path.join(here, 'seed.json'), 'utf8')); }
+
+/* Roda "vite build" uma vez por processo. Devolve { ok, log }. */
+let built = null;
+export function buildSite() {
+  if (built) return built;
+  const vite = path.join(root, 'node_modules', 'vite', 'bin', 'vite.js');
+  if (!fs.existsSync(vite)) return (built = { ok: false, log: 'Vite não instalado. Rode "npm install" na pasta do projeto.' });
+  const r = spawnSync(process.execPath, [vite, 'build'], { cwd: root, encoding: 'utf8' });
+  return (built = { ok: r.status === 0 && fs.existsSync(path.join(dist, 'index.html')), log: (r.stdout || '') + (r.stderr || '') });
+}
+export function pageHtml() {
+  const b = buildSite(); if (!b.ok) throw new Error('Build falhou:\n' + b.log);
+  return fs.readFileSync(path.join(dist, 'index.html'), 'utf8');
+}
 
 // Código injetado antes da página: imita window.claude.use("db") com dados fictícios.
 export function mockDbScript(data = seed()) {
@@ -38,22 +44,27 @@ export function mockDbScript(data = seed()) {
       async delete() { delete store[p]; emit(); } });
     const colRef = c => ({ path: c, doc: id => docRef(c + '/' + (id || 't' + Date.now().toString(36) + (n++))),
       onSnapshot(next) { const f = () => next(snap(c)); subs.push(f); setTimeout(f, 30); return () => {}; } });
-    window.claude = { use: async name => name === 'db' ? { doc: docRef, collection: colRef } : null };
+    window.claude = { aortaTest: true, use: async name => name === 'db' ? { doc: docRef, collection: colRef } : null };
   })();`;
 }
+export const withDb = (data = seed()) => '<script>' + mockDbScript(data) + '</script>';
+export const LOADING = '<script>window.claude={aortaTest:true,use:()=>new Promise(()=>{})}</script>';
+export const FAILING = '<script>window.claude={aortaTest:true,use:()=>Promise.reject(new Error("banco fora do ar (teste)"))}</script>';
 
-export function pageHtml() {
-  const src = readSite();
-  const title = src.match(/<title>[\s\S]*?<\/title>/)[0];
-  return SKELETON_HEAD + title + '</head><body>' + src.replace(title, '').trimStart() + SKELETON_TAIL;
-}
-
-// Servidor local mínimo para o Lighthouse e o Playwright abrirem a página por http.
-export function startServer({ withDb = true } = {}) {
-  const html = pageHtml().replace('<head>', '<head>' + (withDb ? '<script>' + mockDbScript() + '</script>' : ''));
+const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.glb': 'model/gltf-binary', '.svg': 'image/svg+xml', '.json': 'application/json', '.png': 'image/png' };
+/* Servidor estático do dist/; a página recebe "inject" logo depois de <head>. "block" devolve 404 para caminhos que casarem. */
+export function startServer({ withDb: db = true, inject, block } = {}) {
+  const html = pageHtml().replace('<head>', '<head>' + (inject ?? (db ? withDb() : '')));
   const server = http.createServer((req, res) => {
-    if (req.url.startsWith('/favicon')) { res.writeHead(204); return res.end(); }
-    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' }); res.end(html);
+    const url = decodeURIComponent(req.url.split('?')[0]);
+    if (url.startsWith('/favicon')) { res.writeHead(204); return res.end(); }
+    if (url === '/' || url === '/index.html') { res.writeHead(200, { 'Content-Type': TYPES['.html'] }); return res.end(html); }
+    if (block && block.test(url)) { res.writeHead(404); return res.end(); }
+    const file = path.join(dist, url);
+    if (!file.startsWith(dist) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) { res.writeHead(404); return res.end(); }
+    const body = fs.readFileSync(file);
+    res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Content-Length': body.length });
+    res.end(body);
   });
   return new Promise(resolve => server.listen(0, '127.0.0.1', () => resolve({ server, url: `http://127.0.0.1:${server.address().port}/`, html })));
 }
@@ -65,3 +76,5 @@ export function chromePath() {
   if (!found) throw new Error('Chrome não encontrado. Defina a variável CHROME_PATH.');
   return found;
 }
+/* Argumentos para o Chrome sem placa de vídeo desenhar WebGL (só nos testes do coração 3D). */
+export const WEBGL_ARGS = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];

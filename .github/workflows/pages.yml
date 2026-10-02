@@ -1,5 +1,6 @@
 name: Publicar o site
 
+# Publica só depois que a verificação completa passa (AGENTS.md: nada vai ao ar com "check" em erro).
 on:
   push:
     branches: [main]
@@ -7,16 +8,48 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
-  publicar:
+  verificar:
     runs-on: ubuntu-latest
+    env:
+      CHROME_PATH: /usr/bin/google-chrome
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
+      - name: Instalar dependências do site
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Instalar dependências das verificações
+        working-directory: tools
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verificar o site (build, regras, CSS, HTML, telas e acessibilidade)
+        working-directory: tools
+        run: npm run check
+      - name: Guardar capturas de tela e relatório
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorio-do-site
+          path: tools/reports
+          retention-days: 14
+
+  publicar:
+    needs: verificar
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
@@ -25,11 +58,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Montar o documento completo a partir do index.html
-        run: node tools/build-pages.mjs
+          cache: npm
+      - name: Instalar as dependências do site (versões fixas do package-lock.json)
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Montar o site com o Vite (dist/)
+        run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: dist
       - id: deploy
         uses: actions/deploy-pages@v4

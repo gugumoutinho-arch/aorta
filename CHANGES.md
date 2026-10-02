@@ -1,6 +1,74 @@
-# Registro de mudanças — Biblioteca de Medicina
+# Registro de mudanças — Aorta (antes Biblioteca de Medicina)
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
+
+## 2026-10-02 — Claude — Migração para Vite e Aorta v3 no site (coração-mapa, módulo, ficha, tema claro) — não publicado
+
+- **Pedido do dono:** "faça a próxima rodada" depois da rodada de protótipos do Codex. Ele escolheu "Vite + implementar v3", deixou a escolha da base comigo ("oq você achar melhor") e pediu para salvar os protótipos antigos para poder voltar.
+- **Backup (commit `81916b6`):** site anterior em `versoes/claude-2026-10-02-antes-vite.html`. Todos os protótipos estão em `versoes/prototipos-2026-10-02/`: coração-mapa, home v2, v3 do Codex, MedLeaf, A, B e B2, além do modelo 3D, do quadro de referências, do plano e do prompt.
+- **Arquitetura:**
+  - Projeto Vite 8.3.2, com `index.html` completo, `src/` (core, views, heart, styles, ui) e `public/modelos/`.
+  - Dependências pelo npm com versão exata: three 0.186.1, gsap 3.15.0 e @supabase/supabase-js 2.117.2. Acabaram os scripts por CDN.
+  - O Three e o Supabase só carregam quando usados.
+  - Publicação: `pages.yml` passou a rodar `npm run check` antes de montar e publicar o `dist/`. `check.yml` fica para pull requests.
+  - Removido `tools/build-pages.mjs`.
+- **Telas (a partir da v3, com as correções que eu tinha apontado):**
+  - Início com o coração-mapa: rótulos tipográficos nas duas colunas, linhas-guia até a ponta de cada artéria e mapa em linhas (SVG) como base sempre presente.
+  - Índice "Módulos do curso", "Sua mesa de estudo" e "Acabou de chegar".
+  - Página do módulo: numeral, artéria, resumo real em lugar de slogan, unidades em abas, matérias e folhas.
+  - Ficha em folha (celular, com alça de arrastar) e em painel (computador).
+  - Busca Ctrl/⌘+K com teclado e sugestões reais quando não há resultado.
+  - Tema claro desenhado.
+  - Corrigidos dois problemas que eu tinha visto nas capturas da v3: o "vaiestudar" sem espaço e a ficha sem fundo escurecido.
+  - Organizar, formulário, login por link, estados de falha e Desfazer foram mantidos.
+- **Rotas:** `#a-<id>` de unidade ou matéria abre o módulo com ela já escolhida. As rotas antigas continuam valendo.
+- **Desempenho:**
+  - O coração só começa depois do `load`, com o navegador ocioso, e as etapas pesadas devolvem a vez ao navegador.
+  - O traçado das artérias é pré-calculado (`tools/arterias.mjs` gera `src/heart/arteries.json`). Isso tirou cerca de 1,5 s de bloqueio no celular.
+  - "Continuar" fica abaixo do coração no celular, para não haver salto de layout.
+  - Lighthouse móvel subiu de 61 para 95.
+- **Revisões independentes antes do commit:**
+  - **Design (`aorta-design-reviewer`):** "aprovado com ressalvas". Corrigidos:
+    - o achado alto: chips de filtro com 36 px, agora 44;
+    - a terceira família tipográfica: rótulos voltaram a Schibsted, como manda a skill;
+    - os rótulos do celular que recortavam o coração;
+    - a queda para o mapa em linhas quando o WebGL é perdido;
+    - os filtros recolhidos em "Filtros" no celular;
+    - grão estático, esqueleto sem loop, ordem das linhas-guia pela ponta projetada e fonte mínima de 11 px.
+  - **Código e segurança:** sem achado crítico ou alto, e sem regressão em gravações, Desfazer, formulário, Organizar, login, estados, rotas e filtros. Corrigidos:
+    - endereço malformado que travava a página;
+    - excluir módulo em Organizar que levava ao início;
+    - foco perdido ao favoritar pelo cartão (agora `renderAll` devolve o foco ao equivalente);
+    - deploy que não dependia da verificação;
+    - ponta de testes que aceitava qualquer `window.claude` (agora exige `aortaTest`);
+    - limpeza do canvas quando o 3D falha;
+    - porcentagem do download acima de 100%;
+    - busca digitada sobrescrita;
+    - código morto.
+  - **Ficou de fora:** os ciclos de import (`app`↔`actions`, `module`↔`home`↔`map`). Hoje funcionam e estão anotados para uma rodada de limpeza.
+- **Testado (dados fictícios, sem acesso ao Supabase):**
+  - `npm run check`: 0 erros e 0 avisos (build, regras, stylelint, html-validate, 24 telas sem rolagem lateral nem erro de console, axe sem violações).
+  - `node flows.mjs`: 364/364. Cobre:
+    - início, mapa por teclado, módulo, unidade em produção, matérias, filtros (com chips de 44 px), busca;
+    - ficha (foco, favorito, situação, Escape, remover e Desfazer), voltar com foco no rótulo, Ctrl+K;
+    - sem histórico, carregando, banco fora do ar;
+    - 8 módulos com 6 em produção (sem sobreposição e dentro do mapa);
+    - tema (persistência, primeira pintura, armazenamento bloqueado);
+    - movimento reduzido;
+    - 3D por WebGL de software (carga, linhas-guia, pausar), troca rápida de módulo, abrir e fechar a ficha 8 vezes, modelo indisponível;
+    - formulário (validação e salvar), Organizar, endereço malformado e foco ao favoritar pelo cartão.
+  - `npm run lighthouse`:
+    - celular: desempenho 95, acessibilidade 100, boas práticas 100 (LCP 2,1 s, CLS 0,04, TBT 110 ms);
+    - computador: desempenho 98, acessibilidade 100, boas práticas 100;
+    - SEO 60 por causa do `noindex` intencional.
+- **Não testado:**
+  - aparelho físico (Safari/iPhone com GPU de verdade, toque na alça da ficha);
+  - Firefox;
+  - leitor de tela real;
+  - o caminho do Supabase (login, `denied`, gravações reais, `rowIn`/`rowOut`);
+  - o próprio fluxo do GitHub Actions, que não tem remote;
+  - qualidade das animações (capturas mostram estados, não movimento).
+- **Acesso aberto continua separado:** favoritos e situação ainda são do catálogo, e o RLS segue só com o dono. Nada disso mudou nesta rodada.
 
 ## 2026-10-02 — Claude — Estante visual: capas, lombadas, prateleiras e microinterações — não publicado
 

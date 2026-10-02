@@ -1,0 +1,184 @@
+/* Coração-mapa: rótulos HTML dos módulos (links de verdade), linhas-guia até a ponta de cada artéria,
+   mapa em linhas (SVG) como base sempre presente e o coração 3D por cima, carregado depois da primeira tela. */
+import { ready, reducedMotion } from "../core/state.js";
+import { $, $$, h } from "../core/dom.js";
+import { moduleNumber, countLabel } from "../core/areas.js";
+import { noteFlight } from "./module.js";
+import { onThemeChange } from "../ui/theme.js";
+
+const NS = "http://www.w3.org/2000/svg";
+const MODEL = `${import.meta.env.BASE_URL}modelos/heart-hra-v1.3.glb`;
+let mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
+
+/* Mapa em linhas: mesma projeção frontal do 3D (azimute/elevação → x/y), para os lados baterem com os rótulos. */
+const flatPoint = ([az, el]) => {
+  const a = az * Math.PI / 180, e = el * Math.PI / 180;
+  return [300 + 175 * Math.sin(a) * Math.cos(e), 272 - 205 * Math.sin(e)];
+};
+function smooth(points) {
+  const p = points.map(flatPoint); let d = `M${p[0][0].toFixed(1)} ${p[0][1].toFixed(1)}`;
+  for (let i = 0; i < p.length - 1; i++) {
+    const p0 = p[i - 1] || p[i], p1 = p[i], p2 = p[i + 1], p3 = p[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6], c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+function flatTips() {
+  const map = $("#map"), w = map.clientWidth, hgt = map.clientHeight, s = Math.min(w / 600, hgt / 560);
+  const ox = (w - 600 * s) / 2, oy = (hgt - 560 * s) / 2;
+  return mods.map(m => { const [x, y] = flatPoint(m.path.at(-1)); return { x: ox + x * s, y: oy + y * s }; });
+}
+
+function buildLabels() {
+  const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
+  // O nome acessível é o próprio texto visível ("Art. 01 M1 4 materiais"), como pede o WCAG 2.5.3.
+  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off"), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
+    h("span", { class: "mono", text: moduleNumber(m.index) + " " }), h("b", { text: m.name }), h("small", { text: " " + countLabel(m.count) }))));
+  $("#flat-arteries").replaceChildren(...mods.map(m => {
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", smooth(m.path)); p.dataset.flat = String(m.index);
+    p.setAttribute("style", `stroke:var(${m.token})`);
+    if (!m.live) p.setAttribute("class", "off");
+    return p;
+  }));
+  $("#guides").replaceChildren(...mods.map(m => { const p = document.createElementNS(NS, "path"); p.dataset.guide = String(m.index); return p; }));
+  if (focused) nav.querySelector(`[data-module="${focused}"]`)?.focus({ preventScroll: true });
+}
+
+/* Duas colunas, cada rótulo do lado em que a artéria termina, na ordem da altura da ponta. Nada atravessa o coração. */
+function layout() {
+  layoutFrame = 0;
+  const map = $("#map"), w = $("#modules").clientWidth, hgt = map.clientHeight;
+  if (!w || !hgt) return;
+  // Ordem de cada coluna = altura da ponta na tela (projetada), para as linhas-guia não se cruzarem.
+  const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0;
+  for (const right of [false, true]) {
+    const side = mods.filter(m => (m.path.at(-1)[0] >= 0) === right).sort((a, b) => y(a) - y(b));
+    side.forEach((m, row) => {
+      const b = $(`#modules [data-module="${m.id}"]`); if (!b) return;
+      b.dataset.side = right ? "right" : "left";
+      const lh = b.offsetHeight, top = side.length === 1 ? hgt * .35 : 4 + row * (hgt - 8 - lh) / Math.max(1, side.length - 1);
+      b.style.transform = `translate(${right ? w - b.offsetWidth : 0}px, ${top}px)`;
+    });
+  }
+  $("#guides").setAttribute("viewBox", `0 0 ${map.clientWidth} ${hgt}`);
+  guides(tips);
+}
+const requestLayout = () => { if (!layoutFrame) layoutFrame = requestAnimationFrame(layout); };
+function guides(points) {
+  tips = points || null;
+  const map = $("#map"), r = map.getBoundingClientRect(), base = points || flatTips();
+  $$("#modules .mod").forEach(b => {
+    const i = +b.dataset.index, p = base[i], g = $(`[data-guide="${i}"]`);
+    if (!p || !g) return;
+    const br = b.getBoundingClientRect(), right = b.dataset.side === "right";
+    const x = right ? br.left - r.left : br.right - r.left, y = br.top - r.top + br.height * .62;
+    g.setAttribute("d", `M${p.x.toFixed(1)} ${p.y.toFixed(1)} L${(x + (right ? -14 : 14)).toFixed(1)} ${y.toFixed(1)} H${x.toFixed(1)}`);
+  });
+}
+
+function highlight(i, on) {
+  $(`[data-guide="${i}"]`)?.classList.toggle("hot", on);
+  $(`[data-flat="${i}"]`)?.classList.toggle("hot", on);
+  $(`#modules [data-index="${i}"]`)?.classList.toggle("hot", on);
+  scene?.highlight(i, on);
+}
+
+function setState(text) { $("#model-state").textContent = text; }
+function canUse3D() {
+  if (reducedMotion()) return "Mapa em linhas · movimento reduzido.";
+  if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || navigator.connection?.saveData) return "Mapa em linhas · modo econômico do aparelho.";
+  try { const c = document.createElement("canvas"); const gl = c.getContext("webgl2"); if (!gl) return "Mapa em linhas · este navegador não desenha 3D."; gl.getExtension("WEBGL_lose_context")?.loseContext(); }
+  catch (_) { return "Mapa em linhas · este navegador não desenha 3D."; }
+  return "";
+}
+function stopHeart() { boot++; scene?.dispose(); scene = null; sceneKey = ""; $("#map").classList.remove("ready"); $("#loader").hidden = true; $("#pause").hidden = true; tips = null; requestLayout(); }
+/* Volta ao mapa em linhas (falha de carga ou contexto WebGL perdido), sem tentar de novo sozinho até recarregar. */
+function toFlat(message) { stopHeart(); setState(message); }
+async function startHeart() {
+  const why = canUse3D();
+  if (why) { stopHeart(); setState(why); return; }
+  const token = ++boot, key = geometry;
+  scene?.dispose(); scene = null;
+  $("#loader").hidden = false; $("#progress").textContent = ""; $("#load-text").textContent = "Preparando o coração";
+  setState("Artérias estilizadas · escolha um módulo.");
+  try {
+    const { createHeart } = await import("../heart/heart.js");
+    if (token !== boot) return;
+    const created = await createHeart({
+      map: $("#map"), modules: mods, model: MODEL,
+      // Content-Length pode vir comprimido e os bytes lidos, não: o número nunca passa de 100%.
+      onProgress: (got, total) => { if (token !== boot) return; $("#load-text").textContent = "Carregando o coração"; $("#progress").textContent = total ? Math.min(100, Math.round(got / total * 100)) + "%" : Math.round(got / 1024) + " KB"; },
+      onProject: points => guides(points),
+      onLost: () => { if (token === boot) { scene = null; toFlat("O 3D foi interrompido pelo navegador. O mapa em linhas funciona do mesmo jeito."); } },
+      isCurrent: () => token === boot,
+    });
+    if (token !== boot) { created?.dispose(); return; }
+    if (!created) { toFlat("Modelo 3D indisponível agora. O mapa em linhas funciona do mesmo jeito."); return; }
+    scene = created; sceneKey = key;
+    $("#loader").hidden = true; $("#map").classList.add("ready");
+    $("#pause").hidden = false; scene.pause(paused); scene.visible(visible);
+    setTimeout(requestLayout, 120); // reordena os rótulos pelas pontas projetadas do 3D
+  } catch (e) {
+    if (token !== boot) return;
+    console.warn("Coração 3D indisponível:", e);
+    toFlat("Modelo 3D indisponível agora. O mapa em linhas funciona do mesmo jeito.");
+  }
+}
+let idleStart = 0;
+/* O coração só começa depois que a página terminou de carregar e o navegador está ocioso: a primeira tela vem antes. */
+function scheduleHeart() {
+  if (idleStart) return;
+  idleStart = -1;
+  const run = () => { idleStart = 0; startHeart(); };
+  const idle = () => "requestIdleCallback" in window ? requestIdleCallback(run, { timeout: 2500 }) : setTimeout(run, 600);
+  if (document.readyState === "complete") idle(); else addEventListener("load", idle, { once: true });
+}
+
+export function drawMap(list) {
+  const atlas = $("#atlas");
+  atlas.dataset.empty = String(!list.length);
+  mods = list;
+  const sig = JSON.stringify(list.map(m => [m.id, m.name, m.count, m.live]));
+  if (sig !== signature) { signature = sig; buildLabels(); }
+  requestLayout();
+  if (!ready() || !list.length) return;
+  geometry = JSON.stringify(list.map(m => [m.id, m.path]));
+  // Mesma estrutura: só acende ou apaga artérias. Módulo novo ou removido: o coração é refeito.
+  if (scene) { if (geometry !== sceneKey) scheduleHeart(); else scene.update(list.map(m => m.live)); }
+  else if (!started) { started = true; scheduleHeart(); }
+}
+export function mapVisible(on) { visible = on; scene?.visible(on); if (on) requestLayout(); }
+export function focusModuleLabel(id) { const a = $(`#modules [data-module="${id}"]`); if (!a) return false; a.focus({ preventScroll: true }); return true; }
+
+export function wireMap() {
+  const nav = $("#modules");
+  nav.addEventListener("pointerover", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, true); });
+  nav.addEventListener("pointerout", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, false); });
+  nav.addEventListener("focusin", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, true); });
+  nav.addEventListener("focusout", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, false); });
+  // Setas andam entre as artérias; Enter abre (é um link).
+  nav.addEventListener("keydown", e => {
+    if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(e.key)) return;
+    const bs = $$("#modules .mod"), i = bs.indexOf(document.activeElement); if (i < 0) return;
+    e.preventDefault();
+    const j = e.key === "Home" ? 0 : e.key === "End" ? bs.length - 1 : (i + (["ArrowRight", "ArrowDown"].includes(e.key) ? 1 : bs.length - 1)) % bs.length;
+    bs[j].focus();
+  });
+  // A partir de qualquer link de módulo do início, a página do módulo nasce do lugar tocado.
+  $("#view-home").addEventListener("click", e => {
+    const a = e.target.closest("a[data-module]"); if (!a) return;
+    noteFlight(a.getBoundingClientRect(), a.dataset.module, a.querySelector("b")?.textContent || a.textContent);
+  });
+  $("#pause").hidden = true;
+  $("#pause").addEventListener("click", () => {
+    paused = !paused;
+    $("#pause").setAttribute("aria-pressed", String(paused));
+    $("#pause").textContent = paused ? "Retomar batimento" : "Pausar batimento";
+    scene?.pause(paused);
+  });
+  new ResizeObserver(requestLayout).observe($("#map"));
+  onThemeChange(() => scene?.theme());
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => { if (ready() && mods.length) startHeart(); });
+}

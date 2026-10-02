@@ -1,9 +1,12 @@
 name: Verificar o site
 
+# Em pull requests. No envio para main, a mesma verificação roda dentro de "Publicar o site", antes de publicar.
 on:
-  push:
-    branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -16,11 +19,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: tools/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            tools/package-lock.json
+      - name: Instalar dependências do site
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Instalar dependências das verificações
         working-directory: tools
         run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Verificar o index.html (formato, CSS, HTML, telas e acessibilidade)
+      - name: Verificar o site (build, regras, CSS, HTML, telas e acessibilidade)
         working-directory: tools
         run: npm run check
       - name: Guardar capturas de tela e relatório

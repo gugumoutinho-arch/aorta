@@ -1,0 +1,250 @@
+/* Página do módulo (ou de todo o acervo): numeral e artéria no cabeçalho, unidades como abas, matérias ao lado,
+   materiais como folhas. Também é aqui que a transição a partir do coração termina. */
+import gsap from "gsap";
+import { S, TYPES, STATUS, STATUS_LABEL, EMPTY_FILTERS, IN_PRODUCTION, ready, reducedMotion, collName, savePrefs } from "../core/state.js";
+import { $, $$, h, svg, ICON } from "../core/dom.js";
+import { tokens, plural, cmpName, byKey, pad2 } from "../core/text.js";
+import { childrenOf, modules, moduleList, pathOf, descIds, areaById, areasWithContent, areaLabel, treeOrder } from "../core/areas.js";
+import { materialCard } from "./cards.js";
+import { openForm } from "./form.js";
+import { rememberModule } from "./home.js";
+
+/* ---------- escopo ---------- */
+function resolvePending() {
+  if (!S.pendingArea || !ready()) return true;
+  const id = S.pendingArea; S.pendingArea = "";
+  let scope = "todos", unit = "", subject = "";
+  if (id !== "todos" && id !== "sem-area") {
+    const p = pathOf(id);
+    if (!p.length) { history.replaceState(null, "", "#todos"); }
+    else { scope = p[0].id; unit = p[1]?.id || ""; subject = p[2]?.id || ""; }
+  }
+  if (scope !== S.scope) { S.q = ""; S.f = { ...EMPTY_FILTERS }; }
+  S.scope = scope; S.unit = unit; S.subject = subject;
+  return true;
+}
+const scopeRoot = () => S.unit || (S.scope === "todos" ? "" : S.scope);
+function baseList() {
+  const root = scopeRoot();
+  if (!root) return S.materials.slice();
+  const set = descIds(root); return S.materials.filter(m => set.has(m.areaId));
+}
+/* Matérias (folhas da árvore) disponíveis no recorte atual, com o caminho curto para desambiguar nomes iguais. */
+function subjectsIn(root) {
+  const inside = root ? descIds(root) : null;
+  return treeOrder().filter(([a, depth]) => depth === 2 && (!inside || inside.has(a.id))).map(([a]) => a);
+}
+
+/* ---------- filtros ---------- */
+const activeFilters = () => [S.f.type, S.f.status, S.f.coll, S.f.fav].filter(Boolean).length;
+const anyFilter = () => !!(S.q.trim() || activeFilters());
+const haystack = m => [m.title, pathOf(m.areaId).map(a => a.name).join(" "), m.subject, m.type, (m.tags || []).join(" ")].join(" ");
+const matchesAll = (m, toks) => { if (!toks.length) return true; const hs = haystack(m).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); return toks.every(t => hs.includes(t)); };
+function filtered(list) {
+  const toks = tokens(S.q), sub = S.subject ? descIds(S.subject) : null;
+  return list.filter(m => {
+    if (sub && !sub.has(m.areaId)) return false;
+    if (S.f.type && m.type !== S.f.type) return false;
+    if (S.f.status && (m.status || "nao-iniciado") !== S.f.status) return false;
+    if (S.f.coll && !(m.collectionIds || []).includes(S.f.coll)) return false;
+    if (S.f.fav && !m.favorite) return false;
+    return matchesAll(m, toks);
+  });
+}
+function sorter() {
+  const t = m => m.createdAt || "";
+  return { recent: (a, b) => t(b).localeCompare(t(a)), old: (a, b) => t(a).localeCompare(t(b)), az: (a, b) => cmpName(a.title || "", b.title || ""), za: (a, b) => cmpName(b.title || "", a.title || "") }[S.sort] || (() => 0);
+}
+function fillSelect(sel, options, value) {
+  sel.replaceChildren(...options.map(([v, l]) => h("option", { value: v, text: l })));
+  sel.value = options.some(o => o[0] === value) ? value : options[0][0];
+}
+
+/* ---------- desenho ---------- */
+function renderHeader(mod) {
+  const title = $("#module-title"), meta = $("#artery-name"), sum = $("#module-summary");
+  const view = $("#view-module");
+  if (S.scope === "todos") {
+    view.style.setProperty("--selected", "var(--violet-2)");
+    title.textContent = "Acervo"; meta.textContent = "Todos os módulos";
+    const live = moduleList().filter(m => m.live).length;
+    sum.textContent = `${plural(S.materials.length, "material", "materiais")} · ${live} de ${plural(modules().length, "módulo", "módulos")} com material`;
+    $("#module-step").hidden = true; return;
+  }
+  view.style.setProperty("--selected", `var(${mod.token})`);
+  title.textContent = mod.name;
+  meta.textContent = `${"ART. " + pad2(mod.index + 1)} · ${mod.art}`;
+  const units = childrenOf(mod.id), live = areasWithContent();
+  const waiting = units.filter(u => !live.has(u.id));
+  sum.textContent = mod.count
+    ? [plural(mod.count, "material", "materiais"), units.length ? plural(units.length, "unidade", "unidades") : "", waiting.length ? `${waiting.map(u => u.name).join(", ")} em produção` : ""].filter(Boolean).join(" · ")
+    : "Em produção · este módulo ainda não foi irrigado.";
+  $("#module-step").hidden = modules().length < 2;
+}
+function renderUnits(mod) {
+  const box = $("#units"), live = areasWithContent();
+  const parent = S.scope === "todos" ? "" : S.scope;
+  const kids = childrenOf(parent);
+  box.setAttribute("aria-label", S.scope === "todos" ? "Módulos" : "Unidades");
+  box.hidden = !kids.length;
+  const all = S.scope === "todos" ? S.materials.length : mod?.count || 0;
+  const tab = (id, label, n, on) => h("button", { type: "button", "data-unit": id, "aria-pressed": String(on) }, label, h("small", { text: n ? plural(n, "material", "materiais") : IN_PRODUCTION }));
+  box.replaceChildren(tab("", S.scope === "todos" ? "Todos os módulos" : "Todas as unidades", all, !S.unit),
+    ...kids.map(u => { const n = live.has(u.id) ? baseCount(u.id) : 0; return tab(u.id, u.name, n, S.unit === u.id); }));
+}
+const baseCount = id => { const set = descIds(id); return S.materials.filter(m => set.has(m.areaId)).length; };
+function renderSubjects(base) {
+  const nav = $("#subjects"), root = scopeRoot(), subs = subjectsIn(root);
+  nav.hidden = !subs.length;
+  if (!subs.length) { nav.replaceChildren(); return; }
+  const names = subs.map(s => s.name), dup = n => names.filter(x => x === n).length > 1;
+  const item = (id, label, n, hint) => h("button", { type: "button", "data-subject": id, "aria-pressed": String(S.subject === id) },
+    h("span", { class: "s-name" }, label, hint ? h("small", { text: hint }) : null), h("span", { class: "num", text: n ? String(n) : "—" }), n ? null : h("span", { class: "sr", text: IN_PRODUCTION }));
+  nav.replaceChildren(h("h2", { class: "mono", text: "Matérias" }), item("", "Todas", base.length),
+    ...subs.map(s => { const set = descIds(s.id), n = base.filter(m => set.has(m.areaId)).length; const p = pathOf(s.id);
+      return item(s.id, s.name, n, dup(s.name) || !root ? p.slice(root ? pathOf(root).length : 0, -1).map(a => a.name).join(" › ") : ""); }));
+}
+function renderFilters() {
+  const types = [...new Set([...S.materials.map(m => m.type).filter(Boolean), S.f.type].filter(Boolean))].sort((a, b) => TYPES.indexOf(a) - TYPES.indexOf(b));
+  fillSelect($("#f-type"), [["", "Todos os tipos"], ...types.map(t => [t, t])], S.f.type);
+  fillSelect($("#f-status"), [["", "Toda situação"], ...STATUS], S.f.status);
+  fillSelect($("#f-coll"), [["", "Todas as coleções"], ...S.collections.map(c => [c.id, c.name])], S.f.coll);
+  $("#f-coll").closest("label").hidden = !S.collections.length;
+  $("#f-sort").value = S.sort;
+  if ($("#lib-q").value !== S.q && document.activeElement !== $("#lib-q")) $("#lib-q").value = S.q;
+  $("#f-fav").setAttribute("aria-pressed", String(!!S.f.fav));
+  const extra = [S.f.type, S.f.status, S.f.coll].filter(Boolean).length + (S.sort !== "recent" ? 1 : 0);
+  $("#f-count").textContent = extra ? ` · ${extra}` : "";
+  const chips = [];
+  if (S.q.trim()) chips.push([`Busca: “${S.q.trim()}”`, () => { S.q = ""; }]);
+  if (S.f.type) chips.push([S.f.type, () => { S.f = { ...S.f, type: "" }; }]);
+  if (S.f.status) chips.push([STATUS_LABEL[S.f.status] || S.f.status, () => { S.f = { ...S.f, status: "" }; }]);
+  if (S.f.coll) chips.push(["Coleção: " + (collName(S.f.coll) || "removida"), () => { S.f = { ...S.f, coll: "" }; }]);
+  if (S.f.fav) chips.push(["Favoritos", () => { S.f = { ...S.f, fav: false }; }]);
+  const box = $("#active-filters"); box.hidden = !chips.length;
+  box.replaceChildren(...chips.map(([label, clear]) => h("button", { class: "af", type: "button", "aria-label": "Remover filtro: " + label, onclick: () => { clear(); renderModule(); $("#lib-q").focus(); } }, label, svg(ICON.x))),
+    chips.length > 1 ? h("button", { class: "af clear", type: "button", text: "Limpar tudo", onclick: clearFilters }) : null);
+}
+function emptyBlock(title, text, extra) { return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), extra); }
+const addButton = areaId => S.db ? h("button", { class: "btn", type: "button", "data-edit": "", text: "Adicionar material aqui", onclick: () => openForm(null, areaId) }) : null;
+function groupOf(list, from) {
+  // Com uma matéria escolhida, divide por assunto; senão, por matéria.
+  const by = new Map();
+  for (const m of list) {
+    const key = S.subject ? (m.subject || "").trim() : (m.areaId && areaById(m.areaId) ? m.areaId : "");
+    if (!by.has(key)) by.set(key, []); by.get(key).push(m);
+  }
+  const keys = [...by.keys()];
+  if (S.subject) keys.sort(byKey);
+  else { const order = new Map(); let i = 0; const walk = pid => childrenOf(pid).forEach(a => { order.set(a.id, i++); walk(a.id); }); walk(""); keys.sort((a, b) => (order.get(a) ?? 1e6) - (order.get(b) ?? 1e6)); }
+  const areaName = k => k ? (areaLabel(k, from) || areaById(k).name) : "Sem área definida";
+  return keys.map(k => ({ key: k, label: S.subject ? (k || "Sem assunto") : areaName(k), items: by.get(k).sort(sorter()) }));
+}
+function renderMaterials(base, mod) {
+  const box = $("#materials"), line = $("#result-line");
+  const list = filtered(base), toks = tokens(S.q), root = scopeRoot();
+  line.textContent = anyFilter() ? (list.length ? `${plural(list.length, "material", "materiais")} de ${base.length}` : `Nada encontrado entre ${plural(base.length, "material", "materiais")}`) : "";
+  if (!base.length) {
+    const firstLive = moduleList().find(m => m.live);
+    const scopeName = S.subject ? areaById(S.subject)?.name : S.unit ? areaById(S.unit)?.name : mod?.name;
+    box.replaceChildren(emptyBlock(IN_PRODUCTION + ".", S.scope === "todos" ? "O acervo ainda não tem materiais. Quem edita cadastra o primeiro link pelo botão Adicionar."
+      : `${scopeName || "Este módulo"} ainda não foi irrigado. Os materiais aparecem aqui quando forem publicados.`,
+      h("div", { class: "acts" }, firstLive && firstLive.id !== S.scope ? h("a", { class: "btn", href: "#a-" + firstLive.id, text: `Ver ${firstLive.name}, que já tem material` }) : null, addButton(S.subject || root || ""))));
+    return;
+  }
+  if (!list.length) {
+    box.replaceChildren(S.subject && !anyFilter()
+      ? emptyBlock(IN_PRODUCTION + ".", `${areaById(S.subject)?.name || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)))
+      : emptyBlock("Nenhum material encontrado", "Nada combina com a busca e os filtros. A busca procura no título, matéria, assunto, tipo e etiquetas, não no texto dos arquivos.",
+        h("button", { class: "btn", type: "button", text: "Limpar busca e filtros", onclick: clearFilters })));
+    return;
+  }
+  const from = S.scope === "todos" ? "" : S.unit || S.scope;
+  if (S.q.trim()) { box.replaceChildren(h("div", { class: "sheet-list" }, list.sort(sorter()).map(m => materialCard(m, { toks, from })))); return; }
+  box.replaceChildren(...groupOf(list, from).map((g, i) => h("section", { class: "group", "aria-labelledby": "g-" + i },
+    h("h2", { class: "group-h", id: "g-" + i }, h("span", { text: g.label }), h("span", { class: "num", text: String(g.items.length) })),
+    h("div", { class: "sheet-list" }, g.items.map(m => materialCard(m, { toks, from, where: false }))))));
+}
+
+export function renderModule() {
+  if (!ready()) {
+    $("#module-title").textContent = S.dbState === "loading" ? "…" : "";
+    $("#artery-name").textContent = ""; $("#module-summary").textContent = S.dbState === "loading" ? "Carregando o acervo…" : "";
+    $("#units").replaceChildren(); $("#subjects").replaceChildren(); $("#active-filters").hidden = true;
+    $("#materials").replaceChildren(S.dbState === "loading" ? h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 3 }, () => h("div", { class: "skel-card" }))) : "");
+    return;
+  }
+  resolvePending();
+  const mod = S.scope === "todos" ? null : moduleList().find(m => m.id === S.scope);
+  if (S.scope !== "todos" && !mod) { S.scope = "todos"; S.unit = S.subject = ""; history.replaceState(null, "", "#todos"); }
+  if (S.unit && !areaById(S.unit)) S.unit = "";
+  if (S.subject && !areaById(S.subject)) S.subject = "";
+  renderHeader(mod); renderUnits(mod);
+  const base = baseList();
+  renderSubjects(base); renderFilters(); renderMaterials(base, mod);
+}
+function clearFilters() { S.q = ""; S.f = { ...EMPTY_FILTERS }; renderModule(); $("#lib-q").focus(); }
+const setHash = id => history.replaceState(null, "", "#" + (id ? "a-" + id : S.scope === "todos" ? "todos" : "a-" + S.scope));
+
+/* ---------- transição a partir do coração ---------- */
+let flight = null;
+export function noteFlight(rect, id, label) { flight = { rect, id, label, at: performance.now() }; }
+export function moduleEntered() {
+  window.scrollTo(0, 0);
+  const title = $("#module-title");
+  title.focus({ preventScroll: true });
+  if (S.scope && S.scope !== "todos") rememberModule(S.scope);
+  const f = flight; flight = null;
+  if (reducedMotion()) return;
+  gsap.fromTo(".module-hero > *, #units, .module-body", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .55, ease: "expo.out", stagger: .05, overwrite: true, clearProps: "opacity,transform" });
+  if (!f || f.id !== S.scope || performance.now() - f.at > 1500 || !f.rect.width) return;
+  // O nome do módulo sai do rótulo tocado e pousa no numeral do cabeçalho.
+  $$(".flight").forEach(n => { gsap.killTweensOf(n); n.remove(); });
+  const to = title.getBoundingClientRect(), fly = h("span", { class: "flight", "aria-hidden": "true", text: f.label });
+  Object.assign(fly.style, { left: to.left + "px", top: to.top + "px", fontSize: getComputedStyle(title).fontSize });
+  document.body.append(fly);
+  gsap.set(title, { opacity: 0 });
+  gsap.fromTo(fly, { x: f.rect.left - to.left, y: f.rect.top - to.top, scale: Math.max(.18, f.rect.height / to.height) },
+    { x: 0, y: 0, scale: 1, duration: .7, ease: "expo.inOut", overwrite: true,
+      onComplete: () => { fly.remove(); gsap.to(title, { opacity: 1, duration: .15, clearProps: "opacity" }); } });
+}
+
+export function wireModule() {
+  $("#units").addEventListener("click", e => {
+    const b = e.target.closest("[data-unit]"); if (!b) return;
+    S.unit = b.dataset.unit; S.subject = ""; setHash(S.unit); renderModule();
+    $(`#units [data-unit="${S.unit}"]`)?.focus({ preventScroll: true });
+  });
+  $("#subjects").addEventListener("click", e => {
+    const b = e.target.closest("[data-subject]"); if (!b) return;
+    S.subject = b.dataset.subject; setHash(S.subject || S.unit); renderModule();
+    $(`#subjects [data-subject="${S.subject}"]`)?.focus({ preventScroll: true });
+  });
+  let qTimer;
+  $("#lib-q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { S.q = e.target.value; renderModule(); }, 120); });
+  $("#f-type").addEventListener("change", e => { S.f = { ...S.f, type: e.target.value }; renderModule(); });
+  $("#f-status").addEventListener("change", e => { S.f = { ...S.f, status: e.target.value }; renderModule(); });
+  $("#f-coll").addEventListener("change", e => { S.f = { ...S.f, coll: e.target.value }; renderModule(); });
+  $("#f-sort").addEventListener("change", e => { S.sort = e.target.value; savePrefs(); renderModule(); });
+  $("#f-fav").addEventListener("click", () => { S.f = { ...S.f, fav: !S.f.fav }; renderModule(); });
+  $("#f-more").addEventListener("click", () => {
+    const open = $(".filters").classList.toggle("open");
+    $("#f-more").setAttribute("aria-expanded", String(open));
+    if (open) $("#f-type").focus();
+  });
+  for (const [id, delta] of [["prev-module", -1], ["next-module", 1]]) $("#" + id).addEventListener("click", () => {
+    const list = modules(), i = list.findIndex(m => m.id === S.scope); if (i < 0) return;
+    location.hash = "a-" + list[(i + delta + list.length) % list.length].id;
+  });
+  // Setas: do campo de busca para a primeira folha e entre as folhas; Esc volta ao campo.
+  $("#view-module").addEventListener("keydown", e => {
+    if (!["ArrowDown", "ArrowUp", "Escape"].includes(e.key) || document.querySelector("dialog[open]")) return;
+    const items = $$("#materials [data-mid]");
+    if (e.target.id === "lib-q") { if (e.key === "ArrowDown" && items.length) { e.preventDefault(); items[0].focus(); } return; }
+    const i = items.indexOf(e.target); if (i < 0) return;
+    e.preventDefault();
+    if (e.key === "Escape") { $("#lib-q").focus(); return; }
+    const next = items[i + (e.key === "ArrowDown" ? 1 : -1)];
+    if (next) next.focus(); else if (e.key === "ArrowUp") $("#lib-q").focus();
+  });
+}
