@@ -3,7 +3,7 @@
    Única ação que muda o catálogo sem rascunho: "ligar agora" uma duplicata ao material que já existe — só por escolha
    explícita na linha, e a tela diz isso antes e depois de salvar. */
 import { S, TYPES, ready, topicsReady } from "../core/state.js";
-import { $, h } from "../core/dom.js";
+import { $, h, svg, ICON } from "../core/dom.js";
 import { plural, nowIso } from "../core/text.js";
 import { pathOf, treeOrder } from "../core/areas.js";
 import { write } from "../core/actions.js";
@@ -12,16 +12,31 @@ import { saveImport, updateDraft, publishDraft } from "../core/import-store.js";
 import { topicPicker } from "./topic-picker.js";
 import { toast } from "../ui/toast.js";
 
-const RIGHTS_LABEL = { proprio: "Próprio", autorizado: "Autorizado pelo autor", "licenca-aberta": "Licença aberta", publico: "Público", pendente: "A definir" };
+const RIGHTS_LABEL = { publico: "Público (pode circular livremente)", proprio: "Próprio (feito por mim)", autorizado: "Autorizado pelo autor",
+  "licenca-aberta": "Licença aberta", pendente: "A definir" };
 const ACTION_LABEL = { criar: "Criar rascunho", ignorar: "Ignorar", ligar: "Ligar agora ao material já publicado" };
 const DUP_TEXT = { material: t => `Duplicata: já está no catálogo${t ? `: “${t}”` : ""}.`, rascunho: t => `Duplicata: já há um rascunho deste arquivo${t ? `: “${t}”` : ""}.`, lote: () => "Duplicata: repetida neste lote." };
-const RIGHTS_HINT = "Serve para conferir se o material pode circular. Ainda não fica guardado no material e não muda nada no Drive.";
+/* O mesmo texto na colagem e no rascunho. */
+const RIGHTS_HINT = "Diz se o material pode circular. Padrão: Público, para material seu (decisão do dono). Não certifica direitos de terceiros: revise cada rascunho. Ainda não fica guardado no material e não muda nada no Drive.";
 
 let preview = null, drawnPreview = null, watching = false;
 const cards = new Map();
 const ctx = () => ({ areas: S.areas, topics: S.topics, materials: S.materials, drafts: S.drafts, types: TYPES, links: S.links });
 const options = (pairs, value) => pairs.map(([v, l]) => h("option", { value: v, text: l, selected: v === value }));
-const places = () => treeOrder().filter(([a]) => isPlace(S.areas, a.id)).map(([a]) => [a.id, pathOf(a.id).map(x => x.name).join(" › ")]);
+/* Lugares possíveis com o caminho completo; caminhos repetidos ganham diferenciador tirado dos dados (nunca inventado). */
+const places = () => {
+  const list = treeOrder().filter(([a]) => isPlace(S.areas, a.id)).map(([a]) => [a.id, pathOf(a.id).map(x => x.name).join(" › ")]);
+  return list.map(([id, label]) => { const same = list.filter(x => x[1] === label).map(x => x[0]); return [id, same.length > 1 ? distinct(id, label, same.indexOf(id), same.length) : label]; });
+};
+/* "M2 › CIS 2 › Semiologia — 2ª de 2 · 3 materiais · assuntos: Anamnese, Exame físico" */
+function distinct(areaId, place, k, n) {
+  const count = S.materials.filter(m => m.areaId === areaId).length;
+  const names = S.topics.filter(t => t.areaId === areaId).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)).map(t => t.name);
+  const topics = names.length ? `assuntos: ${names.slice(0, 3).join(", ")}${names.length > 3 ? "…" : ""}` : "sem assuntos";
+  return `${place} — ${k + 1}ª de ${n} · ${plural(count, "material", "materiais")} · ${topics}`;
+}
+/* Link com usuário/senha aparece mascarado na prévia (a linha é recusada de qualquer jeito). */
+const shownUrl = url => String(url || "").replace(/^([a-z]+:\/\/)[^/@]*@/i, "$1•••@");
 const say = text => { const s = $("#imp-status"); s.textContent = ""; requestAnimationFrame(() => { s.textContent = text; }); };
 
 /* Rascunhos só são lidos quando alguém abre o Organizar (só quem edita tem acesso). */
@@ -36,20 +51,33 @@ function watchDrafts() {
 function rowItem(row, i) {
   const allowed = row.errors.length ? [] : row.duplicate ? (row.canLink ? ["ignorar", "ligar"] : []) : ["criar", "ignorar"];
   const name = `O que fazer com a linha ${row.line}${row.title ? `, ${row.title}` : ""}`;
-  const choose = allowed.length > 1
+  const action = allowed.length > 1
     ? h("label", { class: "imp-action" }, h("span", { class: "sr", text: name }),
       h("select", { "data-row": String(i) }, options(allowed.map(a => [a, ACTION_LABEL[a]]), row.action)))
     : h("p", { class: "imp-action small muted", text: "Será ignorada." });
   return h("li", { class: "imp-row" + (row.errors.length ? " bad" : ""), "data-line": String(row.line) },
     h("p", { class: "imp-head" }, h("span", { class: "mono", text: `Linha ${row.line}` }), h("b", { text: row.title || "(sem título)" })),
-    h("p", { class: "imp-url small", text: row.url || "(sem link)" }),
-    row.errors.length ? null : h("p", { class: "small", text: row.place ? `Vai para: ${row.place}` : "Matéria: a escolher no rascunho." }),
-    row.errors.map(e => h("p", { class: "err", text: e })),
-    row.duplicate ? h("p", { class: "imp-dup small", text: DUP_TEXT[row.duplicate.kind](row.duplicate.title) }) : null,
+    h("p", { class: "imp-url small", text: shownUrl(row.url) || "(sem link)" }),
+    row.errors.length ? null : row.candidates?.length > 1 && !row.duplicate ? destination(row, i)
+      : h("p", { class: "small", text: row.place ? `Vai para: ${row.place}` : "Matéria: a escolher no rascunho." }),
+    // Erro (a linha não entra) e aviso (entra como rascunho com pendência) têm ícone e palavra diferentes, não só cor.
+    row.errors.map(e => note("err", ICON.x, "Erro:", e)),
+    row.duplicate ? note("imp-dup", ICON.info, "Duplicata:", DUP_TEXT[row.duplicate.kind](row.duplicate.title).replace(/^Duplicata: /, "")) : null,
     row.action === "ligar" ? h("p", { class: "imp-warn small", text: `Ao salvar, “${row.duplicate.title}” passa a aparecer também em ${row.place}, já publicado.` }) : null,
     // Pendências são de rascunho: linha com erro ou duplicata não vira rascunho.
-    row.problems.length && !row.errors.length && !row.duplicate ? h("ul", { class: "imp-problems small", "aria-label": `Pendências da linha ${row.line}` }, row.problems.map(p => h("li", { text: PROBLEM_TEXT[p] || p }))) : null,
-    choose);
+    row.problems.length && !row.errors.length && !row.duplicate ? h("ul", { class: "imp-problems small", "aria-label": `Avisos da linha ${row.line}` },
+      shown(row.problems).map(p => h("li", null, note("imp-warnline", ICON.alert, "Aviso:", PROBLEM_TEXT[p] || p)))) : null,
+    action);
+}
+/* "Falta escolher a matéria" já está dito na linha do destino ("Matéria: a escolher" ou o seletor); não repete. */
+const shown = problems => problems.filter(p => p !== "sem-materia");
+const note = (cls, icon, word, text) => h("p", { class: cls + " imp-note small" }, svg(icon, "imp-ico"), h("span", null, h("b", { text: word + " " }), text));
+/* Caminho com mais de um destino: escolha explícita entre os candidatos, com o destino completo e o que distingue cada um. */
+function destination(row, i) {
+  const id = `imp-dest-${i}`, n = row.candidates.length;
+  return h("div", { class: "imp-dest" },
+    h("label", { class: "small", for: id, text: `Destino da linha ${row.line}${row.title ? `, ${row.title}` : ""} (mais de um com esse caminho)` }),
+    h("select", { id, "data-dest": String(i) }, options([["", "Escolher o destino…"], ...row.candidates.map((c, k) => [String(k), distinct(c.areaId, c.place, k, n)])], row.chosen ?? "")));
 }
 const count = a => preview.rows.filter(r => r.action === a).length;
 /* Redesenha só quando a prévia muda (um redesenho tiraria o foco do seletor em uso). */
@@ -58,7 +86,7 @@ function renderPreview() {
   box.hidden = !preview;
   if (!preview || drawnPreview === preview) return;
   drawnPreview = preview;
-  const focused = document.activeElement?.dataset?.row;
+  const focused = document.activeElement?.dataset?.row, focusedDest = document.activeElement?.dataset?.dest;
   const errors = preview.rows.filter(r => r.errors.length).length, ignored = count("ignorar"), drafts = count("criar"), link = count("ligar");
   $("#imp-summary").textContent = `${plural(preview.rows.length, "linha", "linhas")}: ` + [plural(drafts, "rascunho novo", "rascunhos novos"),
     link ? `${plural(link, "material já publicado", "materiais já publicados")} ganha${link > 1 ? "m" : ""} assunto ao salvar` : "",
@@ -68,6 +96,7 @@ function renderPreview() {
   save.textContent = [drafts ? `Salvar ${plural(drafts, "rascunho", "rascunhos")}` : "", link ? `${drafts ? "e ligar" : "Ligar"} ${plural(link, "material", "materiais")}` : ""].filter(Boolean).join(" ") || "Salvar rascunhos";
   save.disabled = !drafts && !link;
   if (focused !== undefined) $(`#imp-rows [data-row="${focused}"]`)?.focus();
+  if (focusedDest !== undefined) $(`#imp-rows [data-dest="${focusedDest}"]`)?.focus();
 }
 function showPreview(e) {
   e.preventDefault();
@@ -215,14 +244,25 @@ export function renderImport() {
   renderPreview();
 }
 
+/* Destino escolhido entre os candidatos: matéria e assunto daquele ramo; sem escolha, a matéria fica pendente. */
+function choose(row, value) {
+  const c = value === "" ? null : row.candidates[+value];
+  const problems = row.problems.filter(p => p !== "sem-materia" && p !== "caminho-ambiguo");
+  // Os avisos do ramo escolhido (ex.: o assunto do caminho não existe naquela matéria) passam a valer para a linha.
+  return c ? { ...row, chosen: value, areaId: c.areaId, topicIds: c.topicIds, place: c.place, problems: [...new Set([...problems, ...(c.problems || [])])] }
+    : { ...row, chosen: "", areaId: "", topicIds: [], place: "", problems: [...new Set([...problems, "caminho-ambiguo", "sem-materia"])] };
+}
 export function wireImport() {
+  $("#imp-rights-hint").textContent = RIGHTS_HINT;
   $("#imp-rights").replaceChildren(...options(RIGHTS.filter(r => r !== "pendente").map(r => [r, RIGHTS_LABEL[r]]), DEFAULT_RIGHTS));
   $("#imp-form").addEventListener("submit", showPreview);
   $("#imp-save").addEventListener("click", savePreview);
   $("#imp-clear").addEventListener("click", () => { preview = null; renderPreview(); $("#imp-text").focus(); });
   $("#imp-rows").addEventListener("change", e => {
-    const i = e.target.dataset?.row; if (i === undefined || !preview) return;
-    preview = { rows: preview.rows.map((r, k) => k === +i ? { ...r, action: e.target.value } : r) };
+    const i = e.target.dataset?.row, dest = e.target.dataset?.dest;
+    if (!preview || (i === undefined && dest === undefined)) return;
+    if (i !== undefined) preview = { rows: preview.rows.map((r, k) => k === +i ? { ...r, action: e.target.value } : r) };
+    else preview = { rows: preview.rows.map((r, k) => k === +dest ? choose(r, e.target.value) : r) };
     renderPreview();
   });
 }

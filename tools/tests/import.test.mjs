@@ -1,7 +1,7 @@
 // N4 · Importação por colagem: leitura das linhas, links do Drive, caminho → matéria e assunto, duplicatas e pendências.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parsePaste, driveInfo, normalizeUrl, planImport, draftFromRow, blockers, MAX_ROWS, DEFAULT_RIGHTS } from '../../src/domain/import.js';
+import { parsePaste, driveInfo, normalizeUrl, planImport, draftFromRow, blockers, resolvePath, MAX_ROWS, DEFAULT_RIGHTS } from '../../src/domain/import.js';
 
 const TYPES = ['Slides', 'Apostila', 'Resumo', 'Caso clínico', 'Livro', 'Link'];
 const areas = [
@@ -170,4 +170,67 @@ test('rascunho guarda os dados da linha e as pendências; publicar exige título
   assert.deepEqual(blockers({ ...d, driveFileId: 'JAEXISTE123' }, ctx), ['ja-no-catalogo']);
   // o próprio material criado por este rascunho não conta como duplicata
   assert.deepEqual(blockers({ ...d, driveFileId: 'JAEXISTE123', materialId: 'old1' }, ctx), []);
+});
+
+test('Drive só com host exato: subdomínio ou domínio parecido não é tratado como Drive', () => {
+  for (const url of ['https://drive.google.com.evil.com/file/d/X/view', 'https://evil.drive.google.com/file/d/X/view', 'https://drive-google.com/file/d/X/view',
+    'https://xdrive.google.com/file/d/X/view', 'https://drive.google.co/file/d/X/view']) {
+    assert.equal(driveInfo(url).fileId, '', url);
+  }
+  assert.equal(driveInfo('https://DRIVE.GOOGLE.COM/file/d/OK1/view').fileId, 'OK1', 'caixa do host não importa');
+  // pasta em host falso não é "pasta do Drive"; é só um link qualquer
+  assert.equal(parsePaste('https://drive.google.com.evil.com/drive/folders/P').rows[0].errors.length, 0);
+});
+
+test('link com usuário ou senha embutidos é recusado', () => {
+  for (const url of ['https://user:senha@drive.google.com/file/d/X/view', 'https://user@example.com/a', 'https://:x@example.com/a']) {
+    assert.match(parsePaste(url).rows[0].errors[0], /usuário ou senha/, url);
+  }
+  assert.equal(parsePaste('https://example.com/a?quem=fulano@exemplo').rows[0].errors.length, 0, '@ fora da parte de usuário é permitido');
+});
+
+const tree = [
+  { id: 'm1', name: 'M1', parentId: '', acervo: 'idomed' }, { id: 'm2', name: 'M2', parentId: '', acervo: 'idomed' },
+  { id: 'bbio1', name: 'BBIO 1', parentId: 'm1' }, { id: 'bbio2', name: 'BBIO 2', parentId: 'm2' },
+  { id: 'bbio2-mi', name: 'Micro e Imuno', parentId: 'bbio2' }, { id: 'bbio1-bio', name: 'Bioquímica', parentId: 'bbio1' },
+  { id: 'cis1', name: 'CIS 1', parentId: 'm1' }, { id: 'cis1-a', name: 'Anatomia', parentId: 'cis1' }, { id: 'cis1-a2', name: 'Anatomia', parentId: 'cis1' },
+  { id: 'g-anat', name: 'Anatomia', parentId: '', acervo: 'geral' }, { id: 'g-micro', name: 'Micro e Imuno', parentId: '', acervo: 'geral' },
+];
+
+test('caminho limitado ao pai: "Micro e Imuno" fica em M2 › BBIO 2, e não é achado em outro módulo', () => {
+  assert.deepEqual(resolvePath('Aorta/IDOMED/M2/BBIO 2/Micro e Imuno', tree, []).areaId, 'bbio2-mi');
+  const wrong = resolvePath('IDOMED/M1/BBIO 1/Micro e Imuno', tree, []);
+  assert.equal(wrong.areaId, '');
+  assert.ok(wrong.problems.includes('caminho-desconhecido'), 'o mesmo nome noutro módulo não vale');
+  assert.equal(resolvePath('Aorta/Medicina geral/Micro e Imuno', tree, []).areaId, 'g-micro');
+  // unidade sem matérias (folha) não vira "matéria" de um nome desconhecido
+  const leaf = resolvePath('IDOMED/M1/BBIO 9/Micro e Imuno', [...tree, { id: 'bbio9', name: 'BBIO 9', parentId: 'm1' }], []);
+  assert.deepEqual([leaf.areaId, leaf.problems.includes('caminho-desconhecido')], ['', true]);
+});
+
+test('várias correspondências no mesmo nível exigem escolha explícita, com o destino completo', () => {
+  const r = resolvePath('M1/CIS 1/Anatomia', tree, []);
+  assert.equal(r.areaId, '');
+  assert.ok(r.problems.includes('caminho-ambiguo'));
+  assert.deepEqual(r.candidates.map(c => [c.areaId, c.place]), [['cis1-a', 'M1 › CIS 1 › Anatomia'], ['cis1-a2', 'M1 › CIS 1 › Anatomia']]);
+  // sem dizer o acervo, "Anatomia" existe nos dois (IDOMED não tem raiz com esse nome, mas Medicina geral tem)
+  assert.equal(resolvePath('Anatomia', tree, []).areaId, 'g-anat');
+  // um ramo sem saída não conta: sobra um destino, que é o destino; nenhum = caminho desconhecido
+  const dead = [{ id: 'm9', name: 'M9', parentId: '' }, { id: 'u1', name: 'Bloco', parentId: 'm9' }, { id: 'u1-x', name: 'Outra', parentId: 'u1' },
+    { id: 'u2', name: 'Bloco', parentId: 'm9' }, { id: 'u2-y', name: 'Diferente', parentId: 'u2' }];
+  assert.equal(resolvePath('M9/Bloco/Outra', dead, []).areaId, 'u1-x');
+  assert.ok(resolvePath('M1/CIS 9', dead, []).problems.includes('caminho-desconhecido'));
+  // cada candidato traz os avisos do próprio ramo (ex.: o assunto não existe naquela matéria)
+  const amb = resolvePath('M1/CIS 1/Anatomia/Tórax', tree, [{ id: 'tx', areaId: 'cis1-a', name: 'Tórax' }]);
+  assert.deepEqual(amb.candidates.map(c => [c.areaId, c.topicIds, c.problems]), [['cis1-a', ['tx'], []], ['cis1-a2', [], ['assunto-desconhecido']]]);
+  const both = resolvePath('Micro e Imuno', [...tree, { id: 'r-mi', name: 'Micro e Imuno', parentId: '', acervo: 'idomed' }], []);
+  assert.deepEqual([both.areaId, both.candidates.length], ['', 2]);
+});
+
+test('publicar usa um id de material determinado pelo rascunho (dois clientes chegam ao mesmo)', async () => {
+  const { materialIdFor } = await import('../../src/core/import-store.js');
+  assert.equal(materialIdFor({ id: 'd1', materialId: null }), 'd1');
+  assert.equal(materialIdFor({ id: 'd1', materialId: 'mX' }), 'mX', 'id já reservado no rascunho é mantido');
+  const d = { id: 'd9', url: 'https://drive.google.com/file/d/Z/view', driveFileId: 'Z', title: 'T', type: 'Slides', areaId: 'cis1-anat', rights: 'publico', year: '', materialId: null };
+  assert.deepEqual(blockers(d, { ...ctx, materials: [{ id: 'd9', url: d.url }] }), [], 'o material criado por este rascunho (mesmo id) não conta como "já no catálogo"');
 });

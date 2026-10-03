@@ -6,8 +6,9 @@ import { startServer, chromePath } from '../harness.mjs';
 
 test('página de teste recusa e registra fetch, XHR e WebSocket para *.supabase.co; outros hosts seguem', { timeout: 120000 }, async () => {
   const { server, url } = await startServer();
-  const browser = await chromium.launch({ executablePath: chromePath(), headless: true });
+  let browser = null;
   try {
+    browser = await chromium.launch({ executablePath: chromePath(), headless: true });
     const page = await browser.newPage(), errors = [];
     page.on('console', m => m.type() === 'error' && errors.push(m.text()));
     await page.goto(url + '#idomed'); await page.waitForSelector('#modules .mod');
@@ -23,5 +24,5 @@ test('página de teste recusa e registra fetch, XHR e WebSocket para *.supabase.
     assert.equal(r.out.local, 200);
     assert.equal(r.blocked.length, 3);
     assert.equal(errors.filter(e => /bloqueou rede para o Supabase/.test(e)).length, 3);
-  } finally { await browser.close(); server.close(); }
+  } finally { await browser?.close(); server.close(); }
 });

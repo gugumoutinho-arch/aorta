@@ -118,5 +118,71 @@ try {
     await p.evaluate(() => localStorage.clear());
     await ctx.close();
   }
+
+  // Cenário 2: caminho limitado ao pai e ambíguo, clique duplo, dois clientes no mesmo rascunho e falha depois de gravar.
+  const tricky = { ...data, areas: [...data.areas, { id: 'bbio2-mi', name: 'Micro e Imuno', parentId: 'bbio2' },
+    { id: 'cis2-semio-a', name: 'Semiologia', parentId: 'cis2' }, { id: 'cis2-semio-b', name: 'Semiologia', parentId: 'cis2' }] };
+  const second = await startServer({ inject: withDb(tricky, { persist: true }) });
+  try {
+    const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
+    const p = await ctx.newPage(), q = await ctx.newPage(), errors = [];
+    for (const pg of [p, q]) { pg.on('pageerror', e => errors.push(e.message)); pg.on('console', m => m.type() === 'error' && !/fonts\.g|net::ERR|falha de teste|Failed to load resource/.test(m.text()) && errors.push(m.text())); }
+    await p.goto(second.url + '#organizar'); await p.waitForSelector('#imp-drafts-note:not(:empty)');
+    await p.fill('#imp-text', [['url', 'caminho', 'tipo', 'titulo'],
+      ['https://drive.google.com/file/d/MI1/view', 'Aorta/IDOMED/M2/BBIO 2/Micro e Imuno', 'Resumo', 'Imuno básica'],
+      ['https://drive.google.com/file/d/MI2/view', 'Aorta/IDOMED/M1/BBIO 1/Micro e Imuno', 'Resumo', 'No pai errado'],
+      ['https://drive.google.com/file/d/SE3/view', 'Aorta/IDOMED/M2/CIS 2/Semiologia', 'Slides', 'Exame físico'],
+      ['https://user:senha@drive.google.com/file/d/X4/view', '', 'Slides', 'Com senha'],
+      ['https://drive.google.com.evil.com/file/d/X5/view', '', 'Slides', 'Host falso']].map(r => r.join(TAB)).join('\n'));
+    await p.click('#imp-form button[type="submit"]'); await p.waitForSelector('#imp-rows .imp-row');
+    const rows = await p.$$eval('#imp-rows .imp-row', els => els.map(e => e.innerText));
+    ok('caminho limitado ao pai: Micro e Imuno vai para M2 › BBIO 2', /Vai para: M2 › BBIO 2 › Micro e Imuno/.test(rows[0]));
+    ok('mesmo nome noutro módulo não é achado: fica a escolher', /Matéria: a escolher/.test(rows[1]) && /Caminho não encontrado/.test(rows[1]) && !/Falta escolher a matéria/.test(rows[1]));
+    const opts = await p.locator('#imp-rows [data-dest="2"] option').allInnerTexts();
+    ok('caminho ambíguo pede escolha explícita: destino completo e cada candidato distinguível pelos dados', opts.length === 3
+      && opts.slice(1).every(t => t.startsWith('M2 › CIS 2 › Semiologia — ')) && new Set(opts.slice(1)).size === 2 && /1ª de 2 · 0 materiais · sem assuntos/.test(opts[1]));
+    ok('credenciais na URL: senha mascarada na prévia', rows[3].includes('https://•••@drive.google.com') && !rows[3].includes('senha@'));
+    ok('credenciais na URL: erro, com ícone e a palavra "Erro"', /Erro: Link com usuário ou senha/.test(rows[3]) && await p.locator('#imp-rows .imp-row').nth(3).locator('.err svg').count() === 1);
+    ok('host falso não é tratado como Drive', !/Erro/.test(rows[4]) && !/Aviso: Livro/.test(rows[4]));
+    ok('aviso tem ícone e a palavra "Aviso", diferente de erro', /Aviso: Caminho não encontrado/.test(rows[1]) && await p.locator('#imp-rows .imp-row').nth(1).locator('.imp-warnline svg').count() > 0);
+    await p.locator('#imp-preview').screenshot({ path: `${out}/previa-ambigua-1440-claro.png` });
+    await p.setViewportSize({ width: 390, height: 900 }); await p.locator('#imp-preview').screenshot({ path: `${out}/previa-ambigua-390-claro.png` });
+    ok('prévia com destino ambíguo, erro e aviso sem rolagem lateral a 390 px', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+    await p.setViewportSize({ width: 1440, height: 900 });
+    await p.locator('#imp-rows [data-dest="2"]').focus(); await p.locator('#imp-rows [data-dest="2"]').selectOption({ index: 2 });
+    ok('escolhido o destino, o foco fica no seletor de destino', await p.evaluate(() => document.activeElement?.dataset?.dest === '2'));
+    ok('escolhido o destino, o aviso de ambiguidade some', !/Mais de um destino/.test(await p.locator('#imp-rows .imp-row').nth(2).innerText()));
+    await p.click('#imp-save'); await until(p, () => document.querySelectorAll('#imp-drafts .imp-draft').length === 4);
+    const drafts = await p.evaluate(async () => { const db = await window.claude.use('db'); return (await db.collection('material_drafts').list()).map(d => d.data()); });
+    ok('o rascunho ambíguo guardou o destino escolhido', drafts.find(d => d.title === 'Exame físico')?.areaId === 'cis2-semio-b');
+
+    // Clique duplo em Publicar: um material só.
+    await card(p, 'Imuno básica').getByRole('button', { name: 'Publicar' }).dblclick();
+    await until(p, () => document.querySelectorAll('#imp-drafts .imp-draft').length === 3);
+    ok('clique duplo em Publicar cria um material só', (await stored(p)).filter(m => m.url.includes('MI1')).length === 1);
+
+    // Dois clientes (duas abas do mesmo contexto) publicam o mesmo rascunho ao mesmo tempo.
+    await q.goto(second.url + '#organizar'); await q.waitForSelector('#imp-drafts .imp-draft');
+    // Os dois cliques saem juntos, direto no navegador (sem esperar a outra aba redesenhar).
+    const press = pg => pg.evaluate(() => [...document.querySelectorAll('#imp-drafts .imp-draft')]
+      .find(li => li.querySelector('input[id$="-title"]')?.value === 'Exame físico').querySelector('button.primary').click());
+    const has = pg => until(pg, () => [...document.querySelectorAll('#imp-drafts input[id$="-title"]')].some(i => i.value === 'Exame físico'));
+    await has(p); await has(q);
+    await Promise.all([press(p), press(q)]);
+    await until(p, () => ![...document.querySelectorAll('#imp-drafts input[id$="-title"]')].some(i => i.value === 'Exame físico'));
+    const both = (await stored(p)).filter(m => m.url.includes('SE3'));
+    ok('dois clientes no mesmo rascunho: um material só, no destino escolhido', both.length === 1 && both[0].areaId === 'cis2-semio-b');
+
+    // Resposta incerta: o material é gravado mas a resposta falha; tentar de novo confere e completa sem duplicar.
+    await card(p, 'No pai errado').locator('select[id$="-area"]').selectOption('bbio2-mi');
+    await p.evaluate(() => { window.__mockFailAfter = 'materials/'; });
+    await card(p, 'No pai errado').getByRole('button', { name: 'Publicar' }).click();
+    await p.waitForSelector('.toast.error');
+    await card(p, 'No pai errado').getByRole('button', { name: 'Publicar' }).click();
+    await until(p, () => ![...document.querySelectorAll('#imp-drafts input[id$="-title"]')].some(i => i.value === 'No pai errado'));
+    ok('falha depois de gravar o material: repetir não duplica', (await stored(p)).filter(m => m.url.includes('MI2')).length === 1);
+    ok('cenário 2 sem erros no console', errors.length === 0 || (console.log(errors), false));
+    await ctx.close();
+  } finally { second.server.close(); }
 } finally { await browser.close(); main.server.close(); }
 console.log(`\n${checks.length} verificações aprovadas.`);

@@ -62,3 +62,48 @@ test('erro no meio (ligação): repetir com o rascunho atualizado completa sem c
   assert.equal((await snap(db, 'materials')).filter(m => m.url.includes('NOVO')).length, 1);
   assert.equal((await snap(db, 'material_drafts'))[0].status, 'publicado');
 });
+
+/* Falha programada antes e depois de cada escrita da publicação; repetir sempre termina com 1 material, as ligações
+   e o rascunho publicado — nunca duplica. */
+for (const [hook, prefix] of [['__mockFail', 'material_drafts/'], ['__mockFailAfter', 'material_drafts/'], ['__mockFail', 'materials/'],
+  ['__mockFailAfter', 'materials/'], ['__mockFail', 'material_topics/'], ['__mockFailAfter', 'material_topics/']]) {
+  test(`publicar: ${hook === '__mockFail' ? 'falha antes' : 'falha depois'} de gravar em ${prefix} e repetir não duplica`, async () => {
+    const { window, db } = await setup();
+    const [draft] = await snap(db, 'material_drafts');
+    window[hook] = prefix;
+    const c0 = await ctxOf(db); await assert.rejects(() => publishDraft(db, draft, c0));
+    const [again] = await snap(db, 'material_drafts');
+    await publishDraft(db, again, await ctxOf(db));
+    const mats = (await snap(db, 'materials')).filter(m => m.url.includes('NOVO'));
+    assert.equal(mats.length, 1);
+    assert.equal(mats[0].id, draft.id, 'o id do material é o do rascunho');
+    assert.ok((await snap(db, 'material_topics')).some(l => l.materialId === draft.id && l.topicId === 't1'));
+    assert.equal((await snap(db, 'material_drafts'))[0].status, 'publicado');
+  });
+}
+
+test('publicar: o rascunho só vira "publicado" depois das ligações', async () => {
+  const { window, db } = await setup();
+  const [draft] = await snap(db, 'material_drafts');
+  window.__mockFail = 'material_topics/';
+  const c0 = await ctxOf(db); await assert.rejects(() => publishDraft(db, draft, c0));
+  assert.equal((await snap(db, 'material_drafts'))[0].status, 'rascunho');
+});
+
+test('publicar: material já existente não é sobrescrito ao retomar', async () => {
+  const { db } = await setup();
+  const [draft] = await snap(db, 'material_drafts');
+  await db.doc('materials/' + draft.id).create({ title: 'Editado à mão', url: draft.url, areaId: 'anat', status: 'revisado' });
+  await publishDraft(db, draft, await ctxOf(db));
+  const m = (await db.doc('materials/' + draft.id).get()).data();
+  assert.deepEqual([m.title, m.status], ['Editado à mão', 'revisado']);
+});
+
+test('publicar: rascunho ignorado (por outro cliente) não é publicado', async () => {
+  const { db } = await setup();
+  const [draft] = await snap(db, 'material_drafts');
+  await db.doc('material_drafts/' + draft.id).update({ status: 'ignorado' });
+  const c = await ctxOf(db);
+  await assert.rejects(() => publishDraft(db, draft, c), /ignorado/);
+  assert.equal((await snap(db, 'materials')).filter(m => m.url.includes('NOVO')).length, 0);
+});

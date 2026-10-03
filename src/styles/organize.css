@@ -34,7 +34,12 @@
 .imp-head .mono { color: var(--muted); }
 .imp-url { color: var(--muted); overflow-wrap: anywhere; }
 .imp-url a { color: var(--text); }
-.imp-problems li::before { content: "• " / ""; color: var(--muted); }
+.imp-note { display: flex; gap: 6px; align-items: flex-start; }
+.imp-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+.imp-warnline { color: var(--text); }
+.imp-warnline .imp-ico { color: var(--flow); }
+.imp-dest { display: grid; gap: 6px; }
+.imp-dest select { justify-self: start; width: min(100%, 72ch); }
 .imp-dup { color: var(--text); font-weight: 600; }
 .imp-warn { padding: var(--space-2) var(--space-3); border-radius: var(--radius); border: 1px solid var(--action); background: var(--paper); font-weight: 600; }
 .import code { font: inherit; font-weight: 600; color: var(--text); }

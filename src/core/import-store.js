@@ -32,20 +32,26 @@ async function linkMore(db, materialId, topicIds, { links, topics, materials }) 
 
 export const updateDraft = (db, id, patch, now) => db.doc("material_drafts/" + id).update({ ...patch, updatedAt: now });
 
-/* Cria (ou completa) o material do rascunho, liga os assuntos e marca o rascunho como publicado. */
-export async function publishDraft(db, draft, { links, topics, materials, now }) {
-  let materialId = draft.materialId;
-  if (!materialId) {
-    materialId = db.collection("materials").doc().id;
-    await updateDraft(db, draft.id, { materialId }, now);
-  }
-  if (!materials.some(m => m.id === materialId)) {
-    const source = draft.source || (isDrive(draft.url) ? "Google Drive" : "");
-    await db.doc("materials/" + materialId).set({ title: draft.title.trim(), url: draft.url, areaId: draft.areaId, subject: subjectFor(draft.topicIds, topics, draft.areaId),
-      period: draft.year || "", type: draft.type, tags: [], collectionIds: [], source, notes: "", status: "nao-iniciado", favorite: false, createdAt: now });
-  }
-  await setLinksInArea(db, { material: { id: materialId, areaId: draft.areaId, subject: subjectFor(draft.topicIds, topics, draft.areaId) },
-    areaId: draft.areaId, wanted: draft.topicIds, links, topics });
+/* Id do material de um rascunho: o já reservado nele, ou o id do próprio rascunho. Assim dois clientes (ou duas
+   tentativas) publicando o mesmo rascunho chegam ao MESMO material, sem depender de quem gravou primeiro. */
+export const materialIdFor = draft => draft.materialId || draft.id;
+
+/* Cria (ou completa) o material do rascunho, liga os assuntos e só então marca o rascunho como publicado.
+   Cada passo pode ser repetido: o id vem do rascunho e é guardado antes; o material é criado só se ainda não existe
+   (nunca sobrescreve ao retomar); as ligações são upsert; depois de qualquer erro, o estado é conferido no banco. */
+export async function publishDraft(db, draft, { links, topics, now }) {
+  const materialId = materialIdFor(draft);
+  const ref = db.doc("material_drafts/" + draft.id), current = await ref.get();
+  if (!current.exists) throw new Error("Este rascunho não existe mais.");
+  if (current.data().status === "publicado") return current.data().materialId || materialId;
+  if (current.data().status === "ignorado") throw new Error("Este rascunho foi ignorado; nada foi publicado.");
+  if (!current.data().materialId) await updateDraft(db, draft.id, { materialId }, now);
+  const subject = subjectFor(draft.topicIds, topics, draft.areaId);
+  const source = draft.source || (isDrive(draft.url) ? "Google Drive" : "");
+  await db.doc("materials/" + materialId).create({ title: draft.title.trim(), url: draft.url, areaId: draft.areaId, subject,
+    period: draft.year || "", type: draft.type, tags: [], collectionIds: [], source, notes: "", status: "nao-iniciado", favorite: false, createdAt: now });
+  if (!(await db.doc("materials/" + materialId).get()).exists) throw new Error("O material não foi criado; tente de novo.");
+  await setLinksInArea(db, { material: { id: materialId, areaId: draft.areaId, subject }, areaId: draft.areaId, wanted: draft.topicIds, links, topics });
   await updateDraft(db, draft.id, { status: "publicado", materialId, problems: [] }, now);
   return materialId;
 }
