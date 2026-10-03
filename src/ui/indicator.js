@@ -1,3 +1,4 @@
+import { motionTokens } from "./tokens.js";
 /* Indicador que desliza até o item ativo (pílula das abas de acervo, sublinhado das unidades).
    Primeiro posicionamento sem animação; trocas com mola. Movimento reduzido: troca direta. */
 import gsap from "gsap";
@@ -16,7 +17,7 @@ export function slideIndicator(container, activeSelector, cls, { underline = fal
     if (!placed || !animate || reducedMotion()) { gsap.killTweensOf(ink); gsap.set(ink, { ...to, scaleX: 1, scaleY: 1 }); placed = true; return; }
     const before = ink.getBoundingClientRect();
     gsap.set(ink, { width: to.width, height: to.height, scaleX: before.width / (to.width || 1), scaleY: before.height / (to.height || 1), transformOrigin: "0 0" });
-    gsap.to(ink, { x: to.x, y: to.y, scaleX: 1, scaleY: 1, opacity: 1, duration: .32, ease: "power3.out", overwrite: true });
+    gsap.to(ink, { x: to.x, y: to.y, scaleX: 1, scaleY: 1, opacity: 1, duration: motionTokens().swap, ease: "power3.out", overwrite: true });
   }
   new ResizeObserver(() => move(false)).observe(container);
   matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => move(false));
@@ -27,7 +28,7 @@ export function wirePress(root = document) {
   let pressed = null;
   const release = () => {
     if (!pressed) return;
-    gsap.to(pressed, { scale: 1, duration: reducedMotion() ? 0 : .24, ease: "power2.out", overwrite: "auto", clearProps: "transform" });
+    gsap.to(pressed, { scale: 1, duration: reducedMotion() ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "transform" });
     pressed = null;
   };
   root.addEventListener("pointerdown", e => {
@@ -35,7 +36,7 @@ export function wirePress(root = document) {
     const el = e.target.closest(".btn, .icon, .toggle, .search-plate, .acervo-tabs a, .units button, .subjects button, .segments label, .proto-switch a, .favorite");
     if (!el || reducedMotion()) return;
     release(); pressed = el;
-    gsap.to(el, { scale: .975, duration: .1, ease: "power2.out", overwrite: "auto" });
+    gsap.to(el, { scale: .975, duration: motionTokens().press, ease: "power2.out", overwrite: "auto" });
   });
   root.addEventListener("pointerup", release);
   root.addEventListener("pointercancel", release);

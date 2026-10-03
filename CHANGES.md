@@ -2,6 +2,20 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude — F0 · P0.1 + P0.2: backup e chão limpo — ramo `prototipo-v4`, não publicado
+
+- **Contexto:** plano em 4 rodadas Claude ↔ Astra (`_fora-do-site/rodadas/`, fonte: `r4-claude-especificacao-final.md`). O Astra parou no limite antes de começar a F0; o Claude executou. O Pacote 0 do Codex estava pela metade e sem commit, com acentos corrompidos em texto visível.
+- **P0.1 · Backup** em `OneDrive\Aorta-backups\20261003-1403\`: `git bundle --all`, patch da árvore suja, não rastreados, ignorados (`_fora-do-site/`, `.arena/`, `.impeccable/`, `reports/`) e `MANIFEST.sha256`. Restauração testada numa pasta separada: 256 arquivos conferidos, 255 idênticos byte a byte e 1 (`tokens.css`) igual salvo fim de linha.
+- **P0.2 · Árvore resolvida, item a item (tabela do r3):**
+  - CSS: mantidas só as 112 trocas de medida por token **equivalentes** (o valor do token é exatamente o número substituído, conferido por script); descartados a reserva de altura do `.map-caption`, os slots de carregamento e o alinhamento novo do herói (`home.css`) e os ajustes tipográficos (`base.css`). Ficam para a F4.
+  - `index.html`: alterações do Codex descartadas (texto inicial e script de apresentação, com acentos corrompidos).
+  - `src/ui/tokens.js`: a leitura antes do CSS carregar travava `NaN` no cache; agora há padrões e só uma leitura completa é guardada. Curva da entrada do título de volta a `power3.out` (como no v4).
+  - `DESIGN.md`: seção "Fundamentos v5" reescrita em UTF-8, descrevendo só o que ficou.
+  - `.gitignore`: `/reports/`, `/.arena/`, `/.impeccable/mocks/` e `/.impeccable/questions/` (estão no backup).
+- **Novo no `check`:** etapa "codificação" (`tools/encoding.mjs`) falha com acento trocado por `?` entre letras, UTF-8 lido como Latin-1 (`Ã§`) ou U+FFFD; `?` de URL e de código passa.
+- **Testes de unidade (novos, `node --test tools/tests/`):** `tokens` (4) e `encoding` (8), escritos antes da implementação; 12/12.
+- **Testado (dados fictícios):** `npm run check` 0 erros e 0 avisos (61 arquivos na etapa de codificação); `node flows.mjs` 364/364; `node acervos.mjs` 67/67.
+
 ## 2026-10-03 — Claude — Integração do relatório do Codex (coração no IDOMED, corpo na Medicina geral) — ramo `prototipo-v4`, não publicado
 
 - **Origem:** o Codex entregou a rodada sem commit e sem validação completa (o próprio relatório dizia: falha em `acervos.mjs`, Lighthouse não rodado). Conferi o relatório contra `git status`/`git diff`: 21 arquivos modificados e 2 novos, exatamente como descrito; nada fora do relatado. `.arena/` e `.impeccable/` ficaram de fora do commit.

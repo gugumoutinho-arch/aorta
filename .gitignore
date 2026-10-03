@@ -18,3 +18,9 @@ dist/
 
 # Grafo do Graphify (gerado)
 graphify-out/
+
+# Saídas locais de ferramentas de agente e relatórios soltos (backup em OneDrive\Aorta-backups)
+/reports/
+/.arena/
+/.impeccable/mocks/
+/.impeccable/questions/

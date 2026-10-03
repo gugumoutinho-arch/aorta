@@ -1,3 +1,4 @@
+import { motionTokens } from "./tokens.js";
 /* Movimento com continuidade: a resposta segue o gesto, entradas não disputam o layout. */
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -15,7 +16,7 @@ export function revealHeadline(el, delay = 0) {
   if (reducedMotion()) return;
   const split = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line", aria: "auto" });
   splits.set(el, split);
-  gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: .72, ease: "power3.out", stagger: .065, delay,
+  gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: motionTokens().enter, ease: "power3.out", stagger: .065, delay,
     onComplete: () => { split.revert(); splits.delete(el); } });
 }
 export function countTo(el, value) {
@@ -25,14 +26,14 @@ export function countTo(el, value) {
   old?.tween.kill();
   const state = { v: Number(el.textContent) || 0 };
   if (reducedMotion() || state.v === value) { el.textContent = String(value); counters.delete(el); return; }
-  const tween = gsap.to(state, { v: value, duration: .48, ease: "power2.out",
+  const tween = gsap.to(state, { v: value, duration: motionTokens().reveal, ease: "power2.out",
     onUpdate: () => { el.textContent = String(Math.round(state.v)); }, onComplete: () => counters.delete(el) });
   counters.set(el, { tween, target: value });
 }
 const io = new IntersectionObserver(entries => {
   const shown = entries.filter(e => e.isIntersecting).map(e => e.target);
   shown.forEach(el => { io.unobserve(el); pending.delete(el); entering.add(el); });
-  if (shown.length) gsap.to(shown, { opacity: 1, y: 0, duration: .48, ease: "power2.out", stagger: .035, overwrite: "auto", onComplete: () => shown.forEach(el => { entering.delete(el); gsap.set(el, { clearProps: el.matches(":hover") ? "opacity" : "opacity,transform" }); }) });
+  if (shown.length) gsap.to(shown, { opacity: 1, y: 0, duration: motionTokens().reveal, ease: "power2.out", stagger: .035, overwrite: "auto", onComplete: () => shown.forEach(el => { entering.delete(el); gsap.set(el, { clearProps: el.matches(":hover") ? "opacity" : "opacity,transform" }); }) });
 }, { rootMargin: "0px 0px -3% 0px" });
 export function revealIn(root, selector) {
   if (!root || reducedMotion()) return;
@@ -48,7 +49,7 @@ export function wireMotion() {
     const offset = { x: 0, y: 0 }, tilt = { x: 0, y: 0 };
     const magnet = spring(offset, () => { if (label) gsap.set(label.children, { x: offset.x, y: offset.y }); });
     const lean = spring(tilt, () => { if (card) gsap.set(card, { rotateX: tilt.x, rotateY: tilt.y, transformPerspective: 1100 }); });
-    const releaseLabel = (instant = false) => { if (label) gsap.to(label.children, { x: 0, y: 0, duration: instant ? 0 : .24, ease: "power2.out", overwrite: "auto", clearProps: "x,y" }); label = null; magnet.settle({ x: 0, y: 0 }); };
+    const releaseLabel = (instant = false) => { if (label) gsap.to(label.children, { x: 0, y: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "x,y" }); label = null; magnet.settle({ x: 0, y: 0 }); };
     const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : .3, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
     const ring = document.createElement("div"); ring.className = "cursor-ring"; ring.setAttribute("aria-hidden", "true");
     const tag = document.createElement("span"); ring.append(tag); document.body.append(ring);

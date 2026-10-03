@@ -8,6 +8,7 @@ import AxeBuilder from '@axe-core/playwright';
 import stylelint from 'stylelint';
 import { HtmlValidate } from 'html-validate';
 import { root, dist, reports, buildSite, pageHtml, startServer, chromePath } from './harness.mjs';
+import { findMojibake } from './encoding.mjs';
 
 const results = []; // { etapa, nivel: 'ok'|'aviso'|'erro', texto }
 const add = (etapa, nivel, texto) => results.push({ etapa, nivel, texto });
@@ -33,6 +34,17 @@ for (const col of ['materials', 'areas', 'collections']) if (!allJs.includes(`"$
 if (/<a [^>]*download/i.test(allJs)) add('regras', 'erro', 'Downloads por <a download> não são permitidos.');
 if (!/noindex/.test(indexHtml)) add('regras', 'erro', 'O index.html precisa manter <meta name="robots" content="noindex, nofollow">.');
 if (!results.some(r => r.etapa === 'regras')) add('regras', 'ok', 'Sem diálogos do navegador, sem chave secreta, com as duas pontas do banco e as 3 coleções.');
+
+// 2b) acentos corrompidos (arquivo gravado fora de UTF-8); o próprio detector e seus testes ficam de fora
+const textFiles = [
+  ...srcFiles, path.join(root, 'index.html'),
+  ...fs.readdirSync(root).filter(f => f.endsWith('.md')).map(f => path.join(root, f)),
+  ...fs.readdirSync(path.join(root, 'tools')).filter(f => /\.(mjs|json)$/.test(f) && f !== 'encoding.mjs' && f !== 'package-lock.json').map(f => path.join(root, 'tools', f)),
+];
+const corrupted = textFiles.flatMap(f => findMojibake(fs.readFileSync(f, 'utf8')).map(h => `${path.relative(root, f)}:${h.line}: …${h.sample}…`));
+corrupted.length
+  ? add('codificação', 'erro', `Acentos corrompidos (salve em UTF-8):\n${corrupted.slice(0, 12).join('\n')}`)
+  : add('codificação', 'ok', `${textFiles.length} arquivos em UTF-8, sem acento trocado por ? nem caractere de substituição.`);
 
 // 3) CSS
 const cssFiles = srcFiles.filter(f => f.endsWith('.css'));

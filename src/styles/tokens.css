@@ -6,6 +6,14 @@
   --label: "Schibsted Grotesk", system-ui, sans-serif; /* rótulos técnicos em caixa alta ("ART. 01"), números tabulares */
   --ease: cubic-bezier(.23, 1, .32, 1);
   --radius: 6px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+  --radius-small: 6px; --radius-card: 10px; --radius-panel: 14px; --radius-pill: 99px;
+  --elevation-card: 0 14px 34px -14px var(--shadow);
+  --elevation-panel: 0 24px 80px -24px var(--shadow);
+  --motion-enter: 720ms; --motion-reveal: 480ms; --motion-swap: 320ms;
+  --motion-exit: 180ms; --motion-release: 240ms; --motion-press: 100ms;
+  --motion-ease-enter: expo.out; --motion-ease-respond: power2.out;
 
   --bg: #0d0817;
   --surface: #1a1030;

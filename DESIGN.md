@@ -5,6 +5,12 @@ description: Coração-mapa — o curso como um coração em que cada artéria �
 
 # Aorta — sistema visual implementado
 
+## Fundamentos v5 — 03/10/2026
+
+Espaçamento `--space-1…8`: 4, 8, 12, 16, 24, 32, 48 e 64 px. Raios pequeno/cartão/painel/pílula: 6/10/14/99 px. Elevações `--elevation-card` e `--elevation-panel` usam a sombra do tema. A migração trocou só medidas equivalentes (o valor do token é igual ao número que substituiu); nada mudou na tela.
+
+Tempos de movimento em `tokens.css` (`--motion-enter` 720 ms, `reveal` 480, `swap` 320, `exit` 180, `release` 240, `press` 100); `src/ui/tokens.js` lê os mesmos valores em segundos para o GSAP, com padrões iguais caso a folha ainda não tenha carregado. As curvas continuam as do v4. Reservas de espaço contra CLS e ajustes tipográficos ficaram para a fase de desempenho (F4).
+
 ## Refino v4 — ramo local `prototipo-v4`, 02/10/2026
 
 - **IDOMED:** coração, módulos e identidade Aorta preservados.
