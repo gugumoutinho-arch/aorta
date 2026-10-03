@@ -12,29 +12,37 @@ const COLS = {
   collections: ["name", "createdAt"],
   topics: ["areaId", "name", "slug", "slugAliases", "order", "bodyRegion", "createdAt"],
   material_topics: ["materialId", "topicId", "createdAt"],
+  material_drafts: ["url", "path", "type", "title", "source", "year", "rights", "areaId", "topicIds", "driveFileId", "status", "materialId", "problems", "createdAt", "updatedAt"],
 };
 const toCol = k => k === "order" ? "sort_order" : k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
 const toKey = c => c === "sort_order" ? "order" : c.replace(/_([a-z])/g, (_, x) => x.toUpperCase());
 function rowOut(table, obj) { const r = {}; for (const k of COLS[table]) if (k in obj) r[toCol(k)] = /At$/.test(k) && !obj[k] ? null : obj[k]; return r; }
 function rowIn(r) { const o = {}; for (const [c, v] of Object.entries(r)) if (c !== "id") o[toKey(c)] = v == null && c.endsWith("_at") ? "" : v; return o; }
 
-/* Ordem estável para paginar (material_topics não tem id: a chave é a dupla). */
-const ORDER = { material_topics: ["material_id", "topic_id"] };
-function supaDb(sb) {
+/* Tabelas sem coluna id: a chave é a dupla, e o id do site é "<material>:<assunto>" (ver src/domain/topic-edit.js). */
+const KEYS = { material_topics: ["material_id", "topic_id"] };
+const keyOf = (table, id) => { const v = String(id).split(":"); return KEYS[table].map((c, i) => [c, v[i]]); };
+const idOf = (table, r) => KEYS[table] ? KEYS[table].map(c => r[c]).join(":") : r.id;
+const byKey = (q, table, id) => KEYS[table] ? keyOf(table, id).reduce((x, [c, v]) => x.eq(c, v), q) : q.eq("id", id);
+export function supaDb(sb) {
   const listeners = {}, seq = {};
-  const page = table => (from, to) => (ORDER[table] || ["id"]).reduce((q, c) => q.order(c), sb.from(table).select("*")).range(from, to);
+  const page = table => (from, to) => (KEYS[table] || ["id"]).reduce((q, c) => q.order(c), sb.from(table).select("*")).range(from, to);
   const refresh = async table => {
     const mine = seq[table] = (seq[table] || 0) + 1;
     let data = null, error = null;
     try { data = await fetchAll(page(table)); } catch (e) { error = e; }
     if (mine !== seq[table]) return; // um pedido mais novo já está a caminho: este resultado é velho
-    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: r.id, data: () => rowIn(r) })) });
+    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: idOf(table, r), data: () => rowIn(r) })) });
   };
   const check = ({ error }) => { if (error) throw error; };
+  // Ligação já existente é mantida como está (o upsert da dupla não tem o que atualizar).
+  const upsert = (table, id, obj) => KEYS[table]
+    ? sb.from(table).upsert({ ...rowOut(table, obj), ...Object.fromEntries(keyOf(table, id)) }, { onConflict: KEYS[table].join(","), ignoreDuplicates: true })
+    : sb.from(table).upsert({ id, ...rowOut(table, obj) });
   const ref = (table, id) => ({ id,
-    async set(obj) { check(await sb.from(table).upsert({ id, ...rowOut(table, obj) })); refresh(table); },
-    async update(obj) { check(await sb.from(table).update(rowOut(table, obj)).eq("id", id)); refresh(table); },
-    async delete() { check(await sb.from(table).delete().eq("id", id)); refresh(table); } });
+    async set(obj) { check(await upsert(table, id, obj)); refresh(table); },
+    async update(obj) { check(await byKey(sb.from(table).update(rowOut(table, obj)), table, id)); refresh(table); },
+    async delete() { check(await byKey(sb.from(table).delete(), table, id)); refresh(table); } });
   return {
     doc: path => { const [table, id] = path.split("/"); return ref(table, id); },
     collection: table => ({

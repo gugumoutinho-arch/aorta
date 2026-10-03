@@ -2,6 +2,18 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N1 · Gravar assuntos e ligações — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:** a interface de banco grava `topics`, `material_topics` e `material_drafts` nas duas pontas.
+  - Supabase (`src/core/db.js`): a ligação não tem coluna `id`. `doc("<material>:<assunto>")` vira upsert da dupla (`onConflict` nas duas colunas, duplicata ignorada) e o delete filtra pelas duas colunas; ao ler, cada ligação ganha o id composto. Assunto nunca envia `normalized_name`.
+  - Banco fictício (`tools/harness.mjs`): imita o banco. Apagar material apaga as ligações (cascata), e assunto com ligação não pode ser apagado (restrict).
+  - Lógica pura em `src/domain/topic-edit.js`: diferença de ligações, slug livre (`-2`, `-3`… contra slugs atuais, antigos e os reservados `casos`/`todos`/`tipos`), ordem = máximo + 1, nome igual devolve o assunto existente e texto antigo `subject` = primeiro assunto ligado.
+  - Escritas em `src/core/topic-store.js`; ações com aviso em `src/core/topic-actions.js` (`createTopic`, `setMaterialTopics`).
+  - Remover material guarda as ligações, e o "Desfazer" devolve o material **e** as ligações.
+- **Teste corrigido:** `tools/topics.mjs` passa a ignorar falha de rede das fontes do Google, como `check` e `flows` já faziam (na nuvem, o proxy recusa o certificado).
+- **Testado (dados fictícios):** `npm test` 49/49 (diferença de ligações, slug com colisão, chave composta e Supabase com cliente falso: upsert da dupla, delete pelas duas colunas, sem `normalized_name`, colunas dos rascunhos; banco fictício: cascata, restrict, restaurar ligações); `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 5/5 (remover material com dois assuntos e desfazer). Sem a correção, o e2e reprova no Desfazer.
+- **Não testado:** Supabase real (nenhum acesso nesta sessão); criar e ligar assuntos pela interface (vem com o formulário, no N2).
+
 ## 2026-10-03 — Claude — F1: abas de assunto dentro da matéria — ramo `prototipo-v4`, não publicado
 
 - **O que o aluno vê:** com uma matéria escolhida (ex.: CIS 1 › Anatomia), surge a faixa **Todos · Membro superior · Coluna vertebral · Membro inferior · Casos clínicos**:

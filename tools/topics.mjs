@@ -24,7 +24,7 @@ try {
   for (const [width, theme] of [[1440, 'dark'], [390, 'light'], [320, 'dark']]) {
     const ctx = await browser.newContext({ viewport: { width, height: 900 }, colorScheme: theme, reducedMotion: 'reduce' });
     const p = await ctx.newPage(), errors = [];
-    p.on('pageerror', e => errors.push(e.message)); p.on('console', m => m.type() === 'error' && errors.push(m.text()));
+    p.on('pageerror', e => errors.push(e.message)); p.on('console', m => m.type() === 'error' && !/fonts\.g|net::ERR/.test(m.text()) && errors.push(m.text())); // fontes do Google fora do ar não são erro do site (como em check e flows)
     const tag = width + ' ' + theme;
 
     await p.goto(main.url + '#a-cis1-anat'); await p.waitForSelector('#topic-tabs:not([hidden]) [data-tab]');

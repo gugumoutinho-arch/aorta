@@ -43,7 +43,12 @@ export function mockDbScript(data = seed()) {
       async get() { const d = store[p]; return { id: this.id, exists: !!d, data: () => d && JSON.parse(JSON.stringify(d)), metadata: {} }; },
       async set(d) { store[p] = JSON.parse(JSON.stringify(d)); emit(); },
       async update(d) { if (!store[p]) throw { code: 'invalid_argument', message: 'missing' }; Object.assign(store[p], JSON.parse(JSON.stringify(d))); emit(); },
-      async delete() { delete store[p]; emit(); } });
+      async delete() {
+        // Como no banco: apagar material apaga as ligações (cascade); assunto com ligação não pode ser apagado (restrict).
+        const [col, id] = p.split('/'), linked = k => k.startsWith('material_topics/') && store[k][col === 'materials' ? 'materialId' : 'topicId'] === id;
+        if (col === 'topics' && Object.keys(store).some(linked)) throw { code: '23503', message: 'assunto com material ligado' };
+        if (col === 'materials') Object.keys(store).filter(linked).forEach(k => { delete store[k]; });
+        delete store[p]; emit(); } });
     const colRef = c => ({ path: c, doc: id => docRef(c + '/' + (id || 't' + Date.now().toString(36) + (n++))),
       onSnapshot(next) { const f = () => next(snap(c)); subs.push(f); setTimeout(f, 30); return () => {}; } });
     window.claude = { aortaTest: true, use: async name => name === 'db' ? { doc: docRef, collection: colRef } : null };

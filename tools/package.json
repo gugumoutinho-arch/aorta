@@ -10,6 +10,7 @@
     "flows": "node flows.mjs",
     "acervos": "node acervos.mjs",
     "topics": "node topics.mjs",
+    "topic-edit": "node topic-edit.mjs",
     "orcamento": "node orcamento.mjs",
     "lighthouse": "node lighthouse.mjs"
   },
