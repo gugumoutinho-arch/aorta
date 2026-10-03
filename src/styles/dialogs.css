@@ -88,6 +88,7 @@ dialog::backdrop { background: var(--scrim); -webkit-backdrop-filter: blur(3px);
 .topic-new { display: flex; gap: var(--space-2); }
 .fld .topic-new input { flex: 1; min-width: 0; }
 .topic-new .btn { flex: none; }
+@media (max-width: 420px) { .topic-new { flex-wrap: wrap; } .topic-new .btn { flex: 1 1 100%; } }
 .topic-similar { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-card); border: 1px solid var(--line-strong); background: var(--surface); font-size: 14px; }
 .topic-similar .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 @media (prefers-reduced-motion: reduce) { .topic-chip { transition: none; } .topic-chip:active { transform: none; } }

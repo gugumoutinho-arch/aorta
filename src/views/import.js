@@ -1,5 +1,7 @@
 /* Organizar › Colar links: cola-se uma linha por arquivo, vê-se a prévia linha a linha, salva-se como rascunho e
-   publica-se um rascunho por vez. Nada lê o conteúdo do Drive nem muda permissões; o Aorta guarda só os links. */
+   publica-se um rascunho por vez. Nada lê o conteúdo do Drive nem muda permissões; o Aorta guarda só os links.
+   Única ação que muda o catálogo sem rascunho: "ligar agora" uma duplicata ao material que já existe — só por escolha
+   explícita na linha, e a tela diz isso antes e depois de salvar. */
 import { S, TYPES, ready, topicsReady } from "../core/state.js";
 import { $, h } from "../core/dom.js";
 import { plural, nowIso } from "../core/text.js";
@@ -11,14 +13,16 @@ import { topicPicker } from "./topic-picker.js";
 import { toast } from "../ui/toast.js";
 
 const RIGHTS_LABEL = { proprio: "Próprio", autorizado: "Autorizado pelo autor", "licenca-aberta": "Licença aberta", publico: "Público", pendente: "A definir" };
-const ACTION_LABEL = { criar: "Criar rascunho", ignorar: "Ignorar", ligar: "Ligar ao material que já existe" };
-const DUP_TEXT = { material: t => `Já está no catálogo${t ? `: “${t}”` : ""}.`, rascunho: t => `Já há um rascunho deste arquivo${t ? `: “${t}”` : ""}.`, lote: () => "Repetida neste lote." };
+const ACTION_LABEL = { criar: "Criar rascunho", ignorar: "Ignorar", ligar: "Ligar agora ao material já publicado" };
+const DUP_TEXT = { material: t => `Duplicata: já está no catálogo${t ? `: “${t}”` : ""}.`, rascunho: t => `Duplicata: já há um rascunho deste arquivo${t ? `: “${t}”` : ""}.`, lote: () => "Duplicata: repetida neste lote." };
+const RIGHTS_HINT = "Serve para conferir se o material pode circular. Ainda não fica guardado no material e não muda nada no Drive.";
 
-let preview = null, watching = false;
+let preview = null, drawnPreview = null, watching = false;
 const cards = new Map();
 const ctx = () => ({ areas: S.areas, topics: S.topics, materials: S.materials, drafts: S.drafts, types: TYPES, links: S.links });
 const options = (pairs, value) => pairs.map(([v, l]) => h("option", { value: v, text: l, selected: v === value }));
 const places = () => treeOrder().filter(([a]) => isPlace(S.areas, a.id)).map(([a]) => [a.id, pathOf(a.id).map(x => x.name).join(" › ")]);
+const say = text => { const s = $("#imp-status"); s.textContent = ""; requestAnimationFrame(() => { s.textContent = text; }); };
 
 /* Rascunhos só são lidos quando alguém abre o Organizar (só quem edita tem acesso). */
 function watchDrafts() {
@@ -30,32 +34,40 @@ function watchDrafts() {
 
 /* ---------- prévia ---------- */
 function rowItem(row, i) {
-  const locked = row.errors.length || (row.duplicate && row.action === "ignorar" && !(row.duplicate.kind === "material" && row.topicIds.length));
-  const allowed = row.errors.length ? ["ignorar"] : row.duplicate?.kind === "material" ? (row.topicIds.length ? ["ligar", "ignorar"] : ["ignorar"]) : row.duplicate ? ["ignorar"] : ["criar", "ignorar"];
+  const allowed = row.errors.length ? [] : row.duplicate ? (row.canLink ? ["ignorar", "ligar"] : []) : ["criar", "ignorar"];
+  const name = `O que fazer com a linha ${row.line}${row.title ? `, ${row.title}` : ""}`;
   const choose = allowed.length > 1
-    ? h("label", { class: "imp-action" }, h("span", { class: "sr", text: `O que fazer com a linha ${row.line}` }),
+    ? h("label", { class: "imp-action" }, h("span", { class: "sr", text: name }),
       h("select", { "data-row": String(i) }, options(allowed.map(a => [a, ACTION_LABEL[a]]), row.action)))
-    : h("p", { class: "imp-action small muted", text: locked ? "Será ignorada." : ACTION_LABEL[row.action] });
+    : h("p", { class: "imp-action small muted", text: "Será ignorada." });
   return h("li", { class: "imp-row" + (row.errors.length ? " bad" : ""), "data-line": String(row.line) },
     h("p", { class: "imp-head" }, h("span", { class: "mono", text: `Linha ${row.line}` }), h("b", { text: row.title || "(sem título)" })),
     h("p", { class: "imp-url small", text: row.url || "(sem link)" }),
     row.errors.length ? null : h("p", { class: "small", text: row.place ? `Vai para: ${row.place}` : "Matéria: a escolher no rascunho." }),
     row.errors.map(e => h("p", { class: "err", text: e })),
     row.duplicate ? h("p", { class: "imp-dup small", text: DUP_TEXT[row.duplicate.kind](row.duplicate.title) }) : null,
-    row.problems.length && !row.errors.length ? h("ul", { class: "imp-problems small", "aria-label": `Pendências da linha ${row.line}` }, row.problems.map(p => h("li", { text: PROBLEM_TEXT[p] || p }))) : null,
+    row.action === "ligar" ? h("p", { class: "imp-warn small", text: `Ao salvar, “${row.duplicate.title}” passa a aparecer também em ${row.place}, já publicado.` }) : null,
+    // Pendências são de rascunho: linha com erro ou duplicata não vira rascunho.
+    row.problems.length && !row.errors.length && !row.duplicate ? h("ul", { class: "imp-problems small", "aria-label": `Pendências da linha ${row.line}` }, row.problems.map(p => h("li", { text: PROBLEM_TEXT[p] || p }))) : null,
     choose);
 }
+const count = a => preview.rows.filter(r => r.action === a).length;
+/* Redesenha só quando a prévia muda (um redesenho tiraria o foco do seletor em uso). */
 function renderPreview() {
   const box = $("#imp-preview");
   box.hidden = !preview;
-  if (!preview) return;
-  const n = a => preview.rows.filter(r => r.action === a).length;
-  const errors = preview.rows.filter(r => r.errors.length).length;
-  $("#imp-summary").textContent = `${plural(preview.rows.length, "linha", "linhas")}: ` + [plural(n("criar"), "rascunho novo", "rascunhos novos"),
-    n("ligar") ? `${n("ligar")} para ligar a material existente` : "", n("ignorar") ? plural(n("ignorar"), "ignorada", "ignoradas") : "",
-    errors ? `${errors} com erro` : ""].filter(Boolean).join(", ") + ".";
+  if (!preview || drawnPreview === preview) return;
+  drawnPreview = preview;
+  const focused = document.activeElement?.dataset?.row;
+  const errors = preview.rows.filter(r => r.errors.length).length, ignored = count("ignorar"), drafts = count("criar"), link = count("ligar");
+  $("#imp-summary").textContent = `${plural(preview.rows.length, "linha", "linhas")}: ` + [plural(drafts, "rascunho novo", "rascunhos novos"),
+    link ? `${plural(link, "material já publicado", "materiais já publicados")} ganha${link > 1 ? "m" : ""} assunto ao salvar` : "",
+    ignored ? plural(ignored, "ignorada", "ignoradas") + (errors ? ` (${errors} por erro)` : "") : ""].filter(Boolean).join(", ") + ".";
   $("#imp-rows").replaceChildren(...preview.rows.map(rowItem));
-  $("#imp-save").disabled = !n("criar") && !n("ligar");
+  const save = $("#imp-save");
+  save.textContent = [drafts ? `Salvar ${plural(drafts, "rascunho", "rascunhos")}` : "", link ? `${drafts ? "e ligar" : "Ligar"} ${plural(link, "material", "materiais")}` : ""].filter(Boolean).join(" ") || "Salvar rascunhos";
+  save.disabled = !drafts && !link;
+  if (focused !== undefined) $(`#imp-rows [data-row="${focused}"]`)?.focus();
 }
 function showPreview(e) {
   e.preventDefault();
@@ -69,29 +81,43 @@ function showPreview(e) {
   $("#imp-preview-title").focus();
 }
 async function savePreview() {
-  if (!preview || S.busy) return;
-  S.busy = true; $("#imp-save").disabled = true;
+  const btn = $("#imp-save");
+  if (!preview || S.busy || btn.getAttribute("aria-disabled") === "true") return;
+  S.busy = true; btn.setAttribute("aria-disabled", "true");
   let saved = null;
   const ok = await write(async () => { saved = await saveImport(S.db, preview.rows, { ...ctx(), now: nowIso() }); });
-  S.busy = false;
-  if (!ok) { renderPreview(); return; }
+  S.busy = false; btn.removeAttribute("aria-disabled");
+  if (!ok) { btn.focus(); return; }
   preview = null; $("#imp-text").value = ""; renderPreview();
-  toast([saved.drafts ? plural(saved.drafts, "rascunho salvo", "rascunhos salvos") : "", saved.linked ? plural(saved.linked, "material ligado", "materiais ligados") : ""].filter(Boolean).join(" · ") + ". Nada foi publicado ainda.");
+  const parts = [saved.drafts ? plural(saved.drafts, "rascunho salvo", "rascunhos salvos") + " (nada novo publicado)" : "",
+    saved.linked ? plural(saved.linked, "material já publicado ganhou", "materiais já publicados ganharam") + " assunto agora" : ""];
+  toast(parts.filter(Boolean).join(" · ") + ".");
   $("#h-drafts").focus();
 }
 
 /* ---------- rascunhos ---------- */
-function field(label, control, id) { return h("div", { class: "fld" }, h("label", { for: id, text: label }), control); }
+function field(label, control, id, hint) {
+  return h("div", { class: "fld" }, h("label", { for: id, text: label }), control, hint ? h("span", { class: "hint", id: id + "-hint", text: hint }) : null);
+}
+/* Depois de publicar ou ignorar, o foco vai ao próximo rascunho (num lote grande, não volta ao topo). */
+function focusAfter(id) {
+  const ids = [...cards.keys()], i = ids.indexOf(id), next = ids[i + 1] || ids[i - 1];
+  cards.delete(id); renderImport();
+  const target = next && cards.get(next)?.el.querySelector("h4");
+  (target || $("#h-drafts")).focus();
+}
 function draftCard(d) {
   const base = "dr-" + d.id.replace(/[^\w-]/g, "");
+  const heading = h("h4", { id: base + "-h", tabindex: "-1", text: d.title || "(sem título)" });
   const title = h("input", { id: base + "-title", type: "text", maxlength: "200", value: d.title });
   const type = h("select", { id: base + "-type" }, options([["", "Sem tipo"], ...TYPES.map(t => [t, t])], d.type));
-  const rights = h("select", { id: base + "-rights" }, options(RIGHTS.map(r => [r, RIGHTS_LABEL[r]]), d.rights));
+  const rights = h("select", { id: base + "-rights", "aria-describedby": base + "-rights-hint" }, options(RIGHTS.map(r => [r, RIGHTS_LABEL[r]]), d.rights));
   const area = h("select", { id: base + "-area" }, options([["", "Escolher a matéria"], ...places()], d.areaId));
   const source = h("input", { id: base + "-source", type: "text", maxlength: "120", value: d.source });
   const year = h("input", { id: base + "-year", type: "text", inputmode: "numeric", maxlength: "4", value: d.year, placeholder: "AAAA" });
   const topicsBox = h("div", { class: "fld topics-fld" });
-  const blockBox = h("div", { class: "imp-block small", role: "status" });
+  // Fora de região viva: muda a cada tecla. A recusa de "Publicar" é anunciada uma vez em #imp-status.
+  const blockBox = h("div", { class: "imp-block small", id: base + "-block", tabindex: "-1" });
   const card = { el: null, updatedAt: d.updatedAt, dirty: false };
   const picker = topicPicker(topicsBox, { base, onChange: () => touch() });
   const values = () => ({ title: title.value.trim(), type: type.value, rights: rights.value, areaId: area.value, source: source.value.trim(), year: year.value.trim(),
@@ -101,46 +127,57 @@ function draftCard(d) {
   const current = () => ({ ...(S.drafts.find(x => x.id === d.id) || d), ...values() });
   const showBlockers = () => {
     const list = blockers(current(), ctx());
-    blockBox.replaceChildren(list.length ? h("p", { text: "Falta para publicar: " + list.map(p => PROBLEM_TEXT[p] || p).join(" ") }) : h("p", { text: "Pronto para publicar." }));
+    const text = list.length ? "Falta para publicar: " + list.map(p => PROBLEM_TEXT[p] || p).join(" ") : "Pronto para publicar.";
+    if (blockBox.textContent !== text) blockBox.textContent = text;
     return list;
   };
   function touch() { card.dirty = true; showBlockers(); }
   [title, source, year].forEach(i => i.addEventListener("input", touch));
+  title.addEventListener("input", () => { heading.textContent = title.value.trim() || "(sem título)"; });
   [type, rights].forEach(i => i.addEventListener("change", touch));
   area.addEventListener("change", () => { picker.area(area.value); touch(); });
-  const save = async (msg, extra = {}) => {
+  /* Botões ocupados ficam aria-disabled (não disabled), para o foco não cair no corpo da página. */
+  const busy = b => { if (S.busy || b.getAttribute("aria-disabled") === "true") return true; S.busy = true; b.setAttribute("aria-disabled", "true"); return false; };
+  const free = b => { S.busy = false; b.removeAttribute("aria-disabled"); };
+  // Gravação própria: o cartão já mostra o que foi gravado e não precisa ser refeito (o foco fica onde está).
+  const saveBtn = h("button", { class: "btn", type: "button", text: "Salvar rascunho", onclick: async () => {
+    if (busy(saveBtn)) return;
     await picker.settled();
-    const v = values(), problems = blockers(current(), ctx());
-    return write(() => updateDraft(S.db, d.id, { ...v, problems, ...extra }, nowIso()), msg);
-  };
-  const saveBtn = h("button", { class: "btn", type: "button", text: "Salvar rascunho", onclick: async () => { if (await save("Rascunho salvo")) card.dirty = false; } });
-  const publishBtn = h("button", { class: "btn primary", type: "button", text: "Publicar", onclick: async () => {
-    if (S.busy) return;
+    const now = nowIso(), ok = await write(() => updateDraft(S.db, d.id, { ...values(), problems: blockers(current(), ctx()) }, now), "Rascunho salvo");
+    free(saveBtn);
+    if (ok) { card.dirty = false; card.updatedAt = now; }
+    saveBtn.focus();
+  } });
+  const publishBtn = h("button", { class: "btn primary", type: "button", text: "Publicar", "aria-describedby": blockBox.id, onclick: async () => {
+    if (busy(publishBtn)) return;
     await picker.settled();
     const list = showBlockers();
-    if (list.length) { blockBox.setAttribute("role", "alert"); blockBox.focus(); return; }
-    S.busy = true; publishBtn.disabled = true;
+    if (list.length) { free(publishBtn); say(`Não dá para publicar “${title.value.trim() || "(sem título)"}” ainda. ${blockBox.textContent}`); blockBox.focus(); return; }
     const draft = current(), now = nowIso();
     const ok = await write(async () => {
       await updateDraft(S.db, d.id, { ...values(), problems: [] }, now);
       await publishDraft(S.db, draft, { ...ctx(), now });
     }, `Publicado: “${draft.title}”`);
-    S.busy = false; publishBtn.disabled = false;
-    if (!ok) { card.dirty = true; return; }
-    cards.delete(d.id); renderImport(); $("#h-drafts").focus();
+    free(publishBtn);
+    if (!ok) { card.dirty = true; publishBtn.focus(); return; }
+    focusAfter(d.id);
   } });
   const ignoreBtn = h("button", { class: "btn ghost", type: "button", text: "Ignorar", onclick: async () => {
-    if (await write(() => updateDraft(S.db, d.id, { status: "ignorado" }, nowIso()), "Rascunho ignorado. O arquivo original não foi alterado.")) { cards.delete(d.id); renderImport(); $("#h-drafts").focus(); }
+    if (busy(ignoreBtn)) return;
+    const undo = () => write(() => updateDraft(S.db, d.id, { status: "rascunho" }, nowIso()), "Rascunho de volta");
+    const ok = await write(() => updateDraft(S.db, d.id, { status: "ignorado" }, nowIso()), "Rascunho ignorado. O arquivo original não foi alterado.", { action: { label: "Desfazer", run: undo } });
+    free(ignoreBtn);
+    if (ok) focusAfter(d.id); else ignoreBtn.focus();
   } });
-  blockBox.tabIndex = -1;
-  card.el = h("li", { class: "imp-draft", "data-draft": d.id },
-    field("Título", title, title.id),
+  card.el = h("li", { class: "imp-draft", "data-draft": d.id, "aria-labelledby": heading.id },
+    heading,
     h("p", { class: "imp-url small" }, h("a", { href: d.url, target: "_blank", rel: "noopener noreferrer", text: d.url }), d.path ? h("span", { class: "muted", text: ` · caminho colado: ${d.path}` }) : null),
+    field("Título", title, title.id),
     field("Onde fica", area, area.id), topicsBox,
-    h("div", { class: "two" }, field("Tipo", type, type.id), field("Direitos de uso", rights, rights.id)),
+    h("div", { class: "two" }, field("Tipo", type, type.id), field("Direitos de uso", rights, rights.id, RIGHTS_HINT)),
     h("div", { class: "two" }, field("Fonte", source, source.id), field("Ano", year, year.id)),
     blockBox, h("div", { class: "acts" }, publishBtn, saveBtn, ignoreBtn));
-  card.render = () => { picker.render(); if (!card.dirty) showBlockers(); };
+  card.render = () => { picker.render(); showBlockers(); };
   picker.open(d.areaId, d.topicIds || []);
   showBlockers();
   return card;
@@ -151,24 +188,28 @@ function renderDrafts() {
   if (!S.got.d) { note.textContent = "Carregando rascunhos…"; return; }
   const open = S.drafts.filter(d => d.status === "rascunho").sort((a, b) => (a.createdAt || "").localeCompare(b.createdAt || ""));
   const done = S.drafts.filter(d => d.status === "publicado").length;
-  note.textContent = open.length ? `${plural(open.length, "rascunho", "rascunhos")} esperando revisão${done ? ` · ${plural(done, "publicado", "publicados")}` : ""}.`
-    : `Nenhum rascunho esperando revisão${done ? ` · ${plural(done, "publicado", "publicados")}` : ""}.`;
+  const text = (open.length ? `${plural(open.length, "rascunho", "rascunhos")} esperando revisão` : "Nenhum rascunho esperando revisão") + (done ? ` · ${plural(done, "publicado", "publicados")}` : "") + ".";
+  if (note.textContent !== text) note.textContent = text;
   // Cartão com edição em andamento não é refeito (perderia o que foi digitado); os outros acompanham o banco.
+  const focusId = list.contains(document.activeElement) ? document.activeElement.id : "";
   for (const id of [...cards.keys()]) if (!open.some(d => d.id === id)) cards.delete(id);
   for (const d of open) {
     const c = cards.get(d.id);
     if (!c || (!c.dirty && c.updatedAt !== d.updatedAt)) cards.set(d.id, draftCard(d));
     else c.render();
   }
+  // Troca só os nós que mudaram, para não tirar o foco de quem está digitando em outro cartão.
   const els = open.map(d => cards.get(d.id).el);
-  if (els.length !== list.children.length || els.some((el, i) => list.children[i] !== el)) list.replaceChildren(...els);
+  [...list.children].forEach(el => { if (!els.includes(el)) el.remove(); });
+  els.forEach((el, i) => { if (list.children[i] !== el) list.insertBefore(el, list.children[i] || null); });
+  if (focusId && !list.contains(document.activeElement)) document.getElementById(focusId)?.focus({ preventScroll: true });
 }
 
 export function renderImport() {
-  const disabled = !ready();
+  const disabled = !ready() || S.draftsOff;
   $("#import").hidden = !S.db && S.dbState !== "loading";
   $("#imp-form").querySelectorAll("textarea, select, button").forEach(x => { x.disabled = disabled; });
-  if (disabled) return;
+  if (!ready()) return;
   watchDrafts();
   if (topicsReady()) renderDrafts();
   renderPreview();
@@ -183,6 +224,5 @@ export function wireImport() {
     const i = e.target.dataset?.row; if (i === undefined || !preview) return;
     preview = { rows: preview.rows.map((r, k) => k === +i ? { ...r, action: e.target.value } : r) };
     renderPreview();
-    $(`#imp-rows [data-row="${i}"]`)?.focus();
   });
 }

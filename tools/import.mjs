@@ -47,12 +47,17 @@ try {
     ok(tag + ' prévia: 5 linhas, na ordem colada', rows.length === 5 && /linha 2/i.test(rows[0]) && /linha 6/i.test(rows[4]));
     ok(tag + ' prévia: caminho vira matéria e assunto', rows[0].includes('Vai para: M1 › CIS 1 › Anatomia › Membro superior') && rows[1].includes('Coluna vertebral'));
     ok(tag + ' prévia: pasta do Drive recusada com explicação', /pasta do Drive: cole os links dos arquivos/.test(rows[2]) && /Será ignorada/.test(rows[2]));
-    ok(tag + ' prévia: duplicata do catálogo marcada, com opção de ligar', /Já está no catálogo: “Atlas já cadastrado”/.test(rows[3])
-      && await p.inputValue('#imp-rows [data-row="3"]') === 'ligar');
+    ok(tag + ' prévia: duplicata do catálogo marcada; ligar existe, mas não vem escolhido', /Duplicata: já está no catálogo: “Atlas já cadastrado”/.test(rows[3])
+      && await p.inputValue('#imp-rows [data-row="3"]') === 'ignorar' && await p.locator('#imp-rows [data-row="3"] option[value="ligar"]').count() === 1);
     ok(tag + ' prévia: caminho desconhecido e livro no Drive viram pendência, sem criar nada', /Caminho não encontrado/.test(rows[4]) && /Livro deve apontar para editora/.test(rows[4])
       && /Matéria: a escolher/.test(rows[4]));
     ok(tag + ' prévia: título com HTML aparece como texto', rows[4].includes('<b>negrito</b>') && !(await p.locator('#imp-rows b b, #imp-rows .imp-head b > b').count()));
-    ok(tag + ' prévia: resumo diz o que vai acontecer', /5 linhas: 3 rascunhos novos, 1 para ligar/.test(await p.innerText('#imp-summary')));
+    ok(tag + ' prévia: resumo diz o que vai acontecer', /5 linhas: 3 rascunhos novos, 2 ignoradas \(1 por erro\)\./.test(await p.innerText('#imp-summary'))
+      && await p.innerText('#imp-save') === 'Salvar 3 rascunhos');
+    await p.locator('#imp-rows [data-row="3"]').focus(); await p.selectOption('#imp-rows [data-row="3"]', 'ligar');
+    ok(tag + ' escolher "ligar" avisa que muda material já publicado, no botão e no resumo', /passa a aparecer também em M1 › CIS 1 › Anatomia › Membro inferior, já publicado/.test(await p.locator('#imp-rows .imp-row').nth(3).innerText())
+      && await p.innerText('#imp-save') === 'Salvar 3 rascunhos e ligar 1 material' && /1 material já publicado ganha assunto ao salvar/.test(await p.innerText('#imp-summary'))
+      && await p.evaluate(() => document.activeElement?.dataset?.row === '3'));
     await p.selectOption('#imp-rows [data-row="3"]', 'ignorar');
     const axe = await new AxeBuilder({ page: p }).include('#import').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     ok(tag + ' WCAG na colagem', axe.violations.length === 0 || (console.log(JSON.stringify(axe.violations.map(v => ({ id: v.id, nodes: v.nodes.map(n => n.target) })))), false));
@@ -71,10 +76,13 @@ try {
 
     // Livro no Drive e sem matéria: publicar é recusado e explica o que falta.
     await card(p, 'Livro em PDF <b>negrito</b>').getByRole('button', { name: 'Publicar' }).click();
-    ok(tag + ' livro no Drive não publica e diz por quê', /Falta para publicar: .*Falta escolher a matéria.*Livro deve apontar/.test(await card(p, 'Livro em PDF <b>negrito</b>').locator('.imp-block').innerText()));
+    await until(p, () => /Não dá para publicar/.test(document.querySelector('#imp-status').textContent));
+    ok(tag + ' livro no Drive não publica, diz por quê e leva o foco ao motivo', /Falta para publicar: .*Falta escolher a matéria.*Livro deve apontar/.test(await card(p, 'Livro em PDF <b>negrito</b>').locator('.imp-block').innerText())
+      && await p.evaluate(() => document.activeElement?.classList.contains('imp-block')));
 
     await card(p, 'Aula de ombro').getByRole('button', { name: 'Publicar' }).click();
     await until(p, () => document.querySelectorAll('#imp-drafts .imp-draft').length === 2);
+    ok(tag + ' depois de publicar, o foco vai ao rascunho seguinte', await p.evaluate(() => document.activeElement?.matches('#imp-drafts .imp-draft h4')));
     // Erro no meio (ligação ao assunto): o material já foi criado; publicar de novo completa sem duplicar.
     await p.evaluate(() => { window.__mockFail = 'material_topics/'; });
     await card(p, 'Resumo de coluna').getByRole('button', { name: 'Publicar' }).click();
@@ -96,8 +104,15 @@ try {
     await p.goto(main.url + '#organizar'); await p.waitForSelector('#imp-drafts .imp-draft');
     await p.fill('#imp-text', PASTE); await p.click('#imp-form button[type="submit"]'); await p.waitForSelector('#imp-rows .imp-row');
     const again = await p.$$eval('#imp-rows .imp-row', els => els.map(e => e.innerText));
-    ok(tag + ' colar de novo: publicados e rascunho viram duplicata', /Já está no catálogo: “Aula de ombro”/.test(again[0]) && /Já está no catálogo: “Resumo de coluna”/.test(again[1])
-      && /Já há um rascunho deste arquivo/.test(again[4]) && /5 linhas: 0 rascunhos novos/.test(await p.innerText('#imp-summary')));
+    ok(tag + ' colar de novo: publicados e rascunho viram duplicata', /já está no catálogo: “Aula de ombro”/.test(again[0]) && /já está no catálogo: “Resumo de coluna”/.test(again[1])
+      && /já há um rascunho deste arquivo/.test(again[4]) && /5 linhas: 0 rascunhos novos/.test(await p.innerText('#imp-summary')));
+
+    // Ignorar oferece Desfazer.
+    await card(p, 'Livro em PDF <b>negrito</b>').getByRole('button', { name: 'Ignorar' }).click();
+    await until(p, () => !document.querySelector('#imp-drafts .imp-draft'));
+    await p.locator('.toast button', { hasText: 'Desfazer' }).click();
+    await until(p, () => document.querySelectorAll('#imp-drafts .imp-draft').length === 1);
+    ok(tag + ' Ignorar tem Desfazer', true);
 
     ok(tag + ' sem erros no console', errors.filter(e => !/falha de teste/.test(e)).length === 0 || (console.log(errors), false));
     await p.evaluate(() => sessionStorage.clear());

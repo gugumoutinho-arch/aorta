@@ -134,13 +134,14 @@ test('duplicata (mesmo arquivo do Drive ou mesma URL) é marcada, nunca criada d
   assert.deepEqual(rows.map(r => r.duplicate?.kind || ''), ['material', 'rascunho', '', '', 'lote', 'material']);
   assert.equal(rows[0].duplicate.id, 'old1');
   assert.deepEqual(rows.map(r => r.action), ['ignorar', 'ignorar', 'criar', 'criar', 'ignorar', 'ignorar']);
+  assert.deepEqual(rows.map(r => r.canLink), [false, false, false, false, false, false], 'sem assunto no caminho, não há o que ligar');
   const [byUrl] = planImport(parsePaste('https://example.com/aula/?usp=sharing').rows, { ...ctx, materials: [{ id: 'm9', url: 'https://example.com/aula' }] });
   assert.equal(byUrl.duplicate.kind, 'material');
 });
 
-test('duplicata de material com assunto resolvido sugere ligar ao existente', () => {
+test('duplicata de material com assunto resolvido pode ligar ao existente, mas só por escolha (padrão: ignorar)', () => {
   const [row] = planImport(parsePaste(tsv(['https://drive.google.com/file/d/JAEXISTE123/view', 'M1/CIS 1/Anatomia/Membro superior', 'Slides', 'X'])).rows, ctx);
-  assert.equal(row.action, 'ligar');
+  assert.deepEqual([row.action, row.canLink], ['ignorar', true]);
 });
 
 test('livro apontando para o Drive é avisado e não pode ser publicado', () => {

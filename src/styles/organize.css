@@ -35,8 +35,12 @@
 .imp-url { color: var(--muted); overflow-wrap: anywhere; }
 .imp-url a { color: var(--text); }
 .imp-problems li::before { content: "• " / ""; color: var(--muted); }
-.imp-dup { color: var(--flow); font-weight: 600; }
+.imp-dup { color: var(--text); font-weight: 600; }
+.imp-warn { padding: var(--space-2) var(--space-3); border-radius: var(--radius); border: 1px solid var(--action); background: var(--paper); font-weight: 600; }
+.import code { font: inherit; font-weight: 600; color: var(--text); }
 .imp-action select { max-width: 100%; }
 .imp-draft { gap: var(--space-3); }
+.imp-draft h4 { font: 500 20px/1.2 var(--serif); overflow-wrap: anywhere; }
+.imp-draft input, .imp-draft select { background: var(--paper); }
 .imp-block { padding: var(--space-2) var(--space-3); border-radius: var(--radius); background: var(--paper); }
 .imp-draft .acts, .imp-preview .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); }

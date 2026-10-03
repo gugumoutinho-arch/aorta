@@ -19,7 +19,9 @@ const now = '2026-10-03T12:00:00Z';
 
 async function setup() {
   const { window, db: dbp } = mockDb(data), db = await dbp;
-  const rows = planImport(parsePaste(paste).rows, { areas, topics, materials: data.materials, drafts: [], types: ['Slides'] });
+  // A duplicata vem como "ignorar"; ligar ao material existente é escolha explícita.
+  const rows = planImport(parsePaste(paste).rows, { areas, topics, materials: data.materials, drafts: [], types: ['Slides'] })
+    .map(r => r.canLink ? { ...r, action: 'ligar' } : r);
   const saved = await saveImport(db, rows, { links: [], topics, materials: data.materials, now });
   return { window, db, saved };
 }

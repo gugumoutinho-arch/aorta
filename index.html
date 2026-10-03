@@ -189,11 +189,11 @@
     </div>
     <section class="panel import" id="import" aria-labelledby="h-import">
       <h2 id="h-import">Colar links</h2>
-      <p class="muted small">Cole uma linha por arquivo: só o link, ou uma planilha com o cabeçalho <span class="mono">url · caminho · tipo · titulo · fonte · ano · direitos</span> (até 100 linhas). Tudo vira rascunho; nada é publicado sem você revisar. O Aorta guarda só os links: não lê os arquivos nem muda permissões no Drive.</p>
+      <p class="muted small" id="imp-intro">Cole uma linha por arquivo: só o link, ou colunas copiadas direto da planilha, com o cabeçalho <code>url, caminho, tipo, titulo, fonte, ano, direitos</code> (até 100 linhas). Linhas novas viram rascunho: nada novo é publicado sem você revisar. Uma linha repetida só muda o catálogo se você escolher ligá-la ao material já publicado. O Aorta guarda só os links: não lê os arquivos nem muda permissões no Drive.</p>
       <form class="imp-form" id="imp-form" novalidate>
-        <div class="fld"><label for="imp-text">Links ou planilha</label><textarea id="imp-text" rows="6" spellcheck="false" autocomplete="off" aria-describedby="imp-err"></textarea><span class="err" id="imp-err" hidden></span></div>
+        <div class="fld"><label for="imp-text">Links ou planilha</label><textarea id="imp-text" rows="6" spellcheck="false" autocomplete="off" aria-describedby="imp-intro imp-err"></textarea><span class="err" id="imp-err" hidden></span></div>
         <div class="imp-opts">
-          <div class="fld"><label for="imp-rights">Direitos do lote</label><select id="imp-rights"></select></div>
+          <div class="fld"><label for="imp-rights">Direitos do lote</label><select id="imp-rights" aria-describedby="imp-rights-hint"></select><span class="hint" id="imp-rights-hint">Para conferir se o material pode circular; ainda não fica guardado no material e não muda nada no Drive.</span></div>
           <button class="btn" type="submit">Ver prévia</button>
         </div>
       </form>
@@ -207,6 +207,7 @@
         <h3 id="h-drafts" tabindex="-1">Rascunhos</h3>
         <p class="muted small" id="imp-drafts-note" role="status"></p>
         <ul class="imp-draft-list" id="imp-drafts"></ul>
+        <p class="sr" id="imp-status" role="status"></p>
       </div>
     </section>
   </section>

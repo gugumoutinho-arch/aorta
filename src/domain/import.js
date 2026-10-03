@@ -19,8 +19,8 @@ export const PROBLEM_TEXT = {
   "assunto-desconhecido": "Assunto do caminho não existe nesta matéria; escolha ou crie no rascunho.",
   "ano-invalido": "Ano precisa ter 4 dígitos (ex.: 2026).",
   "direitos-pendentes": "Defina os direitos de uso.",
-  "livro-no-drive": "Livro deve apontar para editora ou biblioteca, não para PDF no Drive.",
-  "ja-no-catalogo": "Este arquivo já está no catálogo.",
+  "livro-no-drive": "Livro deve apontar para editora ou biblioteca, não para PDF no Drive. Ignore este rascunho e cole o link da editora.",
+  "ja-no-catalogo": "Este arquivo já está no catálogo. Ignore este rascunho.",
 };
 
 const clean = v => String(v ?? "").replace(/[\u0000-\u001f\u007f]/g, "").trim();
@@ -117,11 +117,12 @@ function pickRights(raw, fallback) {
 const sameFile = (a, b) => (a.driveFileId && a.driveFileId === b.driveFileId) || normalizeUrl(a.url) === normalizeUrl(b.url);
 const asDoc = m => ({ url: m.url, driveFileId: m.driveFileId ?? driveInfo(m.url).fileId });
 
-/* Cada linha ganha matéria, assuntos, pendências, duplicata e a ação sugerida (criar, ignorar ou ligar ao existente). */
+/* Cada linha ganha matéria, assuntos, pendências, duplicata e a ação sugerida: criar (linha nova) ou ignorar (erro ou
+   duplicata). canLink diz se a duplicata pode, por escolha explícita, ligar os assuntos do caminho ao material existente. */
 export function planImport(rows, { areas, topics, materials = [], drafts = [], types, defaultRights = DEFAULT_RIGHTS }) {
   const seen = [];
   return rows.map(row => {
-    if (row.errors.length) return { ...row, areaId: "", topicIds: [], place: "", problems: [], duplicate: null, action: "ignorar" };
+    if (row.errors.length) return { ...row, areaId: "", topicIds: [], place: "", problems: [], duplicate: null, canLink: false, action: "ignorar" };
     const where = resolvePath(row.path, areas, topics);
     const { type, problem: typeProblem } = pickType(row.type, types);
     const { rights, problem: rightsProblem } = pickRights(row.rights, defaultRights);
@@ -135,8 +136,10 @@ export function planImport(rows, { areas, topics, materials = [], drafts = [], t
     const dup = mat ? { kind: "material", id: mat.id, title: mat.title || "" } : draft ? { kind: "rascunho", id: draft.id, title: draft.title || "" }
       : seen.some(s => sameFile(me, s)) ? { kind: "lote", id: "", title: "" } : null;
     seen.push(me);
-    const action = !dup ? "criar" : dup.kind === "material" && where.topicIds.length ? "ligar" : "ignorar";
-    return { ...row, type, rights, year, areaId: where.areaId, topicIds: where.topicIds, place: where.areaId ? where.names.join(" › ") : "", problems, duplicate: dup, action };
+    // Duplicata nunca vem marcada para mudar o catálogo: ligar ao material já publicado é escolha explícita na linha.
+    const canLink = dup?.kind === "material" && where.topicIds.length > 0;
+    return { ...row, type, rights, year, areaId: where.areaId, topicIds: where.topicIds, place: where.areaId ? where.names.join(" › ") : "", problems,
+      duplicate: dup, canLink, action: dup ? "ignorar" : "criar" };
   });
 }
 

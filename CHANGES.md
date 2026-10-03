@@ -2,6 +2,36 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N4 · Correções da revisão de design da colagem — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Bloqueante corrigido (honestidade):** antes, a duplicata de um material do catálogo vinha marcada como "ligar". Ao "Salvar rascunhos", o material **já publicado** ganhava assuntos na hora, e o aviso dizia "Nada foi publicado ainda". Agora:
+  - a duplicata vem como "Ignorar"; "Ligar agora ao material já publicado" é escolha explícita na linha;
+  - escolhida essa opção, a linha avisa: "Ao salvar, 'X' passa a aparecer também em …, já publicado";
+  - o resumo e o botão dizem o que vai acontecer ("Salvar 3 rascunhos e ligar 1 material");
+  - o aviso final separa o que virou rascunho do que mudou no catálogo;
+  - a introdução diz que só uma linha repetida, e só por escolha, muda o catálogo.
+- **Importantes corrigidos:**
+  - a caixa "Falta para publicar" saiu da região viva (não fala a cada tecla); a recusa de "Publicar" é anunciada uma vez e o foco vai ao motivo;
+  - salvar o rascunho não refaz o cartão, e o foco fica; a lista troca só os cartões que mudaram e devolve o foco por id;
+  - a prévia só é redesenhada quando muda;
+  - botões ocupados usam `aria-disabled` (o foco não cai na página) e, em falha, o foco volta ao botão;
+  - publicar ou ignorar leva o foco ao rascunho seguinte;
+  - cada cartão tem título visível (`h4`) e nome acessível;
+  - "Direitos" ganhou a explicação de que serve para conferir, ainda não fica guardado no material e não muda nada no Drive;
+  - campos do cartão em `--paper`, contra o `--surface` do cartão.
+- **Sugestões aplicadas:**
+  - duplicata em cor de texto com o rótulo "Duplicata" (antes parecia erro);
+  - cabeçalho da planilha em `code`, com "copie direto da planilha";
+  - os avisos de livro no Drive e de já no catálogo dizem que o caminho é "Ignorar";
+  - "Ignorar" tem "Desfazer" e trava o clique duplo;
+  - rótulo do seletor com o título da linha;
+  - resumo "2 ignoradas (1 por erro)";
+  - campo e botão de "Novo assunto" empilham abaixo de 420 px;
+  - com a tabela de rascunhos indisponível, o formulário de colagem fica desativado;
+  - linha duplicada não mostra pendências de rascunho.
+- **Ficaram:** a borda `--line-strong` com 1,9 a 2,3:1, que é de todos os campos do site e decisão de identidade; o rótulo "Ano" vira "Período" no material; animação de prévia e cartão (opcional). Layout sem referência externa: derivado dos painéis do Organizar.
+- **Testado:** `npm test` 80/80; `check` 0/0; `tools/import.mjs` 44/44 (inclui: "ligar" não vem escolhido, aviso e botão ao escolher, foco depois de publicar, recusa anunciada com foco no motivo, Ignorar com Desfazer); `tools/topic-edit.mjs` 46/46. Bateria completa no fim do N7.
+
 ## 2026-10-03 — Claude (nuvem) — N5 · Cardiologia aponta para o coração no corpo 3D — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Antes:** `src/body/routes.js` mandava `/cardio/` para "pulmao", e `ORDER` não tinha "coracao".
