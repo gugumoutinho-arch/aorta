@@ -2,6 +2,17 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N7 (extra) · Desempenho da primeira tela: tentado, medido e revertido — ramo `nuvem/f1-conteudo`
+
+- **Tentativa (`368fce2`, revertida em seguida):** `layout()` em `src/views/map.js` passou a ler todas as medidas dos rótulos antes de escrever posições e lados. Antes, cada leitura vinha depois do `data-side` do rótulo anterior, que muda o alinhamento pelo CSS. As caixas calculadas eram reaproveitadas pelas linhas-guia, inclusive nos quadros do 3D, sem medir nada.
+- **Medições (cópias isoladas, nada em paralelo, CPU 4×, 3D por software):**
+  - `medir-v5 --fase=n7-antes-k / n7-depois-k`, 6 pares alternados:
+    - **IDOMED**, maior tarefa da entrada: medianas ~673 ms antes e ~931 ms depois (faixas 167–1.660 e 282–1.404); p95 de quadro ~550 → ~383 ms.
+    - **Geral**, maior tarefa da entrada: ~223 → ~209 ms; p95 de quadro igual (~175 ms).
+  - Contagem e tempo de layout na entrada (`Performance.getMetrics`, mediana de 5): **layouts −70%** (161 → 41, 89 → 31, 152 → 39, 93 → 33). Tempo total de layout quase igual: 132 → 125 e 158 → 133 ms a 390 px; empate a 1440 px. O diagnóstico de partida (~190 ms de layout em `layout()`) não se reproduziu aqui: os layouts eliminados eram baratos.
+  - Lighthouse (mediana de 3): igual antes e depois. Celular 94/94, computador 100/100; geral no celular 94 (meta ≥ 88).
+- **Decisão:** a meta ("maior tarefa da entrada claramente menor") não foi atingida, e a IDOMED até piorou na mediana, com variação enorme, dominada pelo carregamento do coração 3D. Pela regra do pacote, **revertido** (`128067b`). O código fica no histórico para ser retomado junto com o carregamento do 3D, que é o que pesa de verdade na maior tarefa.
+
 ## 2026-10-03 — Claude (nuvem) — N6 · Instabilidade "trocas rápidas preservam último acervo e título" — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Causa raiz (defeito do produto, não do teste), achada com registro de cada escrita no título e de cada split:**

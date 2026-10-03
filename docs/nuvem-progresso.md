@@ -21,7 +21,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N4 · Importação por colagem | concluído | `6299ca4`, correções da revisão em `0beab8b` |
 | N5 · Cardiologia → coração | concluído | `e60e5e3` |
 | N6 · Trocas rápidas instáveis | concluído | `57f77e6` |
-| N7 · Desempenho da primeira tela | extra | |
+| N7 · Desempenho da primeira tela | tentado e revertido (meta não atingida) | `368fce2` → `128067b` |
 
 ### N1 · Gravar assuntos e ligações
 
@@ -62,3 +62,8 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 - **Depois:** roteiro focado 0/60; `acervos` 10/10 no teste-alvo.
 - **Ainda instável:** "botão fica pressionado até soltar", 1 em 10 depois da correção parcial.
 - **Bateria do commit:** toda verde, exceto Lighthouse boas práticas 96 (ambiente).
+
+### N7 · Desempenho (extra)
+
+- **6 pares de `medir-v5` e 5 rodadas de métricas de layout:** layouts −70%, tempo de layout quase igual; a maior tarefa da IDOMED não melhorou (mediana pior, variação enorme). Lighthouse igual (94/94).
+- **Revertido pela regra do pacote.** Próximo passo sugerido: atacar o carregamento e a montagem do coração 3D (é a maior tarefa).
