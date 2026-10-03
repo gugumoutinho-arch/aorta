@@ -18,9 +18,9 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N1 · Gravar assuntos e ligações | concluído | `746ab39` |
 | N2 · Formulário com assuntos | concluído | `80bc24c` |
 | N3 · Quase-duplicatas | concluído | `771470f` |
-| N4 · Importação por colagem | concluído | `6299ca4` |
-| N5 · Cardiologia → coração | concluído | (ver git log) |
-| N6 · Trocas rápidas instáveis | a fazer | |
+| N4 · Importação por colagem | concluído | `6299ca4`, correções da revisão em `0beab8b` |
+| N5 · Cardiologia → coração | concluído | `e60e5e3` |
+| N6 · Trocas rápidas instáveis | concluído | `57f77e6` |
 | N7 · Desempenho da primeira tela | extra | |
 
 ### N1 · Gravar assuntos e ligações
@@ -42,3 +42,23 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 - **Revisão de design:** 0 bloqueantes; 3 importantes corrigidos (salvar durante a criação, foco, falha visível).
 - **Pendências:** contraste da borda `--line-strong` (2,1 a 2,3:1), que é decisão de identidade do dono.
 - **Ambiente:** o Chrome daqui não confia no certificado do proxy para fonts.googleapis.com; as fontes caem no padrão do sistema e o Lighthouse marca 96 em boas práticas.
+
+### N4 · Colar links
+
+- **Bateria (`6299ca4`):** `npm test` 74/74; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 38/38. Lighthouse 94/94 e 100/100; boas práticas 96 (ambiente).
+- **Revisão de design:**
+  - 1 bloqueante, corrigido em `0beab8b`: "ligar" a duplicata mudava um material publicado sem dizer;
+  - 8 importantes, corrigidos;
+  - `import` 44/44 depois das correções.
+- **Limite:** os direitos não ficam guardados no material, porque `materials` não tem a coluna e a migração precisa do dono.
+
+### N5 · Cardiologia → coração
+
+- `routes.test` 6/6; `npm test` 80/80; `check` 0/0. O `acervos` desse commit caiu na corrida dos rótulos (corrigida no N6). Captura com uma Cardiologia fictícia: rótulo "Coração" e ponta no peito; página do módulo com o coração 3D.
+
+### N6 · Trocas rápidas
+
+- **Antes:** roteiro focado com 1/30, 2/40 e ≥ 1/11 falhas; `acervos` com 1/10.
+- **Depois:** roteiro focado 0/60; `acervos` 10/10 no teste-alvo.
+- **Ainda instável:** "botão fica pressionado até soltar", 1 em 10 depois da correção parcial.
+- **Bateria do commit:** toda verde, exceto Lighthouse boas práticas 96 (ambiente).

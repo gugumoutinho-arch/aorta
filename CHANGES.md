@@ -2,6 +2,26 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N6 · Instabilidade "trocas rápidas preservam último acervo e título" — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Causa raiz (defeito do produto, não do teste), achada com registro de cada escrita no título e de cada split:**
+  - `revealHeadline` (`src/ui/motion.js`) cancelava a entrada do título com `gsap.killTweensOf(split.lines)`. Em trocas rápidas de acervo, com a thread ocupada pelo 3D, esse cancelamento às vezes **não matava** o tween. No registro: split 2 cancelado aos 1.945 ms, mas o tween dele terminou aos 2.601 ms.
+  - O `onComplete` desse tween apagava do mapa `splits` a entrada do elemento **sem conferir de quem era**, e apagava a do split atual (o 5).
+  - O split 5 ficou órfão, com o HTML do título da IDOMED guardado. Na troca seguinte, `cancelHeadline` não o achou, e o construtor do novo `SplitText` restaurou aquele HTML antigo (`overwrite`): o corpo aparecia com "O que você vai estudar hoje?".
+- **Correção:** o tween fica guardado com o split e é cancelado pela referência (`tween.kill()`); o `onComplete` só apaga a entrada se ela ainda for do próprio split. Nenhuma espera foi aumentada.
+- **Antes e depois:**
+  - Antes, roteiro focado (só a sequência do teste, 1440 px, 3D por software): 1 falha em 30, 2 em 40 e pelo menos 1 em 11 (rodada interrompida quando a causa apareceu).
+  - Antes, `acervos.mjs` inteiro: o teste-alvo falhou 1 vez em 10 rodadas limpas.
+  - Depois, roteiro focado: **0 falhas em 60**.
+  - Depois, `acervos.mjs` 10 vezes seguidas: o teste-alvo passou **10 de 10**.
+- **Duas outras corridas do `acervos.mjs`, vistas na medição:**
+  - "rótulos sobrepostos" (3 de 20 rodadas antes, inclusive a 320 px): corrida do teste. Os rótulos nascem no canto e são posicionados no quadro seguinte, e o teste media depois de 180 ms fixos. Agora espera a condição: todos os rótulos com lado definido. Depois: 0 em 10.
+  - "botão fica pressionado até soltar" (3 de 20 antes): o código soltava a pressão em **qualquer** mudança de "reduzir movimento", inclusive quando o movimento era ligado (o aviso chega atrasado). Agora só solta quando o movimento reduzido é ativado. **Não resolveu tudo:** depois, ainda 1 falha em 10. Sigo investigando (ver a próxima entrada).
+- **Bateria completa no commit do N6:** `npm test` 80/80; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 38/38. Lighthouse: celular 94/94, computador 100/100, acessibilidade 100, boas práticas 96 (só o certificado das fontes no proxy da nuvem).
+- **Baterias dos commits anteriores, cada uma em cópia isolada:**
+  - N4: tudo verde (`acervos` 67/67, `import` 38/38); Lighthouse 94/94 e 100/100, boas práticas 96 pelo mesmo motivo.
+  - N5: `npm test` 80/80 e `check` 0/0; `acervos` caiu na corrida dos rótulos, corrigida aqui no N6.
+
 ## 2026-10-03 — Claude (nuvem) — N4 · Correções da revisão de design da colagem — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Bloqueante corrigido (honestidade):** antes, a duplicata de um material do catálogo vinha marcada como "ligar". Ao "Salvar rascunhos", o material **já publicado** ganhava assuntos na hora, e o aviso dizia "Nada foi publicado ainda". Agora:
