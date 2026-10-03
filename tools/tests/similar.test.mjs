@@ -13,8 +13,8 @@ test('casos obrigatórios do dono', () => {
 test('normalização: NFC, espaços, caixa, acentos, pontuação e abreviações aprovadas', () => {
   assert.equal(similarKey('  Membro   Sup. '), 'membro superior');
   assert.equal(similarKey('Gametógênese'), 'gametogenese');
-  assert.equal(similarKey('MMSS'), 'membros superiores');
-  assert.equal(similarKey('mmii'), 'membros inferiores');
+  assert.equal(similarKey('MMSS'), 'membro superior');
+  assert.equal(similarKey('mmii'), 'membro inferior');
   assert.equal(similarKey('Membro inf'), 'membro inferior');
   assert.equal(similarKey('Coluna (revisão)!'), 'coluna revisao');
   // abreviação só vale como palavra inteira
@@ -61,8 +61,34 @@ test('busca só dentro da mesma matéria e devolve os mais parecidos primeiro', 
     { id: 't3', areaId: 'anat', name: 'Membros superiores' },
     { id: 'e1', areaId: 'embrio', name: 'Membro superior' },
   ];
-  assert.deepEqual(findSimilar('Membro sup.', 'anat', topics).map(t => t.id), ['t1']);
-  assert.deepEqual(findSimilar('MMSS', 'anat', topics).map(t => t.id), ['t3']);
+  assert.deepEqual(findSimilar('Membro sup.', 'anat', topics).map(t => t.id), ['t1', 't3'], 'singular e plural do vocabulário');
+  assert.deepEqual(findSimilar('MMSS', 'anat', topics).map(t => t.id).sort(), ['t1', 't3'], 'plural e abreviação pelo vocabulário');
   assert.deepEqual(findSimilar('Membro superior', 'histo', topics), []);
   assert.deepEqual(findSimilar('', 'anat', topics), []);
+});
+
+test('vocabulário explícito de plural: membros superiores ~ membro superior, sem misturar direções', () => {
+  assert.equal(similarKey('Membros superiores'), 'membro superior');
+  assert.ok(areSimilar('MMSS', 'Membro superior'));
+  assert.ok(areSimilar('Membros inferiores', 'MMII'));
+  assert.ok(!areSimilar('Membros superiores', 'Membro inferior'));
+});
+
+test('Unicode composto e decomposto dão o mesmo resultado', () => {
+  const nfc = 'Gametogênese'.normalize('NFC'), nfd = 'Gametogênese'.normalize('NFD');
+  assert.notEqual(nfc, nfd);
+  assert.ok(areSimilar(nfc, nfd));
+  assert.equal(similarKey(nfd), similarKey(nfc));
+  assert.deepEqual(findSimilar(nfd, 'embrio', [{ id: 'g', areaId: 'embrio', name: nfc }]).map(t => t.id), ['g']);
+});
+
+test('unicidade usa topicNorm (a regra do banco); a semelhança só sugere', async () => {
+  const { planTopic } = await import('../../src/domain/topic-edit.js');
+  const { topicNorm } = await import('../../src/domain/topics.js');
+  const topics = [{ id: 't1', areaId: 'anat', name: 'Membro superior', slug: 'membro-superior', order: 0 }];
+  assert.equal(planTopic('anat', 'MEMBRO  superior', topics).existing.id, 't1', 'mesmo topicNorm = mesmo assunto');
+  assert.ok(planTopic('anat', 'Membro sup.', topics).fields, 'parecido não é igual: o banco aceitaria, a tela só sugere');
+  assert.ok(areSimilar('Membro sup.', 'Membro superior'));
+  assert.equal(topicNorm('Gametogênese'.normalize('NFD')) === topicNorm('Gametogênese'), false, 'o banco também não une decomposto; por isso planTopic normaliza para NFC antes');
+  assert.equal(planTopic('embrio', 'Gametogênese'.normalize('NFD'), [{ id: 'g', areaId: 'embrio', name: 'Gametogênese', slug: 'gametogenese' }]).existing.id, 'g');
 });

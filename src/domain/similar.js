@@ -4,6 +4,9 @@
 /* Abreviações aprovadas pelo dono; valem só como palavra inteira, com ou sem ponto. Acrescentar aqui, com teste. */
 export const ABBREVIATIONS = Object.freeze({ sup: "superior", inf: "inferior", mmss: "membros superiores", mmii: "membros inferiores" });
 const ABBR = new RegExp(`\\b(${Object.keys(ABBREVIATIONS).join("|")})\\b\\.?`, "g");
+/* Vocabulário explícito de plural → singular (só para sugerir; a unicidade do banco continua sendo topicNorm). */
+export const PLURALS = Object.freeze({ membros: "membro", superiores: "superior", inferiores: "inferior", anteriores: "anterior",
+  posteriores: "posterior", laterais: "lateral", mediais: "medial", proximais: "proximal", distais: "distal", ossos: "osso", musculos: "musculo" });
 /* Conectivos não contam na comparação por palavras ("Cabeça e pescoço" = "Cabeça pescoço"). */
 const CONNECTIVES = new Set(["e", "de", "da", "do", "das", "dos", "a", "o", "as", "os", "em", "na", "no"]);
 /* Pares de direções opostas, com plural e gênero. */
@@ -15,12 +18,14 @@ const DIRECTIONS = {
 const OPPOSITES = [["sup", "inf"], ["med", "lat"], ["dir", "esq"], ["ant", "post"], ["prox", "dist"], ["cran", "caud"]];
 const NUMBER = /^(\d+[ao]?|i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)$/;
 
-/* NFC, espaços, minúsculas; depois sem acentos, ordinais "ª/º" como letras, abreviações expandidas e sem pontuação. */
+/* NFC, espaços, minúsculas; depois sem acentos, ordinais "ª/º" como letras, abreviações expandidas, sem pontuação e
+   plurais do vocabulário no singular. */
 export function similarKey(value) {
   return String(value ?? "").normalize("NFC").replace(/\s+/g, " ").trim().toLowerCase()
     .normalize("NFD").replace(/\p{M}/gu, "").replace(/ª/g, "a").replace(/º/g, "o")
     .replace(ABBR, (_, w) => ABBREVIATIONS[w])
-    .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+    .replace(/[^\p{L}\p{N}]+/gu, " ").trim()
+    .split(" ").map(w => PLURALS[w] || w).join(" ");
 }
 
 export function levenshtein(a, b) {
