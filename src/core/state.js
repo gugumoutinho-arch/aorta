@@ -27,8 +27,10 @@ export const S = {
   materials: [], areas: [], collections: [],
   /* assuntos da matéria e ligações material ↔ assunto; vazios quando o banco ainda não tem as tabelas */
   topics: [], links: [],
+  /* rascunhos da colagem (Organizar › Colar links), lidos só quando o Organizar abre; draftsOff = tabela indisponível */
+  drafts: [], draftsOff: false,
   /* t = assuntos, l = ligações; topicsOff = tabelas ausentes ou falha antes de carregar (segue sem abas) */
-  got: { m: false, a: false, c: false, t: false, l: false }, topicsOff: false,
+  got: { m: false, a: false, c: false, t: false, l: false, d: false }, topicsOff: false,
   view: "inicio", pendingArea: "", pendingTab: "", acervoSwitched: false,
   /* página de módulo: escopo (id do módulo ou "todos"), unidade, matéria e aba de assunto ("" = Todos) */
   scope: "", unit: "", subject: "", tab: "",

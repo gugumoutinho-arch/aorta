@@ -20,3 +20,23 @@
 .addform input { flex: 1 1 200px; }
 @media (max-width: 900px) { .org { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { #view-organizar { padding-top: var(--space-5); } .panel { padding: var(--space-4); } .tree ul { padding-left: var(--space-3); } }
+
+/* Colar links: prévia linha a linha e rascunhos para revisar antes de publicar. */
+.import { margin-top: var(--space-5); }
+.import h3 { font-size: 18px; }
+.imp-opts { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
+.imp-opts .fld { flex: 1 1 200px; }
+.imp-preview, .imp-drafts { display: grid; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--line); }
+.imp-rows, .imp-draft-list, .imp-problems { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.imp-row, .imp-draft { display: grid; gap: 6px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-card); border: 1px solid var(--line); background: var(--surface); min-width: 0; }
+.imp-row.bad { border-color: var(--error); }
+.imp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.imp-head .mono { color: var(--muted); }
+.imp-url { color: var(--muted); overflow-wrap: anywhere; }
+.imp-url a { color: var(--text); }
+.imp-problems li::before { content: "• " / ""; color: var(--muted); }
+.imp-dup { color: var(--flow); font-weight: 600; }
+.imp-action select { max-width: 100%; }
+.imp-draft { gap: var(--space-3); }
+.imp-block { padding: var(--space-2) var(--space-3); border-radius: var(--radius); background: var(--paper); }
+.imp-draft .acts, .imp-preview .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); }

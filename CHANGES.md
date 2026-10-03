@@ -2,6 +2,30 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N4 · Importação por colagem (Organizar › Colar links) — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:**
+  - Lógica pura em `src/domain/import.js`. Uma linha por arquivo, só a URL ou TSV com cabeçalho `url · caminho · tipo · titulo · fonte · ano · direitos` (inteiro ou só as primeiras colunas), até 100 linhas; acima disso, o lote inteiro é recusado.
+  - ID do arquivo do Drive extraído de `/file/d/`, `/document/d/` etc., `open?id=` e `uc?id=`; a `resourcekey` fica na URL guardada.
+  - Recusados com explicação: link de pasta do Drive ("cole os links dos arquivos"), não-https e linha com colunas sem cabeçalho.
+  - Duplicata (mesmo arquivo do Drive ou mesma URL normalizada, no catálogo, nos rascunhos ou no próprio lote) é marcada e nunca criada de novo. Se o caminho dá assunto, sugere "ligar ao material que já existe".
+  - Campo vazio vira pendência, nunca valor inventado. Tipo, ano e direitos fora da lista também viram pendência.
+  - O caminho (`Aorta/IDOMED/M1/CIS 1/Anatomia/Membro superior/`) é ligado a matéria e assunto pelos nomes da árvore. Caminho desconhecido fica "a escolher" e não cria nada.
+  - Direitos: padrão "Público" (decisão do dono), com troca no lote e em cada rascunho.
+  - Livro com link do Drive é avisado e não pode ser publicado.
+- **Tela (`src/views/import.js`, painel no Organizar):**
+  - colar → prévia linha a linha (erros, duplicatas, pendências e, em cada linha, criar, ignorar ou ligar) → salvar em `material_drafts`;
+  - lista de rascunhos com título, link, onde fica, assuntos (mesmo componente do N2, com aviso de nome parecido do N3), tipo, direitos, fonte e ano, o que falta para publicar, e "Publicar", "Salvar rascunho" e "Ignorar".
+  - Nada lê o conteúdo do Drive nem muda permissões; a tela diz isso.
+- **Publicar (`src/core/import-store.js`):** o id do material é gravado no rascunho **antes** de criar o material. Repetir depois de um erro no meio reaproveita o mesmo material e só completa o que faltou. Os assuntos são ligados e o texto antigo `subject` = primeiro assunto.
+- **Testado (dados fictícios):**
+  - `node --test` 18/18 no parser e na gravação (URL, TSV, cabeçalho parcial, pasta, 101 linhas, duplicatas, `resourcekey`, XSS no título, caminho, pendências, livro, publicar idempotente, erro no meio);
+  - `tools/import.mjs` 38/38 a 1440 escuro e 390 claro: colar 5 linhas mistas → prévia correta → salvar → recarregar mantém → publicar 2, um deles com erro no meio e nova tentativa → aparecem nas abas certas → nada duplicado → colar de novo marca tudo como duplicata; WCAG sem violações, alvos ≥ 44 px, sem rolagem lateral.
+  - O e2e pegou dois defeitos meus antes do commit, já corrigidos: repetir a publicação via o rascunho velho e bloqueava como "já no catálogo"; caminho desconhecido mostrava "Vai para: M1".
+  - Os testes de unidade do parser foram escritos antes da implementação, mas não os rodei antes para vê-los reprovar.
+- **Não testado:** Supabase real; a tabela `material_drafts` não tem tempo real (a página relê depois de cada gravação própria).
+- **Limite conhecido:** a tabela `materials` não tem coluna de direitos. Os direitos do rascunho só decidem se pode publicar; não ficam guardados no material. Guardar exigiria uma migração, que só o dono pode autorizar.
+
 ## 2026-10-03 — Claude (nuvem) — N2 · Formulário de material com assuntos — ramo `nuvem/f1-conteudo`, não publicado
 
 - **O que mudou:**

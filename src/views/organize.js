@@ -5,6 +5,7 @@ import { plural } from "../core/text.js";
 import { childrenOf, areaById, countIn, stainOf, stainVar } from "../core/areas.js";
 import { addArea, renameArea, deleteArea, addColl, renameColl, deleteColl } from "../core/actions.js";
 import { toast } from "../ui/toast.js";
+import { renderImport, wireImport } from "./import.js";
 
 const ui = { editing: null, confirming: null, adding: null };
 const later = fn => requestAnimationFrame(fn);
@@ -77,9 +78,11 @@ export function renderOrg() {
     if (ui.confirming === key) ul.append(h("li", null, confirmBox(`Excluir a coleção “${c.name}”? ${plural(n, "material sai", "materiais saem")} dela, mas continuam no catálogo.`, async () => { if (await deleteColl(c.id, c.name)) reset(); })));
   });
   $$("#mod-add input, #mod-add button, #coll-add input, #coll-add button").forEach(x => { x.disabled = disabled; });
+  renderImport();
 }
 
 export function wireOrg() {
+  wireImport();
   $("#mod-add").addEventListener("submit", async e => { e.preventDefault(); const i = $("#mod-new"); if (await addArea("", i.value)) i.value = ""; });
   $("#coll-add").addEventListener("submit", async e => { e.preventDefault(); const i = $("#coll-new"); if (!i.value.trim()) { i.focus(); return; } if (await addColl(i.value)) i.value = ""; });
 }

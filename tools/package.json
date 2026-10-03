@@ -11,6 +11,7 @@
     "acervos": "node acervos.mjs",
     "topics": "node topics.mjs",
     "topic-edit": "node topic-edit.mjs",
+    "import": "node import.mjs",
     "orcamento": "node orcamento.mjs",
     "lighthouse": "node lighthouse.mjs"
   },

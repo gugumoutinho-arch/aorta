@@ -50,6 +50,10 @@ jobs:
         if: success() || failure()
         working-directory: tools
         run: npm run topic-edit
+      - name: Colar links (prévia, rascunhos, publicar sem duplicar)
+        if: success() || failure()
+        working-directory: tools
+        run: npm run import
       - name: Lighthouse (reprova abaixo dos limites de tools/gates.mjs)
         if: success() || failure()
         working-directory: tools

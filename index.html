@@ -187,6 +187,28 @@
         </form>
       </div>
     </div>
+    <section class="panel import" id="import" aria-labelledby="h-import">
+      <h2 id="h-import">Colar links</h2>
+      <p class="muted small">Cole uma linha por arquivo: só o link, ou uma planilha com o cabeçalho <span class="mono">url · caminho · tipo · titulo · fonte · ano · direitos</span> (até 100 linhas). Tudo vira rascunho; nada é publicado sem você revisar. O Aorta guarda só os links: não lê os arquivos nem muda permissões no Drive.</p>
+      <form class="imp-form" id="imp-form" novalidate>
+        <div class="fld"><label for="imp-text">Links ou planilha</label><textarea id="imp-text" rows="6" spellcheck="false" autocomplete="off" aria-describedby="imp-err"></textarea><span class="err" id="imp-err" hidden></span></div>
+        <div class="imp-opts">
+          <div class="fld"><label for="imp-rights">Direitos do lote</label><select id="imp-rights"></select></div>
+          <button class="btn" type="submit">Ver prévia</button>
+        </div>
+      </form>
+      <div class="imp-preview" id="imp-preview" hidden>
+        <h3 id="imp-preview-title" tabindex="-1">Prévia</h3>
+        <p class="small" id="imp-summary" role="status"></p>
+        <ol class="imp-rows" id="imp-rows"></ol>
+        <div class="acts"><button class="btn primary" type="button" id="imp-save">Salvar rascunhos</button><button class="btn ghost" type="button" id="imp-clear">Descartar prévia</button></div>
+      </div>
+      <div class="imp-drafts">
+        <h3 id="h-drafts" tabindex="-1">Rascunhos</h3>
+        <p class="muted small" id="imp-drafts-note" role="status"></p>
+        <ul class="imp-draft-list" id="imp-drafts"></ul>
+      </div>
+    </section>
   </section>
 </main>
 
