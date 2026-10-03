@@ -33,6 +33,8 @@ export function mockDbScript(data = seed()) {
     const store = {};
     const put = (col, arr) => arr.forEach(({ id, ...rest }) => { store[col + '/' + id] = rest; });
     put('areas', ${JSON.stringify(data.areas)}); put('collections', ${JSON.stringify(data.collections)}); put('materials', ${JSON.stringify(data.materials)});
+    put('topics', ${JSON.stringify(data.topics || [])});
+    put('material_topics', ${JSON.stringify((data.material_topics || []).map(l => ({ id: l.materialId + ':' + l.topicId, ...l })))});
     const subs = []; const emit = () => setTimeout(() => subs.forEach(f => f()), 0); let n = 0;
     const snap = col => { const docs = Object.entries(store).filter(([p]) => p.startsWith(col + '/') && p.split('/').length === 2)
       .map(([p, d]) => ({ id: p.split('/')[1], exists: true, data: () => JSON.parse(JSON.stringify(d)), metadata: {} }));

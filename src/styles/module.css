@@ -21,6 +21,15 @@
 .subjects button:hover { background: var(--surface); }
 .subjects button[aria-pressed="true"] { background: var(--surface); box-shadow: inset 3px 0 0 var(--selected); }
 .subjects .s-name small { display: block; font-size: 11px; color: var(--muted); }
+
+/* Abas de assunto dentro da matéria: rolam na horizontal; a pílula desliza até a ativa. */
+.topic-tabs { position: relative; display: flex; gap: var(--space-1); padding: var(--space-1); margin-bottom: var(--space-4); overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border-radius: var(--radius-panel); background: var(--surface); border: 1px solid var(--line); }
+.topic-tabs::-webkit-scrollbar { display: none; }
+.topic-tabs button { position: relative; z-index: 1; flex: none; display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4); border-radius: var(--radius-card); font-size: 14px; color: var(--muted); white-space: nowrap; transition: color .2s var(--ease); }
+.topic-tabs button:hover, .topic-tabs button[aria-pressed="true"] { color: var(--text); }
+.topic-tabs .num { font: 600 11.5px var(--label); font-variant-numeric: tabular-nums; color: var(--muted); }
+.topic-tabs button[aria-pressed="true"] .num { color: var(--flow); }
+.tab-pill { position: absolute; left: 0; top: 0; z-index: 0; border-radius: var(--radius-card); background: var(--paper); box-shadow: 0 6px 18px -10px var(--shadow), inset 0 -2px 0 var(--selected, var(--action)); pointer-events: none; opacity: 0; }
 .subjects .num { font: 600 12px var(--label); color: var(--muted); }
 .catalog { min-width: 0; }
 .filters { display: flex; flex-wrap: wrap; gap: var(--space-2); }

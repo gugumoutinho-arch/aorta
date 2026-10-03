@@ -25,10 +25,13 @@ export const S = {
   concept: savedAcervo === "geral" ? "corpo" : "coracao",
   db: null, dbState: "loading", user: "", sb: null,
   materials: [], areas: [], collections: [],
-  got: { m: false, a: false, c: false },
-  view: "inicio", pendingArea: "", acervoSwitched: false,
-  /* página de módulo: escopo (id do módulo ou "todos"), unidade e matéria escolhidas */
-  scope: "", unit: "", subject: "",
+  /* assuntos da matéria e ligações material ↔ assunto; vazios quando o banco ainda não tem as tabelas */
+  topics: [], links: [],
+  /* t = assuntos, l = ligações; topicsOff = tabelas ausentes ou falha antes de carregar (segue sem abas) */
+  got: { m: false, a: false, c: false, t: false, l: false }, topicsOff: false,
+  view: "inicio", pendingArea: "", pendingTab: "", acervoSwitched: false,
+  /* página de módulo: escopo (id do módulo ou "todos"), unidade, matéria e aba de assunto ("" = Todos) */
+  scope: "", unit: "", subject: "", tab: "",
   q: "", f: { ...EMPTY_FILTERS }, sort: "recent",
   detailId: null, editId: null, busy: false,
 };
@@ -41,6 +44,8 @@ export const savePrefs = () => { try { localStorage.setItem("bm-prefs", JSON.str
 
 export const remember = (key, value) => { try { localStorage.setItem(key, value); } catch (_) { /* sem armazenamento */ } };
 export const ready = () => S.dbState === "ready" && S.got.m && S.got.a && S.got.c;
+/* Assuntos e ligações chegaram (ou ficou decidido seguir sem eles). */
+export const topicsReady = () => S.got.t && S.got.l;
 export const find = id => S.materials.find(m => m.id === id);
 export const collName = id => (S.collections.find(c => c.id === id) || {}).name || "";
 export const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;

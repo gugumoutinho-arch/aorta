@@ -9,6 +9,7 @@
     "check": "node check.mjs",
     "flows": "node flows.mjs",
     "acervos": "node acervos.mjs",
+    "topics": "node topics.mjs",
     "orcamento": "node orcamento.mjs",
     "lighthouse": "node lighthouse.mjs"
   },

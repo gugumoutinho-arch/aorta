@@ -1,7 +1,7 @@
 /* Página do módulo (ou de todo o acervo): numeral e artéria no cabeçalho, unidades como abas, matérias ao lado,
    materiais como folhas. Também é aqui que a transição a partir do coração termina. */
 import gsap from "gsap";
-import { S, ACERVOS, TYPES, STATUS, STATUS_LABEL, EMPTY_FILTERS, IN_PRODUCTION, ready, reducedMotion, collName, savePrefs, remember } from "../core/state.js";
+import { S, ACERVOS, TYPES, STATUS, STATUS_LABEL, EMPTY_FILTERS, IN_PRODUCTION, ready, topicsReady, reducedMotion, collName, savePrefs, remember } from "../core/state.js";
 import { $, $$, h, svg, ICON } from "../core/dom.js";
 import { tokens, plural, cmpName, byKey } from "../core/text.js";
 import { childrenOf, modules, moduleList, moduleNumber, pathOf, descIds, areaById, areasWithContent, areaLabel, treeOrder, acervoOf, inAcervo } from "../core/areas.js";
@@ -11,7 +11,11 @@ import { onThemeChange } from "../ui/theme.js";
 import { syncAcervoTabs } from "../app.js";
 import { slideIndicator } from "../ui/indicator.js";
 import { revealIn } from "../ui/motion.js";
+import { CASES, tabContext, topicTabs, inTab, firstTopicName, areaRoute } from "../domain/topics.js";
+import { renderTopicTabs } from "./topic-tabs.js";
 let unitsInk = null;
+/* Assuntos da matéria escolhida, montado uma vez por desenho (ver renderModule). */
+let ctx = tabContext({ areaId: "", topics: [], links: [] });
 
 /* ---------- órgão em destaque (conceito corpo) ---------- */
 let organ = null, organKey = "", organBoot = 0;
@@ -45,7 +49,7 @@ async function syncOrgan(mod) {
     if (token !== organBoot) return;
     const view = await createOrganView(box, { url: `${import.meta.env.BASE_URL}modelos/corpo.glb`, keys: brain ? [...keys, "spinal_cord"] : keys, frame: brain ? keys : null, yaw: brain ? -1.3 : 0,
       token: moduleList().find(x => x.id === mod.id)?.token || "--m1", isCurrent: () => token === organBoot,
-      onPick: part => { const hit = [...unitParts(mod.id)].find(([, k]) => k === part); if (hit) { S.unit = hit[0]; S.subject = ""; setHash(S.unit); renderModule(); } } });
+      onPick: part => { const hit = [...unitParts(mod.id)].find(([, k]) => k === part); if (hit) { S.unit = hit[0]; S.subject = ""; S.tab = ""; setHash(S.unit); renderModule(); } } });
     if (token !== organBoot || !view) { view?.dispose(); return; }
     organ = view; organ.setActive(organActive(mod.id));
   } catch (e) { if (token !== organBoot) return; organKey = ""; console.warn("Órgão 3D indisponível:", e); box.hidden = true; art.style.display = ""; }
@@ -66,6 +70,9 @@ function resolvePending() {
   }
   if (scope !== S.scope) { S.q = ""; S.f = { ...EMPTY_FILTERS }; }
   S.scope = scope; S.unit = unit; S.subject = subject;
+  const askedTab = S.pendingTab; S.pendingTab = "";
+  S.tab = subject ? askedTab : "";
+  if (askedTab && !subject) setHash(unit); // aba só existe dentro de matéria: tira o "/aba" do endereço
   // Abrir uma área de outro acervo (pela busca ou por um link) leva junto o acervo.
   if (scope !== "todos" && acervoOf(scope) !== S.acervo) {
     S.acervo = acervoOf(scope); remember("aorta-acervo", S.acervo); document.body.dataset.acervo = S.acervo;
@@ -92,9 +99,10 @@ const anyFilter = () => !!(S.q.trim() || activeFilters());
 const haystack = m => [m.title, pathOf(m.areaId).map(a => a.name).join(" "), m.subject, m.type, (m.tags || []).join(" ")].join(" ");
 const matchesAll = (m, toks) => { if (!toks.length) return true; const hs = haystack(m).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); return toks.every(t => hs.includes(t)); };
 function filtered(list) {
-  const toks = tokens(S.q), sub = S.subject ? descIds(S.subject) : null;
+  const toks = tokens(S.q), sub = S.subject ? descIds(S.subject) : null, byTab = S.tab && topicsReady();
   return list.filter(m => {
     if (sub && !sub.has(m.areaId)) return false;
+    if (byTab && !inTab(m, S.tab, ctx)) return false;
     if (S.f.type && m.type !== S.f.type) return false;
     if (S.f.status && (m.status || "nao-iniciado") !== S.f.status) return false;
     if (S.f.coll && !(m.collectionIds || []).includes(S.f.coll)) return false;
@@ -184,20 +192,26 @@ function renderFilters() {
 function emptyBlock(title, text, extra) { return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), extra); }
 const addButton = areaId => S.db ? h("button", { class: "btn", type: "button", "data-edit": "", text: "Adicionar material aqui", onclick: () => openForm(null, areaId) }) : null;
 function groupOf(list, from) {
-  // Com uma matéria escolhida, divide por assunto; senão, por matéria.
+  // Com uma matéria escolhida, divide por assunto (numa aba de assunto, um grupo só); senão, por matéria.
+  const own = S.subject ? ctx.own : [];
+  const tabLabel = S.tab && S.tab !== CASES ? ctx.bySlug.get(S.tab)?.name || "" : "";
   const by = new Map();
   for (const m of list) {
-    const key = S.subject ? (m.subject || "").trim() : (m.areaId && areaById(m.areaId) ? m.areaId : "");
+    const key = S.subject ? (tabLabel || firstTopicName(m, ctx)) : (m.areaId && areaById(m.areaId) ? m.areaId : "");
     if (!by.has(key)) by.set(key, []); by.get(key).push(m);
   }
   const keys = [...by.keys()];
-  if (S.subject) keys.sort(byKey);
+  const rank = new Map(own.map((t, i) => [t.name, i]));
+  if (S.subject) keys.sort((a, b) => (!a) - (!b) || (rank.get(a) ?? 1e6) - (rank.get(b) ?? 1e6) || byKey(a, b));
   else { const order = new Map(); let i = 0; const walk = pid => childrenOf(pid).forEach(a => { order.set(a.id, i++); walk(a.id); }); walk(""); keys.sort((a, b) => (order.get(a) ?? 1e6) - (order.get(b) ?? 1e6)); }
   const areaName = k => k ? (areaLabel(k, from) || areaById(k).name) : "Sem área definida";
   return keys.map(k => ({ key: k, label: S.subject ? (k || "Sem assunto") : areaName(k), items: by.get(k).sort(sorter()) }));
 }
+const skeleton = () => h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 3 }, () => h("div", { class: "skel-card" })));
 function renderMaterials(base, mod) {
   const box = $("#materials"), line = $("#result-line");
+  // Endereço com aba antes de os assuntos chegarem: espera, em vez de mostrar a matéria inteira e depois pular.
+  if (S.tab && !topicsReady()) { line.textContent = ""; box.replaceChildren(skeleton()); return; }
   const list = filtered(base), toks = tokens(S.q), root = scopeRoot();
   line.textContent = anyFilter() ? (list.length ? `${plural(list.length, "material", "materiais")} de ${base.length}` : `Nada encontrado entre ${plural(base.length, "material", "materiais")}`) : "";
   if (!base.length) {
@@ -209,8 +223,9 @@ function renderMaterials(base, mod) {
     return;
   }
   if (!list.length) {
+    const emptyName = S.tab === CASES ? "Casos clínicos" : S.tab ? ctx.bySlug.get(S.tab)?.name : areaById(S.subject)?.name;
     box.replaceChildren(S.subject && !anyFilter()
-      ? emptyBlock(IN_PRODUCTION + ".", `${areaById(S.subject)?.name || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)))
+      ? emptyBlock(IN_PRODUCTION + ".", `${emptyName || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)))
       : emptyBlock("Nenhum material encontrado", "Nada combina com a busca e os filtros. A busca procura no título, matéria, assunto, tipo e etiquetas, não no texto dos arquivos.",
         h("button", { class: "btn", type: "button", text: "Limpar busca e filtros", onclick: clearFilters })));
     return;
@@ -227,7 +242,8 @@ export function renderModule() {
     $("#module-title").textContent = S.dbState === "loading" ? "…" : "";
     $("#artery-name").textContent = ""; $("#module-summary").textContent = S.dbState === "loading" ? "Carregando o acervo…" : "";
     $("#units").replaceChildren(); $("#subjects").replaceChildren(); $("#active-filters").hidden = true;
-    $("#materials").replaceChildren(S.dbState === "loading" ? h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 3 }, () => h("div", { class: "skel-card" }))) : "");
+    $("#topic-tabs").replaceChildren(); $("#topic-tabs").hidden = true;
+    $("#materials").replaceChildren(S.dbState === "loading" ? skeleton() : "");
     return;
   }
   resolvePending();
@@ -235,12 +251,24 @@ export function renderModule() {
   if (S.scope !== "todos" && !mod) { S.scope = "todos"; S.unit = S.subject = ""; history.replaceState(null, "", "#todos"); }
   if (S.unit && !areaById(S.unit)) S.unit = "";
   if (S.subject && !areaById(S.subject)) S.subject = "";
+  if (!S.subject && S.tab) { S.tab = ""; setHash(S.unit); }
+  ctx = tabContext({ areaId: S.subject, topics: S.topics, links: S.links });
   renderHeader(mod); renderUnits(mod); syncOrgan(mod);
   const base = baseList();
-  renderSubjects(base); renderFilters(); renderMaterials(base, mod);
+  renderSubjects(base); renderTopics(base); renderFilters(); renderMaterials(base, mod);
+}
+/* Abas da matéria escolhida. Aba que não existe mais (ou slug antigo) é corrigida no endereço. */
+function renderTopics(base) {
+  const set = S.subject ? descIds(S.subject) : null;
+  const tabs = set ? topicTabs(ctx, base.filter(m => set.has(m.areaId))) : [];
+  if (S.tab && topicsReady() && !tabs.some(t => t.key === S.tab)) {
+    S.tab = ctx.bySlug.get(S.tab)?.slug || "";
+    setHash(S.subject || S.unit);
+  }
+  renderTopicTabs($("#topic-tabs"), tabs, S.tab);
 }
 function clearFilters() { S.q = ""; S.f = { ...EMPTY_FILTERS }; renderModule(); $("#lib-q").focus(); }
-const setHash = id => history.replaceState(null, "", "#" + (id ? "a-" + id : S.scope === "todos" ? "todos" : "a-" + S.scope));
+const setHash = id => history.replaceState(null, "", "#" + (id ? areaRoute(id, id === S.subject ? S.tab : "") : S.scope === "todos" ? "todos" : "a-" + S.scope));
 
 /* ---------- transição a partir do coração ---------- */
 let flight = null;
@@ -279,13 +307,18 @@ export function wireModule() {
   $("#units").addEventListener("pointerleave", () => { if (organ) organ.setActive(organActive(S.scope)); });
   $("#units").addEventListener("click", e => {
     const b = e.target.closest("[data-unit]"); if (!b) return;
-    S.unit = b.dataset.unit; S.subject = ""; setHash(S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
+    S.unit = b.dataset.unit; S.subject = ""; S.tab = ""; setHash(S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
     $(`#units [data-unit="${S.unit}"]`)?.focus({ preventScroll: true });
   });
   $("#subjects").addEventListener("click", e => {
     const b = e.target.closest("[data-subject]"); if (!b) return;
-    S.subject = b.dataset.subject; setHash(S.subject || S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
+    S.subject = b.dataset.subject; S.tab = ""; setHash(S.subject || S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
     $(`#subjects [data-subject="${S.subject}"]`)?.focus({ preventScroll: true });
+  });
+  $("#topic-tabs").addEventListener("click", e => {
+    const b = e.target.closest("[data-tab]"); if (!b) return;
+    S.tab = b.dataset.tab; setHash(S.subject || S.unit); renderModule(); revealIn($("#materials"), ".group-h, .material");
+    $(`#topic-tabs [data-tab="${CSS.escape(S.tab)}"]`)?.focus({ preventScroll: true });
   });
   let qTimer;
   $("#lib-q").addEventListener("input", e => { clearTimeout(qTimer); qTimer = setTimeout(() => { S.q = e.target.value; renderModule(); }, 120); });

@@ -42,6 +42,10 @@ jobs:
         if: success() || failure()
         working-directory: tools
         run: npm run acervos
+      - name: Abas de assunto (Todos, assuntos, Casos clínicos, endereços e celular)
+        if: success() || failure()
+        working-directory: tools
+        run: npm run topics
       - name: Lighthouse (reprova abaixo dos limites de tools/gates.mjs)
         if: success() || failure()
         working-directory: tools

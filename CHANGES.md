@@ -2,6 +2,34 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude — F1: abas de assunto dentro da matéria — ramo `prototipo-v4`, não publicado
+
+- **O que o aluno vê:** com uma matéria escolhida (ex.: CIS 1 › Anatomia), surge a faixa **Todos · Membro superior · Coluna vertebral · Membro inferior · Casos clínicos**:
+  - contagem em cada aba; assunto sem material aparece como "—", em produção;
+  - um caso clínico aparece na aba do seu assunto e em "Casos clínicos";
+  - cada aba tem endereço próprio (`#a-cis1-anat/membro-superior`), bom para mandar no grupo da turma.
+- **Banco (a pedido do dono):** migrações em `supabase/migrations/`, cada uma com o SQL para desfazer:
+  - assuntos e ligações material ↔ assunto (muitos-para-muitos);
+  - matérias Embriologia e Histologia no CIS 1, com os materiais que estavam em Práticas Médicas;
+  - tempo real nas tabelas novas.
+  Só acrescentam; a regra de acesso é a mesma de antes.
+- **Código:**
+  - `src/domain/topics.js` (lógica pura: normalização igual à do banco, contexto com índice material → assuntos, abas, rota);
+  - `src/domain/pagination.js` (leitura em páginas de 1000, que só publica o resultado completo; o Supabase cortava em 1000 linhas sem avisar);
+  - `src/views/topic-tabs.js` (faixa rolável com a pílula das abas de acervo).
+  Sem as tabelas no banco, a tela é a de antes.
+- **Revisão independente (code-reviewer):** 1 alto e 4 médios, todos corrigidos e testados:
+  - leitura limitada a 1000 linhas;
+  - corrida entre assuntos e ligações;
+  - aba velha ao clicar no órgão 3D;
+  - custo O(n·m) das contagens;
+  - foco do teclado perdido ao redesenhar.
+- **Testado:**
+  - `npm test` 34/34 (paginação com 0/1/999/1000/1001/2500 linhas e falha no meio; desempenho com 1000 materiais × 15 abas < 100 ms);
+  - `node topics.mjs` 57/57 (1440/390/320 px, claro e escuro, endereço direto, slug antigo, aba inexistente, busca + aba, teclado, WCAG, muitas abas, banco sem assuntos);
+  - `npm run check` 0/0; `node flows.mjs` 364/364.
+- **Instabilidade antiga, sem relação com esta mudança:** em `node acervos.mjs`, "trocas rápidas preservam último acervo e título" falha de vez em quando. Medido: 2 de 4 execuções na versão anterior às abas e 1 de 3 na atual. Fica para um pacote próprio.
+
 ## 2026-10-03 — Claude — F0 · P0.1 a P0.4: backup, chão limpo e gates de medição — ramo `prototipo-v4`, não publicado
 
 - **P0.4 · Revisão independente (`code-reviewer`, só leitura):** nenhum achado crítico ou alto. A revisão confirmou por script que as 112 trocas de CSS são exatamente equivalentes. Corrigidos:

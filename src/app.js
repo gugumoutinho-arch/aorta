@@ -1,5 +1,5 @@
 /* Orquestra: rotas, desenho das telas e assinatura do banco. */
-import { S, ACERVOS, ready, remember } from "./core/state.js";
+import { S, ACERVOS, ready, topicsReady, remember } from "./core/state.js";
 import { $, $$ } from "./core/dom.js";
 import { cmpName } from "./core/text.js";
 import { materialWrites } from "./core/actions.js";
@@ -12,6 +12,7 @@ import { renderOrg } from "./views/organize.js";
 import { renderDetail } from "./views/detail.js";
 import { renderDatalists } from "./views/form.js";
 import { slideIndicator } from "./ui/indicator.js";
+import { parseAreaRoute } from "./domain/topics.js";
 
 /* Abas de acervo: a pílula desliza com mola até o acervo atual. */
 let pill = null;
@@ -34,7 +35,7 @@ export function renderNav() {
   $$("[data-action='add']").forEach(b => { b.disabled = !ready(); });
 }
 /* Redesenhar troca os elementos; quem estava com o foco (teclado, leitor de tela) volta para o equivalente novo. */
-const FOCUS_KEYS = ["fav", "mid", "module", "unit", "subject"];
+const FOCUS_KEYS = ["fav", "mid", "module", "unit", "subject", "tab"];
 function focusKey() {
   const el = document.activeElement; if (!el || el === document.body) return null;
   for (const k of FOCUS_KEYS) if (el.dataset?.[k] !== undefined) return `[data-${k}="${CSS.escape(el.dataset[k])}"]`;
@@ -65,7 +66,7 @@ export function route(focus) {
   const was = S.view;
   if (hs === "organizar") S.view = "organizar";
   else if (hs === "todos") { S.view = "modulo"; S.pendingArea = "todos"; }
-  else if (hs.startsWith("a-")) { S.view = "modulo"; S.pendingArea = hs.slice(2); }
+  else if (hs.startsWith("a-")) { const { areaId, tab } = parseAreaRoute(hs.slice(2)); S.view = "modulo"; S.pendingArea = areaId; S.pendingTab = tab; }
   else { S.view = "inicio"; if (ACERVOS[hs]) S.acervoSwitched = setAcervo(hs); }
   if (was === "inicio" && S.view !== "inicio") homeLeft();
   if (was === "modulo" && S.view !== "modulo") moduleLeft();
@@ -86,4 +87,15 @@ export function subscribe() {
   }, onErr);
   S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
   S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
+  // Assuntos são um extra: se as tabelas faltarem ou falharem, o catálogo segue sem as abas.
+  // Assuntos são um extra e só a página do módulo os usa (o mapa do início não é redesenhado por eles).
+  // Falha antes de carregar: segue sem abas. Falha depois (rede oscilou): mantém o que já tinha.
+  const topicsArrived = () => { if (S.view === "modulo") renderAll(); };
+  const noTopics = e => {
+    console.warn("Assuntos indisponíveis.", e);
+    if (topicsReady() && !S.topicsOff) return;
+    S.topicsOff = true; S.topics = []; S.links = []; S.got.t = S.got.l = true; topicsArrived();
+  };
+  S.db.collection("topics").onSnapshot(s => { if (S.topicsOff) return; S.topics = map(s); S.got.t = true; topicsArrived(); }, noTopics);
+  S.db.collection("material_topics").onSnapshot(s => { if (S.topicsOff) return; S.links = s.docs.map(d => d.data()); S.got.l = true; topicsArrived(); }, noTopics);
 }

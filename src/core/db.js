@@ -3,22 +3,31 @@
    - Supabase: o site publicado. A chave abaixo é a chave PÚBLICA do projeto; o acesso aos dados é protegido
      pelas regras do banco (RLS: só os e-mails do dono leem e gravam). Nunca coloque aqui a chave secreta do servidor. */
 import { S } from "./state.js";
+import { fetchAll } from "../domain/pagination.js";
 
 const SUPA = { url: "https://rmqfduksayyplucshqea.supabase.co", key: "sb_publishable_EG4jEqDNIiD_-ow5L4qh8w_XkUG7eDZ" };
 const COLS = {
   materials: ["title", "url", "areaId", "subject", "period", "type", "tags", "collectionIds", "source", "notes", "status", "favorite", "createdAt", "lastOpenedAt", "statusAt"],
   areas: ["name", "parentId", "order", "stain", "short", "createdAt"],
   collections: ["name", "createdAt"],
+  topics: ["areaId", "name", "slug", "slugAliases", "order", "bodyRegion", "createdAt"],
+  material_topics: ["materialId", "topicId", "createdAt"],
 };
 const toCol = k => k === "order" ? "sort_order" : k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
 const toKey = c => c === "sort_order" ? "order" : c.replace(/_([a-z])/g, (_, x) => x.toUpperCase());
 function rowOut(table, obj) { const r = {}; for (const k of COLS[table]) if (k in obj) r[toCol(k)] = /At$/.test(k) && !obj[k] ? null : obj[k]; return r; }
 function rowIn(r) { const o = {}; for (const [c, v] of Object.entries(r)) if (c !== "id") o[toKey(c)] = v == null && c.endsWith("_at") ? "" : v; return o; }
 
+/* Ordem estável para paginar (material_topics não tem id: a chave é a dupla). */
+const ORDER = { material_topics: ["material_id", "topic_id"] };
 function supaDb(sb) {
-  const listeners = {};
+  const listeners = {}, seq = {};
+  const page = table => (from, to) => (ORDER[table] || ["id"]).reduce((q, c) => q.order(c), sb.from(table).select("*")).range(from, to);
   const refresh = async table => {
-    const { data, error } = await sb.from(table).select("*");
+    const mine = seq[table] = (seq[table] || 0) + 1;
+    let data = null, error = null;
+    try { data = await fetchAll(page(table)); } catch (e) { error = e; }
+    if (mine !== seq[table]) return; // um pedido mais novo já está a caminho: este resultado é velho
     for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: r.id, data: () => rowIn(r) })) });
   };
   const check = ({ error }) => { if (error) throw error; };
