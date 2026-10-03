@@ -2,7 +2,15 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
-## 2026-10-03 — Claude — F0 · P0.1 + P0.2: backup e chão limpo — ramo `prototipo-v4`, não publicado
+## 2026-10-03 — Claude — F0 · P0.1 a P0.4: backup, chão limpo e gates de medição — ramo `prototipo-v4`, não publicado
+
+- **P0.4 · Revisão independente (`code-reviewer`, só leitura):** nenhum achado crítico ou alto. A revisão confirmou por script que as 112 trocas de CSS são exatamente equivalentes. Corrigidos:
+  - detector de codificação não pegava maiúsculas corrompidas pelo cp1252 do Windows ("AÇÃO" corrompido); agora pega, com teste. Limites conhecidos documentados no arquivo: ternário sem espaços é acusado, e "?" no fim da palavra escapa;
+  - Lighthouse: `--no-sandbox` só no CI e espera ativa pela porta do Chrome (até 20 s) no lugar da pausa fixa;
+  - orçamento: o gate "3D no grafo estático" passa a reconhecer também os chunks `glb-` e `dist-`;
+  - `medir-v5`: fps 0 em vez de `NaN` quando não há quadros.
+  **Pendente, de propósito (publicação é decisão do dono):** o `pages.yml` (push na `main`) ainda roda só o `check`. Os novos gates entram lá, ou a `main` passa a exigir PR, na próxima atualização da `main`. O comentário do `check.yml` foi corrigido para não dizer o contrário.
+- **Testado:** `npm test` 16/16; `npm run check` 0 erros e 0 avisos; Lighthouse com `CI=1` aprovado (IDOMED 94/98).
 
 - **Contexto:** plano em 4 rodadas Claude ↔ Astra (`_fora-do-site/rodadas/`, fonte: `r4-claude-especificacao-final.md`). O Astra parou no limite antes de começar a F0; o Claude executou. O Pacote 0 do Codex estava pela metade e sem commit, com acentos corrompidos em texto visível.
 - **P0.1 · Backup** em `OneDrive\Aorta-backups\20261003-1403\`: `git bundle --all`, patch da árvore suja, não rastreados, ignorados (`_fora-do-site/`, `.arena/`, `.impeccable/`, `reports/`) e `MANIFEST.sha256`. Restauração testada numa pasta separada: 256 arquivos conferidos, 255 idênticos byte a byte e 1 (`tokens.css`) igual salvo fim de linha.

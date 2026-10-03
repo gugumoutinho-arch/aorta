@@ -37,7 +37,7 @@ try {
     const measurement = await page.evaluate(({ loaded, switched }) => {
       const m = window.measureV5;
       const summarize = (start, end) => { const f = m.frames.filter(x => x.at >= start && x.at < end), tasks = m.tasks.filter(x => x.at >= start && x.at < end);
-        return { fps: +(1000 / (f.reduce((n,x)=>n+x.duration,0)/f.length)).toFixed(1), frames: f.map(x => x.duration), longTasks: tasks.length, maximumTask: Math.max(0,...tasks.map(x=>x.duration)) }; };
+        return { fps: f.length ? +(1000 / (f.reduce((n,x)=>n+x.duration,0)/f.length)).toFixed(1) : 0, frames: f.map(x => x.duration), longTasks: tasks.length, maximumTask: Math.max(0,...tasks.map(x=>x.duration)) }; };
       return { shifts: m.shifts, entrance: summarize(0,loaded), switch: summarize(loaded,switched), dive: summarize(switched,performance.now()) };
     }, { loaded, switched });
     const stage = s => { const { frames, ...rest } = s; return { ...rest, p95Frame: +p95(frames).toFixed(1) }; };

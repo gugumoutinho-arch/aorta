@@ -1,6 +1,7 @@
 name: Verificar o site
 
-# Em pull requests. No envio para main, a mesma verificação roda dentro de "Publicar o site", antes de publicar.
+# Em pull requests. No envio para main, "Publicar o site" ainda roda só o check; levar testes, fluxos, acervos e
+# Lighthouse para lá (ou exigir PR na main) é pendência da próxima atualização da main, que depende do dono.
 on:
   pull_request:
   workflow_dispatch:

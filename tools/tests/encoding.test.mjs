@@ -15,6 +15,10 @@ test('acha caractere de substituição e UTF-8 lido como Latin-1', () => {
   assert.equal(findMojibake('ediÃ§Ã£o').length, 1);
 });
 
+test('acha maiúsculas corrompidas pelo cp1252 do Windows', () => {
+  for (const s of ['AÃ‡ÃƒO', 'NÃ“S', 'Ã‰ ISSO', 'VOCÃŠ', 'Ã€s vezes', 'NÃ£o']) assert.equal(findMojibake(s).length, 1, s);
+});
+
 test('informa a linha', () => {
   assert.equal(findMojibake('ok\nok\nleg?tima')[0].line, 3);
 });

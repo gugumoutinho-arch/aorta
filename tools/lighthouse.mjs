@@ -13,8 +13,15 @@ const seed = JSON.parse(fs.readFileSync(new URL('./seed-v4.json', import.meta.ur
 const { server, url } = await startServer({ inject: withDb(seed) });
 const acervos = (process.env.LH_ACERVOS || 'idomed,geral').split(',').map(s => s.trim()).filter(Boolean);
 const port = 9333;
-const chrome = spawn(chromePath(), [`--remote-debugging-port=${port}`, '--headless=new', '--no-first-run', '--disable-gpu', `--user-data-dir=${path.join(reports, 'lh-profile')}`, 'about:blank'], { stdio: 'ignore' });
-await new Promise(r => setTimeout(r, 2500));
+// No CI (ubuntu-latest) o AppArmor pode impedir a sandbox do Chrome lançado fora do Playwright.
+const ciArgs = process.env.CI ? ['--no-sandbox'] : [];
+const chrome = spawn(chromePath(), [`--remote-debugging-port=${port}`, '--headless=new', '--no-first-run', '--disable-gpu', ...ciArgs, `--user-data-dir=${path.join(reports, 'lh-profile')}`, 'about:blank'], { stdio: 'ignore' });
+/* Espera o Chrome aceitar conexões (até 20 s) em vez de uma pausa fixa. */
+for (let waited = 0; ; waited += 250) {
+  try { if ((await fetch(`http://127.0.0.1:${port}/json/version`)).ok) break; } catch { /* ainda subindo */ }
+  if (waited >= 20000) { chrome.kill(); server.close(); throw new Error('O Chrome não abriu a porta de depuração em 20 s.'); }
+  await new Promise(r => setTimeout(r, 250));
+}
 
 const RUNS = Math.max(1, Number(process.env.LH_RUNS) || 3);
 const CATEGORIES = ['performance', 'accessibility', 'best-practices', 'seo'];

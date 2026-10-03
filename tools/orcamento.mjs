@@ -14,7 +14,7 @@ const seed = JSON.parse(fs.readFileSync(new URL('./seed-v4.json',import.meta.url
 const servers = [await startServer({inject:withDb(seed)}),await startServer({inject:withDb(abundantSeed())})];
 const bundle = initialBundle(), failures = [], cases = [];
 if(bundle.gzip-base.bundle.gzip>15000) failures.push('JS inicial cresceu mais de 15 kB');
-if(bundle.files.some(f=>/^(body|heart|organ|three|leaf)-/.test(f))) failures.push('3D no grafo estático');
+if(bundle.files.some(f=>/^(body|heart|organ|three|leaf|glb|dist)-/.test(f))) failures.push('3D no grafo estático');
 const browser=await chromium.launch({executablePath:chromePath(),headless:true,args:WEBGL_ARGS});
 try {
   for(const [scenario,server] of servers.entries()) for(const width of [320,375,390,768,1440]) for(const acervo of ['idomed','geral']) {
