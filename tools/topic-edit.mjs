@@ -164,6 +164,24 @@ try {
     await c.close();
   }
 
+  // N2 · editar os assuntos de uma matéria não mexe na ligação com assunto de OUTRA matéria (ex.: Práticas Médicas).
+  {
+    const cross = { ...data, topics: [...data.topics, { id: 'p1', areaId: 'cis1-pm', name: 'Semiologia do ombro', slug: 'semiologia-do-ombro', order: 0, slugAliases: [] }],
+      material_topics: [...data.material_topics, { materialId: 'a1', topicId: 'p1' }] };
+    const srv = await startServer({ inject: withDb(cross) });
+    try {
+      const k = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), r = await k.newPage();
+      await r.goto(srv.url + '#a-cis1-anat'); await r.waitForSelector('#topic-tabs [data-tab]');
+      await r.locator('#materials [data-mid="a1"]').first().click(); await r.waitForSelector('#dlg-detail[open] #d-edit');
+      await r.click('#d-edit'); await r.waitForSelector('#dlg-form[open] #m-topics .topic-chip');
+      await r.locator('#m-topics [data-topic="t2"]').check(); await r.locator('#m-topics [data-topic="t1"]').uncheck(); await r.click('#m-save');
+      await until(r, () => !document.querySelector('#dlg-form').open);
+      const links = await r.evaluate(async () => { const db = await window.claude.use('db'); return (await db.collection('material_topics').list()).map(d => d.id); });
+      ok('N2 editar Anatomia preserva a ligação com assunto de outra matéria', links.includes('a1:p1') && links.includes('a1:t2') && !links.includes('a1:t1'));
+      await k.close();
+    } finally { srv.server.close(); }
+  }
+
   // N2 · nome de assunto vindo do usuário é texto, nunca HTML.
   const x = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), r = await x.newPage();
   await r.goto(main.url + '#a-cis1-anat'); await r.waitForSelector('#topic-tabs [data-tab]');
