@@ -7,7 +7,7 @@ import { write, ensureCollection } from "../core/actions.js";
 import { openDlg, closeDlg } from "../ui/dialogs.js";
 import { CASES, CASE_TYPE, tabContext } from "../domain/topics.js";
 import { subjectFor } from "../domain/topic-edit.js";
-import { saveMaterialTopics } from "../core/topic-store.js";
+import { setLinksInArea } from "../core/topic-store.js";
 import { topicPicker, initialTopics } from "./topic-picker.js";
 
 let picker = null;
@@ -74,24 +74,25 @@ export function wireForm() {
     await picker.settled();
     const editing = S.editId, pick = picker.selection();
     // Sem assunto marcado e sem ligação anterior, o texto antigo "assunto" fica como estava (não se perde).
-    const hadLinks = !!editing && S.links.some(l => l.materialId === editing);
-    const subject = pick.mode === "on" && (pick.ids.length || hadLinks) ? subjectFor(pick.ids, S.topics) : $("#m-subject").value.trim();
+    const areaId = $("#m-area").value;
+    const hadLinks = !!editing && S.links.some(l => l.materialId === editing && S.topics.find(t => t.id === l.topicId)?.areaId === areaId);
+    const subject = pick.mode === "on" && (pick.ids.length || hadLinks) ? subjectFor(pick.ids, S.topics, areaId) : $("#m-subject").value.trim();
     const ok = await write(async () => {
       const collIds = $$("#m-colls input:checked").map(i => i.value);
       const nc = $("#m-coll-new").value.trim();
       if (nc) { const cid = await ensureCollection(nc); if (cid && !collIds.includes(cid)) collIds.push(cid); }
       const tags = [...new Set($("#m-tags").value.split(",").map(t => t.trim()).filter(Boolean))];
       let source = $("#m-origin").value.trim(); if (!source && isDrive(url)) source = "Google Drive";
-      const body = { title, url, areaId: $("#m-area").value, subject, period: $("#m-period").value.trim(), type: $("#m-type").value,
+      const body = { title, url, areaId, subject, period: $("#m-period").value.trim(), type: $("#m-type").value,
         tags, collectionIds: collIds, source, notes: $("#m-notes").value.trim(), status: $("#m-status").value, favorite: $("#m-fav").checked };
       let id = editing;
       if (editing) await S.db.doc("materials/" + editing).update(body);
       else { const ref = S.db.collection("materials").doc(); await ref.set({ ...body, createdAt: nowIso() }); id = ref.id; }
-      // Assuntos: só com as ligações carregadas (senão a diferença sairia errada). Fora de matéria, nenhum assunto fica ligado.
-      if (!topicsReady() || S.topicsOff) return;
-      const wanted = pick.mode === "on" ? pick.ids : [];
-      await saveMaterialTopics(S.db, { materialId: id, wanted, links: S.links });
-      S.links = [...S.links.filter(l => l.materialId !== id), ...wanted.map(topicId => ({ materialId: id, topicId }))];
+      // Assuntos: só com as ligações carregadas (senão a diferença sairia errada) e só dentro de uma matéria. Ligações
+      // com assuntos de outras matérias (inclusive da matéria anterior, se a área mudou) ficam como estão.
+      if (!topicsReady() || S.topicsOff || pick.mode !== "on") return;
+      const r = await setLinksInArea(S.db, { material: { id, areaId, subject }, areaId, wanted: pick.ids, links: S.links, topics: S.topics });
+      S.links = r.links;
     }, editing ? "Alterações salvas" : "Material salvo");
     S.busy = false; $("#m-save").disabled = false;
     if (ok) closeDlg($("#dlg-form"));

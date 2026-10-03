@@ -4,7 +4,7 @@
 import { draftFromRow } from "../domain/import.js";
 import { subjectFor } from "../domain/topic-edit.js";
 import { isDrive } from "./text.js";
-import { saveMaterialTopics } from "./topic-store.js";
+import { setLinksInArea } from "./topic-store.js";
 
 /* Linhas "criar" viram rascunhos; linhas "ligar" acrescentam os assuntos do caminho ao material que já existe. */
 export async function saveImport(db, rows, { links, topics, materials, now }) {
@@ -21,12 +21,13 @@ export async function saveImport(db, rows, { links, topics, materials, now }) {
   return saved;
 }
 
+/* Acrescenta os assuntos do caminho (todos de uma matéria) ao material já publicado, sem tirar nenhum. */
 async function linkMore(db, materialId, topicIds, { links, topics, materials }) {
-  const current = links.filter(l => l.materialId === materialId).map(l => l.topicId);
-  const wanted = [...new Set([...current, ...topicIds])];
-  await saveMaterialTopics(db, { materialId, wanted, links });
-  const m = materials.find(x => x.id === materialId), subject = subjectFor(wanted, topics);
-  if (m && subject && (m.subject || "") !== subject) await db.doc("materials/" + materialId).update({ subject });
+  const material = materials.find(x => x.id === materialId), areaId = topics.find(t => t.id === topicIds[0])?.areaId;
+  if (!material || !areaId) return;
+  const inArea = new Set(topics.filter(t => t.areaId === areaId).map(t => t.id));
+  const current = links.filter(l => l.materialId === materialId && inArea.has(l.topicId)).map(l => l.topicId);
+  await setLinksInArea(db, { material, areaId, wanted: [...new Set([...current, ...topicIds])], links, topics });
 }
 
 export const updateDraft = (db, id, patch, now) => db.doc("material_drafts/" + id).update({ ...patch, updatedAt: now });
@@ -40,10 +41,11 @@ export async function publishDraft(db, draft, { links, topics, materials, now })
   }
   if (!materials.some(m => m.id === materialId)) {
     const source = draft.source || (isDrive(draft.url) ? "Google Drive" : "");
-    await db.doc("materials/" + materialId).set({ title: draft.title.trim(), url: draft.url, areaId: draft.areaId, subject: subjectFor(draft.topicIds, topics),
+    await db.doc("materials/" + materialId).set({ title: draft.title.trim(), url: draft.url, areaId: draft.areaId, subject: subjectFor(draft.topicIds, topics, draft.areaId),
       period: draft.year || "", type: draft.type, tags: [], collectionIds: [], source, notes: "", status: "nao-iniciado", favorite: false, createdAt: now });
   }
-  await saveMaterialTopics(db, { materialId, wanted: draft.topicIds, links });
+  await setLinksInArea(db, { material: { id: materialId, areaId: draft.areaId, subject: subjectFor(draft.topicIds, topics, draft.areaId) },
+    areaId: draft.areaId, wanted: draft.topicIds, links, topics });
   await updateDraft(db, draft.id, { status: "publicado", materialId, problems: [] }, now);
   return materialId;
 }

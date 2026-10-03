@@ -7,11 +7,13 @@ import { topicNorm, topicSlug } from "./topics.js";
 export const RESERVED_SLUGS = Object.freeze(["casos", "todos", "tipos"]);
 export const MAX_TOPIC_NAME = 80;
 
-/* material_topics não tem id: a chave é a dupla, escrita "<material>:<assunto>" nas duas pontas do banco. */
-export const linkId = (materialId, topicId) => materialId + ":" + topicId;
+/* material_topics não tem id: a chave é a dupla. Só o adaptador e o banco fictício usam este id; cada parte vai
+   codificada (encodeURIComponent), então um ":" dentro de um id nunca confunde a separação. */
+export const linkId = (materialId, topicId) => encodeURIComponent(materialId) + ":" + encodeURIComponent(topicId);
 export function parseLinkId(id) {
-  const at = String(id).indexOf(":");
-  return at > 0 ? { materialId: id.slice(0, at), topicId: id.slice(at + 1) } : null;
+  const parts = String(id).split(":");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+  try { return { materialId: decodeURIComponent(parts[0]), topicId: decodeURIComponent(parts[1]) }; } catch (_) { return null; }
 }
 
 /* O que inserir e o que remover para a lista de assuntos de um material virar "wanted" (sem repetir, na ordem pedida). */
@@ -26,10 +28,12 @@ export function linkedTopics(materialId, links, topics) {
   return topics.filter(t => ids.has(t.id)).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
-/* Texto antigo materials.subject: nome do primeiro assunto ligado, na ordem da matéria; nenhum assunto = vazio. */
-export function subjectFor(topicIds, topics) {
+/* Texto antigo materials.subject: nome do primeiro assunto ligado da matéria PRINCIPAL do material (area_id),
+   por sort_order e depois id; nenhum assunto dessa matéria = vazio. */
+export const byOrderThenId = (a, b) => (a.order ?? 0) - (b.order ?? 0) || String(a.id).localeCompare(String(b.id));
+export function subjectFor(topicIds, topics, areaId) {
   const ids = new Set(topicIds);
-  const first = topics.filter(t => ids.has(t.id)).sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0];
+  const first = topics.filter(t => t.areaId === areaId && ids.has(t.id)).sort(byOrderThenId)[0];
   return first ? first.name : "";
 }
 

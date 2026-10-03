@@ -17,12 +17,17 @@ test('diferença de ligações: insere só o que falta e remove só o que saiu',
   assert.deepEqual(linkDiff(['t1', 't2'], []), { add: [], remove: ['t1', 't2'] });
 });
 
-test('chave composta material:assunto vai e volta', () => {
+test('chave composta material:assunto vai e volta, sem ambiguidade mesmo com o separador nos ids', () => {
   assert.equal(linkId('m1', 't1'), 'm1:t1');
   assert.deepEqual(parseLinkId('m1:t1'), { materialId: 'm1', topicId: 't1' });
-  assert.deepEqual(parseLinkId('3f1c-uuid:9a2b-uuid'), { materialId: '3f1c-uuid', topicId: '9a2b-uuid' });
+  for (const [m, t] of [['a:b', 'c'], ['a', 'b:c'], ['a%3A', 'b'], ['x/y', 'z%'], ['3f1c-uuid', '9a2b-uuid']]) {
+    assert.deepEqual(parseLinkId(linkId(m, t)), { materialId: m, topicId: t }, `${m} | ${t}`);
+  }
+  assert.notEqual(linkId('a:b', 'c'), linkId('a', 'b:c'));
   assert.equal(parseLinkId('sem-dois-pontos'), null);
   assert.equal(parseLinkId(':t1'), null);
+  assert.equal(parseLinkId('a:b:c'), null, 'separador cru a mais é recusado');
+  assert.equal(parseLinkId('m1:%E0%A4%A'), null, 'codificação quebrada é recusada');
 });
 
 test('novo assunto: slug do nome e ordem = máximo + 1', () => {
@@ -56,10 +61,14 @@ test('nome do assunto: limpo, obrigatório, até 80 caracteres e só dentro de u
   assert.ok(planTopic('anat', 'x'.repeat(80), topics).fields);
 });
 
-test('texto antigo subject = primeiro assunto ligado na ordem da matéria', () => {
-  assert.equal(subjectFor(['t3', 't2'], topics), 'Coluna vertebral');
-  assert.equal(subjectFor([], topics), '');
-  assert.equal(subjectFor(['sumiu'], topics), '');
+test('texto antigo subject = primeiro assunto da matéria principal, por ordem e depois id', () => {
+  const extra = [...topics, { id: 't0', areaId: 'anat', name: 'Empate antes', order: 4 }, { id: 'o1', areaId: 'orto', name: 'Ortopedia geral', order: -1 }];
+  assert.equal(subjectFor(['t3', 't2'], topics, 'anat'), 'Coluna vertebral');
+  assert.equal(subjectFor(['t3', 't0'], extra, 'anat'), 'Empate antes', 'mesma ordem: menor id');
+  assert.equal(subjectFor(['o1', 't3'], extra, 'anat'), 'Membro inferior', 'assunto de outra matéria não conta');
+  assert.equal(subjectFor(['o1'], extra, 'anat'), '');
+  assert.equal(subjectFor([], topics, 'anat'), '');
+  assert.equal(subjectFor(['sumiu'], topics, 'anat'), '');
   const links = [{ materialId: 'm1', topicId: 't3' }, { materialId: 'm1', topicId: 't1' }, { materialId: 'm2', topicId: 't2' }];
   assert.deepEqual(linkedTopics('m1', links, topics).map(t => t.id), ['t1', 't3']);
 });

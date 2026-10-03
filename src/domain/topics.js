@@ -4,8 +4,9 @@
 export const CASES = "casos";
 export const CASE_TYPE = "Caso clínico";
 
-const FROM = "áàâãäéèêëíìîïóòôõöúùûüçñªº", TO = "aaaaaeeeeiiiiooooouuuucnao";
-const MAP = new Map([...FROM].map((c, i) => [c, TO[i]]));
+/* Exportadas para o banco fictício dos testes gerar normalized_name exatamente como o banco. */
+export const TOPIC_FROM = "áàâãäéèêëíìîïóòôõöúùûüçñªº", TOPIC_TO = "aaaaaeeeeiiiiooooouuuucnao";
+const MAP = new Map([...TOPIC_FROM].map((c, i) => [c, TOPIC_TO[i]]));
 
 export const topicNorm = value => [...String(value ?? "").toLowerCase()].map(c => MAP.get(c) ?? c).join("").replace(/\s+/g, " ").trim();
 export const topicSlug = value => topicNorm(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");

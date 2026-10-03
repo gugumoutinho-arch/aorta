@@ -17,7 +17,7 @@ const hash = p => decodeURIComponent(new URL(p.url()).hash);
 const until = (p, fn, arg) => p.waitForFunction(fn, arg, { timeout: 5000 });
 const tabCount = (p, key, n) => until(p, ([k, v]) => document.querySelector(`#topic-tabs [data-tab="${k}"] .num`)?.textContent === v, [key, n]);
 
-const main = await startServer({ inject: withDb(data) });
+const main = await startServer({ inject: withDb(data) }), saved = await startServer({ inject: withDb(data, { persist: true }) });
 const browser = await chromium.launch({ executablePath: chromePath(), headless: true });
 try {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
@@ -40,6 +40,44 @@ try {
 
   ok('N1 sem erros no console', errors.length === 0 || (console.log(errors), false));
   await ctx.close();
+
+  // N1 · com o banco persistente (como o real): criar assunto, ligar, desligar, remover e desfazer — e recarregar mantém.
+  {
+    const k = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }), r = await k.newPage(), errs = [];
+    r.on('pageerror', e => errs.push(e.message));
+    r.on('console', m => m.type() === 'error' && !/fonts\.g|net::ERR|falha de teste/.test(m.text()) && errs.push(m.text()));
+    const reload = async () => { await r.reload(); await r.waitForSelector('#topic-tabs [data-tab]'); };
+    await r.goto(saved.url + '#a-cis1-anat'); await r.waitForSelector('#topic-tabs [data-tab]');
+    await r.locator('header [data-action="add"]').click(); await r.waitForSelector('#dlg-form[open] #m-topics .topic-chip');
+    await r.fill('#m-title', 'Material persistente'); await r.fill('#m-url', 'https://example.com/persistente');
+    await r.fill('#m-topic-new', 'Pelve'); await r.press('#m-topic-new', 'Enter');
+    await until(r, () => [...document.querySelectorAll('#m-topics .topic-chip')].some(e => e.textContent.trim() === 'Pelve' && e.querySelector('input').checked));
+    await r.locator('#m-topics [data-topic="t2"]').check(); await r.click('#m-save');
+    await until(r, () => !document.querySelector('#dlg-form').open);
+    await reload();
+    ok('N1 recarregar mantém o assunto criado e as duas ligações', (await counts(r)).pelve === '1' && (await counts(r))['coluna-vertebral'] === '3');
+    await r.locator('#materials .material', { hasText: 'Material persistente' }).locator('[data-mid]').first().click();
+    await r.waitForSelector('#dlg-detail[open] #d-edit'); await r.click('#d-edit'); await r.waitForSelector('#dlg-form[open] #m-topics .topic-chip');
+    await r.locator('#m-topics .topic-chip', { hasText: 'Pelve' }).locator('input').uncheck(); await r.click('#m-save');
+    await until(r, () => !document.querySelector('#dlg-form').open);
+    await reload();
+    ok('N1 desligar persiste e não mexe na outra ligação', (await counts(r)).pelve === '—' && (await counts(r))['coluna-vertebral'] === '3');
+    // Remover e desfazer com falha no meio da restauração: oferece tentar de novo e, no fim, tudo volta.
+    await r.locator('#materials [data-mid="a2"]').click(); await r.waitForSelector('#dlg-detail[open] #d-remove');
+    await r.click('#d-remove'); await r.click('#d-rm-yes');
+    await tabCount(r, 'membro-superior', '1');
+    await r.evaluate(() => { window.__mockFail = 'material_topics/'; });
+    await r.locator('.toast button', { hasText: 'Desfazer' }).click();
+    await r.waitForSelector('.toast.error button:has-text("Tentar de novo")');
+    ok('N1 Desfazer que para no meio não diz que restaurou e oferece tentar de novo', !(await r.locator('.toast:not(.error)', { hasText: 'Material restaurado' }).count()));
+    await r.locator('.toast button', { hasText: 'Tentar de novo' }).click();
+    await tabCount(r, 'membro-superior', '2'); await tabCount(r, 'coluna-vertebral', '3');
+    await reload();
+    ok('N1 depois de tentar de novo: material e ligações de volta, e continuam depois de recarregar', (await counts(r))['membro-superior'] === '2' && (await counts(r))['coluna-vertebral'] === '3'
+      && await r.locator('#materials [data-mid="a2"]').count() === 1);
+    ok('N1 persistente sem erros no console', errs.length === 0 || (console.log(errs), false));
+    await k.close();
+  }
 
   // N2 · formulário com assuntos, a 1440 e a 390 px, só com o teclado.
   for (const [width, theme] of [[1440, 'dark'], [390, 'light']]) {
@@ -156,5 +194,5 @@ try {
   await until(r, () => !document.querySelector('#m-topic-err').hidden);
   ok('N2 falha ao criar assunto aparece no próprio campo', (await r.innerText('#m-topic-err')).includes('Não deu para criar') && await r.inputValue('#m-topic-new') === 'Pelve');
   await x.close();
-} finally { await browser.close(); main.server.close(); }
+} finally { await browser.close(); main.server.close(); saved.server.close(); }
 console.log(`\n${checks.length} verificações aprovadas.`);

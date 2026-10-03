@@ -115,7 +115,7 @@ try {
     ok(tag + ' Ignorar tem Desfazer', true);
 
     ok(tag + ' sem erros no console', errors.filter(e => !/falha de teste/.test(e)).length === 0 || (console.log(errors), false));
-    await p.evaluate(() => sessionStorage.clear());
+    await p.evaluate(() => localStorage.clear());
     await ctx.close();
   }
 } finally { await browser.close(); main.server.close(); }

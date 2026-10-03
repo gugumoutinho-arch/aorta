@@ -7,7 +7,7 @@ import { parsePaste, planImport } from '../../src/domain/import.js';
 
 function mockDb(data) {
   const window = {};
-  new Function('window', 'sessionStorage', mockDbScript(data))(window, null);
+  new Function('window', mockDbScript(data))(window);
   return { window, db: window.claude.use('db') };
 }
 const snap = (db, col) => new Promise(r => db.collection(col).onSnapshot(s => r(s.docs.map(d => ({ id: d.id, ...d.data() })))));
