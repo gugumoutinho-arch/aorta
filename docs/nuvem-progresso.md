@@ -18,8 +18,8 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N1 · Gravar assuntos e ligações | concluído | `746ab39` |
 | N2 · Formulário com assuntos | concluído | `80bc24c` |
 | N3 · Quase-duplicatas | concluído | `771470f` |
-| N4 · Importação por colagem | concluído | (ver git log) |
-| N5 · Cardiologia → coração | a fazer | |
+| N4 · Importação por colagem | concluído | `6299ca4` |
+| N5 · Cardiologia → coração | concluído | (ver git log) |
 | N6 · Trocas rápidas instáveis | a fazer | |
 | N7 · Desempenho da primeira tela | extra | |
 

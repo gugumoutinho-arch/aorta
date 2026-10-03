@@ -2,6 +2,18 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N5 · Cardiologia aponta para o coração no corpo 3D — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Antes:** `src/body/routes.js` mandava `/cardio/` para "pulmao", e `ORDER` não tinha "coracao".
+- **Verificação no modelo:** o `public/modelos/corpo.glb` tem o nó `heart` (malha `VH_M_cardiac_chamber` do HuBMAP, 4.532 vértices, caixa de [-0,043; 0,424; -0,015] a [0,081; 0,528; 0,090] m). É a mesma malha que o corpo já desenha como bomba central. A página do módulo a acende pelo `organ.js`, que aceita qualquer nó do GLB.
+- **O que mudou:**
+  - destino novo "coracao": rótulo "Coração", artéria "a. coronária esquerda · descendente anterior", acende a malha `heart`; o traçado sai da raiz da aorta e desce pela face anterior até perto do ápice, terminando dentro da caixa do coração (estilizado, não anatomia para estudo);
+  - `cardio` → coração, e esse padrão vem antes dos outros ("Semiologia cardiovascular" também vai para o coração);
+  - `destinationsFor` passa a dar a cada disciplina o mesmo destino em qualquer ordem do array: primeiro os nomes reconhecidos, depois os outros pela ordem do curso (índice). Antes, um nome desconhecido que vinha antes podia tomar o destino de um nome reconhecido;
+  - "coracao" entra no fim de `ORDER`: M1 continua indo para o pé.
+- **Testado:** `node --test tests/routes.test.mjs` 6/6 (cardio → coração, ponta dentro da caixa do coração, mesma lista em outra ordem → mesmos destinos, nome reconhecido não perde destino, nome desconhecido → destino livre sem repetir, M1 → pé). Quatro reprovaram antes da mudança. Bateria no fim do N6.
+- **Não testado:** como os dados fictícios do v4 não têm disciplina "Cardiologia", conferi a tela à parte (captura de tela com uma Cardiologia fictícia, fora dos testes do repositório).
+
 ## 2026-10-03 — Claude (nuvem) — N4 · Importação por colagem (Organizar › Colar links) — ramo `nuvem/f1-conteudo`, não publicado
 
 - **O que mudou:**
