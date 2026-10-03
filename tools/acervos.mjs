@@ -67,10 +67,15 @@ try {
   ok('Link direto sincroniza acervo e mapa',await p.getAttribute('body','data-concept')==='corpo'&&await p.getAttribute('body','data-acervo')==='geral');
   await p.goto(url+'#idomed');await p.waitForSelector('#modules .mod');
   await p.emulateMedia({reducedMotion:'no-preference'});
-  const target=p.locator('.search-plate');await target.hover();await p.mouse.down();await p.waitForTimeout(250);
-  ok('Botão fica pressionado até soltar',await target.evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).a<.99));
-  await p.mouse.up();await p.keyboard.press('Escape');await p.waitForTimeout(500);
-  ok('Botão retorna ao soltar',await target.evaluate(e=>Math.abs(new DOMMatrix(getComputedStyle(e).transform).a-1)<.001));
+  // Ligar o movimento faz o 3D começar e ocupa a thread: a pressão anima no primeiro quadro livre. Espera a CONDIÇÃO
+  // (afundou com o mouse ainda apertado), não um tempo fixo; depois de soltar, espera voltar.
+  const scaleOf=()=>new DOMMatrix(getComputedStyle(document.querySelector('.search-plate')).transform).a;
+  const target=p.locator('.search-plate');await target.hover();await p.mouse.down();
+  const held=await p.waitForFunction(`(${scaleOf})()<.99`,null,{timeout:3000}).then(()=>true,()=>false);
+  ok('Botão fica pressionado até soltar',held&&await target.evaluate(e=>new DOMMatrix(getComputedStyle(e).transform).a<.99));
+  await p.mouse.up();await p.keyboard.press('Escape');
+  const back=await p.waitForFunction(`Math.abs((${scaleOf})()-1)<.001`,null,{timeout:3000}).then(()=>true,()=>false);
+  ok('Botão retorna ao soltar',back);
   await p.evaluate(()=>{location.hash='geral';});await p.waitForTimeout(90);
   await p.emulateMedia({reducedMotion:'reduce'});await p.waitForTimeout(60);
   ok('Reduzir durante entrada deixa conteúdo visível',await p.evaluate(()=>['#intro-copy','.search-plate','#counts','#acervo-note'].every(s=>getComputedStyle(document.querySelector(s)).opacity==='1')));

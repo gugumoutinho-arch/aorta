@@ -82,3 +82,31 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 - **N3:** confirmar "inf." como abreviação aprovada e o veto de algarismos romanos.
 - **N7:** revertido; o peso real da entrada é a montagem do coração 3D.
 - **Demonstração:** `cd tools && node demo.mjs --abas` (assuntos e colagem); `node demo.mjs --v4 --cardio` (Cardiologia no corpo).
+
+---
+
+# RODADA A (funcional) — prompt `docs/nuvem/rodada-a-funcional.md`
+
+- **Repositório:** `/home/user/aorta` (checkout Linux no lugar de `C:\claude e codexx`); remote `origin` = `https://github.com/gugumoutinho-arch/aorta`; ramo `nuvem/f1-conteudo`; status limpo ao começar.
+- **Retomada:** o ramo existia no remoto (`1cda9d7`) e descende do `prototipo-v4` antigo (`63e6004`). O `prototipo-v4` atual (`4b6f838`, que inclui `afef4f6`) entrou por merge (`7303e51`), sem recriar e sem force.
+- **SHA base da rodada A:** `4b6f838` (`origin/prototipo-v4` depois do fetch).
+
+## Preflight
+
+- Node v22.22.0; Chromium 141 (`/opt/pw-browsers/chromium`; o `chromium-1243` que o playwright-core 1.63 espera não existe e o ambiente proíbe `playwright install`, então `CHROME_PATH=/opt/pw-browsers/chromium`).
+- O Chromium abre; WebGL2 por SwiftShader (ANGLE/Vulkan) funciona; captura PNG funciona.
+- **Fontes não carregam:** 0 fontes carregadas; o proxy da nuvem recusa o certificado do Google Fonts. O `document.fonts.check` diz "sim" só porque não há `@font-face`. **Capturas e Lighthouse NÃO são comparáveis** com os do computador do dono; nada de tipografia ou de gate foi mudado por isso.
+- **Bateria G no preflight (`7303e51`):** `npm test` 80/80; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 44/44. Lighthouse (mediana de 3): celular 94/94, computador 100/100, acessibilidade 100, boas práticas **96** (só o erro de certificado das fontes; não comparável).
+
+| Pacote (rodada A) | Situação | Commit |
+|---|---|---|
+| N6 · trocas rápidas e botão | concluído | (este) |
+| N1 · assuntos, ligações e rascunhos nas duas pontas | a fazer | |
+| N3 · quase-duplicatas | a fazer | |
+| N2 · formulário com assuntos | a fazer | |
+| N4 · colagem | a fazer | |
+| N5 · Cardiologia → coração | a fazer | |
+
+### A · N6
+
+- Trocas rápidas 0/10; botão sob CPU 6×: regra antiga 2/10 falhas, regra nova 10/10; `acervos` 67/67 em 3/3.

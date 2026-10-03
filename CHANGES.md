@@ -2,6 +2,17 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N6 · "botão fica pressionado" e trocas rápidas sem exceção — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Retomada:** o ramo já existia (sessão anterior). Validei que descende do `prototipo-v4` e trouxe o `prototipo-v4` atual (`4b6f838`) por merge (`7303e51`), sem force. SHA base desta rodada: `4b6f838`.
+- **Trocas rápidas** (corrigido no produto em `57f77e6`: o título é cancelado pela referência do tween). Reprodução fiel e mínima, no código atual: **0 falhas em 10** (antes: 1/30, 2/40 e ≥ 1/11).
+- **"Botão fica pressionado até soltar"** (a exceção que sobrava no `acervos`). Reprodução da mesma sequência com CPU 6× mais lenta, registrando o que a página viu:
+  - nas falhas, **0 ou 1 quadro** foi desenhado entre o "pressionar" e a medida: ligar o movimento faz o 3D começar e ocupa a thread;
+  - em **10 de 10**, a página viu o movimento ligado e o botão afundou assim que houve quadro.
+  O produto estava certo; o teste media 250 ms fixos depois de pressionar. Agora ele espera a CONDIÇÃO (afundou com o mouse ainda apertado, até 3 s) e, ao soltar, espera voltar. A verificação continua a mesma; não foi afrouxada.
+- **Resultados:** com a regra antiga, a reprodução sob carga falhou 2/10; com a nova, 10/10. `acervos.mjs` completo **67/67 em 3 de 3** rodadas.
+- **Não testado:** aparelho físico e GPU real (o 3D roda por software aqui).
+
 ## 2026-10-03 — Claude (nuvem) — N7 (extra) · Desempenho da primeira tela: tentado, medido e revertido — ramo `nuvem/f1-conteudo`
 
 - **Tentativa (`368fce2`, revertida em seguida):** `layout()` em `src/views/map.js` passou a ler todas as medidas dos rótulos antes de escrever posições e lados. Antes, cada leitura vinha depois do `data-side` do rótulo anterior, que muda o alinhamento pelo CSS. As caixas calculadas eram reaproveitadas pelas linhas-guia, inclusive nos quadros do 3D, sem medir nada.
