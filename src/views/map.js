@@ -9,7 +9,14 @@ import { concept } from "./concept.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const modelUrl = () => `${import.meta.env.BASE_URL}modelos/${concept().model || "heart-hra-v1.3.glb"}`;
-let diving = false, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
+let diving = false, diveId = 0, mapConcept = null, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
+
+export function cancelDive() {
+  diveId++;
+  if (diving) scene?.reset?.(true);
+  diving = false;
+  document.body.classList.remove("diving");
+}
 
 function flatTips() {
   const map = $("#map"), w = map.clientWidth, hgt = map.clientHeight, s = Math.min(w / 600, hgt / 560);
@@ -45,12 +52,14 @@ function layout() {
   const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0;
   for (const right of [false, true]) {
     // Lado = onde a ponta aparece na tela (vale para o 3D girado e para o mapa em linhas).
-    const isRight = m => ends[m.index] ? ends[m.index].x > map.clientWidth / 2 : concept().side(m, mods.length) === "right";
+    const isRight = m => concept().model === "corpo.glb" ? m.index % 2 === 1 : ends[m.index] ? ends[m.index].x > map.clientWidth / 2 : concept().side(m, mods.length) === "right";
     const side = mods.filter(m => isRight(m) === right).sort((a, b) => y(a) - y(b));
     // Cada rótulo tenta ficar na altura da sua ponta (linha-guia curta e quase reta); depois afasta os vizinhos
     // para não se sobreporem e devolve para dentro do mapa, de baixo para cima.
     const GAP = 8, items = side.map(m => ({ m, b: $(`#modules [data-module="${m.id}"]`) })).filter(x => x.b);
-    items.forEach(x => { x.h = x.b.offsetHeight; x.top = Math.max(4, y(x.m) - x.h * .62); });
+    items.forEach((x, i) => { x.h = x.b.offsetHeight; x.top = concept().model === "corpo.glb"
+      ? 28 + i * (hgt - 56 - x.h) / Math.max(1, items.length - 1)
+      : Math.max(4, y(x.m) - x.h * .62); });
     for (let k = 1; k < items.length; k++) items[k].top = Math.max(items[k].top, items[k - 1].top + items[k - 1].h + GAP);
     let limit = hgt - 4;
     for (let k = items.length - 1; k >= 0; k--) { items[k].top = Math.min(items[k].top, limit - items[k].h); limit = items[k].top - GAP; }
@@ -136,6 +145,11 @@ function scheduleHeart() {
 }
 
 export function drawMap(list) {
+  if (mapConcept !== concept()) {
+    cancelDive(); stopHeart(); started = false; signature = "";
+    mapConcept = concept(); drawOutline();
+    $("#pause").textContent = concept().pause[paused ? 1 : 0];
+  }
   const atlas = $("#atlas");
   atlas.dataset.empty = String(!list.length);
   mods = list;
@@ -154,8 +168,10 @@ export function focusModuleLabel(id) { const a = $(`#modules [data-module="${id}
 
 export function wireMap() {
   const nav = $("#modules");
-  nav.addEventListener("pointerover", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, true); });
-  nav.addEventListener("pointerout", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, false); });
+  nav.addEventListener("pointerover", e => { const b = e.target.closest(".mod"); if (b && !b.contains(e.relatedTarget)) highlight(+b.dataset.index, true); });
+  nav.addEventListener("pointerout", e => { const b = e.target.closest(".mod"); if (b && !b.contains(e.relatedTarget)) highlight(+b.dataset.index, false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") cancelDive(); });
+  document.addEventListener("click", e => { if (diving && !e.target.closest("#modules .mod")) cancelDive(); }, true);
   nav.addEventListener("focusin", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, true); });
   nav.addEventListener("focusout", e => { const b = e.target.closest(".mod"); if (b) highlight(+b.dataset.index, false); });
   // Setas andam entre as artérias; Enter abre (é um link).
@@ -173,11 +189,11 @@ export function wireMap() {
     const label = a.closest("#modules .mod");
     if (label && scene?.focus && !reducedMotion() && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
       e.preventDefault();
-      if (diving) return;
+      const token = ++diveId, rect = label.querySelector("b").getBoundingClientRect();
       diving = true; highlight(+label.dataset.index, true);
       document.body.classList.add("diving");
-      const go = () => { if (!diving) return; diving = false; document.body.classList.remove("diving"); noteFlight(label.getBoundingClientRect(), label.dataset.module, label.querySelector("b")?.textContent || ""); location.hash = "a-" + label.dataset.module; };
-      Promise.race([scene.focus(+label.dataset.index), new Promise(r => setTimeout(r, 1100))]).then(go);
+      const go = () => { if (!diving || token !== diveId) return; diving = false; document.body.classList.remove("diving"); noteFlight(rect, label.dataset.module, label.querySelector("b")?.textContent || ""); location.hash = "a-" + label.dataset.module; };
+      Promise.race([scene.focus(+label.dataset.index), new Promise(r => setTimeout(r, 900))]).then(go);
       return;
     }
     noteFlight(a.getBoundingClientRect(), a.dataset.module, a.querySelector("b")?.textContent || a.textContent);
@@ -193,5 +209,5 @@ export function wireMap() {
   });
   new ResizeObserver(requestLayout).observe($("#map"));
   onThemeChange(() => scene?.theme());
-  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => { if (ready() && mods.length) startHeart(); });
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => { cancelDive(); if (ready() && mods.length) startHeart(); });
 }

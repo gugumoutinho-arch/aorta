@@ -5,6 +5,15 @@ description: Sistema visual e de movimento do Aorta (acervo de medicina em C:\cl
 
 # Aorta — sistema visual
 
+## Refinamento v4 aprovado pelo dono em 02/10/2026
+
+Estas decisões posteriores prevalecem sobre as referências anteriores abaixo:
+- IDOMED mantém o coração-mapa por módulos. Medicina geral mostra o corpo por disciplinas; não distribuir o acervo geral em M1–M8. A troca é automática pelas abas do acervo.
+- Corpo com órgãos HuBMAP, crédito visível, rótulos distribuídos em duas colunas e nomes completos. Os destinos são associações visuais, não limites anatômicos do conteúdo.
+- Movimento menos mecânico: molas amortecidas no ponteiro, sem reiniciar a velocidade a cada evento; entradas de 320–720 ms com `power2/3.out`; controles de press seguem o gesto; mergulho curto, interrompível e sem destino atrasado. Não impor os easings elásticos antigos a todos os componentes.
+- Movimento reduzido é dinâmico: ativá-lo durante entradas, voo ou mergulho encerra o movimento e conserva a navegação. Limpar recursos 3D ao trocar de acervo/tela.
+- Refino de layout desta rodada: **sem referência externa nova**; derivado do V4 existente e da escolha explícita do dono. Aplicadas skills ECC `make-interfaces-feel-better` e `motion-patterns` com GSAP já aprovado, sem dependências novas.
+
 Decisões do dono (02/10/2026). Regras gerais em `AGENTS.md` (seção "Direção Aorta"); produto em `PRODUCT.md`.
 Protótipo de referência: `_fora-do-site/propostas-home/coracao-mapa.html`. Ele carrega `modelos/heart-hra-v1.3.glb`, então abra por um servidor local, nunca por `file://`.
 

@@ -7,6 +7,7 @@ import { WebGLRenderer, Scene, PerspectiveCamera, Group, Vector3, Color, ShaderM
 import gsap from "gsap";
 import { loadGLB } from "../heart/glb.js";
 import { DESTINATIONS } from "./routes.js";
+import { spring } from "../ui/spring.js";
 
 const IDLE_MS = 2600, DIST = 3.7;
 const css = token => getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -85,6 +86,7 @@ async function assemble(o, glb, renderer) {
   };
   const draw = () => { frame = 0; if (!canDraw()) return; root.rotation.set(look.y * .08, look.x * .45, 0); renderer.render(scene, camera); project(); };
   const request = () => { if (!frame && canDraw()) frame = requestAnimationFrame(draw); };
+  const follow = spring(look, request, { stiffness: 160, damping: 25 });
   const resize = () => {
     const w = o.map.clientWidth, hh = o.map.clientHeight; if (!w || !hh) return;
     renderer.setSize(w, hh, false); camera.aspect = w / hh; camera.updateProjectionMatrix();
@@ -122,9 +124,11 @@ async function assemble(o, glb, renderer) {
   const pointer = e => {
     if (paused || !canDraw() || e.pointerType === "touch") return;
     const b = o.map.getBoundingClientRect();
-    gsap.to(look, { x: ((e.clientX - b.left) / b.width - .5) * 2, y: ((e.clientY - b.top) / b.height - .5) * 2, duration: .8, ease: "power2.out", overwrite: true, onUpdate: request });
+    follow.to({ x: ((e.clientX - b.left) / b.width - .5) * .8, y: ((e.clientY - b.top) / b.height - .5) });
   };
   o.map.addEventListener("pointermove", pointer);
+  const leave = () => follow.to({ x: 0, y: 0 });
+  o.map.addEventListener("pointerleave", leave);
   const lost = e => { e.preventDefault(); api.dispose(); o.onLost?.(); };
   renderer.domElement.addEventListener("webglcontextlost", lost);
 
@@ -135,14 +139,14 @@ async function assemble(o, glb, renderer) {
     focus(i) {
       const v = vessels[i]; if (!v) return Promise.resolve();
       body.updateMatrixWorld(true); const p = body.localToWorld(v.tip.clone());
-      return new Promise(done => gsap.to(cam, { x: p.x * .9, y: p.y * .95, z: .85, tx: p.x, ty: p.y, duration: .8, ease: "expo.inOut", overwrite: true, onUpdate: aim, onComplete: done }));
+      return new Promise(done => gsap.to(cam, { x: p.x * .88, y: p.y * .92, z: 1.1, tx: p.x, ty: p.y, duration: .65, ease: "power2.inOut", overwrite: true, onUpdate: aim, onComplete: done, onInterrupt: done }));
     },
-    reset(animate = true) { gsap.to(cam, { ...home, duration: animate ? .9 : 0, ease: "expo.inOut", overwrite: true, onUpdate: aim }); },
+    reset(animate = true) { gsap.to(cam, { ...home, duration: animate ? .45 : 0, ease: "power3.out", overwrite: true, onUpdate: aim }); },
     resize,
     highlight(i, on) {
       const v = vessels[i]; if (!v) return;
       gsap.to(v.mat.uniforms.hot, { value: on ? 1 : 0, duration: .2, overwrite: true, onUpdate: request });
-      gsap.to(v.node.scale, { x: on ? 1.6 : 1, y: on ? 1.6 : 1, z: on ? 1.6 : 1, duration: .35, ease: "back.out(3)", overwrite: true, onUpdate: request });
+      gsap.to(v.node.scale, { x: on ? 1.35 : 1, y: on ? 1.35 : 1, z: on ? 1.35 : 1, duration: .28, ease: "power2.out", overwrite: true, onUpdate: request });
       organsOf(i).forEach(x => gsap.to(x.mesh.material.uniforms.kick, { value: on ? 1.2 : 0, duration: .35, overwrite: true, onUpdate: request }));
       if (on && live[i]) { beat(.7, i); schedule(); }
     },
@@ -161,7 +165,11 @@ async function assemble(o, glb, renderer) {
       request();
     },
     dispose() {
-      if (destroyed) return; destroyed = true; stop(); beatTl?.kill(); gsap.killTweensOf([look, heart.scale]);
+      if (destroyed) return; destroyed = true; stop(); beatTl?.kill(); follow.dispose();
+      gsap.killTweensOf([look, heart.scale, cam, ...Object.values(skin.material.uniforms), ...Object.values(heart.material.uniforms)]);
+      Object.values(organs).forEach(x => gsap.killTweensOf([x.mesh.scale, ...Object.values(x.mesh.material.uniforms)]));
+      vessels.forEach(v => gsap.killTweensOf([v.node.scale, ...Object.values(v.mat.uniforms)]));
+      o.map.removeEventListener("pointerleave", leave);
       io.disconnect(); ro.disconnect(); document.removeEventListener("visibilitychange", sync);
       o.map.removeEventListener("pointermove", pointer); renderer.domElement.removeEventListener("webglcontextlost", lost);
       scene.traverse(x => { x.geometry?.dispose(); x.material?.dispose(); });
@@ -173,10 +181,10 @@ async function assemble(o, glb, renderer) {
   if (!o.isCurrent()) { api.dispose(); return null; }
   // Entrada: o corpo aparece, as artérias crescem do coração até os destinos, um a um; depois a primeira batida.
   gsap.fromTo(skin.material.uniforms.alpha, { value: 0 }, { value: .72, duration: 1.2, ease: "power2.out", onUpdate: request });
-  Object.values(organs).forEach((x, k) => gsap.from(x.mesh.scale, { x: .001, y: .001, z: .001, delay: .4 + k * .05, duration: .9, ease: "expo.out", onUpdate: request }));
+  Object.values(organs).forEach(x => gsap.from(x.mesh.material.uniforms.alpha, { value: 0, duration: .8, ease: "power2.out", onUpdate: request }));
   vessels.forEach((v, i) => {
-    gsap.to(v.mat.uniforms.grow, { value: 1, delay: .3 + i * .1, duration: 1.1, ease: "power3.inOut", onUpdate: request });
-    gsap.to(v.node.scale, { x: 1, y: 1, z: 1, delay: 1.2 + i * .1, duration: .5, ease: "back.out(3)", onUpdate: request });
+    gsap.to(v.mat.uniforms.grow, { value: 1, delay: .12 + i * .025, duration: .85, ease: "power2.inOut", onUpdate: request });
+    gsap.to(v.node.scale, { x: 1, y: 1, z: 1, delay: .8 + i * .025, duration: .3, ease: "power2.out", onUpdate: request });
   });
   timer = setTimeout(() => { beat(.6); schedule(); }, 1900);
   request();

@@ -76,9 +76,9 @@ export const CONCEPTS = {
   },
 };
 CONCEPTS.corpo = {
-  brand: "Aorta", title: "Aorta", footer: "Do coração a cada parte do corpo, um módulo por vez.",
+  brand: "Aorta", title: "Aorta", footer: "Um corpo de conhecimento. Muitos caminhos para estudar.",
   pause: ["Pausar batimento", "Retomar batimento"], loading: "Preparando o corpo", loadingModel: "Carregando o corpo",
-  state3d: "Artérias estilizadas · cada módulo leva a uma parte do corpo.", caption: "corpo inteiro", back: "← Voltar ao corpo", flatWhat: "Corpo em linhas",
+  state3d: "Disciplinas conectadas ao corpo · associações visuais, não limites de conteúdo.", caption: "corpo inteiro", back: "← Voltar ao corpo", flatWhat: "Corpo em linhas",
   model: "corpo.glb",
   outline: bodyOutline,
   /* Cada módulo ganha um destino (M1 → pé…) antes de desenhar; o rótulo mostra o destino. */
@@ -90,3 +90,17 @@ CONCEPTS.corpo = {
   load: () => import("../body/body.js").then(x => x.createBody),
 };
 export const concept = () => CONCEPTS[S.concept] || CONCEPTS.coracao;
+
+/* O mapa pertence ao acervo, inclusive ao abrir um link direto de disciplina. */
+export function syncConcept() {
+  S.concept = S.acervo === "geral" ? "corpo" : "coracao";
+  const c = concept();
+  document.body.dataset.concept = S.concept;
+  document.title = c.title;
+  document.querySelector("#footer-line").textContent = c.footer;
+  document.querySelector("#back-home").textContent = c.back;
+  const credit = document.querySelector(".credit-heart a");
+  credit.textContent = S.concept === "corpo"
+    ? "Órgãos de referência e corpo Visible Human Male (malhas simplificadas)"
+    : "3D Reference Organ for Heart, Male, v1.3";
+}

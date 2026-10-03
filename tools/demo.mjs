@@ -8,5 +8,6 @@ import { startServer, withDb, seed, here } from './harness.mjs';
 
 const data = process.argv.includes('--v4') ? JSON.parse(fs.readFileSync(path.join(here, 'seed-v4.json'), 'utf8')) : seed();
 if (process.argv.includes('--oito')) for (let i = 3; i <= 8; i++) data.areas.push({ id: 'm' + i, name: 'M' + i, parentId: '', order: i, stain: '' });
-const { url } = await startServer({ inject: withDb(data), port: 4176 });
+const port = Number(process.env.AORTA_PREVIEW_PORT || 4176);
+const { url } = await startServer({ inject: withDb(data), port });
 console.log(`Aorta com dados fictícios em ${url}  (Ctrl+C para parar)`);

@@ -24,6 +24,19 @@ body[data-concept="folha"] #flat-outline { opacity: .9; }
 /* Corpo inteiro: mapa mais alto (o corpo é vertical) */
 body[data-concept="corpo"] .map { height: 640px; }
 body[data-concept="corpo"] .hero { min-height: min(780px, calc(100dvh - 88px)); }
+@media (min-width: 901px) {
+  body[data-concept="corpo"] .hero { grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); gap: 48px; }
+  body[data-concept="corpo"] .intro h1 { font-size: clamp(44px, 4.5vw, 64px); max-width: 12ch; }
+}
+body[data-concept="corpo"] .mod { width: clamp(112px, 13vw, 176px); }
+body[data-concept="corpo"] .mod b { font-family: var(--sans); font-weight: 500; font-size: clamp(17px, 1.5vw, 22px); line-height: 1.25; letter-spacing: -.025em; }
+body[data-concept="corpo"] .mod .mono { font-size: 10px; letter-spacing: .1em; margin-bottom: 5px; }
+body[data-concept="corpo"] .mod small { margin-top: 5px; }
+body[data-concept="corpo"] .mod[data-side="left"] { background: linear-gradient(90deg, var(--bg) 55%, transparent); }
+body[data-concept="corpo"] .mod[data-side="right"] { background: linear-gradient(270deg, var(--bg) 55%, transparent); }
+.mod.hot b { font-style: normal; }
+.mod b { transition: none; }
+.mod:hover b { transform: none; }
 body[data-concept="corpo"] #flat-outline path { fill: color-mix(in oklab, var(--violet-2) 6%, transparent); }
 
 /* Nomes longos (disciplinas) no mapa e no cabeçalho */
@@ -90,7 +103,8 @@ body:has(dialog[open]) .proto-switch { display: none; }
   .proto-switch { left: 12px; padding-left: 4px; }
   .proto-switch > span { display: none; }
   .proto-switch a { padding: 0 12px; }
-  body { padding-bottom: 72px; } /* o seletor do protótipo não cobre o fim da página */
+  body[data-concept="corpo"] .mod { width: 116px; max-width: 40%; }
+  body[data-concept="corpo"] .mod b { font-size: 15px; letter-spacing: -.035em; }
 }
 @media (max-width: 400px) {
   /* marca + 4 ações cabem numa linha; "Todos os materiais" continua no índice e na busca */
@@ -120,18 +134,30 @@ body.diving #modules .mod.hot { transform-origin: center; }
 }
 
 /* Microanimações: anel do cursor, brilho que segue o ponteiro nos cartões e botões que varrem ao passar */
-.cursor-ring { position: fixed; left: 0; top: 0; z-index: 200; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; border: 1.5px solid color-mix(in oklab, var(--violet-2) 70%, transparent);
-  pointer-events: none; opacity: 0; display: grid; place-items: center; transition: width .35s var(--ease), height .35s var(--ease), margin .35s var(--ease), background-color .35s var(--ease), border-color .35s var(--ease), opacity .3s; mix-blend-mode: normal; }
+.cursor-ring { position: fixed; left: 0; top: 0; z-index: 200; width: 64px; height: 64px; margin: -32px 0 0 -32px;
+  pointer-events: none; opacity: 0; display: grid; place-items: center; transition: opacity .18s; }
+.cursor-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--violet-2); transform: scale(.44); transition: transform .24s var(--ease), background-color .2s, border-color .2s; }
 .cursor-ring.on { opacity: 1; }
-.cursor-ring span { font: 600 10px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--bg); opacity: 0; transition: opacity .25s; }
-.cursor-ring[data-mode="link"] { width: 52px; height: 52px; margin: -26px 0 0 -26px; border-color: var(--flow); }
-.cursor-ring[data-mode="open"] { width: 74px; height: 74px; margin: -37px 0 0 -37px; background: var(--flow); border-color: var(--flow); }
+.cursor-ring span { position: relative; font: 600 10px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--bg); opacity: 0; transition: opacity .18s; }
+.cursor-ring[data-mode="link"]::before { transform: scale(.65); border-color: var(--flow); }
+.cursor-ring[data-mode="open"]::before { transform: scale(1); background: var(--flow); border-color: var(--flow); }
 .cursor-ring[data-mode="open"] span { opacity: 1; }
-.cursor-ring[data-mode="text"] { width: 4px; height: 26px; margin: -13px 0 0 -2px; border-radius: 2px; }
-.mini-card, .book, .material { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -20%), color-mix(in oklab, var(--violet-2) 9%, transparent), transparent 55%), var(--paper); transform-style: preserve-3d; will-change: transform; }
+.cursor-ring[data-mode="text"] { opacity: 0; }
+.mini-card, .book, .material { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -20%), color-mix(in oklab, var(--violet-2) 9%, transparent), transparent 55%), var(--paper); }
+.mini-card, .book { transition: box-shadow .24s var(--ease); }
+.search-plate { transition: box-shadow .24s var(--ease); }
+.book:hover .book-cover { transform: perspective(500px) rotateY(-4deg); }
 .btn, .toggle { position: relative; overflow: hidden; isolation: isolate; }
 .btn::before, .toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--surface); transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }
 .btn:hover::before, .toggle:hover::before { transform: scaleX(1); transform-origin: left; }
 .btn.primary::before { background: color-mix(in oklab, var(--action) 80%, white); }
 .line { padding-bottom: .04em; }
 @media (prefers-reduced-motion: reduce) { .cursor-ring { display: none; } .btn::before, .toggle::before { transition: none; } }
+
+/* Movimento reduzido vale NO MESMO INSTANTE, sem esperar o JavaScript: qualquer entrada que o GSAP tenha deixado em
+   andamento (opacidade 0 e deslocamento inline) perde para estas regras. O JS só limpa o resto em seguida. */
+@media (prefers-reduced-motion: reduce) {
+  #intro-copy, .search-plate, #counts, #acervo-note, #modules .mod > *,
+  .section-heading h2, .index-row, .production-index, .mini-card, .book, .material, .group-h,
+  .module-hero > *, #units, .module-body { opacity: 1 !important; transform: none !important; translate: none !important; transition: none !important; }
+}

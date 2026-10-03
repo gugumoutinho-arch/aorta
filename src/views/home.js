@@ -9,7 +9,7 @@ import { childrenOf, moduleList, moduleNumber, pathOf, countLabel, inAcervo } fr
 import { miniCard, openLink, moduleToken } from "./cards.js";
 import { drawMap, mapVisible, wireMap, focusModuleLabel } from "./map.js";
 import { concept } from "./concept.js";
-import { revealHeadline, revealIn, countTo } from "../ui/motion.js";
+import { revealHeadline, cancelHeadline, revealIn, countTo } from "../ui/motion.js";
 
 const REVEAL = ".section-heading h2, .index-row, .production-index, .mini-card, .book";
 let revealed = false;
@@ -22,7 +22,7 @@ const COPY = {
     note: "Acervo feito por estudantes, sem vínculo oficial com a IDOMED.",
   },
   geral: {
-    h1: ["Os clássicos da medicina, ", "à mão."], intro: "Livros de referência, materiais próprios e o melhor da internet, por disciplina, para qualquer estudante de medicina.",
+    h1: ["A medicina ganha ", "corpo."], intro: "Explore a medicina por disciplina. Dos livros de referência às suas anotações, cada caminho abre uma parte do acervo.",
     note: "Livros apontam para onde podem ser lidos de forma legítima: biblioteca digital, editora ou edição aberta.",
   },
 };
@@ -44,17 +44,31 @@ export function homeSwitched() {
   $("#home-title").setAttribute("tabindex", "-1"); $("#home-title").focus({ preventScroll: true });
   if (reducedMotion()) return;
   revealHome();
-  gsap.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 16 },
-    { opacity: 1, y: 0, duration: .7, ease: "expo.out", stagger: .06, delay: .15, overwrite: true, clearProps: "opacity,transform" });
-  gsap.fromTo("#modules .mod", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .6, ease: "expo.out", stagger: .04, delay: .3, clearProps: "opacity,transform" });
+  // A entrada fica numa linha do tempo guardada: é ela que se cancela (por referência) se o aluno ligar "reduzir movimento" no meio.
+  entrance?.kill();
+  entrance = gsap.timeline({ onComplete: () => { entrance = null; } });
+  entrance.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 16 },
+    { opacity: 1, y: 0, duration: .7, ease: "expo.out", stagger: .06, clearProps: "opacity,transform" }, .15);
+  // As âncoras têm transform de layout. Só seu conteúdo pode se deslocar.
+  entrance.fromTo("#modules .mod > *", { opacity: 0 }, { opacity: 1, duration: .32, ease: "power2.out", stagger: .008, clearProps: "opacity" }, 0);
+}
+let entrance = null;
+/* Cancela a entrada em andamento e deixa tudo visível e sem estilo inline (movimento reduzido). */
+export function settleEntrance() {
+  entrance?.kill(); entrance = null;
+  const els = ["#intro-copy", ".search-plate", "#counts", "#acervo-note", "#modules .mod > *"].flatMap(sel => [...document.querySelectorAll(sel)]);
+  gsap.set(els, { clearProps: "opacity,transform" });
 }
 
 const mats = () => S.materials.filter(m => inAcervo(m));
 let copyFor = "";
 function renderCopy() {
-  if (copyFor === S.acervo + S.concept) return; // o título só muda com o acervo (e não desfaz a animação a cada redesenho)
-  copyFor = S.acervo + S.concept;
-  const c = COPY[S.acervo], a = ACERVOS[S.acervo];
+  const c = COPY[S.acervo], a = ACERVOS[S.acervo], key = S.acervo + S.concept;
+  // O título só é reescrito quando o acervo muda (não desfaz a animação a cada redesenho), mas o texto real do DOM
+  // também é conferido: se algo chegou fora de ordem sob carga, a tela se corrige sozinha.
+  if (copyFor === key && $("#home-title").textContent === c.h1[0] + c.h1[1]) return;
+  copyFor = key;
+  cancelHeadline($("#home-title"));
   $("#home-title").replaceChildren(c.h1[0], h("em", { text: c.h1[1] }));
   $("#intro-copy").textContent = c.intro;
   $("#acervo-note").textContent = c.note;
@@ -157,6 +171,9 @@ export function renderHome() {
 }
 export function wireHome() {
   wireMap();
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => {
+    if (e.matches) settleEntrance();
+  });
   // Título por linhas assim que as fontes chegam, sem esperar o banco (não pisca quando os dados chegam depois).
   if (S.view === "inicio") (document.fonts?.ready || Promise.resolve()).then(() => { renderCopy(); revealHeadline($("#home-title"), .05); });
   // "Ctrl K" só aparece onde há teclado físico provável.

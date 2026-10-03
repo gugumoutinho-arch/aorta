@@ -5,7 +5,9 @@ import { cmpName } from "./core/text.js";
 import { materialWrites } from "./core/actions.js";
 import { renderBanner } from "./views/banner.js";
 import { renderHome, homeLeft, homeReturned, homeSwitched } from "./views/home.js";
-import { renderModule, moduleEntered } from "./views/module.js";
+import { renderModule, moduleEntered, moduleLeft } from "./views/module.js";
+import { syncConcept } from "./views/concept.js";
+import { cancelDive } from "./views/map.js";
 import { renderOrg } from "./views/organize.js";
 import { renderDetail } from "./views/detail.js";
 import { renderDatalists } from "./views/form.js";
@@ -20,6 +22,7 @@ export function syncAcervoTabs(animate = true) {
 }
 
 export function renderNav() {
+  syncConcept();
   document.body.dataset.view = S.view;
   document.body.dataset.acervo = S.acervo;
   syncAcervoTabs();
@@ -56,6 +59,7 @@ export function setAcervo(acervo) {
   S.acervo = acervo; remember("aorta-acervo", acervo); return true;
 }
 export function route(focus) {
+  cancelDive();
   let hs = "";
   try { hs = decodeURIComponent(location.hash.slice(1)); } catch (_) { /* endereço colado pela metade: vai para o início */ }
   const was = S.view;
@@ -64,6 +68,7 @@ export function route(focus) {
   else if (hs.startsWith("a-")) { S.view = "modulo"; S.pendingArea = hs.slice(2); }
   else { S.view = "inicio"; if (ACERVOS[hs]) S.acervoSwitched = setAcervo(hs); }
   if (was === "inicio" && S.view !== "inicio") homeLeft();
+  if (was === "modulo" && S.view !== "modulo") moduleLeft();
   renderAll();
   if (!focus) return;
   if (S.view === "modulo") moduleEntered();

@@ -1,94 +1,89 @@
-/* Camada de movimento (protótipo v4). Tudo explica algo: o título entra por linhas, os números contam até o valor real,
-   o conteúdo aparece em cascata quando entra na tela, rótulos e cartões respondem ao ponteiro, e um anel acompanha o
-   cursor e cresce sobre o que é clicável. Movimento reduzido ou toque: nada disso roda. */
+/* Movimento com continuidade: a resposta segue o gesto, entradas não disputam o layout. */
 import gsap from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { reducedMotion } from "../core/state.js";
-
+import { spring } from "./spring.js";
 gsap.registerPlugin(SplitText);
-const fine = () => matchMedia("(hover: hover) and (pointer: fine)").matches;
-const still = () => reducedMotion();
-
-/* Título: linhas sobem de dentro de uma máscara (o leitor de tela lê o texto inteiro, sem os pedaços). */
-let splits = new WeakMap();
+const splits = new Map(), counters = new Map(), pending = new Set(), entering = new Set(), revealed = new WeakSet();
+export function cancelHeadline(el) {
+  const split = splits.get(el);
+  if (split) { gsap.killTweensOf(split.lines); split.revert(); splits.delete(el); }
+}
 export function revealHeadline(el, delay = 0) {
-  if (!el || still()) return;
-  splits.get(el)?.revert();
+  if (!el) return;
+  cancelHeadline(el);
+  if (reducedMotion()) return;
   const split = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line", aria: "auto" });
   splits.set(el, split);
-  gsap.fromTo(split.lines, { yPercent: 105, rotate: 2 }, { yPercent: 0, rotate: 0, duration: 1.15, ease: "expo.out", stagger: .09, delay,
+  gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: .72, ease: "power3.out", stagger: .065, delay,
     onComplete: () => { split.revert(); splits.delete(el); } });
 }
-
-/* Números: contam do anterior (ou zero) até o valor, em tabulares. */
-const last = new WeakMap();
 export function countTo(el, value) {
   if (!el) return;
-  const from = last.get(el) ?? 0; last.set(el, value);
-  if (still() || from === value) { el.textContent = String(value); return; }
-  const o = { v: from };
-  gsap.to(o, { v: value, duration: .9, ease: "power3.out", overwrite: true, onUpdate: () => { el.textContent = String(Math.round(o.v)); } });
+  const old = counters.get(el);
+  if (old?.target === value) return;
+  old?.tween.kill();
+  const state = { v: Number(el.textContent) || 0 };
+  if (reducedMotion() || state.v === value) { el.textContent = String(value); counters.delete(el); return; }
+  const tween = gsap.to(state, { v: value, duration: .48, ease: "power2.out",
+    onUpdate: () => { el.textContent = String(Math.round(state.v)); }, onComplete: () => counters.delete(el) });
+  counters.set(el, { tween, target: value });
 }
-
-/* Cascata ao entrar na tela: só nos elementos presentes quando a tela é aberta (redesenhos depois não piscam). */
-const io = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver(entries => {
+const io = new IntersectionObserver(entries => {
   const shown = entries.filter(e => e.isIntersecting).map(e => e.target);
-  shown.forEach(t => io.unobserve(t));
-  if (shown.length) gsap.to(shown, { opacity: 1, y: 0, duration: .8, ease: "expo.out", stagger: .06, overwrite: true, clearProps: "opacity,transform" });
-}, { rootMargin: "0px 0px -8% 0px" }) : null;
+  shown.forEach(el => { io.unobserve(el); pending.delete(el); entering.add(el); });
+  if (shown.length) gsap.to(shown, { opacity: 1, y: 0, duration: .48, ease: "power2.out", stagger: .035, overwrite: "auto", onComplete: () => shown.forEach(el => { entering.delete(el); gsap.set(el, { clearProps: el.matches(":hover") ? "opacity" : "opacity,transform" }); }) });
+}, { rootMargin: "0px 0px -3% 0px" });
 export function revealIn(root, selector) {
-  if (!root || !io || still()) return;
-  const items = [...root.querySelectorAll(selector)].filter(el => !el.closest("[hidden]"));
-  gsap.set(items, { opacity: 0, y: 26 });
-  items.forEach(el => io.observe(el));
+  if (!root || reducedMotion()) return;
+  for (const el of pending) if (!el.isConnected) { io.unobserve(el); pending.delete(el); }
+  const items = [...root.querySelectorAll(selector)].filter(el => !revealed.has(el) && !el.closest("[hidden]"));
+  gsap.set(items, { opacity: 0, y: 12 });
+  items.forEach(el => { revealed.add(el); pending.add(el); io.observe(el); });
 }
-
-/* Rótulos magnéticos e cartões que inclinam, por delegação (sobrevivem aos redesenhos). */
-function wireMagnetic() {
-  let current = null;
-  document.addEventListener("pointermove", e => {
-    if (!fine() || still()) return;
-    const label = e.target.closest?.("#modules .mod");
-    if (current && current !== label) { gsap.to(current.children, { x: 0, y: 0, duration: .6, ease: "elastic.out(1, .45)", overwrite: true }); current = null; }
-    if (!label) return;
-    current = label;
-    const r = label.getBoundingClientRect(), dx = (e.clientX - (r.left + r.width / 2)) / r.width, dy = (e.clientY - (r.top + r.height / 2)) / r.height;
-    gsap.to(label.children, { x: dx * 10, y: dy * 6, duration: .35, ease: "power3.out", overwrite: true, stagger: .02 });
-  }, { passive: true });
+export function wireMotion() {
+  gsap.matchMedia().add("(prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine)", () => {
+    const abort = new AbortController(), listen = (el, type, fn) => el.addEventListener(type, fn, { signal: abort.signal, passive: true });
+    let label = null, card = null;
+    const offset = { x: 0, y: 0 }, tilt = { x: 0, y: 0 };
+    const magnet = spring(offset, () => { if (label) gsap.set(label.children, { x: offset.x, y: offset.y }); });
+    const lean = spring(tilt, () => { if (card) gsap.set(card, { rotateX: tilt.x, rotateY: tilt.y, transformPerspective: 1100 }); });
+    const releaseLabel = (instant = false) => { if (label) gsap.to(label.children, { x: 0, y: 0, duration: instant ? 0 : .24, ease: "power2.out", overwrite: "auto", clearProps: "x,y" }); label = null; magnet.settle({ x: 0, y: 0 }); };
+    const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : .3, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
+    const ring = document.createElement("div"); ring.className = "cursor-ring"; ring.setAttribute("aria-hidden", "true");
+    const tag = document.createElement("span"); ring.append(tag); document.body.append(ring);
+    const cursor = { x: 0, y: 0 }, follow = spring(cursor, () => gsap.set(ring, cursor), { stiffness: 520, damping: 43 });
+    let seen = false, mode = "";
+    listen(document, "pointermove", e => {
+      const nextLabel = e.target.closest?.("#modules .mod");
+      if (label !== nextLabel) { releaseLabel(); if (nextLabel) gsap.killTweensOf(nextLabel.children, "x,y"); }
+      label = nextLabel;
+      if (label) { const r = label.getBoundingClientRect(); magnet.to({ x: (e.clientX - r.left - r.width / 2) / r.width * 5, y: (e.clientY - r.top - r.height / 2) / r.height * 4 }); }
+      const nextCard = e.target.closest?.(".mini-card, .book");
+      if (card !== nextCard) { releaseCard(); if (nextCard) gsap.killTweensOf(nextCard, "rotateX,rotateY,transformPerspective"); }
+      card = nextCard;
+      if (card) {
+        const r = card.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+        card.style.setProperty("--mx", x * 100 + "%"); card.style.setProperty("--my", y * 100 + "%");
+        lean.to({ x: (.5 - y) * 2.5, y: (x - .5) * 3 });
+      }
+      if (!seen) { follow.settle({ x: e.clientX, y: e.clientY }); seen = true; }
+      follow.to({ x: e.clientX, y: e.clientY }); ring.classList.add("on");
+      const hit = e.target.closest?.("#modules .mod, a, button, input, select, label");
+      const next = !hit ? "" : hit.matches("#modules .mod") ? "open" : hit.matches("input, select") ? "text" : "link";
+      if (next !== mode) { mode = next; ring.dataset.mode = next; tag.textContent = next === "open" ? "abrir" : ""; }
+    });
+    const leave = () => { ring.classList.remove("on"); seen = false; magnet.to({ x: 0, y: 0 }); lean.to({ x: 0, y: 0 }); };
+    listen(document.documentElement, "pointerleave", leave);
+    listen(window, "blur", leave);
+    return () => { abort.abort(); releaseLabel(true); releaseCard(true); magnet.dispose(); lean.dispose(); follow.dispose(); ring.remove(); };
+  });
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => {
+    if (!e.matches) return;
+    for (const el of splits.keys()) cancelHeadline(el);
+    for (const [el, c] of counters) { c.tween.kill(); el.textContent = String(c.target); } counters.clear();
+    io.disconnect();
+    const all = [...pending, ...entering];
+    gsap.killTweensOf(all); gsap.set(all, { clearProps: "opacity,transform" }); pending.clear(); entering.clear();
+  });
 }
-const TILT = ".mini-card, .book, .material, .resume";
-function wireTilt() {
-  let card = null;
-  const release = () => { if (!card) return; gsap.to(card, { rotateX: 0, rotateY: 0, duration: .7, ease: "elastic.out(1, .55)", overwrite: "auto" }); card.style.removeProperty("--mx"); card = null; };
-  document.addEventListener("pointermove", e => {
-    if (!fine() || still()) return;
-    const el = e.target.closest?.(TILT);
-    if (el !== card) release();
-    if (!el) return;
-    card = el;
-    const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-    el.style.setProperty("--mx", (x * 100).toFixed(1) + "%"); el.style.setProperty("--my", (y * 100).toFixed(1) + "%");
-    gsap.to(el, { rotateY: (x - .5) * 5, rotateX: (.5 - y) * 4, transformPerspective: 900, duration: .4, ease: "power2.out", overwrite: "auto" });
-  }, { passive: true });
-  document.addEventListener("pointerleave", release);
-}
-
-/* Anel que segue o cursor (o cursor do sistema continua lá): cresce sobre links e botões e diz "abrir" nos módulos. */
-function wireCursor() {
-  if (!fine() || still()) return;
-  const ring = document.createElement("div"); ring.className = "cursor-ring"; ring.setAttribute("aria-hidden", "true");
-  const tag = document.createElement("span"); ring.append(tag); document.body.append(ring);
-  const x = gsap.quickTo(ring, "x", { duration: .45, ease: "power3.out" }), y = gsap.quickTo(ring, "y", { duration: .45, ease: "power3.out" });
-  let mode = "";
-  document.addEventListener("pointermove", e => {
-    x(e.clientX); y(e.clientY); ring.classList.add("on");
-    const hit = e.target.closest?.("#modules .mod, a, button, [role=option], label, summary, input, select");
-    const next = !hit ? "" : hit.matches("#modules .mod") ? "open" : hit.matches("input, select") ? "text" : "link";
-    if (next === mode) return; mode = next;
-    ring.dataset.mode = mode; tag.textContent = mode === "open" ? "abrir" : "";
-  }, { passive: true });
-  document.addEventListener("pointerdown", () => gsap.fromTo(ring, { scale: .8 }, { scale: 1, duration: .5, ease: "elastic.out(1, .5)" }));
-  document.documentElement.addEventListener("pointerleave", () => ring.classList.remove("on"));
-}
-
-export function wireMotion() { wireMagnetic(); wireTilt(); wireCursor(); }

@@ -5,6 +5,25 @@ description: Coração-mapa — o curso como um coração em que cada artéria �
 
 # Aorta — sistema visual implementado
 
+## Refino v4 — ramo local `prototipo-v4`, 02/10/2026
+
+- **IDOMED:** coração, módulos e identidade Aorta preservados.
+- **Medicina geral:** corpo inteiro, disciplinas em duas colunas equilibradas, rótulos Schibsted completos, introdução mais estreita para dar espaço ao mapa. Título “A medicina ganha corpo”. A distribuição é visual; não restringe uma disciplina ao órgão associado.
+- **Navegação:** abas escolhem também o mapa; links diretos sincronizam o acervo. Removido o seletor flutuante de conceitos.
+- **Movimento:** mola amortecida sem loop ocioso no cursor, inclinação do modelo e resposta dos cartões; pressão de botão mantida até soltar. Entradas de órgãos por opacidade, mantendo o volume. Mergulho de 650 ms, interrompível por Esc, novo destino ou outra navegação. Transição de título de 480 ms, sem entrada concorrente do mesmo título.
+- **Tema claro do órgão:** token da disciplina aplicado corretamente; shader limita a luz de borda para preservar a cor da parte selecionada.
+- **Referência de layout:** sem referência externa nova; evolução do V4 existente segundo a escolha do dono. Orientação de movimento das skills ECC `make-interfaces-feel-better` e `motion-patterns`, usando apenas GSAP/Three já instalados.
+
+| Antes | Agora |
+|---|---|
+| Conceito independente do acervo | Coração no IDOMED, corpo na Medicina geral |
+| Rótulos agrupados perto dos órgãos | Duas colunas com espaçamento distribuído |
+| Ponteiro reinicia tween a cada evento | Mola mantém continuidade e velocidade |
+| Botão retorna antes de soltar | Pressionado enquanto o gesto dura |
+| Câmera termina uma navegação já abandonada | Interrupção invalida o destino pendente |
+
+As seções seguintes descrevem a base v3 que foi preservada; os ajustes acima prevalecem no ramo v4.
+
 Atualizado em 02/10/2026 por Claude, na migração para Vite. Implementa a v3 do Codex (protótipo em `versoes/prototipos-2026-10-02/aorta-v3/`) sobre o site real, com as correções da revisão. A fonte das regras é a skill `.claude/skills/aorta-design/SKILL.md`; este arquivo descreve **o que está no código**. O sistema anterior ("Atlas digital", estante de capas, índice de dedo) está em `versoes/claude-2026-10-02-antes-vite.html`.
 
 ## Direção

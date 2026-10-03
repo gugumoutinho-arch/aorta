@@ -2,6 +2,35 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude — Integração do relatório do Codex (coração no IDOMED, corpo na Medicina geral) — ramo `prototipo-v4`, não publicado
+
+- **Origem:** o Codex entregou a rodada sem commit e sem validação completa (o próprio relatório dizia: falha em `acervos.mjs`, Lighthouse não rodado). Conferi o relatório contra `git status`/`git diff`: 21 arquivos modificados e 2 novos, exatamente como descrito; nada fora do relatado. `.arena/` e `.impeccable/` ficaram de fora do commit.
+- **Falha que o Codex deixou aberta, resolvida:** "Reduzir durante entrada deixa conteúdo visível" (`tools/acervos.mjs`). Causa em duas camadas, ambas reproduzidas rodando:
+  1. O cancelamento da entrada usava seletores e não pegava a animação em andamento. Agora a entrada da home é uma linha do tempo guardada e cancelada por referência (`settleEntrance` em `src/views/home.js`).
+  2. O navegador entrega o evento de "reduzir movimento" **depois** de a preferência valer (no teste, com o 3D por software ocupando a thread, até centenas de ms), e `transition: all` ainda segurava a opacidade por um quadro. Regra nova no fim de `src/styles/proto.css`: sob `prefers-reduced-motion: reduce` o conteúdo de entrada fica visível e sem transição **no mesmo instante, só com CSS**.
+  O teste esperava 60 ms fixos pela remoção do 3D e do cursor (que depende do evento); agora espera a condição por até 3 s.
+- **Fragilidade corrigida:** uma execução isolada falhou em "trocas rápidas preservam último acervo e título" (título com o texto do outro acervo) e não repetiu em 6 execuções seguintes (isolado e suíte). Reforço em `renderCopy`: confere o texto real do DOM, não só o cache `copyFor`.
+- **Revisão independente (`code-reviewer`, só leitura):** nenhum achado crítico ou alto; sem regressão em rotas, troca de acervo, busca, ficha, favoritos e filtros. Médios corrigidos:
+  - o hover interrompia a entrada e deixava rótulos e cartões semitransparentes (`killTweensOf` agora só nas propriedades do hover);
+  - o fim da entrada apagava a inclinação do cartão (o transform só é limpo se o cartão não está sob o mouse).
+  Baixo corrigido: divisão por zero em `indicator.js`.
+  **Ficaram, por escolha:** código morto do conceito folha (`src/leaf/`, `CONCEPTS.folha`, `.proto-switch` no CSS) — os protótipos continuam em `versoes/`; a regra de movimento reduzido remove `transition` de todo o conteúdo de entrada (mais ampla que o necessário, sem efeito funcional visível); os rótulos do corpo alternam de lado por índice e as linhas-guia podem cruzar o desenho (conferir no navegador); o cabeçalho do módulo anima menos que antes.
+- **Testado (dados fictícios; nenhum acesso ao Supabase):** `npm run check` 0 erros e 0 avisos; `node flows.mjs` 364/364; `node acervos.mjs` 67/67 (os dois acervos, 320/375/1440 px, claro e escuro, WCAG, rótulos, 3D, interrupções, pressão do botão, movimento reduzido durante a entrada); Lighthouse com os dados dos dois acervos: **IDOMED (coração)** celular 94 e computador 98; **Medicina geral (corpo)** celular 91 e computador 98; acessibilidade e boas práticas 100 em todos (SEO 60 por causa do `noindex` intencional).
+- **Não testado:** iPhone/Safari e aparelho físico, bateria, 4G real, INP de uso real, leitor de tela real, Supabase real, qualidade e sensação das animações (capturas e automação não provam fluidez), Firefox.
+- **Licenças dos modelos 3D:** CC BY 4.0 confirmado por busca só para o cérebro v1.3; a pele e o United Male v1.7 precisam ser conferidos objeto por objeto antes de qualquer lançamento público.
+
+## 2026-10-02 — Codex — Coração no IDOMED, corpo na Medicina geral e movimento contínuo — ramo `prototipo-v4`, não publicado
+
+- **Pedido do dono:** manter o coração no IDOMED, corpo no acervo geral por disciplinas e refinar o design/animações com ECC porque pareciam robóticas.
+- **Mapas:** conceito acompanha o acervo, inclusive links diretos; parâmetro antigo de conceito não sobrepõe a escolha. Removido seletor flutuante. Corpo ganhou mais largura, disciplinas com nomes completos em duas colunas equilibradas, busca/introdução mais compactas e título “A medicina ganha corpo”. As associações com órgãos são visuais e não limitam o conteúdo das disciplinas.
+- **Movimento:** mola amortecida preserva velocidade ao mudar o ponteiro e deixa de pedir frames no repouso. Botões mantêm pressão até soltar/cancelar. Entradas não sobrescrevem transforms de layout dos rótulos; hover não reinicia batida ao atravessar filhos do link. Órgãos entram por opacidade, preservando volume. Mergulho de 650 ms aceita novo destino e cancelamento por Esc/outra navegação; nenhuma promessa antiga pode abrir uma página abandonada.
+- **Cérebro e recursos:** corrigido token da disciplina que estava dentro de um comentário, luz de borda limitada para manter cor no tema claro, drag cancelável, carregamentos obsoletos descartados e recursos/tweens liberados ao sair. Ativar movimento reduzido durante entradas, câmera ou seleção encerra os efeitos: o CSS garante o conteúdo visível no mesmo instante e o JavaScript cancela o 3D, o cursor e as animações em seguida (ver a entrada de integração abaixo).
+- **Correção de layout:** textos acessíveis de botões das matérias ficam contidos no botão, eliminando rolagem lateral na tela Todos em 375 px.
+- **Skills/revisão:** ECC `make-interfaces-feel-better` + `motion-patterns` e `aorta-design`; sem biblioteca nova. Revisor `aorta_design_review` aprovou a revisão estática após corrigir limpeza ao ativar movimento reduzido, tween residual e espera de captura. Não houve revisão humana da sensação do movimento. Referência de layout: evolução do V4 existente, sem referência externa nova.
+- **Verificação:** `npm run check`: 24 telas, zero erros/avisos; `node flows.mjs`: 364/364. Matriz adicional `node acervos.mjs` com seed-v4 verifica os dois acervos, 320/375/1440 px, claro/escuro, WCAG, rótulos, 3D, interrupções, press e mudança dinâmica de movimento reduzido. Relatórios/capturas em `tools/reports/refino/`. Lighthouse medido na integração (ver entrada abaixo).
+- **Prévia:** `http://127.0.0.1:4177/#idomed` e `/#geral`, com dados fictícios de seed-v4. `tools/demo.mjs` aceita `AORTA_PREVIEW_PORT` para abrir uma instância independente. Nenhuma alteração em catálogo real, RLS, esquema ou publicação.
+- **Não verificado:** iPhone/Safari e aparelho físico, bateria, conexão 4G real e INP de uso real, dados/autenticação Supabase, publicação. Lighthouse é medição de laboratório; capturas não demonstram a sensação das animações.
+
 ## 2026-10-02 — Claude — Migração para Vite e Aorta v3 no site (coração-mapa, módulo, ficha, tema claro) — não publicado
 
 - **Pedido do dono:** "faça a próxima rodada" depois da rodada de protótipos do Codex. Ele escolheu "Vite + implementar v3", deixou a escolha da base comigo ("oq você achar melhor") e pediu para salvar os protótipos antigos para poder voltar.

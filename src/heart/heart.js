@@ -4,6 +4,7 @@
 import { WebGLRenderer, Scene, PerspectiveCamera, Group, Vector3, Color, ShaderMaterial, MeshBasicMaterial, Mesh,
   CatmullRomCurve3, TubeGeometry, MathUtils, SRGBColorSpace } from "three";
 import gsap from "gsap";
+import { spring } from "../ui/spring.js";
 import { loadGLB } from "./glb.js";
 import { ATRIA, VENTRICLES, VALVES, chamberGeometry, traceArtery } from "./geometry.js";
 import { pathKey } from "../core/arteries.js";
@@ -81,6 +82,7 @@ async function assemble(o, glb, renderer) {
   };
   const draw = () => { frame = 0; if (!canDraw()) return; root.rotation.set(look.y, look.x, 0); renderer.render(scene, camera); project(); };
   const request = () => { if (!frame && canDraw()) frame = requestAnimationFrame(draw); };
+  const follow = spring(look, request, { stiffness: 160, damping: 25 });
   let baseScale = 1;
   const resize = () => {
     const w = o.map.clientWidth, h = o.map.clientHeight; if (!w || !h) return;
@@ -114,9 +116,11 @@ async function assemble(o, glb, renderer) {
   const pointer = e => {
     if (paused || !canDraw() || e.pointerType === "touch") return;
     const b = o.map.getBoundingClientRect();
-    gsap.to(look, { x: ((e.clientX - b.left) / b.width - .5) * .24, y: ((e.clientY - b.top) / b.height - .5) * .12, duration: .6, ease: "power2.out", overwrite: true, onUpdate: request });
+    follow.to({ x: ((e.clientX - b.left) / b.width - .5) * .24, y: ((e.clientY - b.top) / b.height - .5) * .12 });
   };
   o.map.addEventListener("pointermove", pointer);
+  const leave = () => follow.to({ x: 0, y: 0 });
+  o.map.addEventListener("pointerleave", leave);
   const lost = e => { e.preventDefault(); api.dispose(); o.onLost?.(); };
   renderer.domElement.addEventListener("webglcontextlost", lost);
 
@@ -142,7 +146,9 @@ async function assemble(o, glb, renderer) {
       request();
     },
     dispose() {
-      if (destroyed) return; destroyed = true; stop(); beatTl?.kill(); gsap.killTweensOf([look, heart.scale]);
+      if (destroyed) return; destroyed = true; stop(); beatTl?.kill(); follow.dispose(); gsap.killTweensOf([look, heart.scale]);
+      vessels.forEach(v => { if (v) gsap.killTweensOf(Object.values(v.mat.uniforms)); });
+      o.map.removeEventListener("pointerleave", leave);
       io.disconnect(); ro.disconnect(); document.removeEventListener("visibilitychange", sync);
       o.map.removeEventListener("pointermove", pointer); renderer.domElement.removeEventListener("webglcontextlost", lost);
       scene.traverse(n => { n.geometry?.dispose(); n.material?.dispose(); });

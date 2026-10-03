@@ -5,10 +5,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import lighthouse from 'lighthouse';
-import { reports, startServer, chromePath } from './harness.mjs';
+import { reports, startServer, chromePath, withDb } from './harness.mjs';
 
 fs.mkdirSync(reports, { recursive: true });
-const { server, url } = await startServer();
+const v4 = process.env.LH_V4 === '1';
+const { server, url } = await startServer(v4 ? { inject: withDb(JSON.parse(fs.readFileSync(new URL('./seed-v4.json', import.meta.url), 'utf8'))) } : {});
+const reportPrefix = v4 ? 'lighthouse-v4-' : 'lighthouse-';
 const port = 9333;
 const chrome = spawn(chromePath(), [`--remote-debugging-port=${port}`, '--headless=new', '--no-first-run', '--disable-gpu', `--user-data-dir=${path.join(reports, 'lh-profile')}`, 'about:blank'], { stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 2500));
@@ -26,9 +28,9 @@ try {
     out.push(`${mode.padEnd(8)} desempenho ${score('performance')} | acessibilidade ${score('accessibility')} | boas práticas ${score('best-practices')} | SEO ${score('seo')}` +
       `  (LCP ${a['largest-contentful-paint']?.displayValue ?? '-'}, CLS ${a['cumulative-layout-shift']?.displayValue ?? '-'}, TBT ${a['total-blocking-time']?.displayValue ?? '-'})` +
       (fails.length ? `\n         a corrigir: ${fails.slice(0, 5).join('; ')}` : ''));
-    fs.writeFileSync(path.join(reports, `lighthouse-${mode}.json`), JSON.stringify(run.lhr));
+    fs.writeFileSync(path.join(reports, `${reportPrefix}${mode}.json`), JSON.stringify(run.lhr));
   }
 } finally { chrome.kill(); server.close(); }
 const text = out.join('\n');
-fs.writeFileSync(path.join(reports, 'lighthouse-summary.txt'), text + '\n');
+fs.writeFileSync(path.join(reports, reportPrefix + 'summary.txt'), text + '\n');
 console.log(text + '\n\nDetalhes em tools/reports/lighthouse-*.json');
