@@ -6,7 +6,7 @@ import { WebGLRenderer, Scene, PerspectiveCamera, Group, Vector3, Color, ShaderM
   CatmullRomCurve3, TubeGeometry, SphereGeometry, MeshBasicMaterial, AdditiveBlending, MathUtils, SRGBColorSpace } from "three";
 import gsap from "gsap";
 import { loadGLB } from "../heart/glb.js";
-import { DESTINATIONS } from "./routes.js";
+import { DESTINATIONS, organOwners } from "./routes.js";
 import { spring } from "../ui/spring.js";
 
 const IDLE_MS = 2600, DIST = 3.7;
@@ -53,7 +53,7 @@ async function assemble(o, glb, renderer) {
   const h = meshGeometry(glb.heart, true), heart = new Mesh(h.geometry, rim("--ventricle", "--flow", 1)); heart.position.copy(h.center); heart.renderOrder = 4; body.add(heart);
   await breathe();
   // Órgãos: discretos quando não são destino; destino de módulo ganha a cor do módulo e acende quando o pulso chega.
-  const owner = {}; o.modules.forEach((m, i) => (DESTINATIONS[m.dest]?.organ || []).forEach(k => { owner[k] = i; }));
+  const owner = organOwners(o.modules);
   const organs = {};
   for (const key of ORGANS) {
     const i = owner[key], g = meshGeometry(glb[key], true);
@@ -62,6 +62,8 @@ async function assemble(o, glb, renderer) {
     organs[key] = { mesh, owner: i };
     await breathe();
   }
+  // O coração é a bomba de todos, mas também pode ser destino (Cardiologia): aí acende com o módulo, como um órgão.
+  if (owner.heart !== undefined) { heart.material.uniforms.rim.value.set(css(o.modules[owner.heart].token)); organs.heart = { mesh: heart, owner: owner.heart, pump: true }; }
   const organsOf = i => Object.values(organs).filter(x => x.owner === i);
 
   let live = o.modules.map(m => m.live);
@@ -161,7 +163,7 @@ async function assemble(o, glb, renderer) {
       skin.material.uniforms.base.value.set(css("--atrium")); skin.material.uniforms.rim.value.set(css("--violet-2"));
       heart.material.uniforms.base.value.set(css("--ventricle")); heart.material.uniforms.rim.value.set(css("--flow"));
       vessels.forEach(v => { v.mat.uniforms.col.value.set(css(v.token)); v.node.material.color.set(css(v.token)); });
-      Object.values(organs).forEach(x => { x.mesh.material.uniforms.base.value.set(css("--atrium")); x.mesh.material.uniforms.rim.value.set(css(x.owner === undefined ? "--violet-2" : o.modules[x.owner].token)); });
+      Object.values(organs).forEach(x => { x.mesh.material.uniforms.base.value.set(css(x.pump ? "--ventricle" : "--atrium")); x.mesh.material.uniforms.rim.value.set(css(x.owner === undefined ? "--violet-2" : o.modules[x.owner].token)); });
       request();
     },
     dispose() {
@@ -181,7 +183,7 @@ async function assemble(o, glb, renderer) {
   if (!o.isCurrent()) { api.dispose(); return null; }
   // Entrada: o corpo aparece, as artérias crescem do coração até os destinos, um a um; depois a primeira batida.
   gsap.fromTo(skin.material.uniforms.alpha, { value: 0 }, { value: .72, duration: 1.2, ease: "power2.out", onUpdate: request });
-  Object.values(organs).forEach(x => gsap.from(x.mesh.material.uniforms.alpha, { value: 0, duration: .8, ease: "power2.out", onUpdate: request }));
+  Object.values(organs).filter(x => !x.pump).forEach(x => gsap.from(x.mesh.material.uniforms.alpha, { value: 0, duration: .8, ease: "power2.out", onUpdate: request }));
   vessels.forEach((v, i) => {
     gsap.to(v.mat.uniforms.grow, { value: 1, delay: .12 + i * .025, duration: .85, ease: "power2.inOut", onUpdate: request });
     gsap.to(v.node.scale, { x: 1, y: 1, z: 1, delay: .8 + i * .025, duration: .3, ease: "power2.out", onUpdate: request });

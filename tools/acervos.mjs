@@ -85,5 +85,23 @@ try {
   ok('Reduzir durante entrada remove cursor e 3D',await p.locator('.cursor-ring, #map canvas').count()===0);
   ok('Fluxos 3D sem erros',errors.length===0 || (console.log(errors),false));
   await ctx.close();
+  // N5 · Cardiologia (disciplina fictícia) aponta para o coração: rótulo, destaque ao apontar e mergulho até o coração.
+  const cardioData={...data,areas:[...data.areas,{id:'g-cardio',name:'Cardiologia',parentId:'',acervo:'geral',order:99}],
+    materials:[...data.materials,{...data.materials[0],id:'cx1',title:'Exemplo — eletrocardiograma',areaId:'g-cardio',url:'https://example.com/ecg',collectionIds:[]}]};
+  const cardio=await startServer({inject:withDb(cardioData)});
+  try {
+    const c=await browser.newContext({viewport:{width:1440,height:1000},colorScheme:'dark'}),q=await c.newPage(),errs=[];q.on('pageerror',e=>errs.push(e.message));
+    await q.goto(cardio.url+'#geral');await q.waitForSelector('#map.ready canvas',{timeout:30000});
+    const label=q.locator('#modules [data-module="g-cardio"]');
+    ok('Cardiologia: rótulo do destino é Coração',/^CORAÇÃO|^Coração/i.test((await label.innerText()).trim()));
+    await label.hover();await q.waitForFunction(()=>document.querySelector('#modules [data-module="g-cardio"]').classList.contains('hot'),null,{timeout:3000});
+    ok('Cardiologia: apontar realça o caminho até o coração',await q.locator(`[data-guide="${await label.getAttribute('data-index')}"].hot`).count()===1);
+    await q.waitForTimeout(400);await q.screenshot({path:'reports/refino/cardio-destaque.png'});
+    await label.click();await q.waitForSelector('#organ-view canvas',{timeout:30000});
+    ok('Cardiologia: mergulho abre o módulo com o coração em destaque',await q.locator('#module-title').innerText()==='Cardiologia'&&/CORAÇÃO|Coração/i.test(await q.locator('#artery-name').innerText()));
+    await q.waitForTimeout(600);await q.screenshot({path:'reports/refino/cardio-modulo.png'});
+    ok('Cardiologia sem erros',errs.length===0||(console.log(errs),false));
+    await c.close();
+  } finally {cardio.server.close();}
 } finally {await browser.close();server.close();fs.writeFileSync('reports/refino/checks.json',JSON.stringify(checks,null,2));}
 console.log(checks.length+' verificações aprovadas.');

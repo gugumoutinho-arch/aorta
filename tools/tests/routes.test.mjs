@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { destinationsFor, DESTINATIONS } from '../../src/body/routes.js';
+import { destinationsFor, DESTINATIONS, organOwners } from '../../src/body/routes.js';
 
 const mods = names => names.map((name, index) => ({ id: 'g' + index, name, index }));
 const byName = (list, out) => Object.fromEntries(list.map((m, i) => [m.name, out[i]]));
@@ -48,4 +48,16 @@ test('nome desconhecido recebe um destino livre (sem repetir enquanto houver)', 
 test('ordem padrão do curso continua: M1 vai para o pé', () => {
   const list = mods(['M1', 'M2', 'M3']);
   assert.deepEqual(destinationsFor(list), ['pe', 'mao', 'cerebro']);
+});
+
+test('o coração vira órgão do módulo Cardiologia (destaque, pulso e cor do módulo no corpo 3D)', () => {
+  const list = mods(['Neuroanatomia', 'Cardiologia', 'Semiologia']);
+  destinationsFor(list).forEach((d, i) => { list[i].dest = d; });
+  const owner = organOwners(list);
+  assert.equal(owner.heart, 1);
+  assert.equal(owner.lungs, 2, 'Semiologia continua no pulmão');
+  assert.equal(owner.brain_tel, 0);
+  const sem = mods(['Neuroanatomia', 'Semiologia']);
+  destinationsFor(sem).forEach((d, i) => { sem[i].dest = d; });
+  assert.equal(organOwners(sem).heart, undefined, 'sem Cardiologia, o coração é só a bomba');
 });

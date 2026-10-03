@@ -48,6 +48,14 @@ export function destinationsFor(mods) {
   return mods.map(m => out.get(m));
 }
 
+/* Dono de cada malha acesa: órgão (ou o coração, para Cardiologia) → índice do módulo cujo destino o inclui.
+   O corpo usa isto para realçar, pulsar e colorir o destino; o coração deixa de ser só a bomba quando é destino. */
+export function organOwners(mods) {
+  const owner = {};
+  mods.forEach((m, i) => (DESTINATIONS[m.dest]?.organ || []).forEach(k => { owner[k] = i; }));
+  return owner;
+}
+
 /* Divisões do encéfalo (para a página do módulo que leva ao cérebro): unidade com esse nome acende a parte. */
 export const BRAIN_PARTS = [
   { key: "brain_tel", label: "Telencéfalo", match: /telenc|cortex|cerebr(o|al) |hemisf/ },
