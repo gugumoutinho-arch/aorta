@@ -2,6 +2,15 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N2 · Formulário com assuntos sobre a gravação nova — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:**
+  - o formulário (`src/views/form.js`, já com fichas, "Novo assunto" e o aviso do N3 desde `80bc24c`) passou a gravar pelo `setLinksInArea` do N1: só os assuntos da matéria escolhida mudam, as ligações com assuntos de outras matérias ficam, e o texto legado segue a matéria principal;
+  - "Novo assunto" usa a criação confirmada no banco do N1;
+  - interface sem mudança visual nesta rodada (a revisão de design de `80bc24c` continua valendo).
+- **Testado:** e2e novo, editar Anatomia preserva a ligação com um assunto de Práticas Médicas; `topic-edit` 52/52 (1440 escuro e 390 claro, teclado completo, WCAG sem violações, sem rolagem lateral, alvos ≥ 44 px, aberto pela aba de assunto e por Casos clínicos, aviso de nome parecido, XSS, salvar durante a criação, falha ao criar, Esc no aviso); `topics` 57/57; `npm test` 92/92, na cópia isolada do commit `0b4cb09`.
+- **Não testado:** leitor de tela real; Safari.
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N3 · Detector de quase-duplicatas: plural, Unicode e regra de unicidade — ramo `nuvem/f1-conteudo`, não publicado
 
 - **O que mudou (`src/domain/similar.js`):**

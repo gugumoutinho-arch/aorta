@@ -103,7 +103,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N6 · trocas rápidas e botão | concluído | `22653e8` |
 | N1 · assuntos, ligações e rascunhos nas duas pontas | concluído | `58b71e1` |
 | N3 · quase-duplicatas | concluído | `bb2bf00` |
-| N2 · formulário com assuntos | a fazer | |
+| N2 · formulário com assuntos | concluído | `0b4cb09` |
 | N4 · colagem | a fazer | |
 | N5 · Cardiologia → coração | a fazer | |
 
@@ -119,3 +119,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 ### A · N3
 
 - `npm test` 92/92; `topic-edit` 51/51 (cópia isolada). Pendência: o dono aprovar o vocabulário de plurais e as abreviações.
+
+### A · N2
+
+- `npm test` 92/92; `topic-edit` 52/52; `topics` 57/57 (cópia isolada). Sem mudança visual nesta rodada.
