@@ -56,6 +56,11 @@ export function organOwners(mods) {
   return owner;
 }
 
+/* Brilho dos destinos. A bomba (coração) é de todos: o batimento de repouso não a acende; só a Cardiologia apontada.
+   Depois do pulso, fica no realce (1,2) enquanto o módulo está apontado; a bomba, só se a Cardiologia tiver material. */
+export const lightsOnArrival = (organ, i, only) => !organ.pump || only === i;
+export const restingGlow = (organ, i, hot, live) => (hot.has(i) && (!organ.pump || live[i]) ? 1.2 : 0);
+
 /* Divisões do encéfalo (para a página do módulo que leva ao cérebro): unidade com esse nome acende a parte. */
 export const BRAIN_PARTS = [
   { key: "brain_tel", label: "Telencéfalo", match: /telenc|cortex|cerebr(o|al) |hemisf/ },

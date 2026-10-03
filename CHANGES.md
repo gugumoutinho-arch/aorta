@@ -2,6 +2,23 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N5 (seguimento da revisão de design) — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Por quê:** a revisão (`aorta-design-reviewer`) apontou que a borda do coração ficava na cor da Cardiologia o tempo todo, inclusive no batimento de repouso, que é de todos os módulos. Ele acendia duas vezes por ciclo e ficava tingido mesmo com a Cardiologia "em produção".
+- **O que mudou** (`src/body/body.js`, `src/body/routes.js`):
+  - a borda do coração volta a ser sempre `--flow`;
+  - a cor do módulo entra num brilho próprio (`accent`/`own`), que só acende quando a Cardiologia é apontada e tem material;
+  - o repouso não acende o coração;
+  - o realce dos órgãos continua depois do pulso enquanto o módulo está apontado (antes apagava);
+  - o pulso nos órgãos passa a começar quando chega (`immediateRender: false`);
+  - pausar o batimento zera os brilhos congelados.
+- **Regras puras:** `lightsOnArrival` e `restingGlow`.
+- **Testado:** `routes.test` 8/8; `npm test` 108/108; `acervos` 71/71; `check` 0 erro(s); `flows` 364/364.
+- **Não verificado:** o brilho no 3D em si. Os testes conferem a regra e a classe `.hot` da guia; capturas do SwiftShader não provam a animação.
+- **Pendentes (já existiam antes):**
+  - o anel "ABRIR" do cursor cobre parte do nome sob o ponteiro e continua visível depois de mudar de rota;
+  - a página do módulo usa `--atrium` como base do coração, e o corpo usa `--ventricle`.
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N5 · Cardiologia acende o coração do corpo — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Antes desta rodada:** o destino "coracao" já existia (`e60e5e3`): rótulo "Coração", traçado da raiz da aorta até perto do ápice, mergulho até a ponta e coração 3D na página do módulo. Mas o `body.js` desenhava o coração **fora** dos órgãos, então ele não acendia nem pulsava com o módulo.

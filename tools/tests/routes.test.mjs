@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { destinationsFor, DESTINATIONS, organOwners } from '../../src/body/routes.js';
+import { destinationsFor, DESTINATIONS, organOwners, lightsOnArrival, restingGlow } from '../../src/body/routes.js';
 
 const mods = names => names.map((name, index) => ({ id: 'g' + index, name, index }));
 const byName = (list, out) => Object.fromEntries(list.map((m, i) => [m.name, out[i]]));
@@ -60,4 +60,17 @@ test('o coração vira órgão do módulo Cardiologia (destaque, pulso e cor do 
   const sem = mods(['Neuroanatomia', 'Semiologia']);
   destinationsFor(sem).forEach((d, i) => { sem[i].dest = d; });
   assert.equal(organOwners(sem).heart, undefined, 'sem Cardiologia, o coração é só a bomba');
+});
+
+test('a bomba não acende no repouso; só quando a Cardiologia é apontada, e só se tiver material', () => {
+  const pump = { pump: true, owner: 1 }, lung = { owner: 2 };
+  assert.equal(lightsOnArrival(pump, 1, null), false, 'batida de repouso: o coração é de todos');
+  assert.equal(lightsOnArrival(pump, 1, 1), true, 'Cardiologia apontada');
+  assert.equal(lightsOnArrival(lung, 2, null), true, 'órgão comum acende quando o pulso chega');
+  const live = [true, true, false];
+  assert.equal(restingGlow(pump, 1, new Set(), live), 0);
+  assert.equal(restingGlow(pump, 1, new Set([1]), live), 1.2, 'continua aceso enquanto apontado');
+  assert.equal(restingGlow(pump, 1, new Set([1]), [true, false]), 0, 'Cardiologia sem material não tinge o coração');
+  assert.equal(restingGlow(lung, 2, new Set([2]), live), 1.2);
+  assert.equal(restingGlow(lung, undefined, new Set([2]), live), 0);
 });

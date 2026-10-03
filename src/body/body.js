@@ -6,7 +6,7 @@ import { WebGLRenderer, Scene, PerspectiveCamera, Group, Vector3, Color, ShaderM
   CatmullRomCurve3, TubeGeometry, SphereGeometry, MeshBasicMaterial, AdditiveBlending, MathUtils, SRGBColorSpace } from "three";
 import gsap from "gsap";
 import { loadGLB } from "../heart/glb.js";
-import { DESTINATIONS, organOwners } from "./routes.js";
+import { DESTINATIONS, organOwners, lightsOnArrival, restingGlow } from "./routes.js";
 import { spring } from "../ui/spring.js";
 
 const IDLE_MS = 2600, DIST = 3.7;
@@ -14,7 +14,8 @@ const css = token => getComputedStyle(document.documentElement).getPropertyValue
 const breathe = () => new Promise(r => ("scheduler" in window && scheduler.yield) ? scheduler.yield().then(r) : setTimeout(r, 0));
 
 const RIM_VERTEX = "varying vec3 N;varying vec3 V;void main(){vec4 p=modelViewMatrix*vec4(position,1.);N=normalize(normalMatrix*normal);V=normalize(-p.xyz);gl_Position=projectionMatrix*p;}";
-const RIM_FRAGMENT = "uniform vec3 base;uniform vec3 rim;uniform float alpha;uniform float kick;varying vec3 N;varying vec3 V;void main(){float f=pow(1.-abs(dot(normalize(N),normalize(V))),2.2);gl_FragColor=vec4(base*.85+rim*f*1.25*(1.+kick*.8)+rim*kick*.25,min(1.,alpha*(.16+.84*f)+kick*.2));}";
+/* "accent" e "own": brilho na cor de um módulo que só aparece quando ele é o assunto (o coração da Cardiologia). */
+const RIM_FRAGMENT = "uniform vec3 base;uniform vec3 rim;uniform vec3 accent;uniform float alpha;uniform float kick;uniform float own;varying vec3 N;varying vec3 V;void main(){float f=pow(1.-abs(dot(normalize(N),normalize(V))),2.2);gl_FragColor=vec4(base*.85+rim*f*1.25*(1.+kick*.8)+rim*kick*.25+accent*own*(f*1.2+.25),min(1.,alpha*(.16+.84*f)+kick*.2+own*.15));}";
 const TUBE_VERTEX = "varying vec2 UV;void main(){UV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}";
 const TUBE_FRAGMENT = "uniform vec3 col;uniform float flow;uniform float off;uniform float hot;uniform float grow;varying vec2 UV;void main(){if(UV.x>grow)discard;if(off>.5){if(fract(UV.x*40.)>.5)discard;gl_FragColor=vec4(col,.45+hot*.35);return;}float p=exp(-pow((UV.x-flow)*12.,2.));gl_FragColor=vec4(col*(.75+hot*.35)+vec3(1.,.75,.85)*p,.55+.4*hot+.4*p);}";
 
@@ -47,7 +48,7 @@ async function assemble(o, glb, renderer) {
   camera.position.set(0, 0, DIST);
   const root = new Group(), body = new Group(); scene.add(root); root.add(body);
   const rim = (base, edge, alpha) => new ShaderMaterial({ transparent: true, depthWrite: false, vertexShader: RIM_VERTEX, fragmentShader: RIM_FRAGMENT,
-    uniforms: { base: { value: new Color(css(base)) }, rim: { value: new Color(css(edge)) }, alpha: { value: alpha }, kick: { value: 0 } } });
+    uniforms: { base: { value: new Color(css(base)) }, rim: { value: new Color(css(edge)) }, accent: { value: new Color(css(edge)) }, alpha: { value: alpha }, kick: { value: 0 }, own: { value: 0 } } });
   const skin = new Mesh(meshGeometry(glb.skin).geometry, rim("--atrium", "--violet-2", .72)); skin.renderOrder = 1; body.add(skin);
   await breathe();
   const h = meshGeometry(glb.heart, true), heart = new Mesh(h.geometry, rim("--ventricle", "--flow", 1)); heart.position.copy(h.center); heart.renderOrder = 4; body.add(heart);
@@ -62,11 +63,14 @@ async function assemble(o, glb, renderer) {
     organs[key] = { mesh, owner: i };
     await breathe();
   }
-  // O coração é a bomba de todos, mas também pode ser destino (Cardiologia): aí acende com o módulo, como um órgão.
-  if (owner.heart !== undefined) { heart.material.uniforms.rim.value.set(css(o.modules[owner.heart].token)); organs.heart = { mesh: heart, owner: owner.heart, pump: true }; }
+  /* O coração é a bomba de todos (borda --flow sempre). Se for destino (Cardiologia), ganha a cor do módulo só num
+     brilho próprio ("own"), quando o módulo é apontado e tem material; o batimento de repouso não o acende. */
+  if (owner.heart !== undefined) { heart.material.uniforms.accent.value.set(css(o.modules[owner.heart].token)); organs.heart = { mesh: heart, owner: owner.heart, pump: true }; }
   const organsOf = i => Object.values(organs).filter(x => x.owner === i);
-
+  const glowOf = x => x.mesh.material.uniforms[x.pump ? "own" : "kick"];
   let live = o.modules.map(m => m.live);
+  const hot = new Set();
+  const rest = (x, i) => restingGlow(x, i, hot, live);
   const vessels = o.modules.map((m, i) => {
     const d = DESTINATIONS[m.dest] || DESTINATIONS.pe;
     const curve = new CatmullRomCurve3(d.route.map(p => new Vector3(...p)), false, "catmullrom", .3);
@@ -113,7 +117,8 @@ async function assemble(o, glb, renderer) {
       beatTl.fromTo(v.mat.uniforms.flow, { value: -.05 }, { value: 1.08, duration: only === null ? 1.5 : 1.1, ease: "power1.in" }, .2);
       // O destino acende quando o pulso chega: o ponto cresce e o órgão brilha.
       beatTl.fromTo(v.node.scale, { x: 1, y: 1, z: 1 }, { x: 1.9, y: 1.9, z: 1.9, duration: .25, ease: "power2.out", yoyo: true, repeat: 1 }, arrive);
-      organsOf(i).forEach(x => beatTl.fromTo(x.mesh.material.uniforms.kick, { value: 1.6 }, { value: 0, duration: 1, ease: "power2.out" }, arrive));
+      // Termina no realce se o módulo continua apontado; a bomba só acende pela Cardiologia apontada, não no repouso.
+      organsOf(i).filter(x => lightsOnArrival(x, i, only)).forEach(x => beatTl.fromTo(glowOf(x), { value: 1.6 }, { value: rest(x, i), duration: 1, ease: "power2.out", immediateRender: false }, arrive));
     });
   }
   const stop = () => { clearTimeout(timer); timer = 0; beatTl?.pause(); if (frame) cancelAnimationFrame(frame); frame = 0; };
@@ -149,21 +154,35 @@ async function assemble(o, glb, renderer) {
       const v = vessels[i]; if (!v) return;
       gsap.to(v.mat.uniforms.hot, { value: on ? 1 : 0, duration: .2, overwrite: true, onUpdate: request });
       gsap.to(v.node.scale, { x: on ? 1.35 : 1, y: on ? 1.35 : 1, z: on ? 1.35 : 1, duration: .28, ease: "power2.out", overwrite: true, onUpdate: request });
-      organsOf(i).forEach(x => gsap.to(x.mesh.material.uniforms.kick, { value: on ? 1.2 : 0, duration: .35, overwrite: true, onUpdate: request }));
+      if (on) hot.add(i); else hot.delete(i);
+      organsOf(i).forEach(x => gsap.to(glowOf(x), { value: rest(x, i), duration: .35, overwrite: true, onUpdate: request }));
       if (on && live[i]) { beat(.7, i); schedule(); }
     },
     pause(p) {
       paused = p;
-      if (p) { stop(); beatTl?.kill(); heart.scale.setScalar(1); vessels.forEach(v => { v.mat.uniforms.flow.value = -1; }); request(); }
+      if (p) {
+        stop(); beatTl?.kill(); heart.scale.setScalar(1); vessels.forEach(v => { v.mat.uniforms.flow.value = -1; });
+        // Nada fica congelado aceso: só o realce de quem está apontado continua.
+        skin.material.uniforms.kick.value = 0; heart.material.uniforms.kick.value = 0;
+        Object.values(organs).forEach(x => { gsap.killTweensOf(glowOf(x)); glowOf(x).value = rest(x, x.owner); });
+        request();
+      }
       else schedule();
     },
     visible(v) { visible = v; sync(); },
-    update(next) { live = next; vessels.forEach((v, i) => { v.mat.uniforms.off.value = live[i] ? 0 : 1; v.node.material.opacity = live[i] ? .9 : .35; }); request(); },
+    update(next) {
+      live = next; vessels.forEach((v, i) => { v.mat.uniforms.off.value = live[i] ? 0 : 1; v.node.material.opacity = live[i] ? .9 : .35; });
+      Object.values(organs).filter(x => x.pump).forEach(x => { glowOf(x).value = rest(x, x.owner); });
+      request();
+    },
     theme() {
       skin.material.uniforms.base.value.set(css("--atrium")); skin.material.uniforms.rim.value.set(css("--violet-2"));
       heart.material.uniforms.base.value.set(css("--ventricle")); heart.material.uniforms.rim.value.set(css("--flow"));
       vessels.forEach(v => { v.mat.uniforms.col.value.set(css(v.token)); v.node.material.color.set(css(v.token)); });
-      Object.values(organs).forEach(x => { x.mesh.material.uniforms.base.value.set(css(x.pump ? "--ventricle" : "--atrium")); x.mesh.material.uniforms.rim.value.set(css(x.owner === undefined ? "--violet-2" : o.modules[x.owner].token)); });
+      Object.values(organs).forEach(x => {
+        const u = x.mesh.material.uniforms, token = x.owner === undefined ? "--violet-2" : o.modules[x.owner].token;
+        if (x.pump) u.accent.value.set(css(token)); else { u.base.value.set(css("--atrium")); u.rim.value.set(css(token)); }
+      });
       request();
     },
     dispose() {
