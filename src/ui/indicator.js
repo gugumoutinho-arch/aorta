@@ -41,5 +41,6 @@ export function wirePress(root = document) {
   root.addEventListener("pointerup", release);
   root.addEventListener("pointercancel", release);
   window.addEventListener("blur", release);
-  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", release);
+  // Só ligar o movimento reduzido solta a pressão; desligá-lo não (o aviso chega atrasado e soltava um toque em andamento).
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => { if (e.matches) release(); });
 }

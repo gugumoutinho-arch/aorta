@@ -6,18 +6,21 @@ import { reducedMotion } from "../core/state.js";
 import { spring } from "./spring.js";
 gsap.registerPlugin(SplitText);
 const splits = new Map(), counters = new Map(), pending = new Set(), entering = new Set(), revealed = new WeakSet();
+/* Título por linhas. O tween é cancelado pela referência: cancelar pelos alvos (killTweensOf) às vezes deixava o tween
+   vivo em trocas rápidas de acervo, e o onComplete dele apagava o registro do split ATUAL; o split órfão guardava o
+   título do outro acervo e o devolvia na troca seguinte (tools/acervos.mjs, "Trocas rápidas…"). */
 export function cancelHeadline(el) {
-  const split = splits.get(el);
-  if (split) { gsap.killTweensOf(split.lines); split.revert(); splits.delete(el); }
+  const cur = splits.get(el);
+  if (cur) { cur.tween.kill(); cur.split.revert(); splits.delete(el); }
 }
 export function revealHeadline(el, delay = 0) {
   if (!el) return;
   cancelHeadline(el);
   if (reducedMotion()) return;
   const split = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line", aria: "auto" });
-  splits.set(el, split);
-  gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: motionTokens().enter, ease: "power3.out", stagger: .065, delay,
-    onComplete: () => { split.revert(); splits.delete(el); } });
+  const tween = gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: motionTokens().enter, ease: "power3.out", stagger: .065, delay,
+    onComplete: () => { split.revert(); if (splits.get(el)?.split === split) splits.delete(el); } });
+  splits.set(el, { split, tween });
 }
 export function countTo(el, value) {
   if (!el) return;

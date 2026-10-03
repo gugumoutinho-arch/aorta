@@ -15,7 +15,9 @@ try {
     const ctx=await browser.newContext({viewport:{width,height:1000},colorScheme:theme,reducedMotion:'reduce'});
     const p=await ctx.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
     for(const acervo of ['idomed','geral']) {
-      await p.goto(url+'?conceito=folha#'+acervo);await p.waitForSelector('#modules .mod');await p.waitForTimeout(180);
+      // Os rótulos nascem no canto e são posicionados no quadro seguinte: espera todos terem lado (não um tempo fixo).
+      await p.goto(url+'?conceito=folha#'+acervo);await p.waitForSelector('#modules .mod');
+      await p.waitForFunction(()=>[...document.querySelectorAll('#modules .mod')].every(b=>b.dataset.side),null,{timeout:5000});
       ok(width+' '+theme+' '+acervo+' mapa pelo acervo',await p.getAttribute('body','data-concept')===(acervo==='geral'?'corpo':'coracao'));
       ok(width+' '+theme+' '+acervo+' nomes corretos',acervo==='geral'? !(await p.locator('#modules').innerText()).match(/\bM[1-8]\b/):await p.locator('#modules [data-module="m1"]').count()===1);
       ok(width+' '+theme+' '+acervo+' sem rolagem e rótulos sobrepostos',await p.evaluate(()=>{
