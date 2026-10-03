@@ -105,7 +105,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N3 · quase-duplicatas | concluído | `bb2bf00` |
 | N2 · formulário com assuntos | concluído | `0b4cb09` |
 | N4 · colagem | concluído | `1a4ada4` |
-| N5 · Cardiologia → coração | concluído (revisão de design em andamento) | `3c46934` |
+| N5 · Cardiologia → coração | concluído | `3c46934`, correções da revisão em `246d4c7` |
 
 ### A · N6
 
@@ -133,4 +133,21 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 ### A · N5
 
 - `routes.test` 7/7; `npm test` 107/107; `acervos` 71/71 (com Cardiologia fictícia e capturas do destaque).
-- **Checkpoint:** todos os pacotes da rodada A estão commitados. Falta: o resultado da revisão de design do N5, a bateria final e o encerramento.
+- **Revisão de design:** 0 bloqueantes, 3 importantes, corrigidos em `246d4c7`: a borda do coração voltou a ser sempre `--flow`; a cor da Cardiologia só aparece ao apontar, e só se ela tiver material; o repouso não acende o coração. Também corrigido: o realce continua enquanto o módulo está apontado. Depois das correções: `routes.test` 8/8; `npm test` 108/108; `acervos` 71/71; `check` 0/0; `flows` 364/364.
+- **Pendentes de antes da rodada:** o anel "ABRIR" do cursor cobre parte do nome e continua visível depois de mudar de rota.
+
+## Bateria G final (`246d4c7`, cópia isolada)
+
+- `npm test` 108/108; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 71/71; `topics` 57/57; `topic-edit` 52/52; `import` 59/59.
+- **Lighthouse (mediana de 3):**
+  - celular 91 (IDOMED) e 91 (geral), LCP 2,6 e 2,7 s;
+  - computador 100 e 99;
+  - acessibilidade 100;
+  - **boas práticas 96 (REPROVADO pelo script, que exige 100):** o único erro de console é `net::ERR_CERT_AUTHORITY_INVALID` nas fontes do Google (proxy da nuvem), como no preflight.
+- **LCP medido em sequência, nesta máquina:**
+  - base `7303e51`: 92/94, LCP 2,5/2,5 s;
+  - final: 91/90, 2,7/2,8 s;
+  - final com o harness de testes da base: 93/94, 2,6/2,5 s.
+- **Conclusão sobre o LCP:** quase toda a diferença vem do script de teste injetado no `<head>` (banco fictício com as regras do esquema + guarda do Supabase), não do site. O JS do site cresceu cerca de 6 KB sem compressão. Medido aqui, sem fontes e sem compressão no servidor local; não comparável com o computador do dono.
+
+RODADA A ENCERRADA em 2026-10-03, SHA 246d4c7 (código testado; este registro vem no commit seguinte).
