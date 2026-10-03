@@ -29,7 +29,7 @@ const ctxOf = async db => ({ links: await snap(db, 'material_topics'), topics, m
 
 test('salvar: linha nova vira rascunho; duplicata com assunto liga o material existente', async () => {
   const { db, saved } = await setup();
-  assert.deepEqual(saved, { drafts: 1, linked: 1 });
+  assert.deepEqual(saved, { drafts: 1, linked: 1, existing: 0 });
   const drafts = await snap(db, 'material_drafts');
   assert.equal(drafts.length, 1);
   assert.deepEqual([drafts[0].status, drafts[0].driveFileId, drafts[0].topicIds], ['rascunho', 'NOVO', ['t1']]);
@@ -106,4 +106,22 @@ test('publicar: rascunho ignorado (por outro cliente) não é publicado', async 
   const c = await ctxOf(db);
   await assert.rejects(() => publishDraft(db, draft, c), /ignorado/);
   assert.equal((await snap(db, 'materials')).filter(m => m.url.includes('NOVO')).length, 0);
+});
+
+test('outra aba já salvou o mesmo arquivo: conta como "já existia" e segue para as próximas linhas', async () => {
+  const { db } = await setup();
+  const extra = ['https://drive.google.com/file/d/OUTRO/view', 'M1/CIS 1/Anatomia/Membro superior', 'Slides', 'Outra'].join('\t');
+  const rows = planImport(parsePaste(paste + '\n' + extra).rows,
+    { areas, topics, materials: data.materials, drafts: [], types: ['Slides'] });  // a tela não sabe do rascunho já salvo
+  const saved = await saveImport(db, rows.filter(r => r.action === 'criar'), { links: [], topics, materials: data.materials, now });
+  assert.deepEqual(saved, { drafts: 1, linked: 0, existing: 1 });
+  assert.deepEqual((await snap(db, 'material_drafts')).map(d => d.driveFileId).sort(), ['NOVO', 'OUTRO']);
+});
+
+test('publicar usa o rascunho relido do banco, não a cópia antiga da tela', async () => {
+  const { db } = await setup();
+  const [stale] = await snap(db, 'material_drafts');
+  await db.doc('material_drafts/' + stale.id).update({ title: 'Título corrigido em outra aba' });
+  const id = await publishDraft(db, stale, await ctxOf(db));
+  assert.equal((await snap(db, 'materials')).find(m => m.id === id).title, 'Título corrigido em outra aba');
 });

@@ -119,7 +119,8 @@ async function savePreview() {
   if (!ok) { btn.focus(); return; }
   preview = null; $("#imp-text").value = ""; renderPreview();
   const parts = [saved.drafts ? plural(saved.drafts, "rascunho salvo", "rascunhos salvos") + " (nada novo publicado)" : "",
-    saved.linked ? plural(saved.linked, "material já publicado ganhou", "materiais já publicados ganharam") + " assunto agora" : ""];
+    saved.linked ? plural(saved.linked, "material já publicado ganhou", "materiais já publicados ganharam") + " assunto agora" : "",
+    saved.existing ? plural(saved.existing, "arquivo já estava nos rascunhos", "arquivos já estavam nos rascunhos") : ""];
   toast(parts.filter(Boolean).join(" · ") + ".");
   $("#h-drafts").focus();
 }

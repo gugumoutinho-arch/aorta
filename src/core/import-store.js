@@ -6,13 +6,17 @@ import { subjectFor } from "../domain/topic-edit.js";
 import { isDrive } from "./text.js";
 import { setLinksInArea } from "./topic-store.js";
 
-/* Linhas "criar" viram rascunhos; linhas "ligar" acrescentam os assuntos do caminho ao material que já existe. */
+/* O banco recusou por chave repetida (Postgres 23505): outra aba ou outro lote já salvou este arquivo do Drive. */
+const isDuplicate = e => e?.code === "23505";
+
+/* Linhas "criar" viram rascunhos; linhas "ligar" acrescentam os assuntos do caminho ao material que já existe.
+   Arquivo que já virou rascunho em outra aba conta como "já existia" e o lote segue. */
 export async function saveImport(db, rows, { links, topics, materials, now }) {
-  const saved = { drafts: 0, linked: 0 };
+  const saved = { drafts: 0, linked: 0, existing: 0 };
   for (const row of rows) {
     if (row.action === "criar") {
-      await db.collection("material_drafts").doc().set(draftFromRow(row, now));
-      saved.drafts++;
+      try { await db.collection("material_drafts").doc().set(draftFromRow(row, now)); saved.drafts++; }
+      catch (e) { if (!isDuplicate(e)) throw e; saved.existing++; }
     } else if (row.action === "ligar" && row.duplicate?.kind === "material") {
       await linkMore(db, row.duplicate.id, row.topicIds, { links, topics, materials });
       saved.linked++;
@@ -39,12 +43,13 @@ export const materialIdFor = draft => draft.materialId || draft.id;
 /* Cria (ou completa) o material do rascunho, liga os assuntos e só então marca o rascunho como publicado.
    Cada passo pode ser repetido: o id vem do rascunho e é guardado antes; o material é criado só se ainda não existe
    (nunca sobrescreve ao retomar); as ligações são upsert; depois de qualquer erro, o estado é conferido no banco. */
-export async function publishDraft(db, draft, { links, topics, now }) {
-  const materialId = materialIdFor(draft);
-  const ref = db.doc("material_drafts/" + draft.id), current = await ref.get();
+export async function publishDraft(db, stale, { links, topics, now }) {
+  const current = await db.doc("material_drafts/" + stale.id).get();
   if (!current.exists) throw new Error("Este rascunho não existe mais.");
-  if (current.data().status === "publicado") return current.data().materialId || materialId;
-  if (current.data().status === "ignorado") throw new Error("Este rascunho foi ignorado; nada foi publicado.");
+  // Publica o que está no banco agora (pode ter sido editado em outra aba), não a cópia que a tela tinha.
+  const draft = { ...current.data(), id: stale.id }, materialId = materialIdFor(draft);
+  if (draft.status === "publicado") return materialId;
+  if (draft.status === "ignorado") throw new Error("Este rascunho foi ignorado; nada foi publicado.");
   if (!current.data().materialId) await updateDraft(db, draft.id, { materialId }, now);
   const subject = subjectFor(draft.topicIds, topics, draft.areaId);
   const source = draft.source || (isDrive(draft.url) ? "Google Drive" : "");
