@@ -54,7 +54,7 @@ Todas as cores ficam ali, com o escuro em `:root`, o claro em `@media (prefers-c
 
 ## Tipografia
 
-Literata (títulos, numerais de módulo, títulos de material), Schibsted Grotesk (interface), JetBrains Mono (rótulos técnicos "ART. 01", tipos de material). Google Fonts com `display=swap`.
+Literata (títulos, numerais de módulo, títulos de material), Schibsted Grotesk (interface e, pelo token `--label`, os rótulos técnicos em caixa alta "ART. 01" e tipos de material, com números tabulares). Google Fonts com `display=swap`.
 
 ## Telas
 
