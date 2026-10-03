@@ -67,3 +67,18 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 
 - **6 pares de `medir-v5` e 5 rodadas de métricas de layout:** layouts −70%, tempo de layout quase igual; a maior tarefa da IDOMED não melhorou (mediana pior, variação enorme). Lighthouse igual (94/94).
 - **Revertido pela regra do pacote.** Próximo passo sugerido: atacar o carregamento e a montagem do coração 3D (é a maior tarefa).
+
+## Bateria final (`9594add`, cópia isolada)
+
+- `npm test` 80/80; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 44/44.
+- Lighthouse (mediana de 3): celular 94 (IDOMED) e 94 (geral), computador 100/100, acessibilidade 100. Boas práticas 96: o único erro de console é `ERR_CERT_AUTHORITY_INVALID` nas fontes do Google, porque o proxy da nuvem intercepta o certificado. No CI do GitHub não acontece.
+
+## Pendências abertas
+
+- **SQL para autorizar:** nenhum. Nada exigiu mudar o banco nem as regras de acesso.
+- **Direitos:** `materials` não tem coluna de direitos; os direitos do rascunho só decidem se pode publicar. Guardá-los exigiria uma migração, decisão do dono.
+- **Instabilidade ainda aberta em `acervos.mjs`:** "botão fica pressionado até soltar", 1 em 10 rodadas depois da correção parcial. Não reproduz isolada (0 em 30).
+- **Contraste da borda `--line-strong` (1,9 a 2,3:1) em campos e fichas:** decisão de identidade.
+- **N3:** confirmar "inf." como abreviação aprovada e o veto de algarismos romanos.
+- **N7:** revertido; o peso real da entrada é a montagem do coração 3D.
+- **Demonstração:** `cd tools && node demo.mjs --abas` (assuntos e colagem); `node demo.mjs --v4 --cardio` (Cardiologia no corpo).
