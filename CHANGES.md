@@ -8,7 +8,7 @@ Mais recente primeiro. Regras completas em `AGENTS.md`.
   - Normalização: NFC, espaços, minúsculas, sem acento e sem pontuação, "ª/º" como letra; abreviações aprovadas viram palavra inteira ("sup." → superior, "inf." → inferior, "mmss" → membros superiores, "mmii" → membros inferiores). A lista fica numa constante, para o dono acrescentar.
   - Parecido quando a distância de edição é ≤ max(1, 12% do maior nome) ou o Jaccard das palavras (sem conectivos como "e" e "de") é ≥ 0,8.
   - Veto: direções opostas (superior/inferior, medial/lateral, direito/esquerdo, anterior/posterior, proximal/distal, cranial/caudal, com plural e gênero) e números ou algarismos romanos diferentes ("1ª semana" × "2ª semana", "Fisiologia I" × "II").
-- **Testado:** `node --test` 7/7, incluindo os 4 casos obrigatórios ("Membro sup." ~ "Membro superior"; "Membro superior" ≁ "Membro inferior"; "Gametogênese" ~ "Gametogenese"; "1ª semana" ≁ "2ª semana"). Os testes reprovaram antes de o arquivo existir. A bateria do N1 rodou com estes arquivos presentes; nada os importa ainda, então o site não muda.
+- **Testado:** `node --test` 7/7, incluindo os 4 casos obrigatórios ("Membro sup." ~ "Membro superior"; "Membro superior" ≁ "Membro inferior"; "Gametogênese" ~ "Gametogenese"; "1ª semana" ≁ "2ª semana"). Os testes reprovaram antes de o arquivo existir. `npm test` completo: 56/56. As etapas de tela da bateria do N1 (`check`, `flows`, `acervos`, `topics`, `topic-edit`) rodaram com `similar.js` já presente; nada o importa ainda, então o site não muda.
 - **Não testado:** uso na tela (vem no N2).
 - **Decisão a confirmar com o dono:** "inf." como inferior e o veto de algarismos romanos foram acrescentados por simetria e por segurança; não estavam na lista dada.
 
