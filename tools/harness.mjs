@@ -28,33 +28,44 @@ export function pageHtml() {
 }
 
 // Código injetado antes da página: imita window.claude.use("db") com dados fictícios.
-export function mockDbScript(data = seed()) {
+// persist: o banco sobrevive a recarregar a página (sessionStorage), para testar "recarregar mantém".
+// Ganchos de teste na página: window.__mockDelay (ms antes de cada gravação) e window.__mockFail (prefixo de caminho
+// cuja próxima gravação falha uma vez, ex.: "material_topics/").
+export function mockDbScript(data = seed(), { persist = false } = {}) {
   return `(() => {
-    const store = {};
+    const store = {}, KEY = 'aorta-mock-db', persist = ${persist};
     const put = (col, arr) => arr.forEach(({ id, ...rest }) => { store[col + '/' + id] = rest; });
     put('areas', ${JSON.stringify(data.areas)}); put('collections', ${JSON.stringify(data.collections)}); put('materials', ${JSON.stringify(data.materials)});
     put('topics', ${JSON.stringify(data.topics || [])});
     put('material_topics', ${JSON.stringify((data.material_topics || []).map(l => ({ id: l.materialId + ':' + l.topicId, ...l })))});
+    put('material_drafts', ${JSON.stringify(data.material_drafts || [])});
+    if (persist) { try { const saved = sessionStorage.getItem(KEY); if (saved) { for (const k of Object.keys(store)) delete store[k]; Object.assign(store, JSON.parse(saved)); } } catch (_) {} }
+    const save = () => { if (persist) sessionStorage.setItem(KEY, JSON.stringify(store)); };
+    const gate = async p => {
+      if (window.__mockDelay) await new Promise(r => setTimeout(r, window.__mockDelay));
+      if (window.__mockFail && p.startsWith(window.__mockFail)) { window.__mockFail = null; throw { code: 'test', message: 'falha de teste' }; }
+    };
     const subs = []; const emit = () => setTimeout(() => subs.forEach(f => f()), 0); let n = 0;
     const snap = col => { const docs = Object.entries(store).filter(([p]) => p.startsWith(col + '/') && p.split('/').length === 2)
       .map(([p, d]) => ({ id: p.split('/')[1], exists: true, data: () => JSON.parse(JSON.stringify(d)), metadata: {} }));
       return { docs, size: docs.length, empty: !docs.length, docChanges: () => [], metadata: {} }; };
     const docRef = p => ({ id: p.split('/').pop(), path: p,
       async get() { const d = store[p]; return { id: this.id, exists: !!d, data: () => d && JSON.parse(JSON.stringify(d)), metadata: {} }; },
-      async set(d) { store[p] = JSON.parse(JSON.stringify(d)); emit(); },
-      async update(d) { if (!store[p]) throw { code: 'invalid_argument', message: 'missing' }; Object.assign(store[p], JSON.parse(JSON.stringify(d))); emit(); },
+      async set(d) { await gate(p); store[p] = JSON.parse(JSON.stringify(d)); save(); emit(); },
+      async update(d) { await gate(p); if (!store[p]) throw { code: 'invalid_argument', message: 'missing' }; Object.assign(store[p], JSON.parse(JSON.stringify(d))); save(); emit(); },
       async delete() {
+        await gate(p);
         // Como no banco: apagar material apaga as ligações (cascade); assunto com ligação não pode ser apagado (restrict).
         const [col, id] = p.split('/'), linked = k => k.startsWith('material_topics/') && store[k][col === 'materials' ? 'materialId' : 'topicId'] === id;
         if (col === 'topics' && Object.keys(store).some(linked)) throw { code: '23503', message: 'assunto com material ligado' };
         if (col === 'materials') Object.keys(store).filter(linked).forEach(k => { delete store[k]; });
-        delete store[p]; emit(); } });
+        delete store[p]; save(); emit(); } });
     const colRef = c => ({ path: c, doc: id => docRef(c + '/' + (id || 't' + Date.now().toString(36) + (n++))),
       onSnapshot(next) { const f = () => next(snap(c)); subs.push(f); setTimeout(f, 30); return () => {}; } });
     window.claude = { aortaTest: true, use: async name => name === 'db' ? { doc: docRef, collection: colRef } : null };
   })();`;
 }
-export const withDb = (data = seed()) => '<script>' + mockDbScript(data) + '</script>';
+export const withDb = (data = seed(), opts) => '<script>' + mockDbScript(data, opts) + '</script>';
 export const LOADING = '<script>window.claude={aortaTest:true,use:()=>new Promise(()=>{})}</script>';
 export const FAILING = '<script>window.claude={aortaTest:true,use:()=>Promise.reject(new Error("banco fora do ar (teste)"))}</script>';
 

@@ -88,9 +88,9 @@ export function subscribe() {
   S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
   S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
   // Assuntos são um extra: se as tabelas faltarem ou falharem, o catálogo segue sem as abas.
-  // Assuntos são um extra e só a página do módulo os usa (o mapa do início não é redesenhado por eles).
+  // Assuntos são um extra: só a página do módulo e o formulário os usam (o mapa do início não é redesenhado por eles).
   // Falha antes de carregar: segue sem abas. Falha depois (rede oscilou): mantém o que já tinha.
-  const topicsArrived = () => { if (S.view === "modulo") renderAll(); };
+  const topicsArrived = () => { if (S.view === "modulo" || $("#dlg-form").open) renderAll(); };
   const noTopics = e => {
     console.warn("Assuntos indisponíveis.", e);
     if (topicsReady() && !S.topicsOff) return;

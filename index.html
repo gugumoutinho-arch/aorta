@@ -221,12 +221,13 @@
       <div class="fld"><label for="m-title">Título *</label><input id="m-title" type="text" maxlength="200" required aria-describedby="m-title-err"><span class="err" id="m-title-err" hidden></span></div>
       <div class="fld"><label for="m-url">Link do material *</label><input id="m-url" type="url" inputmode="url" autocapitalize="none" autocorrect="off" placeholder="https://drive.google.com/…" required aria-describedby="m-url-hint m-url-err"><span class="hint" id="m-url-hint">Cole o endereço completo, começando com https://. No Drive: Compartilhar → Copiar link.</span><span class="err" id="m-url-err" hidden></span></div>
       <div class="fld"><label for="m-area">Onde fica</label><select id="m-area"></select></div>
+      <div class="fld topics-fld" id="m-topics-fld"></div>
       <div class="two">
         <div class="fld"><label for="m-type">Tipo</label><select id="m-type"></select></div>
         <div class="fld"><label for="m-status">Situação de estudo</label><select id="m-status"></select></div>
       </div>
       <div class="two">
-        <div class="fld"><label for="m-subject">Assunto</label><input id="m-subject" type="text" list="dl-subjects" maxlength="120" placeholder="Ex.: Placentação"></div>
+        <div class="fld" id="m-subject-fld"><label for="m-subject">Assunto</label><input id="m-subject" type="text" list="dl-subjects" maxlength="120" placeholder="Ex.: Placentação"></div>
         <div class="fld"><label for="m-period">Período</label><input id="m-period" type="text" list="dl-periods" maxlength="40" placeholder="Ex.: 2026.2"></div>
       </div>
       <div class="fld"><label for="m-tags">Etiquetas</label><input id="m-tags" type="text" maxlength="300" placeholder="Separe por vírgula: PR2, caso clínico, revisão"></div>

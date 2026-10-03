@@ -74,6 +74,23 @@ dialog::backdrop { background: var(--scrim); -webkit-backdrop-filter: blur(3px);
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
 .checks { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-4); }
 .checks label { display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; font-size: 14px; font-weight: 400; }
+/* Assuntos da matéria: fichas de múltipla escolha. Marcada = preenchida e com ✓ (não depende só da cor). */
+.topic-chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.topic-chip { position: relative; display: inline-flex; align-items: center; gap: var(--space-2); min-height: 44px; max-width: 100%; padding: 0 var(--space-4); border-radius: var(--radius-pill); border: 1px solid var(--line-strong); background: var(--paper); font-size: 14px; font-weight: 400; cursor: pointer; overflow-wrap: anywhere;
+  transition: background-color var(--motion-exit) var(--ease), border-color var(--motion-exit) var(--ease), color var(--motion-exit) var(--ease), transform var(--motion-press) var(--ease); }
+.fld .topic-chip { font-size: 14px; font-weight: 500; }
+.fld .topic-chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.topic-chip:hover { border-color: var(--text); }
+.topic-chip:has(input:checked) { background: var(--violet-2); border-color: var(--violet-2); color: var(--bg); }
+.topic-chip:has(input:checked)::before { content: "✓" / ""; font-weight: 700; }
+.topic-chip:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+.topic-chip:active { transform: scale(.97); }
+.topic-new { display: flex; gap: var(--space-2); }
+.fld .topic-new input { flex: 1; min-width: 0; }
+.topic-new .btn { flex: none; }
+.topic-similar { display: grid; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-card); border: 1px solid var(--line-strong); background: var(--surface); font-size: 14px; }
+.topic-similar .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+@media (prefers-reduced-motion: reduce) { .topic-chip { transition: none; } .topic-chip:active { transform: none; } }
 .small-dlg { width: min(400px, calc(100% - 32px)); }
 .theme-options { border: 0; padding: 0; margin: 14px 0 var(--space-2); display: grid; gap: var(--space-1); }
 .theme-options legend { font-size: 13px; color: var(--muted); margin-bottom: 6px; padding: 0; }

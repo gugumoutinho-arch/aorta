@@ -2,6 +2,30 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N2 · Formulário de material com assuntos — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:**
+  - Fichas de assunto: depois de escolher a matéria em "Onde fica", os assuntos dela aparecem como fichas de múltipla escolha. Cada ficha é um checkbox real; marcada, fica preenchida e com ✓, então não depende só da cor.
+  - "Novo assunto" cria o assunto na hora e já o marca. Nome igual a um existente só marca o existente. Nome parecido (N3) pergunta antes: "Já existe 'Membro superior'. Usar esse?", com "Usar" ou "Criar … mesmo assim"; Esc fecha só o aviso.
+  - Formulário aberto numa aba de assunto já vem com a matéria e o assunto marcados. Aberto em "Casos clínicos", vem com o tipo "Caso clínico".
+  - Editar: os assuntos ligados vêm marcados. Salvar grava só a diferença (N1) e mantém o texto antigo `subject` = primeiro assunto ligado. Material sem ligação e sem assunto marcado conserva o texto antigo.
+  - Área acima de matéria: as fichas somem, um aviso explica, e o campo de texto "Assunto" volta. Sem as tabelas de assunto no banco, o formulário é o de antes.
+  - Componente reutilizável `src/views/topic-picker.js`, usado também pelos rascunhos do N4. CSS em `src/styles/dialogs.css`, só com tokens e sem transição com movimento reduzido. Layout sem referência externa, derivado das fichas e das abas que já existem.
+- **Revisão (`aorta-design-reviewer`):** nenhum achado bloqueante. Corrigidos:
+  - salvar durante "Novo assunto" agora espera o assunto ser criado (antes, o material ficava sem ele);
+  - o foco não se perde enquanto o assunto é criado (campo só leitura em vez de desativado);
+  - falha ao criar aparece no próprio campo, não só no aviso atrás do diálogo;
+  - o ✓ não entra no nome acessível;
+  - erro de nome vazio é anunciado;
+  - fonte de 14 px nas fichas;
+  - placeholder curto e dica de que um assunto novo fica na matéria mesmo se o formulário for cancelado;
+  - Esc no aviso fecha só o aviso;
+  - regras `[hidden]` repetidas removidas.
+  **Ficou:** a borda da ficha desmarcada (`--line-strong`) tem contraste 2,1:1 a 2,3:1, abaixo de 3:1. É o mesmo token de todos os botões e campos, então mudar é decisão de identidade.
+- **Banco fictício (`tools/harness.mjs`):** ganchos de teste `window.__mockDelay` e `window.__mockFail`, rascunhos e persistência opcional entre recarregamentos.
+- **Testado (dados fictícios):** `tools/topic-edit.mjs` 46/46 (a 1440 escuro e a 390 claro, só teclado, WCAG sem violações, alvos ≥ 44 px, sem rolagem lateral, XSS, salvar durante a criação, falha ao criar e Esc). O e2e reprovou antes de o formulário ser ligado. Bateria completa no fim desta entrada.
+- **Não testado:** Supabase real; leitor de tela real; Safari.
+
 ## 2026-10-03 — Claude (nuvem) — N3 · Detector de quase-duplicatas de assunto — ramo `nuvem/f1-conteudo`, não publicado
 
 - **O que mudou:** `src/domain/similar.js` (lógica pura) diz se dois nomes de assunto da mesma matéria são quase iguais. Só sugere; nunca une sozinho.
