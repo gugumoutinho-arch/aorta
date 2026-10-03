@@ -12,9 +12,20 @@ Mais recente primeiro. Regras completas em `AGENTS.md`.
   - `src/ui/tokens.js`: a leitura antes do CSS carregar travava `NaN` no cache; agora há padrões e só uma leitura completa é guardada. Curva da entrada do título de volta a `power3.out` (como no v4).
   - `DESIGN.md`: seção "Fundamentos v5" reescrita em UTF-8, descrevendo só o que ficou.
   - `.gitignore`: `/reports/`, `/.arena/`, `/.impeccable/mocks/` e `/.impeccable/questions/` (estão no backup).
-- **Novo no `check`:** etapa "codificação" (`tools/encoding.mjs`) falha com acento trocado por `?` entre letras, UTF-8 lido como Latin-1 (`Ã§`) ou U+FFFD; `?` de URL e de código passa.
+- **Novo no `check`:** etapa "codificação" (`tools/encoding.mjs`) falha com acento trocado por `?` entre letras, UTF-8 lido como Latin-1 ("Ã" colado a outro símbolo) ou U+FFFD; `?` de URL e de código passa.
 - **Testes de unidade (novos, `node --test tools/tests/`):** `tokens` (4) e `encoding` (8), escritos antes da implementação; 12/12.
 - **Testado (dados fictícios):** `npm run check` 0 erros e 0 avisos (61 arquivos na etapa de codificação); `node flows.mjs` 364/364; `node acervos.mjs` 67/67.
+- **P0.3 · Medições confiáveis e gates no CI:**
+  - `tools/gates.mjs` (novo) concentra limites e cálculos: CLS por janela de sessão, p95, mediana, limites do Lighthouse (celular ≥85 e computador ≥90 de desempenho; acessibilidade e boas práticas 100; SEO fora por causa do `noindex`), pasta `tools/reports/v5` fixa e proteção do baseline.
+  - `lighthouse.mjs`: roda os dois acervos (`#idomed`, `#geral`) sempre com os dados fictícios do v4, nota pela **mediana de 3 execuções** (`LH_RUNS`) e **sai com erro abaixo do limite**; relatórios `lighthouse-<acervo>-<modo>.json`. Saem `LH_V4` e `LH_QUERY`.
+  - `medir-v5.mjs`: relatórios em `tools/reports/v5` de qualquer pasta; `--fase=nome`; p95 do tempo de quadro além da média de fps; o `baseline-v5.json` só nasce com `--antes --gravar-baseline` e nunca é sobrescrito.
+  - `orcamento.mjs`: CLS acima de 0,03 vira aviso (meta da F4; reprova só com `ORCAMENTO_ESTRITO=1`); JS inicial, 3D precoce e rolagem lateral continuam reprovando.
+  - `bundle-v5.mjs`: segue também `modulepreload` e `import "x"` sem `from`, e aceita a pasta do build como parâmetro.
+  - `seed-abundante.mjs`: quantidade parametrizável.
+  - `tools/package.json`: `npm test`, `flows`, `acervos` e `orcamento`. `.github/workflows/check.yml` passa a rodar testes de unidade, check, fluxos, acervos e Lighthouse. O `pages.yml` não foi alterado.
+  - `baseline-v5.json` versionado como estava (evidência do "antes").
+- **Testado:** `npm test` 15/15 (o teste da mediana falhou antes da implementação). Orçamento sem reprovação: JS inicial +295 B sobre o baseline, nenhum 3D precoce, nenhuma rolagem lateral; 20 avisos de CLS entre 0,034 e 0,306 (o pior é o acervo abundante a 320 px no geral). `medir-v5 --fase=f0` na mesma faixa do baseline (IDOMED: entrada com maior tarefa de 591 ms e p95 de quadro de 48,6 ms; geral: CLS 0,0646). `--antes` sem pedido é recusado. Lighthouse aprovado: IDOMED 93/98, geral 86/98 (celular/computador); acessibilidade e boas práticas 100.
+- **Risco aberto (F4):** o desempenho do geral no celular oscila muito (execuções 93/86/73 e 82/89/91; LCP de 2,3 a 3,8 s). A mediana passa raspando os 85, e o CI pode reprovar de vez em quando até a F4 resolver o LCP.
 
 ## 2026-10-03 — Claude — Integração do relatório do Codex (coração no IDOMED, corpo na Medicina geral) — ramo `prototipo-v4`, não publicado
 

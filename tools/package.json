@@ -5,7 +5,11 @@
   "description": "Verificações automáticas do index.html da Biblioteca de Medicina (formato, CSS, telas, acessibilidade, desempenho).",
   "type": "module",
   "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
     "check": "node check.mjs",
+    "flows": "node flows.mjs",
+    "acervos": "node acervos.mjs",
+    "orcamento": "node orcamento.mjs",
     "lighthouse": "node lighthouse.mjs"
   },
   "devDependencies": {

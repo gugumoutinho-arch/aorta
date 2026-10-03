@@ -1,0 +1,52 @@
+{
+  "phase": "antes",
+  "commit": "13d06af",
+  "cpu": 4,
+  "renderer": "SwiftShader (correção/tendência; não GPU física)",
+  "bundle": {
+    "gzip": 59555,
+    "files": [
+      "index-Dmpb0xQ6.js"
+    ]
+  },
+  "metrics": [
+    {
+      "acervo": "idomed",
+      "cls": 0.016789390146266327,
+      "entrance": {
+        "fps": 41,
+        "longTasks": 8,
+        "maximumTask": 555
+      },
+      "switch": {
+        "fps": 49,
+        "longTasks": 7,
+        "maximumTask": 269
+      },
+      "dive": {
+        "fps": 69.5,
+        "longTasks": 3,
+        "maximumTask": 127
+      }
+    },
+    {
+      "acervo": "geral",
+      "cls": 0.06450832005947281,
+      "entrance": {
+        "fps": 58.3,
+        "longTasks": 9,
+        "maximumTask": 319
+      },
+      "switch": {
+        "fps": 55.7,
+        "longTasks": 7,
+        "maximumTask": 235
+      },
+      "dive": {
+        "fps": 116.3,
+        "longTasks": 2,
+        "maximumTask": 269
+      }
+    }
+  ]
+}

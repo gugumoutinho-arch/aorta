@@ -27,9 +27,24 @@ jobs:
       - name: Instalar dependências das verificações
         working-directory: tools
         run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Verificar o site (build, regras, CSS, HTML, telas e acessibilidade)
+      - name: Testes de unidade (lógica pura e contratos das medições)
+        working-directory: tools
+        run: npm test
+      - name: Verificar o site (build, regras, codificação, CSS, HTML, telas e acessibilidade)
         working-directory: tools
         run: npm run check
+      - name: Fluxos (busca, ficha, filtros, edição; dados fictícios)
+        if: success() || failure()
+        working-directory: tools
+        run: npm run flows
+      - name: Acervos (coração e corpo, interrupções, movimento reduzido)
+        if: success() || failure()
+        working-directory: tools
+        run: npm run acervos
+      - name: Lighthouse (reprova abaixo dos limites de tools/gates.mjs)
+        if: success() || failure()
+        working-directory: tools
+        run: npm run lighthouse
       - name: Guardar capturas de tela e relatório
         if: always()
         uses: actions/upload-artifact@v4
