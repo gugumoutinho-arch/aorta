@@ -100,7 +100,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 
 | Pacote (rodada A) | Situação | Commit |
 |---|---|---|
-| N6 · trocas rápidas e botão | concluído | (este) |
+| N6 · trocas rápidas e botão | concluído | `22653e8` |
 | N1 · assuntos, ligações e rascunhos nas duas pontas | a fazer | |
 | N3 · quase-duplicatas | a fazer | |
 | N2 · formulário com assuntos | a fazer | |
