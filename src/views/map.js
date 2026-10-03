@@ -9,7 +9,7 @@ import { concept } from "./concept.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const modelUrl = () => `${import.meta.env.BASE_URL}modelos/${concept().model || "heart-hra-v1.3.glb"}`;
-let diving = false, diveId = 0, mapConcept = null, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
+let diving = false, diveId = 0, mapConcept = null, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0, boxes = null;
 
 export function cancelDive() {
   diveId++;
@@ -28,6 +28,7 @@ function drawOutline() {
 }
 
 function buildLabels() {
+  boxes = null; // as caixas valem para os rótulos antigos; o próximo layout mede de novo
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
   // O nome acessível é o próprio texto visível ("Art. 01 M1 4 materiais"), como pede o WCAG 2.5.3.
   nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
@@ -43,44 +44,50 @@ function buildLabels() {
   if (focused) nav.querySelector(`[data-module="${focused}"]`)?.focus({ preventScroll: true });
 }
 
-/* Duas colunas, cada rótulo do lado em que o caminho termina, na ordem da altura da ponta. Nada atravessa o desenho. */
+/* Duas colunas, cada rótulo do lado em que o caminho termina, na ordem da altura da ponta. Nada atravessa o desenho.
+   Primeiro lê todas as medidas, depois escreve todas as posições: ler entre escritas obrigava o navegador a refazer o
+   layout a cada rótulo (data-side muda o alinhamento pelo CSS). As caixas calculadas ficam guardadas para as linhas-guia,
+   que o 3D redesenha a cada quadro, não precisarem medir nada. */
 function layout() {
   layoutFrame = 0;
-  const map = $("#map"), w = $("#modules").clientWidth, hgt = map.clientHeight;
+  const map = $("#map"), nav = $("#modules"), w = nav.clientWidth, hgt = map.clientHeight, mapW = map.clientWidth;
   if (!w || !hgt) return;
-  // Ordem de cada coluna = altura da ponta na tela (projetada), para as linhas-guia não se cruzarem.
-  const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0;
+  // Leituras.
+  const mr = map.getBoundingClientRect(), nr = nav.getBoundingClientRect(), dx = nr.left - mr.left, dy = nr.top - mr.top;
+  const labels = mods.map(m => ({ m, b: nav.querySelector(`[data-module="${CSS.escape(m.id)}"]`) })).filter(x => x.b)
+    .map(x => ({ ...x, h: x.b.offsetHeight, w: x.b.offsetWidth }));
+  // Cálculo. Ordem de cada coluna = altura da ponta na tela (projetada), para as linhas-guia não se cruzarem.
+  const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0, corpo = concept().model === "corpo.glb";
+  // Lado = onde a ponta aparece na tela (vale para o 3D girado e para o mapa em linhas).
+  const isRight = m => corpo ? m.index % 2 === 1 : ends[m.index] ? ends[m.index].x > mapW / 2 : concept().side(m, mods.length) === "right";
+  const placed = [];
   for (const right of [false, true]) {
-    // Lado = onde a ponta aparece na tela (vale para o 3D girado e para o mapa em linhas).
-    const isRight = m => concept().model === "corpo.glb" ? m.index % 2 === 1 : ends[m.index] ? ends[m.index].x > map.clientWidth / 2 : concept().side(m, mods.length) === "right";
-    const side = mods.filter(m => isRight(m) === right).sort((a, b) => y(a) - y(b));
     // Cada rótulo tenta ficar na altura da sua ponta (linha-guia curta e quase reta); depois afasta os vizinhos
     // para não se sobreporem e devolve para dentro do mapa, de baixo para cima.
-    const GAP = 8, items = side.map(m => ({ m, b: $(`#modules [data-module="${m.id}"]`) })).filter(x => x.b);
-    items.forEach((x, i) => { x.h = x.b.offsetHeight; x.top = concept().model === "corpo.glb"
-      ? 28 + i * (hgt - 56 - x.h) / Math.max(1, items.length - 1)
-      : Math.max(4, y(x.m) - x.h * .62); });
+    const GAP = 8, items = labels.filter(x => isRight(x.m) === right).sort((a, b) => y(a.m) - y(b.m)).map(x => ({ ...x }));
+    items.forEach((x, i) => { x.top = corpo ? 28 + i * (hgt - 56 - x.h) / Math.max(1, items.length - 1) : Math.max(4, y(x.m) - x.h * .62); });
     for (let k = 1; k < items.length; k++) items[k].top = Math.max(items[k].top, items[k - 1].top + items[k - 1].h + GAP);
     let limit = hgt - 4;
     for (let k = items.length - 1; k >= 0; k--) { items[k].top = Math.min(items[k].top, limit - items[k].h); limit = items[k].top - GAP; }
-    items.forEach(({ b, top }) => {
-      b.dataset.side = right ? "right" : "left";
-      b.style.transform = `translate(${right ? w - b.offsetWidth : 0}px, ${Math.max(0, top)}px)`;
-    });
+    items.forEach(x => placed.push({ ...x, right, x: right ? w - x.w : 0, top: Math.max(0, x.top) }));
   }
-  $("#guides").setAttribute("viewBox", `0 0 ${map.clientWidth} ${hgt}`);
+  // Escritas.
+  placed.forEach(({ b, right, x, top }) => { b.dataset.side = right ? "right" : "left"; b.style.transform = `translate(${x}px, ${top}px)`; });
+  boxes = new Map(placed.map(p => [p.m.index, { left: dx + p.x, top: dy + p.top, width: p.w, height: p.h, right: p.right }]));
+  $("#guides").setAttribute("viewBox", `0 0 ${mapW} ${hgt}`);
   guides(tips);
 }
 const requestLayout = () => { if (!layoutFrame) layoutFrame = requestAnimationFrame(layout); };
+/* Linhas-guia da ponta de cada caminho até o rótulo, com as caixas guardadas pelo último layout (sem medir nada). */
 function guides(points) {
   tips = points || null;
-  const map = $("#map"), r = map.getBoundingClientRect(), base = points || flatTips();
-  $$("#modules .mod").forEach(b => {
-    const i = +b.dataset.index, p = base[i], g = $(`[data-guide="${i}"]`);
-    if (!p || !g) return;
-    const br = b.getBoundingClientRect(), right = b.dataset.side === "right";
-    const x = right ? br.left - r.left : br.right - r.left, y = br.top - r.top + br.height * .62;
-    g.setAttribute("d", `M${p.x.toFixed(1)} ${p.y.toFixed(1)} L${(x + (right ? -14 : 14)).toFixed(1)} ${y.toFixed(1)} H${x.toFixed(1)}`);
+  if (!boxes) return;
+  const base = points || flatTips();
+  $$("#guides [data-guide]").forEach(g => {
+    const i = +g.dataset.guide, p = base[i], box = boxes.get(i);
+    if (!p || !box) return;
+    const x = box.right ? box.left : box.left + box.width, y = box.top + box.height * .62;
+    g.setAttribute("d", `M${p.x.toFixed(1)} ${p.y.toFixed(1)} L${(x + (box.right ? -14 : 14)).toFixed(1)} ${y.toFixed(1)} H${x.toFixed(1)}`);
   });
 }
 
