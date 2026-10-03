@@ -102,7 +102,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 |---|---|---|
 | N6 · trocas rápidas e botão | concluído | `22653e8` |
 | N1 · assuntos, ligações e rascunhos nas duas pontas | concluído | `58b71e1` |
-| N3 · quase-duplicatas | a fazer | |
+| N3 · quase-duplicatas | concluído | `bb2bf00` |
 | N2 · formulário com assuntos | a fazer | |
 | N4 · colagem | a fazer | |
 | N5 · Cardiologia → coração | a fazer | |
@@ -115,3 +115,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 
 - **Comandos (cópia isolada do commit):** `npm test` 89/89; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 51/51; `import` 44/44.
 - **Pendências:** nenhuma de banco. O Supabase real não foi exercitado.
+
+### A · N3
+
+- `npm test` 92/92; `topic-edit` 51/51 (cópia isolada). Pendência: o dono aprovar o vocabulário de plurais e as abreviações.

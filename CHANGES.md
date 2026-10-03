@@ -2,6 +2,16 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N3 · Detector de quase-duplicatas: plural, Unicode e regra de unicidade — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou (`src/domain/similar.js`):**
+  - vocabulário explícito de plural → singular ("membros superiores" → "membro superior", "laterais" → "lateral"…), além das abreviações aprovadas;
+  - "MMSS" passa a sugerir "Membro superior", e "Membro sup." sugere também "Membros superiores";
+  - os vetos (números/ordinais e direções opostas) continuam valendo antes da distância.
+- **Unicidade × semelhança:** a unicidade continua sendo exatamente `topicNorm`, a mesma regra do banco (`private.topic_norm`), sem mudança no SQL. A normalização aproximada só sugere. Teste novo prova as duas coisas, e que `planTopic` normaliza para NFC antes de comparar (texto decomposto vira o mesmo assunto).
+- **Testado:** `similar.test` 10/10 (casos obrigatórios, plural, composto × decomposto, unicidade × sugestão), com os novos reprovando antes da mudança; `npm test` 92/92 e `topic-edit` 51/51 na cópia isolada do commit.
+- **Decisão a confirmar com o dono:** a lista de plurais e as abreviações extras ("inf.", algarismos romanos) ficam em constantes, para ele aprovar ou cortar.
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N1 · As duas pontas do banco iguais para assuntos, ligações e rascunhos — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Esquema único (`src/core/schema.js`):** colunas, chaves, unicidade, chaves estrangeiras, cascata/restrict e coluna gerada, copiados da migração `20261003190000_assuntos.sql`. O adaptador do Supabase e o banco fictício usam a mesma fonte; o que não está no esquema não é gravado em nenhum dos dois.
