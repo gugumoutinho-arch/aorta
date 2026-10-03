@@ -105,7 +105,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N3 · quase-duplicatas | concluído | `bb2bf00` |
 | N2 · formulário com assuntos | concluído | `0b4cb09` |
 | N4 · colagem | concluído | `1a4ada4` |
-| N5 · Cardiologia → coração | a fazer | |
+| N5 · Cardiologia → coração | concluído (revisão de design em andamento) | `3c46934` |
 
 ### A · N6
 
@@ -129,3 +129,8 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 - **Bateria G (`1a4ada4`):** test 106/106; check 0/0; flows 364/364; acervos 67/67; topics 57/57; topic-edit 52/52; import 59/59. Lighthouse 91/92 (celular), 100/99 (computador), acessibilidade 100, boas práticas 96. LCP 2,7 s (não comparável; JS +2 KB comprimido).
 - **Revisão de design:** 2 bloqueantes e 4 importantes corrigidos.
 - **Pendência:** reconferir o LCP na bateria final.
+
+### A · N5
+
+- `routes.test` 7/7; `npm test` 107/107; `acervos` 71/71 (com Cardiologia fictícia e capturas do destaque).
+- **Checkpoint:** todos os pacotes da rodada A estão commitados. Falta: o resultado da revisão de design do N5, a bateria final e o encerramento.

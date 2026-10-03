@@ -2,6 +2,16 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N5 · Cardiologia acende o coração do corpo — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Antes desta rodada:** o destino "coracao" já existia (`e60e5e3`): rótulo "Coração", traçado da raiz da aorta até perto do ápice, mergulho até a ponta e coração 3D na página do módulo. Mas o `body.js` desenhava o coração **fora** dos órgãos, então ele não acendia nem pulsava com o módulo.
+- **O que mudou:**
+  - função pura `organOwners` (`src/body/routes.js`): órgão (ou o coração) → módulo cujo destino o inclui;
+  - no corpo 3D, quando há Cardiologia, o coração conta como órgão dela: borda na cor do módulo, acende ao apontar ou focar o rótulo e pulsa quando o fluxo chega. A cor de base (`--ventricle`) e a entrada do coração não mudam;
+  - sem Cardiologia, o coração continua só a bomba de todos.
+- **Testado:** `routes.test` 7/7 (cardio → coração, ordem do array não muda destinos, desconhecido → destino livre, M1 → pé, coração é órgão da Cardiologia e de ninguém sem ela); `npm test` 107/107; `acervos` 71/71 com uma Cardiologia fictícia (rótulo "Coração", apontar realça o caminho até o coração, mergulho abre o módulo com o coração 3D; capturas `tools/reports/refino/cardio-destaque.png` e `cardio-modulo.png`).
+- **Não testado:** brilho do coração medido no WebGL (só por captura, com SwiftShader); GPU real.
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N4 · Colagem endurecida e publicação determinística — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Parser (`src/domain/import.js`):**
