@@ -151,3 +151,14 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 - **Conclusão sobre o LCP:** quase toda a diferença vem do script de teste injetado no `<head>` (banco fictício com as regras do esquema + guarda do Supabase), não do site. O JS do site cresceu cerca de 6 KB sem compressão. Medido aqui, sem fontes e sem compressão no servidor local; não comparável com o computador do dono.
 
 RODADA A ENCERRADA em 2026-10-03, SHA 246d4c7 (código testado; este registro vem no commit seguinte).
+
+## Complemento local da rodada A (Claude, no Windows do dono, 03/10/2026)
+
+- **Revisão independente (só leitura) de `prototipo-v4...nuvem/f1-conteudo`:** 0 críticos, 0 altos. Dois médios corrigidos em `0ad655f`, com teste antes:
+  - colar um arquivo que outra aba já salvou conta como "já existia" (23505) e o lote segue;
+  - publicar usa o rascunho relido do banco.
+- **Bateria no Windows, com as fontes reais (a nuvem não carregou as fontes):**
+  - `npm test` 110/110; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `acervos` 71/71 (2×, mais 3× antes do commit `246d4c7`);
+  - Lighthouse com mediana de 3: IDOMED 90/100, geral **85**/99 (celular/computador); acessibilidade e boas práticas 100; LCP no celular 2,7 s. O geral no celular está no limite: é meta da rodada B.
+
+RODADA A ENCERRADA (com o complemento local) em 03/10/2026, SHA 0ad655f — a rodada B parte do topo deste ramo, que descende dele.
