@@ -101,7 +101,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | Pacote (rodada A) | Situação | Commit |
 |---|---|---|
 | N6 · trocas rápidas e botão | concluído | `22653e8` |
-| N1 · assuntos, ligações e rascunhos nas duas pontas | a fazer | |
+| N1 · assuntos, ligações e rascunhos nas duas pontas | concluído | `58b71e1` |
 | N3 · quase-duplicatas | a fazer | |
 | N2 · formulário com assuntos | a fazer | |
 | N4 · colagem | a fazer | |
@@ -110,3 +110,8 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 ### A · N6
 
 - Trocas rápidas 0/10; botão sob CPU 6×: regra antiga 2/10 falhas, regra nova 10/10; `acervos` 67/67 em 3/3.
+
+### A · N1
+
+- **Comandos (cópia isolada do commit):** `npm test` 89/89; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 51/51; `import` 44/44.
+- **Pendências:** nenhuma de banco. O Supabase real não foi exercitado.

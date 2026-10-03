@@ -2,6 +2,37 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N1 · As duas pontas do banco iguais para assuntos, ligações e rascunhos — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Esquema único (`src/core/schema.js`):** colunas, chaves, unicidade, chaves estrangeiras, cascata/restrict e coluna gerada, copiados da migração `20261003190000_assuntos.sql`. O adaptador do Supabase e o banco fictício usam a mesma fonte; o que não está no esquema não é gravado em nenhum dos dois.
+- **Ligações (`material_topics`):**
+  - id composto só no adaptador e no mock, com cada parte codificada (`encodeURIComponent`): ":" ou "%" dentro de um id não confundem; id malformado é recusado;
+  - o SQL nunca recebe `id`: upsert de `{material_id, topic_id}` com conflito na dupla, delete filtrando as duas colunas;
+  - update é **recusado** explicitamente.
+- **Adaptador:**
+  - `get` lê pela chave;
+  - `create` só insere se não existe (nunca sobrescreve);
+  - `list` lê a tabela uma vez;
+  - `normalized_name` nunca é enviado.
+- **Banco fictício (`tools/harness.mjs`):**
+  - unicidade (23505), chaves estrangeiras (23503), cascata ao apagar material e restrict ao apagar assunto ligado;
+  - `normalized_name` gerado com as mesmas letras do `topicNorm`; `set` como upsert do Postgres; ids UUID;
+  - falha programada **antes** (`__mockFail`) ou **depois** de gravar (`__mockFailAfter`, resposta incerta);
+  - persistência entre recargas e entre abas do mesmo contexto do navegador (o localStorage é a fonte única; outro contexto começa limpo).
+- **Rede bloqueada:** toda página de teste recusa e registra rede para `*.supabase.co` (`window.__supabaseBlocked` + erro de console, que reprova as suítes).
+- **Ações:**
+  - `setMaterialTopics(material, matéria, assuntos)` mexe só nos assuntos daquela matéria e preserva os de outras (ex.: Ortopedia);
+  - `createTopic` confirma no banco antes de responder: dois clientes com o mesmo nome chegam ao mesmo assunto, e nomes diferentes com o mesmo slug ganham `-2`;
+  - texto legado `subject` = primeiro assunto da matéria principal, por ordem e depois id; material que nunca teve assunto conserva o texto livre;
+  - o Desfazer da remoção só confirma quando material **e** ligações voltaram; se parar no meio, oferece "Tentar de novo".
+- **Atomicidade:** não foi preciso RPC. As escritas são repetíveis (upsert, create sem sobrescrever) e conferidas no banco, então nenhum SQL novo é proposto aqui.
+- **Testado:**
+  - `npm test` 89/89: adaptador com cliente espião (payload, filtros, sem `id`, update recusado, `get`/`create`/`list`), mock (unicidade, FK, cascata, restrict, coluna gerada e filtrada, persistência por contexto, falha antes e depois), criação concorrente e texto legado; guarda do Supabase (fetch, XHR e WebSocket recusados e registrados);
+  - `check` 0/0; `flows` 364/364; `topics` 57/57; `import` 44/44;
+  - `topic-edit` 51/51: banco persistente — criar assunto, ligar, desligar, recarregar mantém; remover e desfazer com falha no meio, "Tentar de novo", tudo de volta depois de recarregar.
+  - Antes da correção, o e2e reprova esperando "Tentar de novo"; os testes de unidade novos reprovaram antes da implementação.
+- **Não testado:** Supabase real (nenhum acesso).
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N6 · "botão fica pressionado" e trocas rápidas sem exceção — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Retomada:** o ramo já existia (sessão anterior). Validei que descende do `prototipo-v4` e trouxe o `prototipo-v4` atual (`4b6f838`) por merge (`7303e51`), sem force. SHA base desta rodada: `4b6f838`.
