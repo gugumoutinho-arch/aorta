@@ -23,7 +23,11 @@ Mais recente primeiro. Regras completas em `AGENTS.md`.
   - regras `[hidden]` repetidas removidas.
   **Ficou:** a borda da ficha desmarcada (`--line-strong`) tem contraste 2,1:1 a 2,3:1, abaixo de 3:1. É o mesmo token de todos os botões e campos, então mudar é decisão de identidade.
 - **Banco fictício (`tools/harness.mjs`):** ganchos de teste `window.__mockDelay` e `window.__mockFail`, rascunhos e persistência opcional entre recarregamentos.
-- **Testado (dados fictícios):** `tools/topic-edit.mjs` 46/46 (a 1440 escuro e a 390 claro, só teclado, WCAG sem violações, alvos ≥ 44 px, sem rolagem lateral, XSS, salvar durante a criação, falha ao criar e Esc). O e2e reprovou antes de o formulário ser ligado. Bateria completa no fim desta entrada.
+- **Testado (dados fictícios):** `tools/topic-edit.mjs` 46/46 (a 1440 escuro e a 390 claro, só teclado, WCAG sem violações, alvos ≥ 44 px, sem rolagem lateral, XSS, salvar durante a criação, falha ao criar e Esc). O e2e reprovou antes de o formulário ser ligado.
+- **Bateria completa no commit do N2 (cópia isolada):**
+  - `npm test` 56/56; `check` 0 erros e 0 avisos; `flows` 364/364; `topics` 57/57; `topic-edit` 46/46.
+  - `acervos` **reprovou** na 3ª verificação, "320 dark idomed sem rolagem e rótulos sobrepostos". O mesmo teste já falhava antes do N2 (3 de 20 rodadas da medição do N6, no código do N3). É uma corrida do teste, corrigida no N6.
+  - Lighthouse: desempenho no celular 95 (IDOMED) e 93 (geral); no computador 100/100; acessibilidade 100. Boas práticas **96**: o único erro de console é o certificado das fontes do Google, que o proxy da nuvem intercepta (`ERR_CERT_AUTHORITY_INVALID`). Não desliguei a verificação TLS para contornar. No CI do GitHub, esse erro não existe.
 - **Não testado:** Supabase real; leitor de tela real; Safari.
 
 ## 2026-10-03 — Claude (nuvem) — N3 · Detector de quase-duplicatas de assunto — ramo `nuvem/f1-conteudo`, não publicado

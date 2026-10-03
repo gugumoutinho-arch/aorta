@@ -16,7 +16,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | Pacote | Situação | Commit |
 |---|---|---|
 | N1 · Gravar assuntos e ligações | concluído | `746ab39` |
-| N2 · Formulário com assuntos | concluído | (ver git log) |
+| N2 · Formulário com assuntos | concluído | `80bc24c` |
 | N3 · Quase-duplicatas | concluído | `771470f` |
 | N4 · Importação por colagem | a fazer | |
 | N5 · Cardiologia → coração | a fazer | |
@@ -33,3 +33,12 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 
 - **Comandos e resultados:** `node --test tests/similar.test.mjs` 7/7 (reprovou com "módulo não encontrado" antes da implementação); `npm test` completo 56/56. `check`, `flows`, `acervos`, `topics` e `topic-edit` da bateria do N1 rodaram já com `similar.js` presente, que nada importa.
 - **Pendências:** confirmar com o dono "inf." e o veto de algarismos romanos.
+
+### N2 · Formulário com assuntos
+
+- **Resultados:** `npm test` 56/56; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 46/46. O e2e reprovou antes de o formulário ser ligado.
+- **`acervos`:** reprovou em "320 dark idomed … rótulos sobrepostos". O teste já era instável antes do N2; correção no N6.
+- **Lighthouse:** celular 95/93, computador 100/100, acessibilidade 100. Boas práticas 96 só pelo certificado das fontes no proxy da nuvem.
+- **Revisão de design:** 0 bloqueantes; 3 importantes corrigidos (salvar durante a criação, foco, falha visível).
+- **Pendências:** contraste da borda `--line-strong` (2,1 a 2,3:1), que é decisão de identidade do dono.
+- **Ambiente:** o Chrome daqui não confia no certificado do proxy para fonts.googleapis.com; as fontes caem no padrão do sistema e o Lighthouse marca 96 em boas práticas.
