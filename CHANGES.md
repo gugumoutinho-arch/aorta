@@ -2,6 +2,36 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — Rodada A · N4 · Colagem endurecida e publicação determinística — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Parser (`src/domain/import.js`):**
+  - Drive só com host **exato** (`drive.google.com`/`docs.google.com`): subdomínio ou domínio parecido não é tratado como Drive;
+  - link com usuário/senha embutidos é recusado, e na prévia aparece mascarado (`•••@`);
+  - caminho resolvido segmento a segmento, sempre **dentro do pai** ("Micro e Imuno" em M2 › BBIO 2 não é achado sob M1);
+  - nomes iguais no mesmo nível abrem um ramo cada: se sobram vários destinos, a linha pede **escolha explícita**, e cada candidato traz os avisos do próprio ramo; um único destino possível resolve sozinho; nenhum vira "caminho desconhecido";
+  - depois de uma unidade sem matérias, segmento desconhecido não vira "assunto".
+- **Publicar (`src/core/import-store.js`):**
+  - o id do material é o do rascunho (ou o já reservado nele): dois clientes chegam ao **mesmo** material;
+  - o id é guardado antes; o material é criado só se não existe (nunca sobrescreve ao retomar);
+  - o estado é conferido no banco depois da criação; rascunho ignorado por outro cliente é recusado;
+  - "publicado" só depois de todas as ligações.
+- **Tela (`src/views/import.js`):**
+  - erro, aviso e duplicata diferenciados por ícone **e** palavra ("Erro:", "Aviso:", "Duplicata:");
+  - seletor de destino no caso ambíguo, com o destino completo e um diferenciador tirado dos dados (posição, nº de materiais, assuntos), também no "Onde fica" do rascunho quando há nomes repetidos;
+  - o foco fica no seletor depois da escolha;
+  - direitos com rótulos claros e a mesma explicação nas duas telas ("Público" é o padrão para material do dono e **não certifica direitos de terceiros**).
+- **Revisão de design (`aorta-design-reviewer`):**
+  - 2 bloqueantes, corrigidos: o foco se perdia ao escolher o destino, e os candidatos ambíguos tinham textos idênticos;
+  - 4 importantes, corrigidos: aviso sem seletor, avisos do ramo escolhido sumiam, texto de direitos contraditório, "escolha na prévia" soava obrigatório;
+  - sugestões aplicadas: rótulo do seletor com o título, largura do seletor, aviso repetido, senha mascarada, nome de variável;
+  - **ficam:** borda `--line-strong` abaixo de 3:1 (decisão de identidade) e ícones de erro e de aviso em cores próximas (a diferença está na forma e na palavra, como pedido). Layout sem referência externa.
+- **Testado:**
+  - unidade: parser 20/20 (host falso, credenciais, `@` permitido fora do usuário, limitado ao pai, ambíguo com e sem saída, avisos por candidato, id determinístico);
+  - gravação 12/12 (falha **antes e depois** de cada escrita — rascunho, material, ligação — e repetir não duplica; "publicado" só depois das ligações; não sobrescreve; ignorado não publica);
+  - e2e `import` 59/59: fluxo principal a 1440 e 390 px; cenário com caminho limitado ao pai, ambíguo com escolha e foco, credenciais, host falso, clique duplo, **dois clientes** no mesmo rascunho e falha depois de gravar o material.
+- **Bateria G depois do N4 (cópia isolada de `1a4ada4`):** `npm test` 106/106; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 52/52; `import` 59/59. Lighthouse: celular 91 (IDOMED) e 92 (geral), computador 100/99, acessibilidade 100, boas práticas 96. LCP no celular 2,7 s contra 2,4–2,5 s no preflight; o JS inicial cresceu só 2 KB comprimido. Com as fontes sem carregar, os números não são comparáveis; reconfiro na bateria final.
+- **Não testado:** Supabase real; a tabela `material_drafts` sem tempo real (a página relê depois de cada gravação própria e, no teste, as abas do mesmo contexto se avisam pelo localStorage).
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N2 · Formulário com assuntos sobre a gravação nova — ramo `nuvem/f1-conteudo`, não publicado
 
 - **O que mudou:**

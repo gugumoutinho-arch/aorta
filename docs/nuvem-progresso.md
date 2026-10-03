@@ -104,7 +104,7 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 | N1 · assuntos, ligações e rascunhos nas duas pontas | concluído | `58b71e1` |
 | N3 · quase-duplicatas | concluído | `bb2bf00` |
 | N2 · formulário com assuntos | concluído | `0b4cb09` |
-| N4 · colagem | a fazer | |
+| N4 · colagem | concluído | `1a4ada4` |
 | N5 · Cardiologia → coração | a fazer | |
 
 ### A · N6
@@ -123,3 +123,9 @@ Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa
 ### A · N2
 
 - `npm test` 92/92; `topic-edit` 52/52; `topics` 57/57 (cópia isolada). Sem mudança visual nesta rodada.
+
+### A · N4
+
+- **Bateria G (`1a4ada4`):** test 106/106; check 0/0; flows 364/364; acervos 67/67; topics 57/57; topic-edit 52/52; import 59/59. Lighthouse 91/92 (celular), 100/99 (computador), acessibilidade 100, boas práticas 96. LCP 2,7 s (não comparável; JS +2 KB comprimido).
+- **Revisão de design:** 2 bloqueantes e 4 importantes corrigidos.
+- **Pendência:** reconferir o LCP na bateria final.
