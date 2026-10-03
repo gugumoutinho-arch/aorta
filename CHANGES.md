@@ -2,6 +2,16 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-03 — Claude (nuvem) — N3 · Detector de quase-duplicatas de assunto — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:** `src/domain/similar.js` (lógica pura) diz se dois nomes de assunto da mesma matéria são quase iguais. Só sugere; nunca une sozinho.
+  - Normalização: NFC, espaços, minúsculas, sem acento e sem pontuação, "ª/º" como letra; abreviações aprovadas viram palavra inteira ("sup." → superior, "inf." → inferior, "mmss" → membros superiores, "mmii" → membros inferiores). A lista fica numa constante, para o dono acrescentar.
+  - Parecido quando a distância de edição é ≤ max(1, 12% do maior nome) ou o Jaccard das palavras (sem conectivos como "e" e "de") é ≥ 0,8.
+  - Veto: direções opostas (superior/inferior, medial/lateral, direito/esquerdo, anterior/posterior, proximal/distal, cranial/caudal, com plural e gênero) e números ou algarismos romanos diferentes ("1ª semana" × "2ª semana", "Fisiologia I" × "II").
+- **Testado:** `node --test` 7/7, incluindo os 4 casos obrigatórios ("Membro sup." ~ "Membro superior"; "Membro superior" ≁ "Membro inferior"; "Gametogênese" ~ "Gametogenese"; "1ª semana" ≁ "2ª semana"). Os testes reprovaram antes de o arquivo existir. A bateria do N1 rodou com estes arquivos presentes; nada os importa ainda, então o site não muda.
+- **Não testado:** uso na tela (vem no N2).
+- **Decisão a confirmar com o dono:** "inf." como inferior e o veto de algarismos romanos foram acrescentados por simetria e por segurança; não estavam na lista dada.
+
 ## 2026-10-03 — Claude (nuvem) — N1 · Gravar assuntos e ligações — ramo `nuvem/f1-conteudo`, não publicado
 
 - **O que mudou:** a interface de banco grava `topics`, `material_topics` e `material_drafts` nas duas pontas.
