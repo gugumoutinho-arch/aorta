@@ -41,7 +41,7 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 
 | Pacote | Situação | Commit |
 |---|---|---|
-| U0 · Auditoria | concluído | `c64013e` (ferramentas), `4daa6f7` + seguinte (doc) |
+| U0 · Auditoria | concluído | `c64013e` (ferramentas), `8080fbe`, `d8f4da3` (doc) |
 | U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, desfoque dos diálogos no commit seguinte |
 
 ### U0 · Auditoria
