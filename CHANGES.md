@@ -2,6 +2,27 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude (nuvem) — Rodada B · U2 · Início na direção D — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou:**
+  - palco: brilho, título, busca e "Continuar" em vidro;
+  - rótulos do mapa como painéis;
+  - índice editorial numerado e prateleira de casos clínicos;
+  - listas em linhas;
+  - no celular: palco compacto e barra inferior (Início, Mapa, Favoritos, Buscar).
+- **Por quê:** é a direção D aprovada pelo dono.
+- **Estabilidade:**
+  - fontes substitutas com largura medida;
+  - textos do acervo antes da primeira pintura;
+  - espaços reservados;
+  - colagem de links carregada só em Organizar.
+- **Testado:**
+  - `npm test` 120/120; `check` 0/0; `flows` 368/368; `acervos` 71/71; `topics` 57/57; `import` 59/59;
+  - orçamento ESTRITO passa (CLS máximo 0,0019);
+  - Lighthouse celular 93/93, acessibilidade e boas práticas 100.
+  - Verificações antigas trocadas pela nova verdade em `flows` e `acervos` (ver `docs/ui-progresso.md`).
+- **Não verificado:** celular real; compreensão em 5 s com alunos.
+
 ## 2026-10-04 — Claude (nuvem) — Rodada B · U1 · Sistema de movimento — ramo `nuvem/ui-lapidacao`, não publicado
 
 - **O que mudou:**

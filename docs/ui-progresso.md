@@ -42,7 +42,8 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | Pacote | Situação | Commit |
 |---|---|---|
 | U0 · Auditoria | concluído | `c64013e` (ferramentas), `8080fbe`, `d8f4da3` (doc) |
-| U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, desfoque dos diálogos no commit seguinte |
+| U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, `d8f4da3` |
+| U2 · Início na direção D | concluído (revisão de design em andamento) | `0755196` |
 
 ### U0 · Auditoria
 
@@ -78,3 +79,55 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - Pendente: medir em aparelho real.
 - **Vídeos:** `tools/reports/ui/videos/u1-antes/` e `u1-depois/` (fora do git; vão no artefato final).
 - **Movimento reduzido:** intacto. `flows` cobre a troca no meio da animação e passou.
+
+### U2 · Início na direção D
+
+- **Palco:**
+  - brilho radial (`--stage-glow`);
+  - linha "Feito por estudantes · sem vínculo oficial com a IDOMED";
+  - título grande ("O curso inteiro, *irrigado* por bons materiais.");
+  - busca creme que diz quantos materiais e assuntos há;
+  - "Continuar" em vidro (o único `backdrop-filter`, ≥ 1000 px, com `@supports`);
+  - rótulos do mapa como painéis translúcidos, com o nome da artéria no coração.
+- **Mudança de composição:** o "Continuar" saiu de cima do mapa (como na maquete) para a coluna do texto, porque com oito módulos os rótulos não cabiam com ele sobre o mapa.
+- **Editorial:**
+  - índice numerado (grupo por módulo; linha por matéria com assuntos e contagem);
+  - números à esquerda (materiais, assuntos, casos);
+  - prateleira de casos clínicos (só aparece com caso);
+  - listas em linhas para mesa, recentes, livros, próprios e internet.
+- **Celular:**
+  - palco compacto com um rótulo no mapa;
+  - "Continuar" (ou "Comece por aqui") abaixo do coração;
+  - barra inferior (Início, Mapa → índice, Favoritos, Buscar), com traço e cor no item ativo e área segura.
+- **Estabilidade:**
+  - fontes substitutas com `size-adjust` medido. Com e sem as fontes do Google, o layout fica idêntico (posições conferidas, ver `docs/ui-auditoria.md`);
+  - texto do acervo e conceito do mapa aplicados antes da primeira pintura;
+  - espaço reservado para contagens, "Continuar" e estado do 3D;
+  - grade `minmax(0, 1fr)` no celular.
+- **Carga:** a colagem de links passou a ser carregada só em Organizar: o JS inicial caiu de 75,99 para 68,9 kB comprimidos.
+- **Testes trocados pela nova verdade (mais exigentes):**
+  - `flows`:
+    - índice com 2 grupos e linhas 01…08;
+    - no celular, um rótulo à vista e os 8 módulos no índice;
+    - setas só entre rótulos à vista;
+    - "Comece por aqui" levando ao M1 quando não há histórico;
+    - rótulos à vista dentro do mapa;
+  - `acervos`: rótulos à vista, pelo menos um.
+- **Resultados (árvore de `0755196`):**
+  - `npm test` 120/120;
+  - `check` 0/0;
+  - `flows` 368/368;
+  - `acervos` 71/71;
+  - `topics` 57/57;
+  - `import` 59/59;
+  - `ORCAMENTO_ESTRITO=1 npm run orcamento` **passa**: crescimento do JS 8,5 kB; CLS máximo **0,0019** nas 20 combinações (base: 0,29).
+- **Lighthouse (3 execuções; JSON em `tools/reports/lh-u2/`):**
+
+  | | Celular IDOMED | Celular geral | Computador |
+  |---|---|---|---|
+  | Desempenho | **93** [93/93/93] | **93** [93/93/93] | 100/100 |
+  | LCP | 2,6 s | 2,6 s (base 4,6) | — |
+  | CLS | 0,001 | 0,001 | — |
+
+  Acessibilidade 100 e boas práticas 100.
+- **Não verificado:** compreensão em 5 s (fica para o piloto com alunos); celular real.
