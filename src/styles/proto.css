@@ -1,17 +1,17 @@
 /* Protótipo v4: abas de acervo (IDOMED / Medicina geral), estante de livros, seletor de conceito e marca da folha. */
 
 /* Abas de acervo no cabeçalho: o controle mais importante depois da busca */
-.acervo-tabs { position: relative; display: flex; gap: var(--space-1); padding: var(--space-1); border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
-.acervo-pill { position: absolute; left: 0; top: 0; z-index: 0; border-radius: var(--radius-card); background: var(--paper); box-shadow: 0 6px 18px -10px var(--shadow), inset 0 -2px 0 var(--action); pointer-events: none; opacity: 0; }
-.acervo-tabs a { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; min-height: 48px; padding: var(--space-1) var(--space-4); border-radius: var(--radius-card); text-decoration: none; color: var(--muted); transition: background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease); }
-.acervo-tabs b { font: 600 14.5px/1.2 var(--sans); }
-.acervo-tabs small { font-size: 11.5px; }
+.acervo-tabs { position: relative; display: flex; gap: var(--space-5); padding: 0; border: 0; background: none; } /* série L: rótulos tipográficos, sem caixa dupla */
+.acervo-pill { position: absolute; left: 0; top: 0; z-index: 0; border-radius: 0; background: none; box-shadow: inset 0 -2px 0 var(--violet-2); pointer-events: none; opacity: 0; }
+.acervo-tabs a { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; min-height: 48px; padding: var(--space-1) 2px; border-radius: 0; text-decoration: none; color: var(--muted); transition: background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease); }
+.acervo-tabs b { font: 550 15px/1.2 var(--sans); }
+.acervo-tabs small { font: italic 400 13px/1.3 var(--serif); }
 @media (hover: hover) { .acervo-tabs a:hover { color: var(--text); } }
 .acervo-tabs a[aria-current="page"] { color: var(--text); }
 .units { position: relative; }
 .units-ink { position: absolute; left: 0; top: 0; z-index: 1; background: var(--selected); border-radius: 2px; pointer-events: none; opacity: 0; }
 .units button[aria-pressed="true"] { border-color: transparent; }
-.acervo-tabs a[aria-current="page"] small { color: var(--flow); }
+.acervo-tabs a[aria-current="page"] small { color: color-mix(in oklab, var(--text) 72%, var(--muted)); }
 .acervo-note { margin-top: 6px; font-size: 12.5px; color: var(--muted); max-width: 54ch; }
 
 /* Marca por conceito */
@@ -43,7 +43,7 @@ body[data-concept="corpo"] #flat-outline path { fill: color-mix(in oklab, var(--
 .footer-brand span.brand-name { display: inline; margin: 0; font: inherit; color: inherit; }
 
 /* Seletor do protótipo (Coração | Folha) */
-.proto-switch { position: fixed; z-index: 80; left: 16px; bottom: max(16px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 2px; padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--paper); border: 1px solid var(--line-strong); box-shadow: 0 14px 30px -16px var(--shadow); font-size: 12px; }
+.proto-switch { position: fixed; z-index: 80; left: 16px; bottom: max(16px, env(safe-area-inset-bottom)); display: flex; align-items: center; gap: 2px; padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3); border-radius: var(--radius-pill); background: var(--paper); border: var(--hairline) solid var(--line-strong); box-shadow: 0 14px 30px -16px var(--shadow); font-size: 12px; }
 .proto-switch > span { color: var(--muted); margin-right: 6px; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; font-size: 10.5px; }
 .proto-switch a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: var(--radius-pill); text-decoration: none; color: var(--muted); font-weight: 600; }
 .proto-switch a[aria-current="true"] { background: var(--violet-2); color: var(--bg); }
@@ -59,9 +59,9 @@ body:has(dialog[open]) .proto-switch { display: none; }
   .acervo-tabs a { flex: 1; }
 }
 @media (max-width: 640px) {
-  .acervo-tabs a { padding: var(--space-1) 10px; min-height: 46px; }
+  .acervo-tabs a { padding: var(--space-1) 2px; min-height: 46px; }
   .acervo-tabs b { font-size: 14px; }
-  .acervo-tabs small { font-size: 11px; }
+  .acervo-tabs small { font-size: 12.5px; }
   .mod.long { min-width: 84px; max-width: 40%; }
   .mod.long b { font-size: 16px; }
   .module-hero h1.long { font-size: 52px; overflow-wrap: normal; }

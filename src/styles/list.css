@@ -1,8 +1,8 @@
 /* Página do módulo (direção D): materiais em LISTA EDITORIAL — tipo no rótulo técnico, título em Literata, e à direita
    "Abrir original" e a estrela. Sem cartões, sem fundo que segue o ponteiro; a linha aberta na ficha fica marcada. */
-.sheet-list { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--line); }
+.sheet-list { display: flex; flex-direction: column; gap: 0; border-top: var(--hairline) solid var(--line); }
 .material { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: baseline; gap: var(--space-2) 22px;
-  padding: 18px 14px; margin-inline: -14px; border-bottom: 1px solid var(--line); border-radius: 0; background: none; box-shadow: none; }
+  padding: 18px 14px; margin-inline: -14px; border-bottom: var(--hairline) solid var(--line); border-radius: 0; background: none; box-shadow: none; }
 .material .mat-type { color: var(--c); font-size: 10.5px; letter-spacing: .14em; overflow-wrap: anywhere; }
 .material .mat-main { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .material-title { margin: 0; font: 400 22px/1.3 var(--serif); letter-spacing: -.01em; }
@@ -11,11 +11,19 @@
 .material-title button { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: left; overflow-wrap: anywhere; }
 .material-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); margin: 0; font-size: 12.5px; color: var(--muted); }
 .material .mat-acts { display: flex; align-items: center; gap: var(--space-1); align-self: center; }
-.material .open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 var(--space-2); color: var(--flow); font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.material .open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 var(--space-2); color: var(--muted); font-size: 13.5px; font-weight: 550; text-decoration: none; white-space: nowrap; transition: color .2s var(--ease); }
+.material .open svg { transition: translate .2s var(--ease); }
+/* Em repouso, a linha é calma; ao apontar (ou focar), o fundo tinge e "Abrir original" acende. */
+.material { transition: background-color .2s var(--ease); }
+.material:focus-within .open { color: var(--flow); }
 .material .open svg { width: 15px; height: 15px; }
-.material[aria-current="true"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong), inset 3px 0 0 var(--c); border-radius: var(--radius-card); border-bottom-color: transparent; }
+.material[aria-current="true"] { background: linear-gradient(90deg, color-mix(in oklab, var(--c) 13%, transparent), transparent 85%); box-shadow: inset 2px 0 0 var(--c); }
 @media (hover: hover) {
-  .material-title button:hover { color: var(--flow); }
+  .material:hover { background: linear-gradient(90deg, color-mix(in oklab, var(--c) 8%, transparent), transparent 70%); }
+  .material:hover .open { color: var(--flow); }
+  .material:hover .open svg { translate: 2px -2px; }
+  .material:hover .favorite { color: var(--muted); }
+  .material-title button:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; text-decoration-color: var(--hair-strong); }
   .material .open:hover span { text-decoration: underline; }
 }
 .material:has(.material-title button:focus-visible) { box-shadow: inset 0 0 0 2px var(--focus); border-radius: var(--radius-card); }
@@ -24,8 +32,8 @@
 /* Grupos (matéria ou assunto) */
 .group { margin-top: var(--space-5); }
 .group:first-child { margin-top: var(--space-2); }
-.group-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding-bottom: 10px; margin: 0; font: 600 11px var(--label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-.group-h .num { font: 600 12px var(--label); letter-spacing: 0; }
+.group-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding-bottom: 10px; margin: 0; font: italic 400 17px/1.3 var(--serif); letter-spacing: 0; text-transform: none; color: color-mix(in oklab, var(--text) 78%, var(--muted)); }
+.group-h .num { font: 500 12.5px var(--label); font-style: normal; letter-spacing: 0; font-variant-numeric: tabular-nums; color: var(--muted); }
 
 @media (max-width: 640px) { /* inclui o zoom de 200% num computador (640 px de largura útil) */
   .material-title button { display: block; -webkit-line-clamp: unset; overflow: visible; }

@@ -15,7 +15,8 @@
   --radius: 6px;
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
-  --radius-small: 6px; --radius-card: 10px; --radius-panel: 14px; --radius-pill: 99px;
+  --radius-small: 6px; --radius-card: 12px; --radius-panel: 16px; --radius-pill: 99px;
+  --hairline: 1px; /* fio: 0,5 px em telas de alta densidade (abaixo) */
   --elevation-card: 0 14px 34px -14px var(--shadow);
   --elevation-panel: 0 24px 80px -24px var(--shadow);
   --motion-enter: 720ms; --motion-reveal: 480ms; --motion-swap: 320ms;
@@ -55,6 +56,11 @@
   /* Direção D: brilho do palco, vidro (painéis translúcidos sobre o palco) e fundo dos painéis fixos (ficha, barra inferior). */
   --stage-glow: #2a1446; --glass: rgb(34 22 50 / .62); --glass-strong: rgb(34 22 50 / .84); --glass-line: rgb(201 184 255 / .22);
   --panel: #120b20; --case-glow: #3a1630; --case-line: #5a2a48;
+  /* Lapidação visual (série L): fios, realce interno do vidro, sombra que flutua e a luz do palco. */
+  --hair: rgb(201 184 255 / .12); --hair-strong: rgb(201 184 255 / .2);
+  --inset-light: inset 0 1px 0 rgb(255 255 255 / .06); --inset-action: inset 0 1px 0 rgb(255 255 255 / .24);
+  --shadow-float: 0 28px 60px -30px rgb(4 0 12 / .8), 0 10px 22px -14px rgb(4 0 12 / .55);
+  --glow-core: oklch(27% .1 300); --glow-halo: oklch(40% .14 358 / .16); --grain-opacity: 1;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
@@ -71,6 +77,10 @@
     --atrium: #8a63a6; --ventricle: #b45a80; --valve: #962349; --leaf: #2f7a3a;
     --stage-glow: #ead8ee; --glass: rgb(255 250 244 / .72); --glass-strong: rgb(255 250 244 / .9); --glass-line: rgb(91 58 138 / .2);
     --panel: #fbf4ee; --case-glow: #f3dbe3; --case-line: #dfb8c6;
+    --hair: rgb(48 25 48 / .1); --hair-strong: rgb(48 25 48 / .18);
+    --inset-light: inset 0 1px 0 rgb(255 255 255 / .75); --inset-action: inset 0 1px 0 rgb(255 255 255 / .2);
+    --shadow-float: 0 24px 50px -28px rgb(80 30 55 / .3), 0 8px 18px -12px rgb(80 30 55 / .18);
+    --glow-core: oklch(91% .04 320); --glow-halo: oklch(86% .06 5 / .45); --grain-opacity: .9;
     color-scheme: light;
   }
 }
@@ -87,6 +97,11 @@
   --atrium: #8a63a6; --ventricle: #b45a80; --valve: #962349; --leaf: #2f7a3a;
   --stage-glow: #ead8ee; --glass: rgb(255 250 244 / .72); --glass-strong: rgb(255 250 244 / .9); --glass-line: rgb(91 58 138 / .2);
   --panel: #fbf4ee; --case-glow: #f3dbe3; --case-line: #dfb8c6;
+  --hair: rgb(48 25 48 / .1); --hair-strong: rgb(48 25 48 / .18);
+  --inset-light: inset 0 1px 0 rgb(255 255 255 / .75); --inset-action: inset 0 1px 0 rgb(255 255 255 / .2);
+  --shadow-float: 0 24px 50px -28px rgb(80 30 55 / .3), 0 8px 18px -12px rgb(80 30 55 / .18);
+  --glow-core: oklch(91% .04 320); --glow-halo: oklch(86% .06 5 / .45); --grain-opacity: .9;
   color-scheme: light;
 }
 :root[data-theme="dark"] { color-scheme: dark; }
+@media (min-resolution: 2dppx) { :root { --hairline: .5px; } }

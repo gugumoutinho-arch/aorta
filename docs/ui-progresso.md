@@ -290,3 +290,40 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 - **Só o dono pode validar:** celular Android e iPhone reais, Safari e leitor de tela.
 
 RODADA B ENCERRADA em 04/10/2026, SHA 16e45df
+
+---
+
+# Lapidação visual (série L, v3) — 05/10/2026
+
+Foco visual, com a estrutura e o DNA mantidos: só muda o acabamento (tipografia, uso da cor, luz, grão, fios no lugar de
+caixas, estados, movimento fino e o acabamento do coração). Ramo `lapidacao-visual`, a partir de `prototipo-v4` (`229eb81`).
+
+### V0 · Preparação
+
+- Base verde antes de qualquer mudança: `npm test` 134/134; `check` 0/0; `flows` 450/450; `acervos` 105/105;
+  `topics` 57/57; `topic-edit` 52/52; `import` 59/59.
+- Pares "antes" capturados (seed fictício em `tools/reports/ui/visual-antes/`; a cópia com o catálogo real fica fora do git).
+
+### V1 + V2 · Fundação; molduras viram tipografia; carmim e caixa alta com disciplina
+
+Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit só.
+
+- **Fundação (V1):**
+  - tokens novos nos dois temas: fio (`--hair`, `--hairline`, que vira 0,5 px em telas 2x), realce interno do vidro, sombra que flutua, luz do palco em oklch, raios 12/16;
+  - grão de filme (`src/assets/grao.png`, 128 px, 7,6 KB, gerado por `tools/grao.mjs`);
+  - o anel de foco segue o raio de cada elemento;
+  - botão principal com relevo (degradê leve, realce interno, 0,985 ao pressionar).
+- **Molduras viram tipografia (V2):**
+  - **seletor de acervo:** dois rótulos com fio violeta;
+  - **faixa de assuntos:** abas com fio deslizante, sem caixa nem pílula; a borda esmaece quando há mais para o lado (linha do tempo da rolagem);
+  - **lateral de matérias:** ponto violeta no ativo;
+  - **Favoritos e Filtros:** sem contorno;
+  - **busca da página:** superfície tonal;
+  - **rótulos do mapa:** placa suave, sem contorno nem tracejado.
+- **Caixa alta só para códigos técnicos** ("ART. 01", tipo do material). Rótulos de seção, grupos, legendas e etiquetas passam a Literata itálica.
+- **Carmim em repouso só em 3 papéis:** ação principal, fluxo da artéria e palavra de destaque.
+  - "Abrir original" (linha, caso, livro) fica calmo e acende ao apontar ou focar a linha.
+  - O selo "Ctrl K" ficou neutro; no celular, o botão da busca é um quadrado de tinta.
+  - Saiu o ponto carmim da contagem.
+  - A busca rápida mostra um ponto na cor do módulo no lugar das iniciais.
+- **Testes:** `check` 0/0; `flows` 450/450; `acervos` 105/105; `topics` 57/57; `topic-edit` 52/52; `import` 59/59, sem mudar nenhuma asserção.
