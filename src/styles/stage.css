@@ -9,7 +9,7 @@
   background: radial-gradient(in oklab ellipse 22% 30% at 72% 47%, var(--glow-core), transparent 72%), radial-gradient(in oklab ellipse 20% 22% at 75% 60%, var(--glow-halo), transparent 70%),
     radial-gradient(in oklab ellipse 46% 62% at 70% 48%, var(--stage-glow), transparent 74%); } /* série L: luz em camadas, sem faixas (oklab + grão) */
 .eyebrow { display: flex; gap: 12px; font: 500 13.5px/1.45 var(--sans); letter-spacing: .005em; color: var(--muted); }
-.eyebrow::before { content: ""; flex: none; width: 22px; height: 1.5px; margin-top: .72em; border-radius: 1px; background: var(--flow); } /* um traço curto: a voz de chamada, sem caixa alta */
+.eyebrow::before { content: ""; flex: none; width: 22px; height: 1px; margin-top: .72em; border-radius: 1px; background: var(--violet-2); } /* um traço curto: a voz de chamada, sem caixa alta */
 /* Nessa faixa a linha cabe em 1 linha com a Schibsted e quebra em 2 com a substituta: duas linhas reservadas, nada pula
    quando a fonte chega (medido em 768 px: a busca subia 17 px). */
 @media (min-width: 641px) and (max-width: 1100px) { .eyebrow { min-height: calc(2 * 1.4em); } }
@@ -35,13 +35,13 @@
 @media (hover: hover) { .search-plate:hover { box-shadow: var(--inset-light), 0 0 0 1px color-mix(in oklab, var(--plate-ink) 12%, transparent), 0 26px 52px -22px var(--shadow); } }
 .counts { font-size: 13px; line-height: 20px; color: var(--muted); display: flex; align-items: center; flex-wrap: wrap; gap: 0 var(--space-1); min-height: 20px; margin-top: calc(-1 * var(--space-2)); }
 .counts i { display: none; }
-.counts b { color: var(--text); font-weight: 550; font-variant-numeric: tabular-nums; }
+.counts b { color: var(--text); font-weight: 500; font-variant-numeric: lining-nums tabular-nums; }
 
 /* Mapa no palco: o "Continuar" flutua sobre o canto inferior; legenda e estado do 3D numa linha discreta */
 .atlas { position: relative; min-width: 0; }
 .resume-slot { max-width: 560px; min-height: 100px; } /* espaço reservado: o "Continuar" chega com os dados sem empurrar nada */
 .resume-slot[data-filled="false"] { min-height: 0; }
-.resume { display: flex; align-items: center; gap: var(--space-4); padding: 14px 14px 14px 20px; border-radius: 16px; background: var(--glass-strong); border: var(--hairline) solid var(--glass-line); box-shadow: var(--inset-light), var(--shadow-float); }
+.resume { display: flex; align-items: center; gap: var(--space-4); padding: 14px 16px 14px 20px; border-radius: var(--radius-card); background: linear-gradient(115deg, color-mix(in oklab, var(--violet-2) 5%, var(--paper)), var(--glass-strong)); border: var(--hairline) solid var(--glass-line); box-shadow: var(--inset-light), 0 10px 24px -20px var(--shadow); }
 .resume-text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .resume .mono { font: italic 400 15px/1.35 var(--serif); letter-spacing: 0; text-transform: none; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* uma linha; o caminho completo está na ficha */
 .resume-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: left; font: 400 19px/1.3 var(--serif); color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
@@ -50,20 +50,23 @@
 .resume-go { display: grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 12px; background: var(--action); color: var(--action-ink); text-decoration: none; font-weight: 700; }
 .resume-go span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* o rótulo fica para o leitor de tela */
 .resume-go svg { width: 18px; height: 18px; }
-.resume.start .resume-go { background: none; color: var(--flow); border: 0; font-size: 20px; transition: translate .2s var(--ease); }
+.resume.start .resume-go { background: none; color: var(--violet-2); border: 0; font-size: 20px; transition: translate .2s var(--ease); }
 @media (hover: hover) { .resume.start:hover .resume-go { translate: 3px 0; } }
 .map-legend { display: flex; flex-wrap: wrap; gap: var(--space-1) 18px; align-items: center; padding-top: var(--space-2); font-size: 12px; color: var(--muted); }
 .map-legend > span:not(.model-state) { display: flex; gap: 6px; align-items: center; }
 .legend-credit { opacity: .9; }
-.map-legend i { display: block; width: 16px; border-top: 2px solid var(--flow); }
+.map-legend i { display: block; width: 16px; border-top: 1.5px solid var(--flow); }
 .map-legend i.dashed { border-top: 1px dashed var(--muted); }
 .map-legend .model-state { flex: 1 1 260px; min-height: 36px; line-height: 18px; text-align: right; } /* duas linhas reservadas: o estado do 3D muda depois */
+#pause { gap: 8px; border-radius: var(--radius-small); }
+#pause::before { content: ""; width: 7px; height: 9px; border-inline: 2px solid currentColor; }
+#pause[aria-pressed="true"]::before { width: 0; height: 0; border: 5px solid transparent; border-left: 7px solid currentColor; border-right: 0; }
 
 /* Rótulos dos módulos como painéis translúcidos (sem desfoque: são até oito), nos dois mapas */
-.stage .mod, .stage .mod.long { min-height: 0; padding: 10px var(--space-4); gap: 2px; border: var(--hairline) solid transparent; border-radius: var(--radius-card); background: color-mix(in oklab, var(--bg) 60%, transparent); color: var(--text); transition: background-color .2s var(--ease), border-color .2s var(--ease); } /* opaco o bastante para ler sobre o coração */
+.stage .mod, .stage .mod.long { min-height: 0; padding: 10px var(--space-4); gap: 2px; border: var(--hairline) solid transparent; border-radius: var(--radius-card); background: linear-gradient(135deg, color-mix(in oklab, var(--paper) 88%, transparent), color-mix(in oklab, var(--bg) 72%, transparent)); box-shadow: var(--inset-light); color: var(--text); transition: background-color .2s var(--ease), border-color .2s var(--ease); } /* opaco o bastante para ler sobre o coração */
 .stage .mod[data-side="right"] { align-items: flex-start; text-align: left; }
 .stage .mod small { color: color-mix(in oklab, var(--text) 75%, var(--muted)); font-size: 12px; font-style: normal; }
-.stage .mod.off { color: var(--muted); background: color-mix(in oklab, var(--bg) 40%, transparent); }
+.stage .mod.off { color: var(--muted); background: color-mix(in oklab, var(--bg) 40%, transparent); box-shadow: none; }
 .stage .mod.off b { font-style: italic; }
 .stage .mod.off .mono { color: var(--muted); }
 .stage .mod.hot { background: var(--glass-strong); border-color: color-mix(in oklab, var(--c) 45%, transparent); box-shadow: var(--shadow-float); }

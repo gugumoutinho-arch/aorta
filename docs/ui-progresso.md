@@ -418,3 +418,15 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
   - aparelho físico, Safari e leitor de tela.
 
 LAPIDAÇÃO VISUAL ENCERRADA em 05/10/2026
+
+## Lapidação visual, 2ª passada — 04/10/2026
+
+Base `lapidacao-visual @ 3185d5b`; trabalho em `lapidacao-visual-2`. Auditoria local: `_fora-do-site/rodadas/L-visual2-auditoria.md` (15 pontos). Antes: 72 capturas real/seed, 390/1440, claro/escuro, 3D/linhas; mais 28 de editor/estados. Dados reais e diagnósticos permanecem fora do git.
+
+### P1 — Início e acabamento global
+
+Grão reduzido (0,48 escuro / 0,36 claro), ícones com traço comum e ativo violeta, retomada com sombra curta, placas legíveis com luz fina, símbolo de pausa/retomada, pontilhado mais delicado e casos com superfície menos saturada. HTML: apenas o desenho SVG de Todos os materiais. Geometria do mapa, textos e lógica preservados.
+
+- Pares examinados: `visual-v2-antes` → `visual-v2-p1`, 24 imagens novas, ambas as fontes/temas/larguras. Sem rolagem lateral nem erros de console.
+- Gates: `node check.mjs`: 0 erros/0 avisos, 24 telas e axe A/AA; `node acervos.mjs`: 105 aprovadas (inclusive guias, rótulos, 3D e interrupções).
+- Ficha crítica (§5.1), julgamento do executor no escopo P1: **1 sim**, título/mapa continuam dominantes; **2 sim**, títulos/legendas/contagens diferenciados; **3 sim**, ornamentos e estados de navegação agora violetas; **4 sim**, caixa alta apenas nos códigos/tipos desta tela; **5 sim**, fios sem colisões (acervos); **6 sim**, ritmo e espaço reservado preservados; **7 sim**, menos ruído sobre letras; **8 sim**, foco de 2px, alvos de 44px e estados preservados/refinados nos componentes revistos; **9 sim**, papel claro com luz própria; **10 sim**, Aorta reconhecível. Isso é revisão de acabamento, não comprovação de perfeição nem teste em aparelho físico.

@@ -2,6 +2,11 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Codex/Astra — Segunda passada visual, P1
+
+- Ramo `lapidacao-visual-2`, base `3185d5b`, sem publicação. Textura, ícones, retomada, placas/legenda do mapa, índice e casos refinados; estrutura, textos, comportamento e geometria mantidos.
+- Grão mais discreto e sombras curtas para preservar a leitura; navegação violeta; ícone de acervo com lombadas. Só CSS e um path SVG, sem bibliotecas novas.
+- Verificado: 24 capturas novas, seed e cópia local real, 390/1440 e ambos os temas; check 0 erros/0 avisos; acervos 105 aprovadas. Sem banco real; aparelho físico/Safari não testados. Bateria final e Lighthouse serão feitos no fechamento.
 ## 2026-10-05 — Claude — Lapidação VISUAL (série L) — ramo `lapidacao-visual`, não publicado
 
 - **Foco visual, com estrutura e DNA mantidos:** as mesmas páginas, componentes, textos e comportamento; mudou só o acabamento.

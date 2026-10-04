@@ -42,10 +42,11 @@ mark.hit { background: none; color: var(--flow); font-weight: 650; text-decorati
 .brand-name { font: 600 32px/1 var(--serif); letter-spacing: -.03em; }
 .brand-note { font-size: 12px; line-height: 1.4; color: var(--muted); margin-left: 14px; border-left: var(--hairline) solid var(--line); padding-left: var(--space-4); }
 .top-actions { display: flex; align-items: center; gap: 2px; }
-.icon { min-width: 44px; min-height: 44px; display: inline-grid; place-items: center; border-radius: 50%; color: var(--text); text-decoration: none; font-size: 20px; transition: background-color .2s var(--ease), color .2s var(--ease); }
-.icon svg { width: 21px; height: 21px; stroke-width: 1.6; }
-@media (hover: hover) { .icon:hover { background: var(--surface); } }
-.icon[aria-current="page"] { color: var(--flow); }
+.icon { min-width: 44px; min-height: 44px; display: inline-grid; place-items: center; border-radius: var(--radius-card); color: var(--text); text-decoration: none; font-size: 20px; transition: background-color .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease); }
+.icon svg { width: 20px; height: 20px; stroke-width: 1.5; }
+@media (hover: hover) { .icon:hover { background: color-mix(in oklab, var(--violet-2) 8%, transparent); color: var(--violet-2); box-shadow: var(--inset-light); } }
+.icon[aria-current="page"] { color: var(--violet-2); background: color-mix(in oklab, var(--violet-2) 10%, transparent); box-shadow: inset 0 -2px var(--violet-2); }
+.icon:active { background: color-mix(in oklab, var(--violet-2) 14%, transparent); }
 .icon:disabled { opacity: .45; cursor: default; }
 
 /* Botões e campos */
@@ -107,7 +108,7 @@ body.has-toast main { padding-bottom: 96px; }
 /* Rodapé */
 /* Série L: o rodapé é um colofão — uma coluna centrada, o nome em Literata, a frase em itálico e os créditos em letra miúda. */
 .footer { display: grid; justify-items: center; gap: 14px; padding-block: 56px var(--space-8); border-top: var(--hairline) solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.6; text-align: center; }
-.footer::before { content: ""; width: 28px; height: 1.5px; margin-bottom: 6px; border-radius: 1px; background: var(--flow); }
+.footer::before { content: ""; width: 28px; height: 1px; margin-bottom: 6px; border-radius: 1px; background: var(--violet-2); }
 .footer > p { max-width: 62ch; }
 .footer-brand { font: 500 30px/1.1 var(--serif); letter-spacing: -.02em; color: var(--text); }
 .footer-brand span { display: block; margin-top: 8px; font: italic 400 16px/1.4 var(--serif); letter-spacing: 0; color: var(--muted); }
