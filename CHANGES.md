@@ -2,6 +2,11 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B: primeira pintura sem esperar as fontes — ramo `nuvem/ui-lapidacao`
+
+- **Fontes:** a folha do Google Fonts não bloqueia mais a primeira pintura; o texto aparece com substitutas calibradas e a linha em caixa alta do início tem 2 linhas reservadas em tablet, para nada pular na troca.
+- **Medido no Windows:** Lighthouse celular IDOMED 83 → **90**, geral **91**; LCP 3,2 s → **2,4 s**; CLS 0–0,001; orçamento estrito aprovado (pior CLS 0,015).
+
 ## 2026-10-04 — Claude — Rodada B, U9: acabamento — ramo `nuvem/ui-lapidacao`
 
 - **Contraste:** cores de módulo com contraste AA medido (teste novo).

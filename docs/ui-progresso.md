@@ -50,7 +50,7 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U6 · Busca rápida | concluído (local) | `522c7c9` |
 | U7 · Organizar e colagem | concluído (local) | `9c9332d` |
 | U8 · Estados e avisos | concluído (local) | `45726d2` |
-| U9 · Acabamento | concluído (local) | commit "U9" |
+| U9 · Acabamento | concluído (local) | `1cb0e42`, fontes no commit seguinte |
 
 ### U0 · Auditoria
 
@@ -262,3 +262,17 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 - **Hover só com mouse:** as 12 regras de `:hover` fora de `@media (hover: hover)` foram movidas (nada "gruda" no toque). O `check` agora reprova `:hover` solto. O estado ativo das abas de assunto foi separado do hover.
 - **Anel do cursor:** já só existe com `(hover: hover) and (pointer: fine)`. Nas capturas a 390 px ele aparece porque o navegador de teste usa mouse; em celular real não aparece.
 - **Testes:** `npm test` 134/134; `check` 0/0, com a etapa nova; `flows` 450/450.
+
+### U9 · Primeira pintura sem esperar as fontes (local)
+
+- **Diagnóstico:** no Lighthouse do celular (Windows, rede doméstica), a folha do Google Fonts bloqueava a primeira pintura por ~1,9 s (FCP = LCP = 3,2 s; IDOMED 83 [83/89/79], reprovado). A "execução isolada de 72" era essa espera variando com a rede.
+- **Correção:**
+  - a folha de fontes carrega sem bloquear (`media="print"` + `onload`, com `<noscript>`);
+  - o texto aparece com as substitutas calibradas que a nuvem criou e troca quando a fonte chega.
+- **Efeito colateral medido e corrigido:**
+  - a 768 px, a linha em caixa alta acima do título cabia em 1 linha com a Schibsted e quebrava em 2 com a substituta; a busca subia 17 px na troca (CLS 0,085 no orçamento estrito);
+  - agora são 2 linhas reservadas entre 641 e 1100 px.
+- **Depois:**
+  - orçamento ESTRITO aprovado 2× (pior CLS 0,015);
+  - Lighthouse com mediana de 3: celular IDOMED **90** [90/90/90] e geral **91** [84/91/91]; computador 100/100; LCP 2,4 s nos dois; CLS 0–0,001; acessibilidade e boas práticas 100;
+  - `flows` 450/450; `acervos` 105/105; `topics` 57/57; `check` 0/0.
