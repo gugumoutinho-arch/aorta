@@ -122,9 +122,13 @@ function layout() {
     b.style.transform = `translate(${left}px, ${top}px)`;
   }
   placed = next;
-  const flat = $("#flat-map"), bw = box[1] - box[0];
-  flat.style.left = flat.style.right = labelCol + "px"; flat.style.width = "auto";
-  flat.setAttribute("viewBox", `${box[0]} 0 ${bw} 560`);
+  // O mapa em linhas vai para o espaço entre as colunas por TRANSFORM (não por tamanho): mudar o tamanho do SVG depois
+  // da primeira pintura contava como deslocamento de layout (CLS 0,05 no computador). Base: viewBox 600×560 inteiro.
+  const flat = $("#flat-map"), bw = box[1] - box[0], region = mapW - 2 * labelCol;
+  const s0 = Math.min(mapW / 600, hgt / 560), s = Math.min(region / bw, hgt / 560), k = s / s0;
+  const ox = labelCol + (region - bw * s) / 2 - box[0] * s, oy = (hgt - 560 * s) / 2;
+  flat.style.transformOrigin = "0 0";
+  flat.style.transform = `translate(${(ox - k * (mapW - 600 * s0) / 2).toFixed(1)}px, ${(oy - k * (hgt - 560 * s0) / 2).toFixed(1)}px) scale(${k.toFixed(4)})`;
   if (colChanged || widthChanged) scene?.resize?.(); // o 3D reescala para o espaço livre (colunas ou largura mudaram)
   $("#guides").setAttribute("viewBox", `0 0 ${mapW} ${hgt}`);
   guides(tips);

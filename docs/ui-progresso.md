@@ -200,3 +200,12 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - a troca de vizinhos para quando não reduz os cruzamentos;
   - código morto do cursor removido.
 - **Depois:** `flows` **404/404**; `acervos` 105/105.
+
+### Bateria G depois do U3 (`32b03ee`, cópia isolada)
+
+- `npm test` 120/120; `check` 0/0; `flows` 391/391; `acervos` 105/105; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `orcamento` passa (crescimento do JS de 9,6 kB).
+- **Lighthouse** (mediana de 3): celular 92 [92/92/92] e 93 [72/93/93]; computador 99/99; acessibilidade e boas práticas 100.
+- **CLS do computador no IDOMED, 0,052:** introduzido pelo U3, porque o SVG do mapa em linhas mudava de tamanho depois da primeira pintura.
+  - **Corrigido** no commit seguinte: o encaixe passou a ser feito por `transform`.
+  - **Medido depois:** computador 100/100 com CLS 0,002/0,001; celular 92 [92/72/92] e 91 [72/91/92].
+- **Pendente:** uma execução de 72 entre três no celular, nos dois acervos, como na base (91 [72/91/91]). Investigar no U9.
