@@ -50,6 +50,11 @@ const SCENES = {
   'organizar': { hash: 'organizar' },
   'colagem': { hash: 'organizar', prep: async p => {
     await p.locator('#imp-text').fill('url,caminho,tipo,titulo\nhttps://drive.google.com/file/d/ficticio123/view,M1 › CIS 1 › Anatomia,Slides,Exemplo de colagem\nhttps://example.com/x,M9 › Nada,Slides,Caminho inexistente\nnao-e-link');
+    // Com vírgulas, a colagem para no aviso de "copie da planilha" (U7) em vez de gerar uma prévia confusa.
+    await p.locator('#imp-form button[type=submit]').click(); await p.waitForTimeout(700); await p.locator('#imp-err').scrollIntoViewIfNeeded(); } },
+  'colagem-planilha': { hash: 'organizar', prep: async p => {
+    await p.locator('#imp-text').fill(['url\tcaminho\ttipo\ttitulo', 'https://drive.google.com/file/d/ficticio123/view\tM1/CIS 1/Anatomia\tSlides\tExemplo de colagem',
+      'https://example.com/x\tM9/Nada\tSlides\tCaminho inexistente', 'nao-e-link'].join('\n'));
     await p.locator('#imp-form button[type=submit]').click(); await p.waitForTimeout(700); await p.locator('#imp-preview').scrollIntoViewIfNeeded(); } },
   'formulario': { hash: 'a-cis1-anat', prep: click('.top-actions [data-action="add"]') },
   'formulario-erro': { hash: 'a-cis1-anat', prep: async p => { await click('.top-actions [data-action="add"]')(p); await p.locator('#m-save').click(); await p.waitForTimeout(400); } },

@@ -234,3 +234,22 @@ test('publicar usa um id de material determinado pelo rascunho (dois clientes ch
   const d = { id: 'd9', url: 'https://drive.google.com/file/d/Z/view', driveFileId: 'Z', title: 'T', type: 'Slides', areaId: 'cis1-anat', rights: 'publico', year: '', materialId: null };
   assert.deepEqual(blockers(d, { ...ctx, materials: [{ id: 'd9', url: d.url }] }), [], 'o material criado por este rascunho (mesmo id) não conta como "já no catálogo"');
 });
+
+test('U7: cabeçalho separado por vírgulas explica que as colunas vêm da planilha (tabulação)', () => {
+  const r = parsePaste('url, caminho, tipo, titulo\nhttps://drive.google.com/file/d/ABC/view, M1/CIS 1/Anatomia, Slides, Aula');
+  assert.match(r.error, /tabula/i);
+  assert.match(r.error, /planilha/i);
+  assert.equal(r.rows.length, 0);
+});
+
+test('U7: linha com link seguido de vírgula (sem cabeçalho) recebe aviso específico, não erro genérico', () => {
+  const [row] = parsePaste('https://drive.google.com/file/d/ABC/view, Aula de ombro').rows;
+  assert.equal(row.errors.length, 1);
+  assert.match(row.errors[0], /vírgula/i);
+  assert.match(row.errors[0], /só o link|tabula/i);
+});
+
+test('U7: link sozinho com vírgula dentro da URL continua valendo', () => {
+  const [row] = parsePaste('https://example.com/a,b').rows;
+  assert.deepEqual(row.errors, []);
+});

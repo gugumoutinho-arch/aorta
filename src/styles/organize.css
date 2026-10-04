@@ -11,7 +11,7 @@
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) 10px; min-height: 48px; padding: 2px var(--space-1); border-radius: 8px; }
 .row:hover { background: var(--surface); }
 .swatch { width: 10px; height: 10px; border-radius: 3px; background: var(--stain, var(--t-neutral)); flex: none; }
-.row .name { min-height: 44px; display: inline-flex; align-items: center; font-weight: 600; text-decoration: none; text-align: left; }
+.row .name { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; font-weight: 600; text-decoration: none; text-align: left; }
 .row .name:hover { text-decoration: underline; }
 .lvl { font: 600 11px var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .count { font-size: 12.5px; color: var(--muted); margin-right: auto; }

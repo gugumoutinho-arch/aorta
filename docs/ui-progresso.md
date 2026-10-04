@@ -47,7 +47,8 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U3 · Mapa e tarefa longa | concluído | `e4bbae7`, correções da revisão no commit seguinte |
 | U4 · Página do módulo na direção D | concluído (revisão local) | `5dbc810`, acabamento no commit seguinte |
 | U5 · Ficha do material | concluído (testado localmente) | `79dd68b`, `4fd3856` |
-| U6 · Busca rápida | concluído (local) | commit "U6" |
+| U6 · Busca rápida | concluído (local) | `522c7c9` |
+| U7 · Organizar e colagem | concluído (local) | commit "U7" |
 
 ### U0 · Auditoria
 
@@ -234,3 +235,14 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 - **Sem tremor ao digitar:** a lista só é refeita quando a busca muda, ignorando acento, caixa e espaços extras.
 - **Estado vazio:** a mensagem diz que acento e maiúscula não importam.
 - **Testes:** `search.test` 6/6 (`npm test` 126/126); `flows` 444/444, com 2 verificações novas por largura (caminho curto em até 2 linhas com o título inteiro; outro acento não refaz a lista); `check` 0/0. Captura a 320 px conferida.
+
+### U7 · Organizar e colagem (local)
+
+- **Vírgulas:**
+  - cabeçalho separado por vírgulas para com o aviso "copie as colunas direto da planilha (tabulação) ou cole só os links";
+  - linha com vírgula logo depois do link recebe aviso específico;
+  - vírgula dentro de uma URL continua valendo.
+- **Microcópia:** "elas vêm separadas por tabulação, não por vírgula" e cabeçalho com "·".
+- **Alvos de toque:** nomes curtos da árvore (M1, M2…) com pelo menos 44 px de largura (a auditoria mediu 21–41 px).
+- **Captura:** a cena `colagem` da auditoria mostra agora o aviso; a nova `colagem-planilha` mostra a prévia (aviso e erro diferenciados por ícone e texto). Conferidas a 390 px; 0 alvos pequenos.
+- **Testes:** `import.test` +3 (`npm test` 129/129); `import` 59/59; `check` 0/0.

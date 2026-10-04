@@ -65,12 +65,19 @@ export function parsePaste(text) {
   const head = lines[0] && lines[0].raw.split("\t").map(c => topicNorm(c));
   // Cabeçalho: as colunas de HEADER na ordem, podendo parar antes (ex.: só "url, caminho, tipo, titulo").
   const tsv = !!head && head.filter(Boolean).length > 1 && head.every((c, i) => !c || c === HEADER[i]) && head[0] === "url";
+  // Cabeçalho digitado com vírgulas: as colunas só se separam por tabulação, que é o que vem ao copiar da planilha.
+  const commaHead = !tsv && lines[0] && lines[0].raw.split(",").map(c => topicNorm(c));
+  if (commaHead && commaHead.length > 1 && commaHead[0] === "url" && commaHead.every((c, i) => !c || c === HEADER[i])) {
+    return { error: "O cabeçalho veio separado por vírgulas. Copie as colunas direto da planilha (elas vão separadas por tabulação) ou cole só os links, um por linha.", rows: [] };
+  }
   const body = tsv ? lines.slice(1) : lines;
   if (body.length > MAX_ROWS) return { error: `Máximo de ${MAX_ROWS} linhas por vez; este lote tem ${body.length}. Divida em partes.`, rows: [] };
   const rows = body.map(({ raw, line }) => {
     const cells = raw.split("\t").map(clean);
     const [url, path = "", type = "", title = "", source = "", year = "", rights = ""] = tsv ? cells : [clean(raw)];
-    const columnsError = !tsv && cells.length > 1 ? "Linha com colunas, mas sem o cabeçalho (url, caminho, tipo, titulo, fonte, ano, direitos)." : "";
+    const commaRow = !tsv && cells.length === 1 && /^https?:\/\/\S+,\s/.test(raw.trim())
+      ? "Linha com vírgula depois do link: cole só o link, ou copie as colunas direto da planilha (separadas por tabulação)." : "";
+    const columnsError = commaRow || (!tsv && cells.length > 1 ? "Linha com colunas, mas sem o cabeçalho (url, caminho, tipo, titulo, fonte, ano, direitos)." : "");
     const error = columnsError || checkUrl(url);
     const { fileId, resourceKey } = error ? { fileId: "", resourceKey: "" } : driveInfo(url);
     return { line, url, path, type, title, source, year, rights, driveFileId: fileId, resourceKey, errors: error ? [error] : [] };
