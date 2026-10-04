@@ -54,6 +54,10 @@
 .stage .mod.off { border-style: dashed; color: var(--muted); }
 .stage .mod.off .mono { color: var(--muted); }
 .stage .mod.hot { border-color: var(--c); box-shadow: 0 0 0 1px var(--c); }
+/* Ativo (apontado ou com foco) também por FORMA, não só por cor: uma barra na borda que encosta na linha-guia. */
+.stage .mod.hot::before { content: ""; position: absolute; top: 10px; bottom: 10px; width: 3px; border-radius: 2px; background: var(--c); }
+.stage .mod.hot[data-side="left"]::before { right: -2px; }
+.stage .mod.hot[data-side="right"]::before { left: -2px; }
 body[data-concept="coracao"] .mod { width: clamp(140px, 12vw, 176px); } /* estreitos: os painéis ficam em volta do coração, não por cima */
 body[data-concept="coracao"] .mod .mono { color: var(--c); font-size: 10.5px; letter-spacing: .14em; }
 body[data-concept="coracao"] .mod b { font: 400 clamp(16px, 1.35vw, 20px)/1.2 var(--serif); letter-spacing: -.01em; }

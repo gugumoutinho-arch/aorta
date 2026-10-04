@@ -109,8 +109,8 @@ body.diving #modules .mod.hot { transform-origin: center; }
 .cursor-ring.on { opacity: 1; }
 .cursor-ring span { position: relative; font: 600 10px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--bg); opacity: 0; transition: opacity .18s; }
 .cursor-ring[data-mode="link"]::before { transform: scale(.65); border-color: var(--flow); }
-.cursor-ring[data-mode="open"]::before { transform: scale(1); background: var(--flow); border-color: var(--flow); }
-.cursor-ring[data-mode="open"] span { opacity: 1; }
+/* "Abrir": anel vazado, sem preencher, para não cobrir o nome que está embaixo do ponteiro (revisão do N5). */
+.cursor-ring[data-mode="open"]::before { transform: scale(.8); border-width: 2px; border-color: var(--flow); }
 .cursor-ring[data-mode="text"] { opacity: 0; }
 .material { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -20%), color-mix(in oklab, var(--violet-2) 9%, transparent), transparent 55%), var(--paper); }
 .search-plate { transition: box-shadow .24s var(--ease); }

@@ -78,6 +78,8 @@ export function wireMotion() {
       if (next !== mode) { mode = next; ring.dataset.mode = next; tag.textContent = next === "open" ? "abrir" : ""; }
     });
     const leave = () => { ring.classList.remove("on"); seen = false; magnet.to({ x: 0, y: 0 }); lean.to({ x: 0, y: 0 }); };
+    // Trocar de tela zera o anel: o modo "abrir" do rótulo não fica sobre a página nova.
+    listen(window, "hashchange", () => { leave(); mode = ""; ring.dataset.mode = ""; tag.textContent = ""; });
     listen(document.documentElement, "pointerleave", leave);
     listen(window, "blur", leave);
     return () => { abort.abort(); releaseLabel(true); releaseCard(true); magnet.dispose(); lean.dispose(); follow.dispose(); ring.remove(); };

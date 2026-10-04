@@ -62,7 +62,11 @@ for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   // Índice editorial (direção D): um grupo por módulo com material e uma linha numerada por matéria (01…08, na ordem do curso).
   ok(`${tag} início: índice dos módulos`, await page.locator('#course-index .index-group').count() === 2 && !/null|undefined/.test(await page.locator('#course-index').innerText())
     && JSON.stringify(await page.locator('#course-index .index-row .index-n').allInnerTexts()) === JSON.stringify(['01', '02', '03', '04', '05', '06', '07', '08']));
-  ok(`${tag} início: linhas-guia ligam rótulo e artéria`, await page.locator('#guides path[d^="M"]').count() === 2);
+  // Uma linha-guia por rótulo à vista (no celular, só o do destaque), e cada uma termina na borda do seu rótulo.
+  const guideOk = () => page.evaluate(() => { const vis = [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth), m = document.querySelector('#map').getBoundingClientRect();
+    return vis.length > 0 && document.querySelectorAll('#guides path[d^="M"]').length === vis.length && vis.every(b => { const n = document.querySelector(`[data-guide="${b.dataset.index}"]`)?.getAttribute('d')?.match(/-?[\d.]+/g)?.map(Number); const r = b.getBoundingClientRect();
+      return n && Math.abs(n[4] + m.left - (b.dataset.side === 'right' ? r.left : r.right)) < 2 && n[3] + m.top > r.top && n[3] + m.top < r.bottom; }); });
+  ok(`${tag} início: linhas-guia ligam rótulo e artéria`, await guideOk());
   await noOverflow(page, `${tag} início`); await shot(page, `inicio@${tag}`);
   // teclado no mapa: setas andam entre as artérias
   await page.locator('#modules .mod').first().focus(); await page.keyboard.press('ArrowRight');
@@ -309,7 +313,7 @@ for (const w of [375, 1440]) {
   await page.waitForFunction(() => document.querySelector('#map')?.classList.contains('ready'), null, { timeout: 30000 }).catch(() => {});
   await page.waitForTimeout(1500);
   ok(`${w} 3D: o coração carrega por cima do mapa em linhas`, await page.locator('#map.ready canvas').count() === 1 && await page.locator('#loader').isHidden());
-  ok(`${w} 3D: linhas-guia acompanham as artérias projetadas`, await page.locator('#guides path[d^="M"]').count() === 2);
+  ok(`${w} 3D: linhas-guia acompanham as artérias projetadas`, await page.evaluate(() => { const vis = [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth).length; return vis > 0 && document.querySelectorAll('#guides path[d^="M"]').length === vis; }));
   ok(`${w} 3D: botão de pausar visível e acessível`, await page.locator('#pause').isVisible() && await page.getAttribute('#pause', 'aria-pressed') === 'false');
   await page.click('#pause');
   ok(`${w} 3D: pausar muda estado e texto`, await page.getAttribute('#pause', 'aria-pressed') === 'true' && /Retomar/.test(await page.locator('#pause').innerText()));

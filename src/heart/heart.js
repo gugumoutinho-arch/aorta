@@ -24,7 +24,7 @@ const TUBE_FRAGMENT = "uniform vec3 col;uniform float flow;uniform float off;uni
 export async function createHeart(o) {
   const glb = await loadGLB(o.model, o.onProgress);
   if (!o.isCurrent()) return null;
-  const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+  const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power", ...(o.gl ? { canvas: o.gl.canvas, context: o.gl } : {}) }); // reaproveita o contexto do teste de suporte (map.js)
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.domElement.setAttribute("aria-hidden", "true");
@@ -88,7 +88,8 @@ async function assemble(o, glb, renderer) {
     const w = o.map.clientWidth, h = o.map.clientHeight; if (!w || !h) return;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const visibleWidth = 2 * 13 * Math.tan(MathUtils.degToRad(15)) * camera.aspect;
-    baseScale = Math.min(1.15, visibleWidth * (w < 560 ? .5 : .64) / 4.6);
+    // Largura livre entre as colunas de rótulos (map.js); no celular, o palco compacto usa a metade.
+    baseScale = Math.min(1.15, visibleWidth * Math.min(w < 560 ? .5 : .64, (o.free?.() ?? 1) * .9) / 4.6);
     if (entered) heart.scale.setScalar(baseScale);
     heart.rotation.set(.1, -.12, .035); heart.position.set(0, .2, 0);
     request();

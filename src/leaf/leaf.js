@@ -23,7 +23,7 @@ const TUBE_VERTEX = "varying vec2 UV;void main(){UV=uv;gl_Position=projectionMat
 const TUBE_FRAGMENT = "uniform vec3 col;uniform float flow;uniform float off;uniform float hot;uniform float grow;varying vec2 UV;void main(){if(UV.x>grow)discard;if(off>.5){if(fract(UV.x*22.)>.5)discard;gl_FragColor=vec4(col,.5+hot*.3);return;}float p=exp(-pow((UV.x-flow)*9.,2.));gl_FragColor=vec4(col*(1.+hot*.25)+vec3(.75,.95,.7)*p*.8,.95);}";
 
 export async function createLeaf(o) {
-  const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+  const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power", ...(o.gl ? { canvas: o.gl.canvas, context: o.gl } : {}) }); // reaproveita o contexto do teste de suporte (map.js)
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.domElement.setAttribute("aria-hidden", "true");

@@ -32,7 +32,7 @@ function meshGeometry(d, recenter) {
 export async function createBody(o) {
   const glb = await loadGLB(o.model, o.onProgress);
   if (!o.isCurrent()) return null;
-  const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power" });
+  const renderer = new WebGLRenderer({ alpha: true, antialias: true, powerPreference: "low-power", ...(o.gl ? { canvas: o.gl.canvas, context: o.gl } : {}) }); // reaproveita o contexto do teste de suporte (map.js)
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.domElement.setAttribute("aria-hidden", "true");
@@ -98,7 +98,7 @@ async function assemble(o, glb, renderer) {
     renderer.setSize(w, hh, false); camera.aspect = w / hh; camera.updateProjectionMatrix();
     // O corpo inteiro cabe na altura; em telas estreitas, também na largura entre as colunas de rótulos.
     const visH = 2 * DIST * Math.tan(MathUtils.degToRad(15)), visW = visH * camera.aspect;
-    body.scale.setScalar(Math.min(visH * .94 / 1.83, visW * (w < 560 ? .56 : .5) / 1.05));
+    body.scale.setScalar(Math.min(visH * .94 / 1.83, visW * Math.min(w < 560 ? .56 : .5, (o.free?.() ?? 1) * .62) / 1.05)); // entre as colunas de rótulos
     request();
   };
 

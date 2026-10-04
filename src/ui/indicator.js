@@ -8,8 +8,14 @@ import { press } from "./choreo.js";
 export function slideIndicator(container, activeSelector, cls, { underline = false } = {}) {
   let ink = container.querySelector(":scope > ." + cls);
   if (!ink) { ink = document.createElement("span"); ink.className = cls; ink.setAttribute("aria-hidden", "true"); container.prepend(ink); }
-  let placed = false;
+  let placed = false, pending = 0;
+  // Primeiro posicionamento no quadro seguinte: medir antes disso forçava o primeiro layout da página dentro do script
+  // de entrada (~110 ms com CPU 4×). Trocas depois disso medem na hora (o layout já existe).
   function move(animate = true) {
+    if (!placed) { if (!pending) pending = requestAnimationFrame(() => { pending = 0; place(false); }); return; }
+    place(animate);
+  }
+  function place(animate) {
     if (ink.parentNode !== container) container.prepend(ink); // a lista pode ter sido redesenhada
     const el = container.querySelector(activeSelector);
     if (!el || !container.offsetWidth) { ink.style.opacity = "0"; return; }
@@ -20,7 +26,7 @@ export function slideIndicator(container, activeSelector, cls, { underline = fal
     gsap.set(ink, { width: to.width, height: to.height, scaleX: before.width / (to.width || 1), scaleY: before.height / (to.height || 1), transformOrigin: "0 0" });
     gsap.to(ink, { x: to.x, y: to.y, scaleX: 1, scaleY: 1, opacity: 1, duration: motionTokens().swap, ease: "power3.out", overwrite: true });
   }
-  new ResizeObserver(() => move(false)).observe(container);
+  new ResizeObserver(() => { if (placed) place(false); else move(false); }).observe(container);
   matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", () => move(false));
   return move;
 }
