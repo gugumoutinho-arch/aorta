@@ -430,3 +430,13 @@ Grão reduzido (0,48 escuro / 0,36 claro), ícones com traço comum e ativo viol
 - Pares examinados: `visual-v2-antes` → `visual-v2-p1`, 24 imagens novas, ambas as fontes/temas/larguras. Sem rolagem lateral nem erros de console.
 - Gates: `node check.mjs`: 0 erros/0 avisos, 24 telas e axe A/AA; `node acervos.mjs`: 105 aprovadas (inclusive guias, rótulos, 3D e interrupções).
 - Ficha crítica (§5.1), julgamento do executor no escopo P1: **1 sim**, título/mapa continuam dominantes; **2 sim**, títulos/legendas/contagens diferenciados; **3 sim**, ornamentos e estados de navegação agora violetas; **4 sim**, caixa alta apenas nos códigos/tipos desta tela; **5 sim**, fios sem colisões (acervos); **6 sim**, ritmo e espaço reservado preservados; **7 sim**, menos ruído sobre letras; **8 sim**, foco de 2px, alvos de 44px e estados preservados/refinados nos componentes revistos; **9 sim**, papel claro com luz própria; **10 sim**, Aorta reconhecível. Isso é revisão de acabamento, não comprovação de perfeição nem teste em aparelho físico.
+### P2 — Módulo e lista
+
+Abas de unidade com pesos 450/550 e contagens tabulares; foco desenhado dentro das faixas roláveis; busca local com fio e luz interna; favoritos violetas que conservam a seleção ao apontar; títulos Literata 450; miniatura anatômica com contorno mais presente e menos brilho. Apenas `module.css` e `list.css`.
+
+- Pares `visual-v2-antes` → `visual-v2-p2`: 24 capturas examinadas, ambas as fontes/temas/larguras, sem rolagem lateral nem erros. No celular, **567 px no módulo e 654 px na matéria**, iguais à base; fim do primeiro título em 650/737 px, antes da barra em 787 px.
+- Revisor `aorta-design-reviewer`: aprovado visualmente, sem defeitos materiais; teclado/hover complementados por leitura do CSS e pelos gates.
+- Ficha crítica: **1 sim**, numeral/foco e primeiro material mantêm prioridade; **2 sim**, título, tipo e metadados distintos; **3 sim**, favorito/seleção em violeta; **4 sim**, códigos e tipos apenas; **5 sim**, sublinhados/linhas finos; **6 sim**, nenhum deslocamento do primeiro material; **7 sim**, coração pequeno mais nítido e menos halo; **8 sim**, foco interno e estrela selecionada legíveis, sem reduzir alvos; **9 sim**, fios e fundos próprios em papel claro; **10 sim**, numeral, fonte e artéria preservados.
+- Gates P2: 
+ode flows.mjs: **450/450**, zero falhas; 
+ode topics.mjs: **57 aprovadas**.

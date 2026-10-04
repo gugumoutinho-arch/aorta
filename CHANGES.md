@@ -2,6 +2,10 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Codex/Astra — Segunda passada visual, P2
+
+- Abas com hierarquia e foco interno; favorito violeta preservado sob hover; lista com peso tipográfico mais preciso e coração pequeno com menos brilho. Só CSS.
+- Verificado: 24 capturas seed/real local; primeiro material em 567 px (módulo) e 654 px (matéria), como na base; flows 450/450 e topics 57. Revisão visual aprovada. Sem acesso ao banco e sem mudanças nas asserções.
 ## 2026-10-04 — Codex/Astra — Segunda passada visual, P1
 
 - Ramo `lapidacao-visual-2`, base `3185d5b`, sem publicação. Textura, ícones, retomada, placas/legenda do mapa, índice e casos refinados; estrutura, textos, comportamento e geometria mantidos.

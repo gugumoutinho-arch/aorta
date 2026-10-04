@@ -5,7 +5,7 @@
   padding: 18px 14px; margin-inline: -14px; border-bottom: var(--hairline) solid var(--line); border-radius: 0; background: none; box-shadow: none; }
 .material .mat-type { color: var(--c); font-size: 10.5px; letter-spacing: .14em; overflow-wrap: anywhere; }
 .material .mat-main { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
-.material-title { margin: 0; font: 400 22px/1.3 var(--serif); letter-spacing: -.01em; }
+.material-title { margin: 0; font: 450 22px/1.3 var(--serif); letter-spacing: -.015em; }
 /* Até 2 linhas na lista; o título COMPLETO é o nome do botão (leitor de tela) e aparece inteiro na ficha que ele abre.
    No zoom de 200% e no celular estreito, sem limite (nada se perde). */
 .material-title button { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: left; overflow-wrap: anywhere; }
@@ -17,12 +17,12 @@
 .material { transition: background-color .2s var(--ease); }
 .material:focus-within .open { color: var(--flow); }
 .material .open svg { width: 15px; height: 15px; }
-.material[aria-current="true"] { background: linear-gradient(90deg, color-mix(in oklab, var(--c) 13%, transparent), transparent 85%); box-shadow: inset 2px 0 0 var(--c); }
+.material[aria-current="true"] { background: linear-gradient(90deg, color-mix(in oklab, var(--violet-2) 10%, transparent), transparent 85%); box-shadow: inset 2px 0 0 var(--violet-2); }
 @media (hover: hover) {
   .material:hover { background: linear-gradient(90deg, color-mix(in oklab, var(--c) 8%, transparent), transparent 70%); }
   .material:hover .open { color: var(--flow); }
   .material:hover .open svg { translate: 2px -2px; }
-  .material:hover .favorite { color: var(--muted); }
+  .material:hover .favorite:not([aria-pressed="true"]) { color: var(--muted); }
   .material-title button:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .2em; text-decoration-color: var(--hair-strong); }
   .material .open:hover span { text-decoration: underline; }
 }
