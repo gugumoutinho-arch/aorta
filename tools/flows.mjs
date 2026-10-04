@@ -252,6 +252,38 @@ for (const scheme of ['light', 'dark']) {
   await ctx.close();
 }
 
+/* ---------- folha da ficha no celular: alça, cancelamento, reabrir no meio e movimento reduzido no meio do gesto ---------- */
+{
+  const { ctx, page, errors } = await open('dark', 375, 'cases');
+  await page.evaluate(() => { location.hash = 'a-cis1-anat'; }); await page.waitForTimeout(700);
+  const row = page.locator('#materials [data-mid]').first();
+  const tf = () => page.evaluate(() => document.querySelector('#dlg-detail').style.transform || '');
+  const handle = async () => (await page.locator('#drag-handle').boundingBox());
+  await row.click(); await page.waitForTimeout(500);
+  let hb = await handle();
+  await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.mouse.move(hb.x + hb.width / 2, hb.y + 60, { steps: 4 });
+  ok('375 folha: arrastar a alça acompanha o dedo', /translateY\((?!0px)/.test(await tf()));
+  await page.evaluate(() => document.querySelector('#drag-handle').dispatchEvent(new PointerEvent('pointercancel', { bubbles: true })));
+  await page.mouse.up(); await page.waitForTimeout(200);
+  ok('375 folha: gesto cancelado volta ao lugar e a ficha continua aberta', await dialogOpen(page, 'dlg-detail') && await tf() === '');
+  ok('375 folha: o conteúdo rola e o texto não depende da alça', await page.evaluate(() => getComputedStyle(document.querySelector('#dlg-detail')).overflowY !== 'hidden'));
+  hb = await handle();
+  await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.mouse.move(hb.x + hb.width / 2, hb.y + 140, { steps: 5 }); await page.mouse.up(); await page.waitForTimeout(500);
+  ok('375 folha: arrastar mais que 90 px fecha e devolve o foco à linha', !(await dialogOpen(page, 'dlg-detail')) && await page.evaluate(() => !!document.activeElement?.closest('#materials')));
+  await row.click(); await page.waitForTimeout(450);
+  await page.locator('#dlg-detail [data-close]').first().click(); await page.waitForTimeout(40);
+  await row.click(); await page.waitForTimeout(600);
+  ok('375 folha: reabrir durante o fechamento deixa a ficha aberta e inteira', await dialogOpen(page, 'dlg-detail') && await page.evaluate(() => getComputedStyle(document.querySelector('#dlg-detail')).opacity === '1'));
+  hb = await handle();
+  await page.mouse.move(hb.x + hb.width / 2, hb.y + hb.height / 2); await page.mouse.down(); await page.mouse.move(hb.x + hb.width / 2, hb.y + 50, { steps: 3 });
+  await page.emulateMedia({ reducedMotion: 'reduce' }); await page.waitForTimeout(150);
+  ok('375 folha: ligar "reduzir movimento" no meio do arraste devolve a folha ao lugar', await tf() === '' && await dialogOpen(page, 'dlg-detail'));
+  await page.mouse.up(); await page.keyboard.press('Escape'); await page.waitForTimeout(200);
+  ok('375 folha: Esc fecha', !(await dialogOpen(page, 'dlg-detail')));
+  ok('375 folha: sem erros de console', errors.length === 0, errors.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+
 /* ---------- barra inferior do celular (direção D) e atalhos do índice ---------- */
 for (const scheme of ['light', 'dark']) {
   const { ctx, page, errors } = await open(scheme, 375);
