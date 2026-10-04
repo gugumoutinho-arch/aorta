@@ -3,7 +3,7 @@
 html { overflow-x: clip; background: var(--bg); -webkit-tap-highlight-color: transparent; scroll-padding-top: var(--space-5); scrollbar-color: var(--line-strong) var(--bg); }
 [data-theme-switching] *, [data-theme-switching] *::before, [data-theme-switching] *::after { transition: none !important; }
 body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-body:has(dialog[open]) { overflow: hidden; }
+body:has(dialog[open]:modal) { overflow: hidden; } /* a ficha fixa (não modal) não trava a rolagem */
 ::selection { background: var(--flow); color: var(--bg); }
 h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { font-family: var(--serif); font-weight: 500; letter-spacing: -.02em; text-wrap: balance; }
@@ -69,9 +69,12 @@ input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offs
 .notice.error { border-color: var(--error); }
 .inline-form { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 .inline-form input { flex: 1 1 200px; }
-.empty { border: 1px dashed var(--line-strong); border-radius: var(--radius-card); padding: var(--space-6); margin: var(--space-2) 0 var(--space-5); }
-.empty h2 { font-size: 28px; }
-.empty p { color: var(--muted); margin: var(--space-3) 0 18px; max-width: 60ch; }
+.empty { position: relative; border-top: 1px solid var(--line); padding: var(--space-6) 0 var(--space-6) var(--space-6); margin: var(--space-2) 0 var(--space-5); }
+.empty::before { content: ""; position: absolute; left: 6px; top: var(--space-6); bottom: var(--space-6); border-left: 2px dashed var(--line-strong); } /* a artéria ainda tracejada */
+.empty.waiting::before { border-color: var(--selected, var(--line-strong)); opacity: .7; }
+.empty .mono { color: var(--muted); }
+.empty h2 { margin-top: var(--space-2); font-size: clamp(28px, 3vw, 40px); font-weight: 400; letter-spacing: -.03em; }
+.empty p:not(.mono) { color: var(--muted); margin: var(--space-3) 0 18px; max-width: 60ch; }
 .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
 .skel { display: grid; gap: 14px; }
 .skel-card { height: 120px; border-radius: var(--radius-small); background: linear-gradient(90deg, var(--paper) 30%, var(--paper-2) 50%, var(--paper) 70%); background-size: 300% 100%; animation: shimmer 1.4s linear 3; /* poucas passadas: o único loop permitido é o batimento */ }

@@ -112,7 +112,6 @@ body.diving #modules .mod.hot { transform-origin: center; }
 /* "Abrir": anel vazado, sem preencher, para não cobrir o nome que está embaixo do ponteiro (revisão do N5). */
 .cursor-ring[data-mode="open"]::before { transform: scale(.8); border-width: 2px; border-color: var(--flow); }
 .cursor-ring[data-mode="text"] { opacity: 0; }
-.material { background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -20%), color-mix(in oklab, var(--violet-2) 9%, transparent), transparent 55%), var(--paper); }
 .search-plate { transition: box-shadow .24s var(--ease); }
 .btn, .toggle { position: relative; overflow: hidden; isolation: isolate; }
 .btn::before, .toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--surface); transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }

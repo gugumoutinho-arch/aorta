@@ -1,0 +1,11 @@
+/* Ficha fixa à direita da lista (direção D, ≥ 1200 px, página do módulo; ver src/views/dock.js). O diálogo não modal
+   entra na grade da página como terceira coluna e acompanha a rolagem (sticky); não escurece nem cobre a lista. */
+@media (min-width: 1200px) {
+  .module-body.has-panel { grid-template-columns: 200px minmax(0, 1fr) minmax(340px, 400px); gap: var(--space-6); }
+  .module-body.has-panel:has(.subjects[hidden]) { grid-template-columns: minmax(0, 1fr) minmax(340px, 400px); }
+  .sheet.docked { position: sticky; inset: var(--space-4) auto auto; z-index: 1; align-self: start; margin: 0; width: auto; max-width: none;
+    height: auto; max-height: calc(100dvh - 2 * var(--space-4)); overflow: auto; padding: var(--space-5) var(--space-5) var(--space-6);
+    border: 1px solid var(--line); border-radius: 20px; background: var(--panel); box-shadow: var(--elevation-card); }
+  .sheet.docked .drag-handle { display: none; }
+  .sheet.docked #d-title { font-size: clamp(26px, 2.2vw, 32px); }
+}

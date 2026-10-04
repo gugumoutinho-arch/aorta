@@ -13,7 +13,7 @@ import { slideIndicator } from "../ui/indicator.js";
 import { revealIn } from "../ui/motion.js";
 import { motionTokens } from "../ui/tokens.js";
 import { enter } from "../ui/choreo.js";
-import { CASES, tabContext, topicTabs, inTab, firstTopicName, areaRoute } from "../domain/topics.js";
+import { CASES, CASE_TYPE, tabContext, topicTabs, inTab, firstTopicName, areaRoute } from "../domain/topics.js";
 import { renderTopicTabs } from "./topic-tabs.js";
 let unitsInk = null;
 /* Assuntos da matéria escolhida, montado uma vez por desenho (ver renderModule). */
@@ -22,6 +22,7 @@ let ctx = tabContext({ areaId: "", topics: [], links: [] });
 /* ---------- órgão em destaque (conceito corpo) ---------- */
 let organ = null, organKey = "", organBoot = 0;
 export function moduleLeft() {
+  undock(); // a ficha fixa pertence à página do módulo
   organBoot++; organ?.dispose(); organ = null; organKey = "";
   $$(".flight").forEach(n => { gsap.killTweensOf(n); n.remove(); });
   gsap.killTweensOf($("#module-title")); gsap.set($("#module-title"), { clearProps: "opacity,transform" });
@@ -59,6 +60,7 @@ async function syncOrgan(mod) {
 import { materialCard } from "./cards.js";
 import { openForm } from "./form.js";
 import { rememberModule } from "./home.js";
+import { isDocked, undock } from "./dock.js";
 
 /* ---------- escopo ---------- */
 function resolvePending() {
@@ -146,7 +148,29 @@ function renderHeader(mod) {
   sum.textContent = mod.count
     ? [plural(mod.count, "material", "materiais"), units.length ? plural(units.length, "unidade", "unidades") : "", waiting.length ? `${waiting.map(u => u.name).join(", ")} em produção` : ""].filter(Boolean).join(" · ")
     : "Em produção · este módulo ainda não foi irrigado.";
-  $("#module-step").hidden = modules().length < 2;
+  const list = modules(), i = list.findIndex(m => m.id === mod.id);
+  $("#module-step").hidden = list.length < 2;
+  // As setas dizem para onde vão (nome do vizinho no rótulo acessível e na dica).
+  for (const [id, d, word] of [["prev-module", -1, "anterior"], ["next-module", 1, "seguinte"]]) {
+    const n = list[(i + d + list.length) % list.length]; if (!n) continue;
+    $("#" + id).setAttribute("aria-label", `Módulo ${word}: ${n.name}`); $("#" + id).title = `${word[0].toUpperCase() + word.slice(1)}: ${n.name}`;
+  }
+  renderFocus(mod);
+}
+/* Direção D: com unidade ou matéria escolhida, o cabeçalho diz onde se está (rótulo técnico) e qual é o foco (em
+   Literata), com o resumo daquele recorte: materiais, assuntos e casos clínicos. */
+function renderFocus(mod) {
+  const focus = $("#module-focus"), id = S.subject || S.unit, area = id ? areaById(id) : null;
+  focus.hidden = !area;
+  if (!area) return;
+  focus.textContent = area.name;
+  const trail = pathOf(id).slice(1, -1).map(a => a.name).join(" › "); // a unidade, quando o foco é uma matéria
+  if (S.concept === "coracao") $("#artery-name").textContent = `${moduleNumber(mod.index)} · ${mod.art}${trail ? " · " + trail : ""}`;
+  const set = descIds(id), here = S.materials.filter(m => set.has(m.areaId));
+  const topics = S.subject ? ctx.own.length : 0, cases = here.filter(m => m.type === CASE_TYPE).length;
+  $("#module-summary").textContent = here.length
+    ? [plural(here.length, "material", "materiais") + (topics ? " em " + plural(topics, "assunto", "assuntos") : ""), cases ? plural(cases, "caso clínico", "casos clínicos") : ""].filter(Boolean).join(" · ")
+    : "Em produção · ainda não irrigado.";
 }
 function renderUnits(mod) {
   const box = $("#units"), live = areasWithContent();
@@ -192,7 +216,11 @@ function renderFilters() {
   box.replaceChildren(...chips.map(([label, clear]) => h("button", { class: "af", type: "button", "aria-label": "Remover filtro: " + label, onclick: () => { clear(); renderModule(); $("#lib-q").focus(); } }, label, svg(ICON.x))),
     chips.length > 1 ? h("button", { class: "af clear", type: "button", text: "Limpar tudo", onclick: clearFilters }) : null);
 }
-function emptyBlock(title, text, extra) { return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), extra); }
+/* Estado vazio desenhado: rótulo técnico, título em Literata, explicação e saídas. "waiting" = ainda sem material
+   (artéria tracejada, "ainda não irrigado"); senão, nada encontrado com a busca e os filtros. */
+function emptyBlock(title, text, extra, waiting = false) {
+  return h("div", { class: "empty" + (waiting ? " waiting" : "") }, h("p", { class: "mono", text: waiting ? "Ainda não irrigado" : "Busca e filtros" }), h("h2", { text: title }), h("p", { text }), extra);
+}
 const addButton = areaId => S.db ? h("button", { class: "btn", type: "button", "data-edit": "", text: "Adicionar material aqui", onclick: () => openForm(null, areaId) }) : null;
 function groupOf(list, from) {
   // Com uma matéria escolhida, divide por assunto (numa aba de assunto, um grupo só); senão, por matéria.
@@ -222,22 +250,23 @@ function renderMaterials(base, mod) {
     const scopeName = S.subject ? areaById(S.subject)?.name : S.unit ? areaById(S.unit)?.name : mod?.name;
     box.replaceChildren(emptyBlock(IN_PRODUCTION + ".", S.scope === "todos" ? "O acervo ainda não tem materiais. Quem edita cadastra o primeiro link pelo botão Adicionar."
       : `${scopeName || "Este módulo"} ainda não foi irrigado. Os materiais aparecem aqui quando forem publicados.`,
-      h("div", { class: "acts" }, firstLive && firstLive.id !== S.scope ? h("a", { class: "btn", href: "#a-" + firstLive.id, text: `Ver ${firstLive.name}, que já tem material` }) : null, addButton(S.subject || root || ""))));
+      h("div", { class: "acts" }, firstLive && firstLive.id !== S.scope ? h("a", { class: "btn", href: "#a-" + firstLive.id, text: `Ver ${firstLive.name}, que já tem material` }) : null, addButton(S.subject || root || "")), true));
     return;
   }
   if (!list.length) {
     const emptyName = S.tab === CASES ? "Casos clínicos" : S.tab ? ctx.bySlug.get(S.tab)?.name : areaById(S.subject)?.name;
     box.replaceChildren(S.subject && !anyFilter()
-      ? emptyBlock(IN_PRODUCTION + ".", `${emptyName || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)))
+      ? emptyBlock(IN_PRODUCTION + ".", `${emptyName || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)), true)
       : emptyBlock("Nenhum material encontrado", "Nada combina com a busca e os filtros. A busca procura no título, matéria, assunto, tipo e etiquetas, não no texto dos arquivos.",
         h("button", { class: "btn", type: "button", text: "Limpar busca e filtros", onclick: clearFilters })));
     return;
   }
   const from = S.scope === "todos" ? "" : S.unit || S.scope;
-  if (S.q.trim()) { box.replaceChildren(h("div", { class: "sheet-list" }, list.sort(sorter()).map(m => materialCard(m, { toks, from })))); return; }
+  const current = isDocked() ? S.detailId : null; // linha aberta na ficha fixa
+  if (S.q.trim()) { box.replaceChildren(h("div", { class: "sheet-list" }, list.sort(sorter()).map(m => materialCard(m, { toks, from, current: m.id === current })))); return; }
   box.replaceChildren(...groupOf(list, from).map((g, i) => h("section", { class: "group", "aria-labelledby": "g-" + i },
     h("h2", { class: "group-h", id: "g-" + i }, h("span", { text: g.label }), h("span", { class: "num", text: String(g.items.length) })),
-    h("div", { class: "sheet-list" }, g.items.map(m => materialCard(m, { toks, from, where: false }))))));
+    h("div", { class: "sheet-list" }, g.items.map(m => materialCard(m, { toks, from, where: false, current: m.id === current }))))));
 }
 
 export function renderModule() {
@@ -259,6 +288,8 @@ export function renderModule() {
   renderHeader(mod); renderUnits(mod); syncOrgan(mod);
   const base = baseList();
   renderSubjects(base); renderTopics(base); renderFilters(); renderMaterials(base, mod);
+  // Sem nenhum material no recorte, não há o que buscar nem filtrar: só o estado "Em produção".
+  $(".filters").hidden = !base.length;
 }
 /* Abas da matéria escolhida. Aba que não existe mais (ou slug antigo) é corrigida no endereço. */
 function renderTopics(base) {

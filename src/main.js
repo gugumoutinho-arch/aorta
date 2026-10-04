@@ -5,6 +5,8 @@ import "./styles/stage.css";
 import "./styles/index-list.css";
 import "./styles/tabbar.css";
 import "./styles/module.css";
+import "./styles/list.css";
+import "./styles/panel.css";
 import "./styles/dialogs.css";
 import "./styles/organize.css";
 import "./styles/proto.css";

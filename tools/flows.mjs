@@ -101,9 +101,9 @@ for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   await page.locator('#subjects [data-subject="cis1-anat"]').click(); await page.waitForTimeout(200);
   ok(`${tag} matéria: filtra as folhas`, await page.locator('#materials .material').count() === 2);
   await page.locator('#subjects [data-subject=""]').click(); await page.waitForTimeout(200);
-  // filtros (no celular, tipo/situação/coleção/ordem ficam recolhidos em "Filtros")
-  if (w < 641) {
-    ok(`${tag} filtros: recolhidos no celular, folhas logo abaixo da busca`, await page.locator('#f-status').isHidden() && await page.getAttribute('#f-more', 'aria-expanded') === 'false');
+  // filtros (direção D: barra compacta em todas as larguras; tipo/situação/coleção/ordem ficam recolhidos em "Filtros")
+  {
+    ok(`${tag} filtros: recolhidos, folhas logo abaixo da busca`, await page.locator('#f-status').isHidden() && await page.getAttribute('#f-more', 'aria-expanded') === 'false');
     await page.click('#f-more'); await page.waitForTimeout(100);
     ok(`${tag} filtros: "Filtros" abre e informa expansão`, await page.locator('#f-status').isVisible() && await page.getAttribute('#f-more', 'aria-expanded') === 'true');
   }
@@ -222,6 +222,33 @@ for (const scheme of ['light', 'dark']) for (const w of [375, 1440]) {
 {
   const { ctx, page } = await open('light', 375, 'prodLive');
   ok('em produção: M3 deixa de ser tracejado ao receber o primeiro material', await page.locator('#modules .mod.off').count() === 5 && await page.locator('#modules .mod.off[data-module="m3"]').count() === 0);
+  await ctx.close();
+}
+
+/* ---------- ficha fixa à direita da lista (direção D, ≥ 1200 px) ---------- */
+for (const scheme of ['light', 'dark']) {
+  const { ctx, page, errors } = await open(scheme, 1440, 'cases');
+  await page.evaluate(() => { location.hash = 'a-cis1-anat'; }); await page.waitForTimeout(700);
+  const rows = page.locator('#materials [data-mid]');
+  await rows.nth(0).click(); await page.waitForTimeout(500);
+  const st = () => page.evaluate(() => { const d = document.querySelector('#dlg-detail'), l = document.querySelector('#materials').getBoundingClientRect(), r = d.getBoundingClientRect();
+    return { open: d.open, modal: d.matches(':modal'), overlap: !(r.left >= l.right - 1 || r.right <= l.left + 1), title: document.querySelector('#d-title')?.textContent, current: document.querySelector('#materials .material[aria-current="true"] [data-mid]')?.dataset.mid, scroll: getComputedStyle(document.body).overflow }; });
+  let a = await st();
+  ok(`1440-${scheme} ficha fixa: aberta, não modal, sem cobrir a lista, sem travar a rolagem`, a.open && !a.modal && !a.overlap && a.scroll !== 'hidden', JSON.stringify(a));
+  ok(`1440-${scheme} ficha fixa: a linha aberta fica marcada`, a.current === await rows.nth(0).getAttribute('data-mid'));
+  const second = await rows.nth(1).getAttribute('data-mid');
+  await rows.nth(1).click(); await page.waitForTimeout(500);
+  const b = await st();
+  ok(`1440-${scheme} ficha fixa: outro material troca o conteúdo sem fechar`, b.open && !b.modal && b.title !== a.title && b.current === second);
+  await page.keyboard.press('Escape'); await page.waitForTimeout(400);
+  ok(`1440-${scheme} ficha fixa: Esc fecha e devolve o foco à linha`, !(await dialogOpen(page, 'dlg-detail')) && await page.evaluate(x => document.activeElement?.dataset?.mid === x, second));
+  ok(`1440-${scheme} ficha fixa: ao fechar, nenhuma linha fica marcada`, await page.locator('#materials .material[aria-current]').count() === 0);
+  const v = await axeClean(page); ok(`1440-${scheme} ficha fixa: acessibilidade da página do módulo`, v.length === 0, v.map(x => x.id).join(', '));
+  await page.setViewportSize({ width: 1199, height: 900 }); await page.waitForTimeout(300);
+  await rows.nth(0).click(); await page.waitForTimeout(500);
+  ok(`1199-${scheme} abaixo de 1200 px a ficha continua modal`, await page.evaluate(() => document.querySelector('#dlg-detail').matches(':modal')));
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  ok(`ficha fixa ${scheme}: sem erros de console`, errors.length === 0, errors.slice(0, 2).join(' | '));
   await ctx.close();
 }
 

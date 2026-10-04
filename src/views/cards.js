@@ -27,16 +27,20 @@ export function favButton(m) {
     style: popping(m.id) ? `--pop-delay:-${Math.round(performance.now() - pop.at)}ms` : null }, svg(ICON.star));
 }
 
-/* Folha completa (página do módulo). "from" = área já mostrada no cabeçalho, para não repetir. */
-export function materialCard(m, { toks = [], from = "", where = true } = {}) {
+/* Linha da lista editorial (página do módulo, direção D): tipo no rótulo técnico, título em Literata (até 2 linhas na
+   tela; completo no nome do botão e na ficha), onde fica / assunto / situação, "Abrir original" e a estrela.
+   "from" = área já mostrada no cabeçalho, para não repetir. A linha aberta na ficha fixa ganha aria-current. */
+export function materialCard(m, { toks = [], from = "", where = true, current = false } = {}) {
   const st = m.status || "nao-iniciado";
-  return h("article", { class: "material", style: `--c:var(${moduleToken(m.areaId)})` },
+  return h("article", { class: "material", "data-row": m.id, style: `--c:var(${moduleToken(m.areaId)})`, "aria-current": current ? "true" : null },
+    h("span", { class: "mat-type mono", text: m.type || "Link" }),
     h("div", { class: "mat-main" },
-      h("p", { class: "material-meta" }, h("span", { class: "mono", text: m.type || "Link" }),
-        where ? h("span", { text: whereText(m, from) }) : h("span", { class: "sr", text: "Em " + whereText(m) }), m.period ? h("span", { text: m.period }) : null),
       h("h3", { class: "material-title" }, h("button", { type: "button", "data-mid": m.id }, marked(m.title || "(sem título)", toks))),
-      h("p", { class: "material-bottom" }, m.subject ? h("span", { class: "subj" }, marked(m.subject, toks)) : null, st !== "nao-iniciado" ? statusChip(st) : null, openLink(m))),
-    favButton(m));
+      h("p", { class: "material-meta" },
+        where ? h("span", { text: whereText(m, from) }) : h("span", { class: "sr", text: "Em " + whereText(m) }),
+        m.subject ? h("span", { class: "subj" }, marked(m.subject, toks)) : null, m.period ? h("span", { text: m.period }) : null,
+        st !== "nao-iniciado" ? statusChip(st) : null)),
+    h("div", { class: "mat-acts" }, openLink(m), favButton(m)));
 }
 /* Cartão curto (início): tipo, título e onde fica. */
 export function miniCard(m) {

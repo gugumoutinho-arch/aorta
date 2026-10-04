@@ -9,12 +9,15 @@ import { openDlg, closeDlg } from "../ui/dialogs.js";
 import { motionTokens } from "../ui/tokens.js";
 import { openLink, moduleToken } from "./cards.js";
 import { openForm } from "./form.js";
+import { canDock, dockOpen, undock, wireDock } from "./dock.js";
 
 let confirmRemove = false, lastId = null;
 const dlg = () => $("#dlg-detail");
 
 export function openDetail(id, origin = document.activeElement) {
   S.detailId = id; lastId = id; confirmRemove = false;
+  if (canDock()) { dockOpen(renderDetail, id); requestAnimationFrame(() => $("#d-title")?.focus({ preventScroll: true })); return; }
+  if (dlg().classList.contains("docked")) undock();
   renderDetail();
   openDlg(dlg(), origin);
   requestAnimationFrame(() => $("#d-title")?.focus({ preventScroll: true }));
@@ -94,5 +97,6 @@ export function wireDetail() {
   });
   dlg().addEventListener("close", () => { S.detailId = null; confirmRemove = false; });
   dlg().addEventListener("animationend", e => e.target.classList?.remove("pop"));
+  wireDock();
   wireDrag();
 }
