@@ -368,7 +368,7 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
 - **Rodapé como colofão de livro:** os mesmos textos e créditos (HuBMAP, CC BY 4.0, com link) numa coluna centrada, com o nome em Literata, a frase em itálico e um traço curto como florão.
 - **Índice como sumário de livro:** um pontilhado leva o nome da matéria até a contagem; os números do índice ficam em Literata 44.
 - **Ficha fixa** com realce interno e sombra que flutua.
-- **Barra inferior do celular em vidro** (desfoque de 16 px), com reserva opaca onde não há suporte. O conteúdo passa por baixo.
+- **Barra inferior do celular em vidro:** testada e retirada no V8. O desfoque somava ~50 ms de tempo de bloqueio no Lighthouse do celular, e a barra continua opaca, como antes.
 
 ### V6 · Movimento fino
 
@@ -380,5 +380,41 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
 ### V7 · Tema claro "papel"
 
 - **Grão mais leve no papel** (opacidade de 0,9 para 0,7): textura de papel sem sujar o creme.
-- **Faixa de assuntos:** com abas escondidos dos dois lados, as duas bordas esmaecem por inteiro (antes, no meio da rolagem, cada uma esmaecia pela metade). Conferido pela linha do tempo da rolagem: no começo só a direita, no meio as duas, no fim só a esquerda.
+- **Faixa de assuntos:** com abas escondidas dos dois lados, as duas bordas esmaecem por inteiro (antes, no meio da rolagem, cada uma esmaecia pela metade). Conferido pela linha do tempo da rolagem: no começo só a direita, no meio as duas, no fim só a esquerda.
 - **Revisão nos 2 temas:** ficha (prancha), busca, índice, módulo e Início, com 3D e em linhas, sem ajuste extra de contraste (`check` com axe 0/0).
+
+### V8 · Fechamento (Windows do dono, 05/10/2026)
+
+- **Grão e desempenho, medidos e corrigidos:**
+  - O grão em PNG (7,6 kB), presente desde o início, virou o "maior elemento pintado" e atrasava o LCP (2,4 → 2,9 s). Foi trocado por ruído SVG embutido no CSS (~0,6 kB, sem requisição); `src/assets/grao.png` e `tools/grao.mjs` saíram.
+  - Mesmo em SVG, ligado desde o início, ele disputava a pintura do título (LCP +0,3 s). Agora entra 2,5 s depois da carga, de uma vez (`html.fx-on`, `main.js`). Com fade, somava tempo de bloqueio.
+  - O vidro da barra inferior foi testado e retirado: custava ~50 ms de bloqueio, e a barra continua opaca.
+- **Bateria final, sem mudar asserções** (exceto o nome da verificação do anel, no V6):
+  - `npm test` 134/134; `check` 0/0;
+  - `flows` 450/450; `acervos` 105/105; `topics` 57/57; `topic-edit` 52/52; `import` 59/59.
+- **Orçamento ESTRITO aprovado:** pior CLS 0,0026; JS inicial sem crescimento relevante sobre a rodada anterior (+11,1 kB sobre o baseline v5, como antes).
+- **Lighthouse, mediana de 5:**
+
+  | Acervo | Celular | Computador | LCP celular | Bloqueio |
+  |---|---|---|---|---|
+  | IDOMED | **90** [90/89/91/90/90] | **100** | 2,7 s | 190 ms |
+  | Medicina geral | **88** [88/90/87/88/84] | **99** | 2,8 s | 320 ms (oscilante) |
+
+  - Acessibilidade e boas práticas 100 em tudo.
+  - A versão de antes (`229eb81`), medida hoje na mesma máquina, deu IDOMED celular 90 [91/91/90/90/90] (LCP 2,6 s, bloqueio 220 ms) e computador 100.
+  - O LCP do celular alterna entre 2,4 e 2,7 s de uma rodada para outra nas duas versões (é a montagem do título).
+- **Celular 390 × 844** (catálogo real e seed):
+
+  | Tela | 1º material (antes → depois) | Fim do título | Barra |
+  |---|---|---|---|
+  | Módulo | 693 → 567 px | 650 | 787 |
+  | Matéria | 789 → 654 px | 737 | 787 |
+
+  O título fica inteiro acima da barra.
+- **Galeria** `docs/ui/index.html`: 15 pares antes|depois (30 PNG, 8,55 MB), só com dados fictícios. Os pares com o catálogo real ficam fora do git (`_fora-do-site/rodadas/capturas-L-visual/`).
+- **Pontos do dono** (depois do V2 e do V4): sem resposta durante a execução; segui o plano e deixei os dois registrados. O dono vê o resultado na galeria e na prévia.
+- **Fica para depois:**
+  - a rodada de ESTRUTURA (`_fora-do-site/rodadas/L-estrutura-plano.md`, com o drill-down, que leva o 1º material a ≤ 420 px);
+  - aparelho físico, Safari e leitor de tela.
+
+LAPIDAÇÃO VISUAL ENCERRADA em 05/10/2026

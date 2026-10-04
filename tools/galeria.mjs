@@ -7,6 +7,8 @@ import path from 'node:path';
 import { reports, root } from './harness.mjs';
 
 const dir = path.join(root, 'docs', 'ui'), pairs = JSON.parse(fs.readFileSync(path.join(dir, 'pares.json'), 'utf8'));
+const arg = (k, d) => process.argv.find(a => a.startsWith('--' + k + '='))?.slice(k.length + 3) ?? d;
+const title = arg('titulo', 'rodada B (interface e movimento)'), intro = arg('nota', 'Pares antes|depois a 390 e 1440 px, com os dados fictícios dos testes. Capturas estáticas não mostram o movimento; ele está nos vídeos (artefato separado) e nas medidas em docs/ui-progresso.md');
 for (const f of fs.readdirSync(dir)) if (f.endsWith('.png')) fs.rmSync(path.join(dir, f));
 const name = rel => rel.replace(/[\\/]/g, '-');
 let bytes = 0, count = 0;
@@ -22,7 +24,7 @@ const rows = pairs.map(p => `<section><h2>${esc(p.titulo)}</h2><div class="pair"
 <figure><img src="${name(p.depois)}" alt="Depois: ${esc(p.titulo)}" loading="lazy"><figcaption>Depois · ${esc(p.depois)}</figcaption></figure></div></section>`).join('\n');
 fs.writeFileSync(path.join(dir, 'index.html'), `<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
-<title>Aorta · rodada B · antes e depois</title>
+<title>Aorta · ${esc(title)} · antes e depois</title>
 <style>
 :root { color-scheme: dark light; --bg: Canvas; --text: CanvasText; --line: GrayText; }
 body { margin: 0; padding: 24px 16px 64px; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, sans-serif; }
@@ -31,8 +33,8 @@ h1 { font-size: 24px; margin: 0 0 4px; } h2 { font-size: 16px; margin: 32px 0 8p
 figure { margin: 0; } img { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
 figcaption { font-size: 12px; opacity: .75; margin-top: 4px; overflow-wrap: anywhere; }
 </style></head><body>
-<h1>Aorta · rodada B (interface e movimento)</h1>
-<p>Pares antes|depois a 390 e 1440 px, com os dados fictícios dos testes. Capturas estáticas não mostram o movimento; ele está nos vídeos (artefato separado) e nas medidas em docs/ui-progresso.md.</p>
+<h1>Aorta · ${esc(title)}</h1>
+<p>${esc(intro)}</p>
 ${rows}
 </body></html>
 `);

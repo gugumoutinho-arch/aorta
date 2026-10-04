@@ -36,6 +36,12 @@ wireTheme(); wireHome(); wireModule(); wireDetail(); wireForm(); wireOrg(); wire
 window.addEventListener("aorta:render", () => renderAll());
 window.addEventListener("hashchange", () => route(true));
 route(false);
+/* Série L: o grão de filme (camada em tela cheia) entra depois da
+   carga e da entrada do título. Medido no Lighthouse (celular simulado): ligados desde o início ou junto da carga, disputavam
+   o processador com a montagem do título e atrasavam o LCP em ~0,3 s; 2,5 s depois da carga, o LCP volta a 2,4 s. */
+const fxOn = () => document.documentElement.classList.add("fx-on");
+if (document.readyState === "complete") setTimeout(fxOn, 0);
+else addEventListener("load", () => setTimeout(fxOn, 2500), { once: true });
 
 (async () => {
   let db = null;

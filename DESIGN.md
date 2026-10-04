@@ -5,6 +5,36 @@ description: Coração-mapa — o curso como um coração em que cada artéria �
 
 # Aorta — sistema visual implementado
 
+## Lapidação visual (série L) — 05/10/2026
+
+A regra: **embelezar é mudar o acabamento, nunca o esqueleto.** Estrutura, textos e comportamento ficam; muda como as coisas aparecem.
+
+- **Tipografia:**
+  - Literata com eixo óptico (`font-optical-sizing: auto`) e títulos com `text-wrap: balance`.
+  - **Rótulo editorial = Literata itálica** (seções, grupos, legendas, etiquetas da ficha).
+  - **Caixa alta só para códigos técnicos:** "ART. 01", "M1" e o tipo do material.
+- **Carmim parado só em 3 papéis:** ação principal (1 por tela), fluxo da artéria e palavra de destaque do título.
+  - Em interação (apontar, foco), pode acender: ex., "Abrir original" da linha.
+  - Estados de leitura e navegação ficam em violeta.
+- **Molduras:** tipografia e fio no lugar de caixa.
+  - Fio = `var(--hairline)` (1 px; 0,5 px em telas 2x), na cor `--line`/`--hair`. Campos e botões mantêm 1 px.
+  - Contorno só em campos, cartões, ficha, paleta e menus.
+- **Raios:** 6 (controles), 12 (cartões), 16 (painéis), pílula.
+- **Materiais:**
+  - realce interno `--inset-light` e sombra `--shadow-float`;
+  - luz do palco em camadas (`--glow-core`, `--glow-halo`, em oklab);
+  - grão de filme (ruído SVG embutido, sobre a página, sem clique);
+  - sem desfoque de vidro: na barra inferior, custava tempo de bloqueio no celular simulado.
+- **Desempenho do acabamento:** o grão entra 2,5 s depois da carga e de uma vez (`html.fx-on`, em `main.js`). Desde o início, atrasava o LCP em ~0,3 s no celular simulado; com fade, somava tempo de bloqueio.
+- **Coração:**
+  - borda (fresnel) estreita e luminosa, miolo fundo, pontilhado contra faixas;
+  - halo nas artérias com material;
+  - no 3D, o desenho avança sob a borda interna das colunas de rótulos (`reach3d`: 0,85 ≥ 1200 px e 0,9 abaixo), medido sem guias cruzadas com 8 rótulos. O mapa em linhas mantém a coluna inteira.
+- **Módulo:** numeral com luz (degradê na cor do módulo; alto contraste volta ao sólido) e miniatura do coração com a artéria acesa.
+- **Movimento:** sem o anel do cursor. Microinterações em CSS, só em `@media (hover: hover)`; movimento reduzido desliga tudo.
+- **Corte lateral no `body`** (não no `main`): brilhos de borda a borda não terminam numa linha reta.
+
+
 ## Fundamentos v5 — 03/10/2026
 
 Espaçamento `--space-1…8`: 4, 8, 12, 16, 24, 32, 48 e 64 px. Raios pequeno/cartão/painel/pílula: 6/10/14/99 px. Elevações `--elevation-card` e `--elevation-panel` usam a sombra do tema. A migração trocou só medidas equivalentes (o valor do token é igual ao número que substituiu); nada mudou na tela.

@@ -2,6 +2,24 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-05 — Claude — Lapidação VISUAL (série L) — ramo `lapidacao-visual`, não publicado
+
+- **Foco visual, com estrutura e DNA mantidos:** as mesmas páginas, componentes, textos e comportamento; mudou só o acabamento.
+- **O que mudou:**
+  - molduras viraram tipografia e fios finos;
+  - a caixa alta espaçada ficou só para códigos técnicos, e os rótulos de seção passaram a Literata itálica;
+  - o carmim ficou em repouso só na ação principal, no fluxo da artéria e na palavra de destaque, e acende ao apontar;
+  - grão de filme e luz do palco em camadas;
+  - coração maior e mais luminoso, com halo nas artérias com material;
+  - numeral do módulo com luz e miniatura do coração com a artéria acesa;
+  - índice como sumário de livro e rodapé como colofão;
+  - ficha como prancha;
+  - celular mais compacto: o título do 1º material agora aparece acima da barra inferior;
+  - saiu o anel do cursor.
+- **Defeito antigo corrigido:** os brilhos de borda a borda não terminam mais numa linha reta perto da borda direita.
+- **Desempenho:** grão e vidro entram depois da carga (medido: assim o LCP fica igual ao de antes); JS inicial sem crescimento relevante.
+- **Detalhes e números:** `docs/ui-progresso.md`; galeria antes|depois em `docs/ui/` (dados fictícios).
+
 ## 2026-10-04 — Claude — Rodada B ENCERRADA (direção D) — ramo `nuvem/ui-lapidacao`, não publicado
 
 - **O que mudou na rodada (nuvem U0–U4 e U5; local: revisão do U4, U6–U9, fontes, galeria):**
