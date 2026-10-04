@@ -87,7 +87,10 @@ function wireDrag() {
     if (y > 90) closeDlg(dlg()); else gsap.to(dlg(), { y: 0, duration: motionTokens().release, ease: motionTokens().easeEnter, overwrite: true, clearProps: "transform" });
   };
   handle.addEventListener("pointerup", end);
-  handle.addEventListener("pointercancel", () => { drag = null; dlg().style.removeProperty("transform"); });
+  // Gesto cancelado pelo sistema, ou "reduzir movimento" ligado no meio do arraste: a folha volta ao lugar na hora.
+  const cancel = () => { if (!drag) return; drag = null; gsap.killTweensOf(dlg()); dlg().style.removeProperty("transform"); };
+  handle.addEventListener("pointercancel", cancel);
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => { if (e.matches) cancel(); });
 }
 
 export function wireDetail() {
