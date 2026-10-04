@@ -153,6 +153,18 @@ for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   ok(`${tag} busca rápida: Ctrl+K abre com o foco no campo`, await dialogOpen(page, 'palette') && await page.evaluate(() => document.activeElement?.id === 'pq'));
   await page.keyboard.type('placenta'); await page.waitForTimeout(250);
   ok(`${tag} busca rápida: acha o material por parte do título, sem acento`, await page.locator('#results [role=option]').count() >= 1 && /placenta/i.test(await page.locator('#results [aria-selected=true]').innerText()));
+  ok(`${tag} busca rápida: caminho curto (sem o acervo atual, no máximo 2 linhas) e tipo à direita; título inteiro`, await page.evaluate(() => {
+    const o = document.querySelector('#results [aria-selected=true]'), sub = o?.querySelector('small'), ty = o?.querySelector('.ty');
+    const lines = el => Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight || '16'));
+    const title = o?.querySelector('strong');
+    return !!o && !/^IDOMED ·/.test(sub.textContent) && !sub.textContent.includes('M1 ›') && ty.textContent !== 'Ficha'
+      && lines(sub) <= 2 && title.scrollHeight <= title.clientHeight + 1;
+  }));
+  // Digitar o mesmo texto com outro acento ou caixa não refaz a lista (o nó selecionado continua o mesmo).
+  const sameNode = await page.evaluate(() => { window.__opt = document.querySelector('#results [aria-selected=true]'); return true; });
+  await page.fill('#pq', 'PLACÊNTA'); await page.waitForTimeout(200);
+  ok(`${tag} busca rápida: mesma busca com outro acento não refaz a lista`, sameNode && await page.evaluate(() => document.querySelector('#results [aria-selected=true]') === window.__opt));
+  await page.fill('#pq', 'placenta'); await page.waitForTimeout(200);
   await shot(page, `busca@${tag}`);
   await page.keyboard.press('Enter'); await page.waitForTimeout(500);
   ok(`${tag} busca rápida: Enter abre a ficha`, await dialogOpen(page, 'dlg-detail') && !(await dialogOpen(page, 'palette')));

@@ -2,6 +2,11 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B, U6: busca rápida mais limpa — ramo `nuvem/ui-lapidacao`
+
+- **Resultado:** caminho curto (unidade › matéria · assunto); tipo do material à direita; acervo só quando é o outro; a lista não é refeita quando a busca não mudou (acento e caixa ignorados).
+- **Testado:** `npm test` 126/126; `flows` 444/444; `check` 0/0.
+
 ## 2026-10-04 — Claude — Rodada B, U4 e U5 (direção D): página do módulo e ficha — ramo `nuvem/ui-lapidacao`, não publicado
 
 - **U4 (nuvem, `5dbc810`):**

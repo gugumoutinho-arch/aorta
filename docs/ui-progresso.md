@@ -47,6 +47,7 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U3 · Mapa e tarefa longa | concluído | `e4bbae7`, correções da revisão no commit seguinte |
 | U4 · Página do módulo na direção D | concluído (revisão local) | `5dbc810`, acabamento no commit seguinte |
 | U5 · Ficha do material | concluído (testado localmente) | `79dd68b`, `4fd3856` |
+| U6 · Busca rápida | concluído (local) | commit "U6" |
 
 ### U0 · Auditoria
 
@@ -226,3 +227,10 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - ligar "reduzir movimento" no meio do arraste devolve a folha ao lugar;
   - 32 testes da folha no celular (cancelar o gesto, arrastar para fechar, reabrir durante o fechamento, movimento reduzido no meio).
 - **Nos dois commits enviados pela nuvem sem teste:** rodados localmente, tudo verde (`flows` 432/432).
+
+### U6 · Busca rápida (local)
+
+- **Resultado curto:** caminho "unidade › matéria · assunto" (`src/domain/search.js`) no lugar de "IDOMED · M1 › CIS 1 › … · tipo"; o tipo vai para o rótulo da direita (no lugar de "Ficha"); o nome do acervo só aparece quando o material é do OUTRO acervo; módulos e matérias mostram o próprio nome em destaque e o caminho acima embaixo.
+- **Sem tremor ao digitar:** a lista só é refeita quando a busca muda, ignorando acento, caixa e espaços extras.
+- **Estado vazio:** a mensagem diz que acento e maiúscula não importam.
+- **Testes:** `search.test` 6/6 (`npm test` 126/126); `flows` 444/444, com 2 verificações novas por largura (caminho curto em até 2 linhas com o título inteiro; outro acento não refaz a lista); `check` 0/0. Captura a 320 px conferida.
