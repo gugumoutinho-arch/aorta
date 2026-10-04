@@ -11,7 +11,9 @@ import { onThemeChange } from "../ui/theme.js";
 import { syncAcervoTabs } from "../app.js";
 import { slideIndicator } from "../ui/indicator.js";
 import { revealIn } from "../ui/motion.js";
-import { CASES, tabContext, topicTabs, inTab, firstTopicName, areaRoute } from "../domain/topics.js";
+import { motionTokens } from "../ui/tokens.js";
+import { enter } from "../ui/choreo.js";
+import { CASES, CASE_TYPE, tabContext, topicTabs, inTab, firstTopicName, areaRoute } from "../domain/topics.js";
 import { renderTopicTabs } from "./topic-tabs.js";
 let unitsInk = null;
 /* Assuntos da matéria escolhida, montado uma vez por desenho (ver renderModule). */
@@ -20,6 +22,7 @@ let ctx = tabContext({ areaId: "", topics: [], links: [] });
 /* ---------- órgão em destaque (conceito corpo) ---------- */
 let organ = null, organKey = "", organBoot = 0;
 export function moduleLeft() {
+  undock(); // a ficha fixa pertence à página do módulo
   organBoot++; organ?.dispose(); organ = null; organKey = "";
   $$(".flight").forEach(n => { gsap.killTweensOf(n); n.remove(); });
   gsap.killTweensOf($("#module-title")); gsap.set($("#module-title"), { clearProps: "opacity,transform" });
@@ -57,6 +60,7 @@ async function syncOrgan(mod) {
 import { materialCard } from "./cards.js";
 import { openForm } from "./form.js";
 import { rememberModule } from "./home.js";
+import { isDocked, undock } from "./dock.js";
 
 /* ---------- escopo ---------- */
 function resolvePending() {
@@ -69,6 +73,7 @@ function resolvePending() {
     else { scope = p[0].id; unit = p[1]?.id || ""; subject = p[2]?.id || ""; }
   }
   if (scope !== S.scope) { S.q = ""; S.f = { ...EMPTY_FILTERS }; }
+  if (S.pendingFilters) { S.q = ""; S.f = S.pendingFilters; S.pendingFilters = null; } // "Favoritos" e "Ver todos os casos"
   S.scope = scope; S.unit = unit; S.subject = subject;
   const askedTab = S.pendingTab; S.pendingTab = "";
   S.tab = subject ? askedTab : "";
@@ -143,7 +148,29 @@ function renderHeader(mod) {
   sum.textContent = mod.count
     ? [plural(mod.count, "material", "materiais"), units.length ? plural(units.length, "unidade", "unidades") : "", waiting.length ? `${waiting.map(u => u.name).join(", ")} em produção` : ""].filter(Boolean).join(" · ")
     : "Em produção · este módulo ainda não foi irrigado.";
-  $("#module-step").hidden = modules().length < 2;
+  const list = modules(), i = list.findIndex(m => m.id === mod.id);
+  $("#module-step").hidden = list.length < 2;
+  // As setas dizem para onde vão (nome do vizinho no rótulo acessível e na dica).
+  for (const [id, d, word] of [["prev-module", -1, "anterior"], ["next-module", 1, "seguinte"]]) {
+    const n = list[(i + d + list.length) % list.length]; if (!n) continue;
+    $("#" + id).setAttribute("aria-label", `Módulo ${word}: ${n.name}`); $("#" + id).title = `${word[0].toUpperCase() + word.slice(1)}: ${n.name}`;
+  }
+  renderFocus(mod);
+}
+/* Direção D: com unidade ou matéria escolhida, o cabeçalho diz onde se está (rótulo técnico) e qual é o foco (em
+   Literata), com o resumo daquele recorte: materiais, assuntos e casos clínicos. */
+function renderFocus(mod) {
+  const focus = $("#module-focus"), id = S.subject || S.unit, area = id ? areaById(id) : null;
+  focus.hidden = !area;
+  if (!area) return;
+  focus.textContent = area.name;
+  const trail = pathOf(id).slice(1, -1).map(a => a.name).join(" › "); // a unidade, quando o foco é uma matéria
+  if (S.concept === "coracao") $("#artery-name").textContent = `${moduleNumber(mod.index)} · ${mod.art}${trail ? " · " + trail : ""}`;
+  const set = descIds(id), here = S.materials.filter(m => set.has(m.areaId));
+  const topics = S.subject ? ctx.own.length : 0, cases = here.filter(m => m.type === CASE_TYPE).length;
+  $("#module-summary").textContent = here.length
+    ? [plural(here.length, "material", "materiais") + (topics ? " em " + plural(topics, "assunto", "assuntos") : ""), cases ? plural(cases, "caso clínico", "casos clínicos") : ""].filter(Boolean).join(" · ")
+    : "Em produção · ainda não irrigado.";
 }
 function renderUnits(mod) {
   const box = $("#units"), live = areasWithContent();
@@ -189,7 +216,11 @@ function renderFilters() {
   box.replaceChildren(...chips.map(([label, clear]) => h("button", { class: "af", type: "button", "aria-label": "Remover filtro: " + label, onclick: () => { clear(); renderModule(); $("#lib-q").focus(); } }, label, svg(ICON.x))),
     chips.length > 1 ? h("button", { class: "af clear", type: "button", text: "Limpar tudo", onclick: clearFilters }) : null);
 }
-function emptyBlock(title, text, extra) { return h("div", { class: "empty" }, h("h2", { text: title }), h("p", { text }), extra); }
+/* Estado vazio desenhado: rótulo técnico, título em Literata, explicação e saídas. "waiting" = ainda sem material
+   (artéria tracejada, "ainda não irrigado"); senão, nada encontrado com a busca e os filtros. */
+function emptyBlock(title, text, extra, waiting = false) {
+  return h("div", { class: "empty" + (waiting ? " waiting" : "") }, h("p", { class: "mono", text: waiting ? "Ainda não irrigado" : "Busca e filtros" }), h("h2", { text: title }), h("p", { text }), extra);
+}
 const addButton = areaId => S.db ? h("button", { class: "btn", type: "button", "data-edit": "", text: "Adicionar material aqui", onclick: () => openForm(null, areaId) }) : null;
 function groupOf(list, from) {
   // Com uma matéria escolhida, divide por assunto (numa aba de assunto, um grupo só); senão, por matéria.
@@ -207,7 +238,8 @@ function groupOf(list, from) {
   const areaName = k => k ? (areaLabel(k, from) || areaById(k).name) : "Sem área definida";
   return keys.map(k => ({ key: k, label: S.subject ? (k || "Sem assunto") : areaName(k), items: by.get(k).sort(sorter()) }));
 }
-const skeleton = () => h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 3 }, () => h("div", { class: "skel-card" })));
+const skeleton = () => h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 4 }, () =>
+  h("div", { class: "skel-row" }, h("span", { class: "skel-bar label" }), h("span", { class: "skel-bar title" }), h("span", { class: "skel-bar meta" }))));
 function renderMaterials(base, mod) {
   const box = $("#materials"), line = $("#result-line");
   // Endereço com aba antes de os assuntos chegarem: espera, em vez de mostrar a matéria inteira e depois pular.
@@ -219,22 +251,23 @@ function renderMaterials(base, mod) {
     const scopeName = S.subject ? areaById(S.subject)?.name : S.unit ? areaById(S.unit)?.name : mod?.name;
     box.replaceChildren(emptyBlock(IN_PRODUCTION + ".", S.scope === "todos" ? "O acervo ainda não tem materiais. Quem edita cadastra o primeiro link pelo botão Adicionar."
       : `${scopeName || "Este módulo"} ainda não foi irrigado. Os materiais aparecem aqui quando forem publicados.`,
-      h("div", { class: "acts" }, firstLive && firstLive.id !== S.scope ? h("a", { class: "btn", href: "#a-" + firstLive.id, text: `Ver ${firstLive.name}, que já tem material` }) : null, addButton(S.subject || root || ""))));
+      h("div", { class: "acts" }, firstLive && firstLive.id !== S.scope ? h("a", { class: "btn", href: "#a-" + firstLive.id, text: `Ver ${firstLive.name}, que já tem material` }) : null, addButton(S.subject || root || "")), true));
     return;
   }
   if (!list.length) {
     const emptyName = S.tab === CASES ? "Casos clínicos" : S.tab ? ctx.bySlug.get(S.tab)?.name : areaById(S.subject)?.name;
     box.replaceChildren(S.subject && !anyFilter()
-      ? emptyBlock(IN_PRODUCTION + ".", `${emptyName || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)))
+      ? emptyBlock(IN_PRODUCTION + ".", `${emptyName || "Esta matéria"} ainda não tem material.`, h("div", { class: "acts" }, addButton(S.subject)), true)
       : emptyBlock("Nenhum material encontrado", "Nada combina com a busca e os filtros. A busca procura no título, matéria, assunto, tipo e etiquetas, não no texto dos arquivos.",
         h("button", { class: "btn", type: "button", text: "Limpar busca e filtros", onclick: clearFilters })));
     return;
   }
   const from = S.scope === "todos" ? "" : S.unit || S.scope;
-  if (S.q.trim()) { box.replaceChildren(h("div", { class: "sheet-list" }, list.sort(sorter()).map(m => materialCard(m, { toks, from })))); return; }
+  const current = isDocked() ? S.detailId : null; // linha aberta na ficha fixa
+  if (S.q.trim()) { box.replaceChildren(h("div", { class: "sheet-list" }, list.sort(sorter()).map(m => materialCard(m, { toks, from, current: m.id === current })))); return; }
   box.replaceChildren(...groupOf(list, from).map((g, i) => h("section", { class: "group", "aria-labelledby": "g-" + i },
     h("h2", { class: "group-h", id: "g-" + i }, h("span", { text: g.label }), h("span", { class: "num", text: String(g.items.length) })),
-    h("div", { class: "sheet-list" }, g.items.map(m => materialCard(m, { toks, from, where: false }))))));
+    h("div", { class: "sheet-list" }, g.items.map(m => materialCard(m, { toks, from, where: false, current: m.id === current }))))));
 }
 
 export function renderModule() {
@@ -256,6 +289,8 @@ export function renderModule() {
   renderHeader(mod); renderUnits(mod); syncOrgan(mod);
   const base = baseList();
   renderSubjects(base); renderTopics(base); renderFilters(); renderMaterials(base, mod);
+  // Sem nenhum material no recorte, não há o que buscar nem filtrar: só o estado "Em produção".
+  $(".filters").hidden = !base.length;
 }
 /* Abas da matéria escolhida. Aba que não existe mais (ou slug antigo) é corrigida no endereço. */
 function renderTopics(base) {
@@ -283,7 +318,7 @@ export function moduleEntered() {
   if (reducedMotion()) return;
   requestAnimationFrame(() => revealIn($("#materials"), ".group-h, .material"));
   gsap.killTweensOf(title); gsap.set(title, { clearProps: "opacity,transform" });
-  gsap.fromTo(".module-meta, #units", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .38, ease: "power2.out", stagger: .04, overwrite: true, clearProps: "opacity,transform" });
+  enter(".module-meta, #units", { y: 10 });
   if (!f || f.id !== S.scope || performance.now() - f.at > 1500 || !f.rect.width) return;
   // O nome do módulo sai do rótulo tocado e pousa no numeral do cabeçalho.
   $$(".flight").forEach(n => { gsap.killTweensOf(n); n.remove(); });
@@ -292,8 +327,8 @@ export function moduleEntered() {
   document.body.append(fly);
   gsap.set(title, { opacity: 0 });
   gsap.fromTo(fly, { x: f.rect.left - to.left, y: f.rect.top - to.top, scale: Math.max(.18, f.rect.height / to.height) },
-    { x: 0, y: 0, scale: 1, duration: .48, ease: "power3.out", overwrite: true,
-      onComplete: () => { fly.remove(); gsap.to(title, { opacity: 1, duration: .15, clearProps: "opacity" }); } });
+    { x: 0, y: 0, scale: 1, duration: motionTokens().reveal, ease: "power3.out", overwrite: true,
+      onComplete: () => { fly.remove(); gsap.to(title, { opacity: 1, duration: motionTokens().exit, ease: motionTokens().easeRespond, clearProps: "opacity" }); } });
 }
 
 export function wireModule() {

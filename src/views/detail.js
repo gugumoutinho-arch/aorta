@@ -6,14 +6,18 @@ import { fmtDate } from "../core/text.js";
 import { pathOf } from "../core/areas.js";
 import { toggleFav, setStatus, removeMaterial, materialWrites, popping, pop } from "../core/actions.js";
 import { openDlg, closeDlg } from "../ui/dialogs.js";
+import { motionTokens } from "../ui/tokens.js";
 import { openLink, moduleToken } from "./cards.js";
 import { openForm } from "./form.js";
+import { canDock, dockOpen, undock, wireDock } from "./dock.js";
 
 let confirmRemove = false, lastId = null;
 const dlg = () => $("#dlg-detail");
 
 export function openDetail(id, origin = document.activeElement) {
   S.detailId = id; lastId = id; confirmRemove = false;
+  if (canDock()) { dockOpen(renderDetail, id); requestAnimationFrame(() => $("#d-title")?.focus({ preventScroll: true })); return; }
+  if (dlg().classList.contains("docked")) undock();
   renderDetail();
   openDlg(dlg(), origin);
   requestAnimationFrame(() => $("#d-title")?.focus({ preventScroll: true }));
@@ -80,10 +84,13 @@ function wireDrag() {
   handle.addEventListener("pointermove", e => { if (drag) dlg().style.transform = `translateY(${Math.max(0, e.clientY - drag.y)}px)`; });
   const end = e => {
     if (!drag) return; const y = e.clientY - drag.y; drag = null;
-    if (y > 90) closeDlg(dlg()); else gsap.to(dlg(), { y: 0, duration: .25, ease: "expo.out", clearProps: "transform" });
+    if (y > 90) closeDlg(dlg()); else gsap.to(dlg(), { y: 0, duration: motionTokens().release, ease: motionTokens().easeEnter, overwrite: true, clearProps: "transform" });
   };
   handle.addEventListener("pointerup", end);
-  handle.addEventListener("pointercancel", () => { drag = null; dlg().style.removeProperty("transform"); });
+  // Gesto cancelado pelo sistema, ou "reduzir movimento" ligado no meio do arraste: a folha volta ao lugar na hora.
+  const cancel = () => { if (!drag) return; drag = null; gsap.killTweensOf(dlg()); dlg().style.removeProperty("transform"); };
+  handle.addEventListener("pointercancel", cancel);
+  matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => { if (e.matches) cancel(); });
 }
 
 export function wireDetail() {
@@ -93,5 +100,6 @@ export function wireDetail() {
   });
   dlg().addEventListener("close", () => { S.detailId = null; confirmRemove = false; });
   dlg().addEventListener("animationend", e => e.target.classList?.remove("pop"));
+  wireDock();
   wireDrag();
 }

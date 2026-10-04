@@ -2,6 +2,397 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B ENCERRADA (direção D) — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou na rodada (nuvem U0–U4 e U5; local: revisão do U4, U6–U9, fontes, galeria):**
+  - página inicial em palco + índice editorial + prateleira de casos;
+  - mapa sem guias cruzadas e entrada 4× mais leve;
+  - página do módulo com numeral gigante, lista editorial e ficha fixa à direita;
+  - ficha e busca nascendo de onde foram chamadas;
+  - busca com caminho curto;
+  - colagem que explica a tabulação;
+  - aviso "Desfazer" que pausa;
+  - esqueleto no formato da lista;
+  - hover só com mouse;
+  - fontes sem bloquear a primeira pintura.
+- **Números no Windows:** Lighthouse celular 90/91 (antes 85–90), computador 100; LCP 2,4 s; CLS ≤ 0,015.
+- **Galeria:** `docs/ui/index.html`.
+- **Bateria final:** tudo verde (`npm test` 134, `flows` 450, `acervos` 105, `topics` 57, `topic-edit` 52, `import` 59, `check` 0).
+- **Não testado:** aparelho físico, Safari, leitor de tela; vídeos de movimento não gerados.
+
+## 2026-10-04 — Claude — Rodada B: primeira pintura sem esperar as fontes — ramo `nuvem/ui-lapidacao`
+
+- **Fontes:** a folha do Google Fonts não bloqueia mais a primeira pintura; o texto aparece com substitutas calibradas e a linha em caixa alta do início tem 2 linhas reservadas em tablet, para nada pular na troca.
+- **Medido no Windows:** Lighthouse celular IDOMED 83 → **90**, geral **91**; LCP 3,2 s → **2,4 s**; CLS 0–0,001; orçamento estrito aprovado (pior CLS 0,015).
+
+## 2026-10-04 — Claude — Rodada B, U9: acabamento — ramo `nuvem/ui-lapidacao`
+
+- **Contraste:** cores de módulo com contraste AA medido (teste novo).
+- **Toque:** efeitos de mouse só em aparelhos com mouse (12 regras), com verificação nova no `check`.
+- **Testado:** `npm test` 134/134; `check` 0/0; `flows` 450/450.
+
+## 2026-10-04 — Claude — Rodada B, U8: avisos e carregamento — ramo `nuvem/ui-lapidacao`
+
+- **Aviso "Desfazer":** pausa enquanto há cursor, dedo ou foco nele, e não cobre mais o fim da lista.
+- **Carregamento:** esqueleto no formato da lista.
+- **Testado:** `npm test` 132/132; `flows` 450/450; `check` 0/0.
+
+## 2026-10-04 — Claude — Rodada B, U7: colagem que explica a tabulação — ramo `nuvem/ui-lapidacao`
+
+- **Colagem:** colar com vírgulas dá um aviso claro ("copie direto da planilha ou cole só os links"), em vez de erros genéricos; o texto de ajuda diz que as colunas vêm separadas por tabulação.
+- **Organizar:** nomes curtos da árvore com alvo de 44 px.
+- **Testado:** `npm test` 129/129; `import` 59/59; `check` 0/0.
+
+## 2026-10-04 — Claude — Rodada B, U6: busca rápida mais limpa — ramo `nuvem/ui-lapidacao`
+
+- **Resultado:** caminho curto (unidade › matéria · assunto); tipo do material à direita; acervo só quando é o outro; a lista não é refeita quando a busca não mudou (acento e caixa ignorados).
+- **Testado:** `npm test` 126/126; `flows` 444/444; `check` 0/0.
+
+## 2026-10-04 — Claude — Rodada B, U4 e U5 (direção D): página do módulo e ficha — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **U4 (nuvem, `5dbc810`):**
+  - numeral gigante com foco em Literata;
+  - lista editorial no lugar dos cartões;
+  - ficha fixa à direita a partir de 1200 px;
+  - filtros compactos e "Em produção" desenhado.
+  Revisão de design feita localmente pelas capturas; um ajuste (resumo sem palavra sozinha na última linha).
+- **U5 (nuvem, `79dd68b` e `4fd3856`, testados localmente):**
+  - ficha e busca nascem de onde foram chamadas;
+  - movimento reduzido no meio do arraste devolve a folha;
+  - 32 testes novos da folha no celular.
+- **Testado no Windows, com fontes reais:** `npm test` 120/120; `check` 0/0; `flows` 432/432; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `acervos` 105/105.
+- **Não testado:** aparelho físico, Safari, leitor de tela.
+
+## 2026-10-04 — Claude (nuvem) — Rodada B · U3 · Mapa e tarefa longa — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou:**
+  - desenho entre as colunas de rótulos;
+  - guias sem cruzar (lado pela ponta, troca de vizinhos);
+  - rótulo ativo por forma;
+  - anel do cursor vazado;
+  - órgão legível no tema claro;
+  - entrada mais leve: um contexto WebGL só, 1ª medida da pílula no quadro seguinte, layout com leituras antes das escritas e guias sem ler o DOM a cada quadro.
+- **Medido:** maior tarefa da entrada do IDOMED, mediana de 5 com CPU 4×: 968 ms → 174 ms (base 660).
+- **Testado:** `npm test` 120/120; `check` 0/0; `flows` 391/391; `acervos` 105/105, com o teste novo de guias sem cruzar.
+- **Não verificado:** aparelho real (as medidas são do SwiftShader).
+
+## 2026-10-04 — Claude (nuvem) — Rodada B · U2 · Início na direção D — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou:**
+  - palco: brilho, título, busca e "Continuar" em vidro;
+  - rótulos do mapa como painéis;
+  - índice editorial numerado e prateleira de casos clínicos;
+  - listas em linhas;
+  - no celular: palco compacto e barra inferior (Início, Mapa, Favoritos, Buscar).
+- **Por quê:** é a direção D aprovada pelo dono.
+- **Estabilidade:**
+  - fontes substitutas com largura medida;
+  - textos do acervo antes da primeira pintura;
+  - espaços reservados;
+  - colagem de links carregada só em Organizar.
+- **Testado:**
+  - `npm test` 120/120; `check` 0/0; `flows` 368/368; `acervos` 71/71; `topics` 57/57; `import` 59/59;
+  - orçamento ESTRITO passa (CLS máximo 0,0019);
+  - Lighthouse celular 93/93, acessibilidade e boas práticas 100.
+  - Verificações antigas trocadas pela nova verdade em `flows` e `acervos` (ver `docs/ui-progresso.md`).
+- **Não verificado:** celular real; compreensão em 5 s com alunos.
+- **Correções da revisão de design:**
+  - foco, rota do índice e texto honesto ("links para os originais", "Buscar entre");
+  - sem desfoque;
+  - testes da barra inferior e da prateleira de casos.
+  - `flows` 391/391.
+
+## 2026-10-04 — Claude (nuvem) — Rodada B · U1 · Sistema de movimento — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou:**
+  - coreografia por categoria (gesto, ponteiro, troca, entrada, saída, lista, mergulho, cena 3D) em DESIGN.md › Movimento;
+  - utilitários `src/ui/choreo.js` (`enter`, `exit`, `swap`, `press`, `respond`, `cascade`) sobre os tokens;
+  - migrados os usos da interface: diálogos, ficha, cabeçalho do módulo, voo do título, entrada do início, pressão e inclinação. Os diálogos não saem mais com `power2.in`, e a pressão foi de .975 para .97.
+- **Régua no `check`** (`tools/motion-rules.mjs`, teste com fixtures positivas e negativas):
+  - na interface (`src/ui`, `src/views`) não pode haver duração literal nem curva que só acelera;
+  - exceção só com "movimento: exceção — <motivo>" na mesma linha;
+  - a cena 3D fica fora da régua, com justificativa.
+  - O hexadecimal fora de `tokens.css` passou de aviso a erro.
+- **Fundo dos diálogos sem desfoque:** só o palco pode ter vidro. Medido: o p95 ativo da ficha a 1440 px caiu de 383 para 83 ms (SwiftShader).
+- **Testado (cópia isolada de `110d1de`):** `npm test` 115/115 com `CHROME_PATH`; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 71/71. Vídeos e medidas antes e depois em `docs/ui-progresso.md`. O aceite de p95 ≤ 20 ms é só parcial (ver lá).
+- **Não verificado:** sensação do movimento em aparelho real (o vídeo é SwiftShader, sem GPU).
+
+## 2026-10-04 — Claude (nuvem) — Rodada B · preflight e U0 · Auditoria — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **Preflight:** as fontes reais passaram a carregar no Chromium da nuvem. A CA do proxy foi registrada no NSS, com a verificação TLS ligada. Bateria G na base `d5fcad2` toda verde; Lighthouse celular 91/90, acessibilidade e boas práticas 100.
+- **Ferramentas novas:**
+  - `tools/ambiente.mjs` (preflight);
+  - `tools/auditoria.mjs` (matriz de capturas);
+  - `tools/movimento.mjs` (vídeos e p95 só do movimento ativo);
+  - `tools/resumo-medidas.mjs` (mediana e pior caso de `medir-v5`);
+  - `tools/galeria.mjs` (`docs/ui/`).
+- **Auditoria:** `docs/ui-auditoria.md`, com 162 capturas da base, achados P0–P3 e as medidas da base (CLS, maior tarefa, p95 ativo).
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N5 (seguimento da revisão de design) — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Por quê:** a revisão (`aorta-design-reviewer`) apontou que a borda do coração ficava na cor da Cardiologia o tempo todo, inclusive no batimento de repouso, que é de todos os módulos. Ele acendia duas vezes por ciclo e ficava tingido mesmo com a Cardiologia "em produção".
+- **O que mudou** (`src/body/body.js`, `src/body/routes.js`):
+  - a borda do coração volta a ser sempre `--flow`;
+  - a cor do módulo entra num brilho próprio (`accent`/`own`), que só acende quando a Cardiologia é apontada e tem material;
+  - o repouso não acende o coração;
+  - o realce dos órgãos continua depois do pulso enquanto o módulo está apontado (antes apagava);
+  - o pulso nos órgãos passa a começar quando chega (`immediateRender: false`);
+  - pausar o batimento zera os brilhos congelados.
+- **Regras puras:** `lightsOnArrival` e `restingGlow`.
+- **Testado:** `routes.test` 8/8; `npm test` 108/108; `acervos` 71/71; `check` 0 erro(s); `flows` 364/364.
+- **Não verificado:** o brilho no 3D em si. Os testes conferem a regra e a classe `.hot` da guia; capturas do SwiftShader não provam a animação.
+- **Pendentes (já existiam antes):**
+  - o anel "ABRIR" do cursor cobre parte do nome sob o ponteiro e continua visível depois de mudar de rota;
+  - a página do módulo usa `--atrium` como base do coração, e o corpo usa `--ventricle`.
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N5 · Cardiologia acende o coração do corpo — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Antes desta rodada:** o destino "coracao" já existia (`e60e5e3`): rótulo "Coração", traçado da raiz da aorta até perto do ápice, mergulho até a ponta e coração 3D na página do módulo. Mas o `body.js` desenhava o coração **fora** dos órgãos, então ele não acendia nem pulsava com o módulo.
+- **O que mudou:**
+  - função pura `organOwners` (`src/body/routes.js`): órgão (ou o coração) → módulo cujo destino o inclui;
+  - no corpo 3D, quando há Cardiologia, o coração conta como órgão dela: borda na cor do módulo, acende ao apontar ou focar o rótulo e pulsa quando o fluxo chega. A cor de base (`--ventricle`) e a entrada do coração não mudam;
+  - sem Cardiologia, o coração continua só a bomba de todos.
+- **Testado:** `routes.test` 7/7 (cardio → coração, ordem do array não muda destinos, desconhecido → destino livre, M1 → pé, coração é órgão da Cardiologia e de ninguém sem ela); `npm test` 107/107; `acervos` 71/71 com uma Cardiologia fictícia (rótulo "Coração", apontar realça o caminho até o coração, mergulho abre o módulo com o coração 3D; capturas `tools/reports/refino/cardio-destaque.png` e `cardio-modulo.png`).
+- **Não testado:** brilho do coração medido no WebGL (só por captura, com SwiftShader); GPU real.
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N4 · Colagem endurecida e publicação determinística — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Parser (`src/domain/import.js`):**
+  - Drive só com host **exato** (`drive.google.com`/`docs.google.com`): subdomínio ou domínio parecido não é tratado como Drive;
+  - link com usuário/senha embutidos é recusado, e na prévia aparece mascarado (`•••@`);
+  - caminho resolvido segmento a segmento, sempre **dentro do pai** ("Micro e Imuno" em M2 › BBIO 2 não é achado sob M1);
+  - nomes iguais no mesmo nível abrem um ramo cada: se sobram vários destinos, a linha pede **escolha explícita**, e cada candidato traz os avisos do próprio ramo; um único destino possível resolve sozinho; nenhum vira "caminho desconhecido";
+  - depois de uma unidade sem matérias, segmento desconhecido não vira "assunto".
+- **Publicar (`src/core/import-store.js`):**
+  - o id do material é o do rascunho (ou o já reservado nele): dois clientes chegam ao **mesmo** material;
+  - o id é guardado antes; o material é criado só se não existe (nunca sobrescreve ao retomar);
+  - o estado é conferido no banco depois da criação; rascunho ignorado por outro cliente é recusado;
+  - "publicado" só depois de todas as ligações.
+- **Tela (`src/views/import.js`):**
+  - erro, aviso e duplicata diferenciados por ícone **e** palavra ("Erro:", "Aviso:", "Duplicata:");
+  - seletor de destino no caso ambíguo, com o destino completo e um diferenciador tirado dos dados (posição, nº de materiais, assuntos), também no "Onde fica" do rascunho quando há nomes repetidos;
+  - o foco fica no seletor depois da escolha;
+  - direitos com rótulos claros e a mesma explicação nas duas telas ("Público" é o padrão para material do dono e **não certifica direitos de terceiros**).
+- **Revisão de design (`aorta-design-reviewer`):**
+  - 2 bloqueantes, corrigidos: o foco se perdia ao escolher o destino, e os candidatos ambíguos tinham textos idênticos;
+  - 4 importantes, corrigidos: aviso sem seletor, avisos do ramo escolhido sumiam, texto de direitos contraditório, "escolha na prévia" soava obrigatório;
+  - sugestões aplicadas: rótulo do seletor com o título, largura do seletor, aviso repetido, senha mascarada, nome de variável;
+  - **ficam:** borda `--line-strong` abaixo de 3:1 (decisão de identidade) e ícones de erro e de aviso em cores próximas (a diferença está na forma e na palavra, como pedido). Layout sem referência externa.
+- **Testado:**
+  - unidade: parser 20/20 (host falso, credenciais, `@` permitido fora do usuário, limitado ao pai, ambíguo com e sem saída, avisos por candidato, id determinístico);
+  - gravação 12/12 (falha **antes e depois** de cada escrita — rascunho, material, ligação — e repetir não duplica; "publicado" só depois das ligações; não sobrescreve; ignorado não publica);
+  - e2e `import` 59/59: fluxo principal a 1440 e 390 px; cenário com caminho limitado ao pai, ambíguo com escolha e foco, credenciais, host falso, clique duplo, **dois clientes** no mesmo rascunho e falha depois de gravar o material.
+- **Bateria G depois do N4 (cópia isolada de `1a4ada4`):** `npm test` 106/106; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 52/52; `import` 59/59. Lighthouse: celular 91 (IDOMED) e 92 (geral), computador 100/99, acessibilidade 100, boas práticas 96. LCP no celular 2,7 s contra 2,4–2,5 s no preflight; o JS inicial cresceu só 2 KB comprimido. Com as fontes sem carregar, os números não são comparáveis; reconfiro na bateria final.
+- **Não testado:** Supabase real; a tabela `material_drafts` sem tempo real (a página relê depois de cada gravação própria e, no teste, as abas do mesmo contexto se avisam pelo localStorage).
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N2 · Formulário com assuntos sobre a gravação nova — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:**
+  - o formulário (`src/views/form.js`, já com fichas, "Novo assunto" e o aviso do N3 desde `80bc24c`) passou a gravar pelo `setLinksInArea` do N1: só os assuntos da matéria escolhida mudam, as ligações com assuntos de outras matérias ficam, e o texto legado segue a matéria principal;
+  - "Novo assunto" usa a criação confirmada no banco do N1;
+  - interface sem mudança visual nesta rodada (a revisão de design de `80bc24c` continua valendo).
+- **Testado:** e2e novo, editar Anatomia preserva a ligação com um assunto de Práticas Médicas; `topic-edit` 52/52 (1440 escuro e 390 claro, teclado completo, WCAG sem violações, sem rolagem lateral, alvos ≥ 44 px, aberto pela aba de assunto e por Casos clínicos, aviso de nome parecido, XSS, salvar durante a criação, falha ao criar, Esc no aviso); `topics` 57/57; `npm test` 92/92, na cópia isolada do commit `0b4cb09`.
+- **Não testado:** leitor de tela real; Safari.
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N3 · Detector de quase-duplicatas: plural, Unicode e regra de unicidade — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou (`src/domain/similar.js`):**
+  - vocabulário explícito de plural → singular ("membros superiores" → "membro superior", "laterais" → "lateral"…), além das abreviações aprovadas;
+  - "MMSS" passa a sugerir "Membro superior", e "Membro sup." sugere também "Membros superiores";
+  - os vetos (números/ordinais e direções opostas) continuam valendo antes da distância.
+- **Unicidade × semelhança:** a unicidade continua sendo exatamente `topicNorm`, a mesma regra do banco (`private.topic_norm`), sem mudança no SQL. A normalização aproximada só sugere. Teste novo prova as duas coisas, e que `planTopic` normaliza para NFC antes de comparar (texto decomposto vira o mesmo assunto).
+- **Testado:** `similar.test` 10/10 (casos obrigatórios, plural, composto × decomposto, unicidade × sugestão), com os novos reprovando antes da mudança; `npm test` 92/92 e `topic-edit` 51/51 na cópia isolada do commit.
+- **Decisão a confirmar com o dono:** a lista de plurais e as abreviações extras ("inf.", algarismos romanos) ficam em constantes, para ele aprovar ou cortar.
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N1 · As duas pontas do banco iguais para assuntos, ligações e rascunhos — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Esquema único (`src/core/schema.js`):** colunas, chaves, unicidade, chaves estrangeiras, cascata/restrict e coluna gerada, copiados da migração `20261003190000_assuntos.sql`. O adaptador do Supabase e o banco fictício usam a mesma fonte; o que não está no esquema não é gravado em nenhum dos dois.
+- **Ligações (`material_topics`):**
+  - id composto só no adaptador e no mock, com cada parte codificada (`encodeURIComponent`): ":" ou "%" dentro de um id não confundem; id malformado é recusado;
+  - o SQL nunca recebe `id`: upsert de `{material_id, topic_id}` com conflito na dupla, delete filtrando as duas colunas;
+  - update é **recusado** explicitamente.
+- **Adaptador:**
+  - `get` lê pela chave;
+  - `create` só insere se não existe (nunca sobrescreve);
+  - `list` lê a tabela uma vez;
+  - `normalized_name` nunca é enviado.
+- **Banco fictício (`tools/harness.mjs`):**
+  - unicidade (23505), chaves estrangeiras (23503), cascata ao apagar material e restrict ao apagar assunto ligado;
+  - `normalized_name` gerado com as mesmas letras do `topicNorm`; `set` como upsert do Postgres; ids UUID;
+  - falha programada **antes** (`__mockFail`) ou **depois** de gravar (`__mockFailAfter`, resposta incerta);
+  - persistência entre recargas e entre abas do mesmo contexto do navegador (o localStorage é a fonte única; outro contexto começa limpo).
+- **Rede bloqueada:** toda página de teste recusa e registra rede para `*.supabase.co` (`window.__supabaseBlocked` + erro de console, que reprova as suítes).
+- **Ações:**
+  - `setMaterialTopics(material, matéria, assuntos)` mexe só nos assuntos daquela matéria e preserva os de outras (ex.: Ortopedia);
+  - `createTopic` confirma no banco antes de responder: dois clientes com o mesmo nome chegam ao mesmo assunto, e nomes diferentes com o mesmo slug ganham `-2`;
+  - texto legado `subject` = primeiro assunto da matéria principal, por ordem e depois id; material que nunca teve assunto conserva o texto livre;
+  - o Desfazer da remoção só confirma quando material **e** ligações voltaram; se parar no meio, oferece "Tentar de novo".
+- **Atomicidade:** não foi preciso RPC. As escritas são repetíveis (upsert, create sem sobrescrever) e conferidas no banco, então nenhum SQL novo é proposto aqui.
+- **Testado:**
+  - `npm test` 89/89: adaptador com cliente espião (payload, filtros, sem `id`, update recusado, `get`/`create`/`list`), mock (unicidade, FK, cascata, restrict, coluna gerada e filtrada, persistência por contexto, falha antes e depois), criação concorrente e texto legado; guarda do Supabase (fetch, XHR e WebSocket recusados e registrados);
+  - `check` 0/0; `flows` 364/364; `topics` 57/57; `import` 44/44;
+  - `topic-edit` 51/51: banco persistente — criar assunto, ligar, desligar, recarregar mantém; remover e desfazer com falha no meio, "Tentar de novo", tudo de volta depois de recarregar.
+  - Antes da correção, o e2e reprova esperando "Tentar de novo"; os testes de unidade novos reprovaram antes da implementação.
+- **Não testado:** Supabase real (nenhum acesso).
+
+## 2026-10-03 — Claude (nuvem) — Rodada A · N6 · "botão fica pressionado" e trocas rápidas sem exceção — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Retomada:** o ramo já existia (sessão anterior). Validei que descende do `prototipo-v4` e trouxe o `prototipo-v4` atual (`4b6f838`) por merge (`7303e51`), sem force. SHA base desta rodada: `4b6f838`.
+- **Trocas rápidas** (corrigido no produto em `57f77e6`: o título é cancelado pela referência do tween). Reprodução fiel e mínima, no código atual: **0 falhas em 10** (antes: 1/30, 2/40 e ≥ 1/11).
+- **"Botão fica pressionado até soltar"** (a exceção que sobrava no `acervos`). Reprodução da mesma sequência com CPU 6× mais lenta, registrando o que a página viu:
+  - nas falhas, **0 ou 1 quadro** foi desenhado entre o "pressionar" e a medida: ligar o movimento faz o 3D começar e ocupa a thread;
+  - em **10 de 10**, a página viu o movimento ligado e o botão afundou assim que houve quadro.
+  O produto estava certo; o teste media 250 ms fixos depois de pressionar. Agora ele espera a CONDIÇÃO (afundou com o mouse ainda apertado, até 3 s) e, ao soltar, espera voltar. A verificação continua a mesma; não foi afrouxada.
+- **Resultados:** com a regra antiga, a reprodução sob carga falhou 2/10; com a nova, 10/10. `acervos.mjs` completo **67/67 em 3 de 3** rodadas.
+- **Não testado:** aparelho físico e GPU real (o 3D roda por software aqui).
+
+## 2026-10-03 — Claude (nuvem) — N7 (extra) · Desempenho da primeira tela: tentado, medido e revertido — ramo `nuvem/f1-conteudo`
+
+- **Tentativa (`368fce2`, revertida em seguida):** `layout()` em `src/views/map.js` passou a ler todas as medidas dos rótulos antes de escrever posições e lados. Antes, cada leitura vinha depois do `data-side` do rótulo anterior, que muda o alinhamento pelo CSS. As caixas calculadas eram reaproveitadas pelas linhas-guia, inclusive nos quadros do 3D, sem medir nada.
+- **Medições (cópias isoladas, nada em paralelo, CPU 4×, 3D por software):**
+  - `medir-v5 --fase=n7-antes-k / n7-depois-k`, 6 pares alternados:
+    - **IDOMED**, maior tarefa da entrada: medianas ~673 ms antes e ~931 ms depois (faixas 167–1.660 e 282–1.404); p95 de quadro ~550 → ~383 ms.
+    - **Geral**, maior tarefa da entrada: ~223 → ~209 ms; p95 de quadro igual (~175 ms).
+  - Contagem e tempo de layout na entrada (`Performance.getMetrics`, mediana de 5): **layouts −70%** (161 → 41, 89 → 31, 152 → 39, 93 → 33). Tempo total de layout quase igual: 132 → 125 e 158 → 133 ms a 390 px; empate a 1440 px. O diagnóstico de partida (~190 ms de layout em `layout()`) não se reproduziu aqui: os layouts eliminados eram baratos.
+  - Lighthouse (mediana de 3): igual antes e depois. Celular 94/94, computador 100/100; geral no celular 94 (meta ≥ 88).
+- **Decisão:** a meta ("maior tarefa da entrada claramente menor") não foi atingida, e a IDOMED até piorou na mediana, com variação enorme, dominada pelo carregamento do coração 3D. Pela regra do pacote, **revertido** (`128067b`). O código fica no histórico para ser retomado junto com o carregamento do 3D, que é o que pesa de verdade na maior tarefa.
+
+## 2026-10-03 — Claude (nuvem) — N6 · Instabilidade "trocas rápidas preservam último acervo e título" — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Causa raiz (defeito do produto, não do teste), achada com registro de cada escrita no título e de cada split:**
+  - `revealHeadline` (`src/ui/motion.js`) cancelava a entrada do título com `gsap.killTweensOf(split.lines)`. Em trocas rápidas de acervo, com a thread ocupada pelo 3D, esse cancelamento às vezes **não matava** o tween. No registro: split 2 cancelado aos 1.945 ms, mas o tween dele terminou aos 2.601 ms.
+  - O `onComplete` desse tween apagava do mapa `splits` a entrada do elemento **sem conferir de quem era**, e apagava a do split atual (o 5).
+  - O split 5 ficou órfão, com o HTML do título da IDOMED guardado. Na troca seguinte, `cancelHeadline` não o achou, e o construtor do novo `SplitText` restaurou aquele HTML antigo (`overwrite`): o corpo aparecia com "O que você vai estudar hoje?".
+- **Correção:** o tween fica guardado com o split e é cancelado pela referência (`tween.kill()`); o `onComplete` só apaga a entrada se ela ainda for do próprio split. Nenhuma espera foi aumentada.
+- **Antes e depois:**
+  - Antes, roteiro focado (só a sequência do teste, 1440 px, 3D por software): 1 falha em 30, 2 em 40 e pelo menos 1 em 11 (rodada interrompida quando a causa apareceu).
+  - Antes, `acervos.mjs` inteiro: o teste-alvo falhou 1 vez em 10 rodadas limpas.
+  - Depois, roteiro focado: **0 falhas em 60**.
+  - Depois, `acervos.mjs` 10 vezes seguidas: o teste-alvo passou **10 de 10**.
+- **Duas outras corridas do `acervos.mjs`, vistas na medição:**
+  - "rótulos sobrepostos" (3 de 20 rodadas antes, inclusive a 320 px): corrida do teste. Os rótulos nascem no canto e são posicionados no quadro seguinte, e o teste media depois de 180 ms fixos. Agora espera a condição: todos os rótulos com lado definido. Depois: 0 em 10.
+  - "botão fica pressionado até soltar" (3 de 20 antes): o código soltava a pressão em **qualquer** mudança de "reduzir movimento", inclusive quando o movimento era ligado (o aviso chega atrasado). Agora só solta quando o movimento reduzido é ativado. **Não resolveu tudo:** depois, ainda 1 falha em 10. Sigo investigando (ver a próxima entrada).
+- **Bateria completa no commit do N6:** `npm test` 80/80; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 38/38. Lighthouse: celular 94/94, computador 100/100, acessibilidade 100, boas práticas 96 (só o certificado das fontes no proxy da nuvem).
+- **Baterias dos commits anteriores, cada uma em cópia isolada:**
+  - N4: tudo verde (`acervos` 67/67, `import` 38/38); Lighthouse 94/94 e 100/100, boas práticas 96 pelo mesmo motivo.
+  - N5: `npm test` 80/80 e `check` 0/0; `acervos` caiu na corrida dos rótulos, corrigida aqui no N6.
+
+## 2026-10-03 — Claude (nuvem) — N4 · Correções da revisão de design da colagem — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Bloqueante corrigido (honestidade):** antes, a duplicata de um material do catálogo vinha marcada como "ligar". Ao "Salvar rascunhos", o material **já publicado** ganhava assuntos na hora, e o aviso dizia "Nada foi publicado ainda". Agora:
+  - a duplicata vem como "Ignorar"; "Ligar agora ao material já publicado" é escolha explícita na linha;
+  - escolhida essa opção, a linha avisa: "Ao salvar, 'X' passa a aparecer também em …, já publicado";
+  - o resumo e o botão dizem o que vai acontecer ("Salvar 3 rascunhos e ligar 1 material");
+  - o aviso final separa o que virou rascunho do que mudou no catálogo;
+  - a introdução diz que só uma linha repetida, e só por escolha, muda o catálogo.
+- **Importantes corrigidos:**
+  - a caixa "Falta para publicar" saiu da região viva (não fala a cada tecla); a recusa de "Publicar" é anunciada uma vez e o foco vai ao motivo;
+  - salvar o rascunho não refaz o cartão, e o foco fica; a lista troca só os cartões que mudaram e devolve o foco por id;
+  - a prévia só é redesenhada quando muda;
+  - botões ocupados usam `aria-disabled` (o foco não cai na página) e, em falha, o foco volta ao botão;
+  - publicar ou ignorar leva o foco ao rascunho seguinte;
+  - cada cartão tem título visível (`h4`) e nome acessível;
+  - "Direitos" ganhou a explicação de que serve para conferir, ainda não fica guardado no material e não muda nada no Drive;
+  - campos do cartão em `--paper`, contra o `--surface` do cartão.
+- **Sugestões aplicadas:**
+  - duplicata em cor de texto com o rótulo "Duplicata" (antes parecia erro);
+  - cabeçalho da planilha em `code`, com "copie direto da planilha";
+  - os avisos de livro no Drive e de já no catálogo dizem que o caminho é "Ignorar";
+  - "Ignorar" tem "Desfazer" e trava o clique duplo;
+  - rótulo do seletor com o título da linha;
+  - resumo "2 ignoradas (1 por erro)";
+  - campo e botão de "Novo assunto" empilham abaixo de 420 px;
+  - com a tabela de rascunhos indisponível, o formulário de colagem fica desativado;
+  - linha duplicada não mostra pendências de rascunho.
+- **Ficaram:** a borda `--line-strong` com 1,9 a 2,3:1, que é de todos os campos do site e decisão de identidade; o rótulo "Ano" vira "Período" no material; animação de prévia e cartão (opcional). Layout sem referência externa: derivado dos painéis do Organizar.
+- **Testado:** `npm test` 80/80; `check` 0/0; `tools/import.mjs` 44/44 (inclui: "ligar" não vem escolhido, aviso e botão ao escolher, foco depois de publicar, recusa anunciada com foco no motivo, Ignorar com Desfazer); `tools/topic-edit.mjs` 46/46. Bateria completa no fim do N7.
+
+## 2026-10-03 — Claude (nuvem) — N5 · Cardiologia aponta para o coração no corpo 3D — ramo `nuvem/f1-conteudo`, não publicado
+
+- **Antes:** `src/body/routes.js` mandava `/cardio/` para "pulmao", e `ORDER` não tinha "coracao".
+- **Verificação no modelo:** o `public/modelos/corpo.glb` tem o nó `heart` (malha `VH_M_cardiac_chamber` do HuBMAP, 4.532 vértices, caixa de [-0,043; 0,424; -0,015] a [0,081; 0,528; 0,090] m). É a mesma malha que o corpo já desenha como bomba central. A página do módulo a acende pelo `organ.js`, que aceita qualquer nó do GLB.
+- **O que mudou:**
+  - destino novo "coracao": rótulo "Coração", artéria "a. coronária esquerda · descendente anterior", acende a malha `heart`; o traçado sai da raiz da aorta e desce pela face anterior até perto do ápice, terminando dentro da caixa do coração (estilizado, não anatomia para estudo);
+  - `cardio` → coração, e esse padrão vem antes dos outros ("Semiologia cardiovascular" também vai para o coração);
+  - `destinationsFor` passa a dar a cada disciplina o mesmo destino em qualquer ordem do array: primeiro os nomes reconhecidos, depois os outros pela ordem do curso (índice). Antes, um nome desconhecido que vinha antes podia tomar o destino de um nome reconhecido;
+  - "coracao" entra no fim de `ORDER`: M1 continua indo para o pé.
+- **Testado:** `node --test tests/routes.test.mjs` 6/6 (cardio → coração, ponta dentro da caixa do coração, mesma lista em outra ordem → mesmos destinos, nome reconhecido não perde destino, nome desconhecido → destino livre sem repetir, M1 → pé). Quatro reprovaram antes da mudança. Bateria no fim do N6.
+- **Não testado:** como os dados fictícios do v4 não têm disciplina "Cardiologia", conferi a tela à parte (captura de tela com uma Cardiologia fictícia, fora dos testes do repositório).
+
+## 2026-10-03 — Claude (nuvem) — N4 · Importação por colagem (Organizar › Colar links) — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:**
+  - Lógica pura em `src/domain/import.js`. Uma linha por arquivo, só a URL ou TSV com cabeçalho `url · caminho · tipo · titulo · fonte · ano · direitos` (inteiro ou só as primeiras colunas), até 100 linhas; acima disso, o lote inteiro é recusado.
+  - ID do arquivo do Drive extraído de `/file/d/`, `/document/d/` etc., `open?id=` e `uc?id=`; a `resourcekey` fica na URL guardada.
+  - Recusados com explicação: link de pasta do Drive ("cole os links dos arquivos"), não-https e linha com colunas sem cabeçalho.
+  - Duplicata (mesmo arquivo do Drive ou mesma URL normalizada, no catálogo, nos rascunhos ou no próprio lote) é marcada e nunca criada de novo. Se o caminho dá assunto, sugere "ligar ao material que já existe".
+  - Campo vazio vira pendência, nunca valor inventado. Tipo, ano e direitos fora da lista também viram pendência.
+  - O caminho (`Aorta/IDOMED/M1/CIS 1/Anatomia/Membro superior/`) é ligado a matéria e assunto pelos nomes da árvore. Caminho desconhecido fica "a escolher" e não cria nada.
+  - Direitos: padrão "Público" (decisão do dono), com troca no lote e em cada rascunho.
+  - Livro com link do Drive é avisado e não pode ser publicado.
+- **Tela (`src/views/import.js`, painel no Organizar):**
+  - colar → prévia linha a linha (erros, duplicatas, pendências e, em cada linha, criar, ignorar ou ligar) → salvar em `material_drafts`;
+  - lista de rascunhos com título, link, onde fica, assuntos (mesmo componente do N2, com aviso de nome parecido do N3), tipo, direitos, fonte e ano, o que falta para publicar, e "Publicar", "Salvar rascunho" e "Ignorar".
+  - Nada lê o conteúdo do Drive nem muda permissões; a tela diz isso.
+- **Publicar (`src/core/import-store.js`):** o id do material é gravado no rascunho **antes** de criar o material. Repetir depois de um erro no meio reaproveita o mesmo material e só completa o que faltou. Os assuntos são ligados e o texto antigo `subject` = primeiro assunto.
+- **Testado (dados fictícios):**
+  - `node --test` 18/18 no parser e na gravação (URL, TSV, cabeçalho parcial, pasta, 101 linhas, duplicatas, `resourcekey`, XSS no título, caminho, pendências, livro, publicar idempotente, erro no meio);
+  - `tools/import.mjs` 38/38 a 1440 escuro e 390 claro: colar 5 linhas mistas → prévia correta → salvar → recarregar mantém → publicar 2, um deles com erro no meio e nova tentativa → aparecem nas abas certas → nada duplicado → colar de novo marca tudo como duplicata; WCAG sem violações, alvos ≥ 44 px, sem rolagem lateral.
+  - O e2e pegou dois defeitos meus antes do commit, já corrigidos: repetir a publicação via o rascunho velho e bloqueava como "já no catálogo"; caminho desconhecido mostrava "Vai para: M1".
+  - Os testes de unidade do parser foram escritos antes da implementação, mas não os rodei antes para vê-los reprovar.
+- **Não testado:** Supabase real; a tabela `material_drafts` não tem tempo real (a página relê depois de cada gravação própria).
+- **Limite conhecido:** a tabela `materials` não tem coluna de direitos. Os direitos do rascunho só decidem se pode publicar; não ficam guardados no material. Guardar exigiria uma migração, que só o dono pode autorizar.
+
+## 2026-10-03 — Claude (nuvem) — N2 · Formulário de material com assuntos — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:**
+  - Fichas de assunto: depois de escolher a matéria em "Onde fica", os assuntos dela aparecem como fichas de múltipla escolha. Cada ficha é um checkbox real; marcada, fica preenchida e com ✓, então não depende só da cor.
+  - "Novo assunto" cria o assunto na hora e já o marca. Nome igual a um existente só marca o existente. Nome parecido (N3) pergunta antes: "Já existe 'Membro superior'. Usar esse?", com "Usar" ou "Criar … mesmo assim"; Esc fecha só o aviso.
+  - Formulário aberto numa aba de assunto já vem com a matéria e o assunto marcados. Aberto em "Casos clínicos", vem com o tipo "Caso clínico".
+  - Editar: os assuntos ligados vêm marcados. Salvar grava só a diferença (N1) e mantém o texto antigo `subject` = primeiro assunto ligado. Material sem ligação e sem assunto marcado conserva o texto antigo.
+  - Área acima de matéria: as fichas somem, um aviso explica, e o campo de texto "Assunto" volta. Sem as tabelas de assunto no banco, o formulário é o de antes.
+  - Componente reutilizável `src/views/topic-picker.js`, usado também pelos rascunhos do N4. CSS em `src/styles/dialogs.css`, só com tokens e sem transição com movimento reduzido. Layout sem referência externa, derivado das fichas e das abas que já existem.
+- **Revisão (`aorta-design-reviewer`):** nenhum achado bloqueante. Corrigidos:
+  - salvar durante "Novo assunto" agora espera o assunto ser criado (antes, o material ficava sem ele);
+  - o foco não se perde enquanto o assunto é criado (campo só leitura em vez de desativado);
+  - falha ao criar aparece no próprio campo, não só no aviso atrás do diálogo;
+  - o ✓ não entra no nome acessível;
+  - erro de nome vazio é anunciado;
+  - fonte de 14 px nas fichas;
+  - placeholder curto e dica de que um assunto novo fica na matéria mesmo se o formulário for cancelado;
+  - Esc no aviso fecha só o aviso;
+  - regras `[hidden]` repetidas removidas.
+  **Ficou:** a borda da ficha desmarcada (`--line-strong`) tem contraste 2,1:1 a 2,3:1, abaixo de 3:1. É o mesmo token de todos os botões e campos, então mudar é decisão de identidade.
+- **Banco fictício (`tools/harness.mjs`):** ganchos de teste `window.__mockDelay` e `window.__mockFail`, rascunhos e persistência opcional entre recarregamentos.
+- **Testado (dados fictícios):** `tools/topic-edit.mjs` 46/46 (a 1440 escuro e a 390 claro, só teclado, WCAG sem violações, alvos ≥ 44 px, sem rolagem lateral, XSS, salvar durante a criação, falha ao criar e Esc). O e2e reprovou antes de o formulário ser ligado.
+- **Bateria completa no commit do N2 (cópia isolada):**
+  - `npm test` 56/56; `check` 0 erros e 0 avisos; `flows` 364/364; `topics` 57/57; `topic-edit` 46/46.
+  - `acervos` **reprovou** na 3ª verificação, "320 dark idomed sem rolagem e rótulos sobrepostos". O mesmo teste já falhava antes do N2 (3 de 20 rodadas da medição do N6, no código do N3). É uma corrida do teste, corrigida no N6.
+  - Lighthouse: desempenho no celular 95 (IDOMED) e 93 (geral); no computador 100/100; acessibilidade 100. Boas práticas **96**: o único erro de console é o certificado das fontes do Google, que o proxy da nuvem intercepta (`ERR_CERT_AUTHORITY_INVALID`). Não desliguei a verificação TLS para contornar. No CI do GitHub, esse erro não existe.
+- **Não testado:** Supabase real; leitor de tela real; Safari.
+
+## 2026-10-03 — Claude (nuvem) — N3 · Detector de quase-duplicatas de assunto — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:** `src/domain/similar.js` (lógica pura) diz se dois nomes de assunto da mesma matéria são quase iguais. Só sugere; nunca une sozinho.
+  - Normalização: NFC, espaços, minúsculas, sem acento e sem pontuação, "ª/º" como letra; abreviações aprovadas viram palavra inteira ("sup." → superior, "inf." → inferior, "mmss" → membros superiores, "mmii" → membros inferiores). A lista fica numa constante, para o dono acrescentar.
+  - Parecido quando a distância de edição é ≤ max(1, 12% do maior nome) ou o Jaccard das palavras (sem conectivos como "e" e "de") é ≥ 0,8.
+  - Veto: direções opostas (superior/inferior, medial/lateral, direito/esquerdo, anterior/posterior, proximal/distal, cranial/caudal, com plural e gênero) e números ou algarismos romanos diferentes ("1ª semana" × "2ª semana", "Fisiologia I" × "II").
+- **Testado:** `node --test` 7/7, incluindo os 4 casos obrigatórios ("Membro sup." ~ "Membro superior"; "Membro superior" ≁ "Membro inferior"; "Gametogênese" ~ "Gametogenese"; "1ª semana" ≁ "2ª semana"). Os testes reprovaram antes de o arquivo existir. `npm test` completo: 56/56. As etapas de tela da bateria do N1 (`check`, `flows`, `acervos`, `topics`, `topic-edit`) rodaram com `similar.js` já presente; nada o importa ainda, então o site não muda.
+- **Não testado:** uso na tela (vem no N2).
+- **Decisão a confirmar com o dono:** "inf." como inferior e o veto de algarismos romanos foram acrescentados por simetria e por segurança; não estavam na lista dada.
+
+## 2026-10-03 — Claude (nuvem) — N1 · Gravar assuntos e ligações — ramo `nuvem/f1-conteudo`, não publicado
+
+- **O que mudou:** a interface de banco grava `topics`, `material_topics` e `material_drafts` nas duas pontas.
+  - Supabase (`src/core/db.js`): a ligação não tem coluna `id`. `doc("<material>:<assunto>")` vira upsert da dupla (`onConflict` nas duas colunas, duplicata ignorada) e o delete filtra pelas duas colunas; ao ler, cada ligação ganha o id composto. Assunto nunca envia `normalized_name`.
+  - Banco fictício (`tools/harness.mjs`): imita o banco. Apagar material apaga as ligações (cascata), e assunto com ligação não pode ser apagado (restrict).
+  - Lógica pura em `src/domain/topic-edit.js`: diferença de ligações, slug livre (`-2`, `-3`… contra slugs atuais, antigos e os reservados `casos`/`todos`/`tipos`), ordem = máximo + 1, nome igual devolve o assunto existente e texto antigo `subject` = primeiro assunto ligado.
+  - Escritas em `src/core/topic-store.js`; ações com aviso em `src/core/topic-actions.js` (`createTopic`, `setMaterialTopics`).
+  - Remover material guarda as ligações, e o "Desfazer" devolve o material **e** as ligações.
+- **Teste corrigido:** `tools/topics.mjs` passa a ignorar falha de rede das fontes do Google, como `check` e `flows` já faziam (na nuvem, o proxy recusa o certificado).
+- **Testado (dados fictícios):** `npm test` 49/49 (diferença de ligações, slug com colisão, chave composta e Supabase com cliente falso: upsert da dupla, delete pelas duas colunas, sem `normalized_name`, colunas dos rascunhos; banco fictício: cascata, restrict, restaurar ligações); `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 5/5 (remover material com dois assuntos e desfazer). Sem a correção, o e2e reprova no Desfazer.
+- **Não testado:** Supabase real (nenhum acesso nesta sessão); criar e ligar assuntos pela interface (vem com o formulário, no N2).
+
 ## 2026-10-03 — Claude — F1: abas de assunto dentro da matéria — ramo `prototipo-v4`, não publicado
 
 - **O que o aluno vê:** com uma matéria escolhida (ex.: CIS 1 › Anatomia), surge a faixa **Todos · Membro superior · Coluna vertebral · Membro inferior · Casos clínicos**:

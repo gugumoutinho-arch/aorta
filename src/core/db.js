@@ -1,44 +1,60 @@
-/* Banco: duas pontas com a mesma interface (collection/doc/onSnapshot/set/update/delete).
+/* Banco: duas pontas com a mesma interface (collection/doc/list/onSnapshot e get/set/create/update/delete).
    - window.claude.use("db"): usada pelos testes em tools/, com dados fictícios.
    - Supabase: o site publicado. A chave abaixo é a chave PÚBLICA do projeto; o acesso aos dados é protegido
      pelas regras do banco (RLS: só os e-mails do dono leem e gravam). Nunca coloque aqui a chave secreta do servidor. */
 import { S } from "./state.js";
 import { fetchAll } from "../domain/pagination.js";
+import { linkId, parseLinkId } from "../domain/topic-edit.js";
+import { COLS, KEYS } from "./schema.js";
 
 const SUPA = { url: "https://rmqfduksayyplucshqea.supabase.co", key: "sb_publishable_EG4jEqDNIiD_-ow5L4qh8w_XkUG7eDZ" };
-const COLS = {
-  materials: ["title", "url", "areaId", "subject", "period", "type", "tags", "collectionIds", "source", "notes", "status", "favorite", "createdAt", "lastOpenedAt", "statusAt"],
-  areas: ["name", "parentId", "order", "stain", "short", "createdAt"],
-  collections: ["name", "createdAt"],
-  topics: ["areaId", "name", "slug", "slugAliases", "order", "bodyRegion", "createdAt"],
-  material_topics: ["materialId", "topicId", "createdAt"],
-};
 const toCol = k => k === "order" ? "sort_order" : k.replace(/[A-Z]/g, c => "_" + c.toLowerCase());
 const toKey = c => c === "sort_order" ? "order" : c.replace(/_([a-z])/g, (_, x) => x.toUpperCase());
 function rowOut(table, obj) { const r = {}; for (const k of COLS[table]) if (k in obj) r[toCol(k)] = /At$/.test(k) && !obj[k] ? null : obj[k]; return r; }
 function rowIn(r) { const o = {}; for (const [c, v] of Object.entries(r)) if (c !== "id") o[toKey(c)] = v == null && c.endsWith("_at") ? "" : v; return o; }
 
-/* Ordem estável para paginar (material_topics não tem id: a chave é a dupla). */
-const ORDER = { material_topics: ["material_id", "topic_id"] };
-function supaDb(sb) {
+/* Tabelas sem coluna id (material_topics): o id do site é linkId(material, assunto) e o SQL só vê as duas colunas. */
+const keyCols = table => KEYS[table]?.map(toCol);
+function keyOf(table, id) {
+  const parts = parseLinkId(id);
+  if (!parts) throw new Error(`Chave de ${table} inválida.`);
+  return [[keyCols(table)[0], parts.materialId], [keyCols(table)[1], parts.topicId]];
+}
+const idOf = (table, r) => KEYS[table] ? linkId(r[keyCols(table)[0]], r[keyCols(table)[1]]) : r.id;
+const byKey = (q, table, id) => KEYS[table] ? keyOf(table, id).reduce((x, [c, v]) => x.eq(c, v), q) : q.eq("id", id);
+const docOf = (table, r) => ({ id: idOf(table, r), exists: true, data: () => rowIn(r) });
+export function supaDb(sb) {
   const listeners = {}, seq = {};
-  const page = table => (from, to) => (ORDER[table] || ["id"]).reduce((q, c) => q.order(c), sb.from(table).select("*")).range(from, to);
+  const page = table => (from, to) => (keyCols(table) || ["id"]).reduce((q, c) => q.order(c), sb.from(table).select("*")).range(from, to);
   const refresh = async table => {
     const mine = seq[table] = (seq[table] || 0) + 1;
     let data = null, error = null;
     try { data = await fetchAll(page(table)); } catch (e) { error = e; }
     if (mine !== seq[table]) return; // um pedido mais novo já está a caminho: este resultado é velho
-    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => ({ id: r.id, data: () => rowIn(r) })) });
+    for (const l of listeners[table] || []) error ? l.err && l.err(error) : l.next({ docs: data.map(r => docOf(table, r)) });
   };
   const check = ({ error }) => { if (error) throw error; };
+  const row = (table, id, obj) => KEYS[table] ? { ...rowOut(table, obj), ...Object.fromEntries(keyOf(table, id)) } : { id, ...rowOut(table, obj) };
+  const conflict = table => (keyCols(table) || ["id"]).join(",");
+  // Ligação já existente é mantida como está (o upsert da dupla não tem o que atualizar).
+  const upsert = (table, id, obj) => KEYS[table]
+    ? sb.from(table).upsert(row(table, id, obj), { onConflict: conflict(table), ignoreDuplicates: true })
+    : sb.from(table).upsert(row(table, id, obj));
   const ref = (table, id) => ({ id,
-    async set(obj) { check(await sb.from(table).upsert({ id, ...rowOut(table, obj) })); refresh(table); },
-    async update(obj) { check(await sb.from(table).update(rowOut(table, obj)).eq("id", id)); refresh(table); },
-    async delete() { check(await sb.from(table).delete().eq("id", id)); refresh(table); } });
+    async get() { const { data, error } = await byKey(sb.from(table).select("*"), table, id).maybeSingle(); if (error) throw error; return data ? docOf(table, data) : { id, exists: false, data: () => undefined }; },
+    async set(obj) { check(await upsert(table, id, obj)); refresh(table); },
+    /* Cria só se ainda não existe: nunca sobrescreve (retomar uma gravação não apaga o que já estava lá). */
+    async create(obj) { check(await sb.from(table).upsert(row(table, id, obj), { onConflict: conflict(table), ignoreDuplicates: true })); refresh(table); },
+    async update(obj) {
+      if (KEYS[table]) throw new Error("Uma ligação não se altera: apague e crie outra.");
+      check(await byKey(sb.from(table).update(rowOut(table, obj)), table, id)); refresh(table);
+    },
+    async delete() { check(await byKey(sb.from(table).delete(), table, id)); refresh(table); } });
   return {
     doc: path => { const [table, id] = path.split("/"); return ref(table, id); },
     collection: table => ({
       doc: id => ref(table, id || crypto.randomUUID()),
+      async list() { return (await fetchAll(page(table))).map(r => docOf(table, r)); },
       onSnapshot(next, err) {
         (listeners[table] ||= []).push({ next, err }); refresh(table);
         sb.channel("bm-" + table).on("postgres_changes", { event: "*", schema: "public", table }, () => refresh(table)).subscribe();

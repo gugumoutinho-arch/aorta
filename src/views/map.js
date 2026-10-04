@@ -1,6 +1,6 @@
 /* Mapa do acervo (coração ou folha, ver concept.js): rótulos HTML dos módulos (links de verdade), linhas-guia até a
    ponta de cada caminho, mapa em linhas (SVG) como base sempre presente e o 3D por cima, carregado depois da primeira tela. */
-import { ready, reducedMotion } from "../core/state.js";
+import { S, ready, reducedMotion } from "../core/state.js";
 import { $, $$, h } from "../core/dom.js";
 import { moduleNumber, countLabel } from "../core/areas.js";
 import { noteFlight } from "./module.js";
@@ -9,7 +9,7 @@ import { concept } from "./concept.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const modelUrl = () => `${import.meta.env.BASE_URL}modelos/${concept().model || "heart-hra-v1.3.glb"}`;
-let diving = false, diveId = 0, mapConcept = null, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
+let probe = null, diving = false, diveId = 0, mapConcept = null, mods = [], signature = "", geometry = "", scene = null, sceneKey = "", boot = 0, started = false, paused = false, visible = true, tips = null, layoutFrame = 0;
 
 export function cancelDive() {
   diveId++;
@@ -18,20 +18,37 @@ export function cancelDive() {
   document.body.classList.remove("diving");
 }
 
+/* Caixa horizontal do desenho (contorno e caminhos, em unidades do SVG 600×560): o desenho é encaixado ENTRE as duas
+   colunas de rótulos, para nenhuma ponta ficar embaixo de um rótulo. */
+let box = [0, 600], labelCol = 0;
+function flatBox() {
+  const xs = [], c = concept();
+  for (const d of [...c.outline(), ...mods.map(m => c.flat(m, mods.length).d)]) {
+    const n = d.match(/-?\d+(\.\d+)?/g)?.map(Number) || [];
+    for (let k = 0; k + 1 < n.length; k += 2) xs.push(n[k]);
+  }
+  return xs.length ? [Math.max(0, Math.min(...xs) - 12), Math.min(600, Math.max(...xs) + 12)] : [0, 600];
+}
 function flatTips() {
-  const map = $("#map"), w = map.clientWidth, hgt = map.clientHeight, s = Math.min(w / 600, hgt / 560);
-  const ox = (w - 600 * s) / 2, oy = (hgt - 560 * s) / 2, c = concept();
+  const map = $("#map"), w = mapSize.w || map.clientWidth, hgt = mapSize.h || map.clientHeight;
+  const region = w - 2 * labelCol, bw = box[1] - box[0], s = Math.min(region / bw, hgt / 560);
+  const ox = labelCol + (region - bw * s) / 2 - box[0] * s, oy = (hgt - 560 * s) / 2, c = concept();
   return mods.map(m => { const [x, y] = c.flat(m, mods.length).tip; return { x: ox + x * s, y: oy + y * s }; });
 }
 function drawOutline() {
   $("#flat-outline").replaceChildren(...concept().outline().map(d => { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); return p; }));
 }
+/* Fração da largura do mapa livre para o desenho 3D (as cenas usam para escolher a escala). */
+export const freeWidth = () => { const w = $("#map").clientWidth; return w ? Math.max(.4, (w - 2 * labelCol) / w) : 1; }; // largura atual (o 3D reescala antes do layout)
 
 function buildLabels() {
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
   // O nome acessível é o próprio texto visível ("Art. 01 M1 4 materiais"), como pede o WCAG 2.5.3.
-  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
-    h("span", { class: "mono", text: (concept().labelTop?.(m) || moduleNumber(m.index)) + " " }), h("b", { text: m.name }), h("small", { text: " " + countLabel(m.count) }))));
+  // Coração (direção D): "ART. 01 · M1" no rótulo técnico e o nome da artéria em destaque; corpo: destino e disciplina.
+  const artery = !concept().labelTop && S.concept === "coracao";
+  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (!artery && m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-name": m.name, "data-index": String(m.index), style: `--c:var(${m.token})` },
+    h("span", { class: "mono", text: (concept().labelTop?.(m) || moduleNumber(m.index) + (artery ? " · " + m.name : "")) + " " }), h("b", { text: artery ? m.art.charAt(0).toLocaleUpperCase("pt-BR") + m.art.slice(1) : m.name }),
+    h("small", { text: " " + countLabel(m.count) }))));
   $("#flat-arteries").replaceChildren(...mods.map(m => {
     const p = document.createElementNS(NS, "path");
     p.setAttribute("d", concept().flat(m, mods.length).d); p.dataset.flat = String(m.index);
@@ -41,46 +58,91 @@ function buildLabels() {
   }));
   $("#guides").replaceChildren(...mods.map(m => { const p = document.createElementNS(NS, "path"); p.dataset.guide = String(m.index); return p; }));
   if (focused) nav.querySelector(`[data-module="${focused}"]`)?.focus({ preventScroll: true });
+  featureModule(featured);
 }
 
-/* Duas colunas, cada rótulo do lado em que o caminho termina, na ordem da altura da ponta. Nada atravessa o desenho. */
+/* Duas colunas, cada rótulo do lado em que o caminho termina, na ordem da altura da ponta. Nada atravessa o desenho.
+   Primeiro TODAS as leituras (tamanho do mapa e dos rótulos à vista), depois as escritas: um só cálculo de layout por
+   quadro. As caixas ficam guardadas para as linhas-guia, que se redesenham a cada quadro do 3D sem ler o DOM. */
+let placed = new Map(), mapSize = { w: 0, h: 0 };
 function layout() {
   layoutFrame = 0;
-  const map = $("#map"), w = $("#modules").clientWidth, hgt = map.clientHeight;
+  const map = $("#map"), nav = $("#modules"), w = nav.clientWidth, hgt = map.clientHeight, mapW = map.clientWidth, navLeft = nav.offsetLeft;
   if (!w || !hgt) return;
+  const labels = $$("#modules .mod").filter(b => b.getClientRects().length); // no celular, só o rótulo em destaque
+  const size = new Map(labels.map(b => [b.dataset.module, { w: b.offsetWidth, h: b.offsetHeight }]));
+  const widthChanged = mapW !== mapSize.w;
+  mapSize = { w: mapW, h: hgt };
+  // Com mais de um rótulo à vista (fora do palco compacto do celular), as duas colunas ficam reservadas para eles.
+  const col = labels.length > 1 ? Math.max(0, ...[...size.values()].map(x => x.w)) + 10 : 0, colChanged = col !== labelCol;
+  labelCol = col;
   // Ordem de cada coluna = altura da ponta na tela (projetada), para as linhas-guia não se cruzarem.
-  const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0;
+  const ends = tips || flatTips(), y = m => ends[m.index]?.y ?? 0, body = concept().model === "corpo.glb";
+  // Corpo: colunas equilibradas, mas pela posição da ponta (as mais à direita vão para a direita), para as guias não
+  // atravessarem o corpo nem se cruzarem. Coração: o lado em que a ponta aparece na tela.
+  const byX = [...mods].filter(m => size.has(m.id)).sort((a, b) => (ends[a.index]?.x ?? 0) - (ends[b.index]?.x ?? 0) || a.index - b.index);
+  const rightSet = new Set(byX.slice(Math.ceil(byX.length / 2)).map(m => m.index));
+  const isRight = m => body ? rightSet.has(m.index) : ends[m.index] ? ends[m.index].x > mapW / 2 : concept().side(m, mods.length) === "right";
+  const next = new Map(), writes = [];
   for (const right of [false, true]) {
-    // Lado = onde a ponta aparece na tela (vale para o 3D girado e para o mapa em linhas).
-    const isRight = m => concept().model === "corpo.glb" ? m.index % 2 === 1 : ends[m.index] ? ends[m.index].x > map.clientWidth / 2 : concept().side(m, mods.length) === "right";
-    const side = mods.filter(m => isRight(m) === right).sort((a, b) => y(a) - y(b));
     // Cada rótulo tenta ficar na altura da sua ponta (linha-guia curta e quase reta); depois afasta os vizinhos
     // para não se sobreporem e devolve para dentro do mapa, de baixo para cima.
-    const GAP = 8, items = side.map(m => ({ m, b: $(`#modules [data-module="${m.id}"]`) })).filter(x => x.b);
-    items.forEach((x, i) => { x.h = x.b.offsetHeight; x.top = concept().model === "corpo.glb"
-      ? 28 + i * (hgt - 56 - x.h) / Math.max(1, items.length - 1)
-      : Math.max(4, y(x.m) - x.h * .62); });
-    for (let k = 1; k < items.length; k++) items[k].top = Math.max(items[k].top, items[k - 1].top + items[k - 1].h + GAP);
-    let limit = hgt - 4;
-    for (let k = items.length - 1; k >= 0; k--) { items[k].top = Math.min(items[k].top, limit - items[k].h); limit = items[k].top - GAP; }
-    items.forEach(({ b, top }) => {
-      b.dataset.side = right ? "right" : "left";
-      b.style.transform = `translate(${right ? w - b.offsetWidth : 0}px, ${Math.max(0, top)}px)`;
-    });
+    const GAP = 8;
+    let items = mods.filter(m => isRight(m) === right && size.has(m.id)).sort((a, b) => y(a) - y(b)).map(m => ({ m, ...size.get(m.id) }));
+    const stack = list => {
+      list.forEach((x, i) => { x.top = body ? 28 + i * (hgt - 56 - x.h) / Math.max(1, list.length - 1) : Math.max(4, y(x.m) - x.h * .62); });
+      for (let k = 1; k < list.length; k++) list[k].top = Math.max(list[k].top, list[k - 1].top + list[k - 1].h + GAP);
+      let limit = hgt - 4;
+      for (let k = list.length - 1; k >= 0; k--) { list[k].top = Math.min(list[k].top, limit - list[k].h); limit = list[k].top - GAP; }
+    };
+    // Ordem pela altura da ponta; se duas guias vizinhas ainda se cruzam (ponta mais para fora e mais abaixo), troca as
+    // duas e refaz. No máximo n² passadas (até 5 rótulos por coluna).
+    const end = x => [navLeft + (right ? w - x.w - 14 : x.w + 14), Math.max(0, x.top) + x.h * .62];
+    const cross = (a, b) => { const p = ends[a.m.index], q = ends[b.m.index]; if (!p || !q) return false;
+      const o = (u, v, r) => Math.sign((v[0] - u[0]) * (r[1] - u[1]) - (v[1] - u[1]) * (r[0] - u[0])), a2 = end(a), b2 = end(b), pa = [p.x, p.y], qb = [q.x, q.y];
+      return o(pa, a2, qb) * o(pa, a2, b2) < 0 && o(qb, b2, pa) * o(qb, b2, a2) < 0; };
+    // Para quando não há cruzamento ou quando a troca não diminui o total (evita oscilar entre duas ordens).
+    const total = list => list.reduce((n, a, i) => n + list.slice(i + 1).filter(b => cross(a, b)).length, 0);
+    stack(items);
+    for (let pass = 0, now = total(items); now && pass < items.length * items.length; pass++) {
+      const k = items.findIndex((x, i) => i && cross(items[i - 1], x)); if (k < 1) break;
+      const tried = [...items.slice(0, k - 1), items[k], items[k - 1], ...items.slice(k + 1)].map(x => ({ ...x }));
+      stack(tried); const after = total(tried); if (after >= now) { stack(items); break; }
+      items = tried; now = after;
+    }
+    for (const x of items) {
+      const left = right ? w - x.w : 0, top = Math.max(0, x.top);
+      next.set(x.m.index, { x: navLeft + left, y: top, w: x.w, h: x.h, right });
+      writes.push([x.m.id, right, left, top]);
+    }
   }
-  $("#guides").setAttribute("viewBox", `0 0 ${map.clientWidth} ${hgt}`);
+  for (const [id, right, left, top] of writes) {
+    const b = nav.querySelector(`[data-module="${id}"]`);
+    b.dataset.side = right ? "right" : "left";
+    b.style.transform = `translate(${left}px, ${top}px)`;
+  }
+  placed = next;
+  // O mapa em linhas vai para o espaço entre as colunas por TRANSFORM (não por tamanho): mudar o tamanho do SVG depois
+  // da primeira pintura contava como deslocamento de layout (CLS 0,05 no computador). Base: viewBox 600×560 inteiro.
+  const flat = $("#flat-map"), bw = box[1] - box[0], region = mapW - 2 * labelCol;
+  const s0 = Math.min(mapW / 600, hgt / 560), s = Math.min(region / bw, hgt / 560), k = s / s0;
+  const ox = labelCol + (region - bw * s) / 2 - box[0] * s, oy = (hgt - 560 * s) / 2;
+  flat.style.transformOrigin = "0 0";
+  flat.style.transform = `translate(${(ox - k * (mapW - 600 * s0) / 2).toFixed(1)}px, ${(oy - k * (hgt - 560 * s0) / 2).toFixed(1)}px) scale(${k.toFixed(4)})`;
+  if (colChanged || widthChanged) scene?.resize?.(); // o 3D reescala para o espaço livre (colunas ou largura mudaram)
+  $("#guides").setAttribute("viewBox", `0 0 ${mapW} ${hgt}`);
   guides(tips);
 }
 const requestLayout = () => { if (!layoutFrame) layoutFrame = requestAnimationFrame(layout); };
+/* Linha-guia: da ponta do caminho até a borda do rótulo (a 62% da altura dele). Usa as caixas guardadas pelo layout. */
 function guides(points) {
   tips = points || null;
-  const map = $("#map"), r = map.getBoundingClientRect(), base = points || flatTips();
-  $$("#modules .mod").forEach(b => {
-    const i = +b.dataset.index, p = base[i], g = $(`[data-guide="${i}"]`);
-    if (!p || !g) return;
-    const br = b.getBoundingClientRect(), right = b.dataset.side === "right";
-    const x = right ? br.left - r.left : br.right - r.left, y = br.top - r.top + br.height * .62;
-    g.setAttribute("d", `M${p.x.toFixed(1)} ${p.y.toFixed(1)} L${(x + (right ? -14 : 14)).toFixed(1)} ${y.toFixed(1)} H${x.toFixed(1)}`);
+  const base = points || flatTips();
+  $$("#guides [data-guide]").forEach(g => {
+    const i = +g.dataset.guide, p = base[i], box = placed.get(i);
+    if (!p || !box) { g.removeAttribute("d"); return; }
+    const x = box.right ? box.x : box.x + box.w, y = box.y + box.h * .62;
+    g.setAttribute("d", `M${p.x.toFixed(1)} ${p.y.toFixed(1)} L${(x + (box.right ? -14 : 14)).toFixed(1)} ${y.toFixed(1)} H${x.toFixed(1)}`);
   });
 }
 
@@ -96,8 +158,13 @@ function canUse3D() {
   const what = concept().flatWhat;
   if (reducedMotion()) return what + " · movimento reduzido.";
   if ((navigator.deviceMemory && navigator.deviceMemory <= 2) || navigator.connection?.saveData) return what + " · modo econômico do aparelho.";
-  try { const c = document.createElement("canvas"); const gl = c.getContext("webgl2"); if (!gl) return what + " · este navegador não desenha 3D."; gl.getExtension("WEBGL_lose_context")?.loseContext(); }
-  catch (_) { return what + " · este navegador não desenha 3D."; }
+  // O contexto do teste vira o contexto do desenho (antes eram dois: o do teste e o do renderizador, ~190 ms cada com
+  // CPU 4× no SwiftShader). Mesmos atributos que o renderizador pediria.
+  if (!probe || probe.isContextLost()) {
+    try { probe = document.createElement("canvas").getContext("webgl2", { alpha: true, antialias: true, powerPreference: "low-power", depth: true, stencil: false, premultipliedAlpha: true }); }
+    catch (_) { probe = null; }
+  }
+  if (!probe) return what + " · este navegador não desenha 3D.";
   return "";
 }
 function stopHeart() { boot++; scene?.dispose(); scene = null; sceneKey = ""; $("#map").classList.remove("ready"); $("#loader").hidden = true; $("#pause").hidden = true; tips = null; requestLayout(); }
@@ -114,14 +181,17 @@ async function startHeart() {
   try {
     const create = await c.load();
     if (token !== boot) return;
+    const gl = probe; probe = null; // o contexto passa a ser do desenho; o próximo teste cria outro
     const created = await create({
-      map: $("#map"), modules: mods, model: modelUrl(),
+      map: $("#map"), modules: mods, model: modelUrl(), gl, free: freeWidth,
       // Content-Length pode vir comprimido e os bytes lidos, não: o número nunca passa de 100%.
       onProgress: (got, total) => { if (token !== boot) return; $("#load-text").textContent = c.loadingModel; $("#progress").textContent = total ? Math.min(100, Math.round(got / total * 100)) + "%" : Math.round(got / 1024) + " KB"; },
       onProject: points => guides(points),
       onLost: () => { if (token === boot) { scene = null; toFlat("O 3D foi interrompido pelo navegador. O mapa em linhas funciona do mesmo jeito."); } },
       isCurrent: () => token === boot,
     });
+    // Contexto do teste que não virou desenho (cena abortada antes do renderizador): libera já.
+    if (!created) gl?.getExtension("WEBGL_lose_context")?.loseContext();
     if (token !== boot) { created?.dispose(); return; }
     if (!created) { toFlat("Modelo 3D indisponível agora. O mapa em linhas funciona do mesmo jeito."); return; }
     scene = created; sceneKey = key;
@@ -155,7 +225,7 @@ export function drawMap(list) {
   mods = list;
   concept().decorate?.(list);
   const sig = JSON.stringify(list.map(m => [m.id, m.name, m.count, m.live, m.dest]));
-  if (sig !== signature) { signature = sig; buildLabels(); }
+  if (sig !== signature) { signature = sig; buildLabels(); box = flatBox(); }
   requestLayout();
   if (!ready() || !list.length) return;
   geometry = concept().geometryKey(list);
@@ -164,6 +234,16 @@ export function drawMap(list) {
   else if (!started) { started = true; scheduleHeart(); }
 }
 export function mapVisible(on) { visible = on; scene?.visible(on); if (on) { scene?.reset?.(false); requestLayout(); } }
+/* Módulo em destaque (o do "Continuar" ou o primeiro com material). No celular, o palco compacto mostra só o rótulo dele;
+   os outros continuam no índice logo abaixo. */
+let featured = "";
+export function featureModule(id = "") {
+  featured = id || "";
+  $$("#modules .mod").forEach(b => b.classList.toggle("featured", b.dataset.module === featured));
+  const i = mods.find(m => m.id === featured)?.index;
+  $$("#guides [data-guide]").forEach(g => g.classList.toggle("featured", +g.dataset.guide === i));
+  requestLayout(); // no celular, o rótulo à vista mudou
+}
 export function focusModuleLabel(id) { const a = $(`#modules [data-module="${id}"]`); if (!a) return false; a.focus({ preventScroll: true }); return true; }
 
 export function wireMap() {
@@ -177,7 +257,7 @@ export function wireMap() {
   // Setas andam entre as artérias; Enter abre (é um link).
   nav.addEventListener("keydown", e => {
     if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(e.key)) return;
-    const bs = $$("#modules .mod"), i = bs.indexOf(document.activeElement); if (i < 0) return;
+    const bs = $$("#modules .mod").filter(b => b.offsetWidth), i = bs.indexOf(document.activeElement); if (i < 0) return; // só os rótulos à vista
     e.preventDefault();
     const j = e.key === "Home" ? 0 : e.key === "End" ? bs.length - 1 : (i + (["ArrowRight", "ArrowDown"].includes(e.key) ? 1 : bs.length - 1)) % bs.length;
     bs[j].focus();
@@ -192,11 +272,11 @@ export function wireMap() {
       const token = ++diveId, rect = label.querySelector("b").getBoundingClientRect();
       diving = true; highlight(+label.dataset.index, true);
       document.body.classList.add("diving");
-      const go = () => { if (!diving || token !== diveId) return; diving = false; document.body.classList.remove("diving"); noteFlight(rect, label.dataset.module, label.querySelector("b")?.textContent || ""); location.hash = "a-" + label.dataset.module; };
+      const go = () => { if (!diving || token !== diveId) return; diving = false; document.body.classList.remove("diving"); noteFlight(rect, label.dataset.module, label.dataset.name || ""); location.hash = "a-" + label.dataset.module; };
       Promise.race([scene.focus(+label.dataset.index), new Promise(r => setTimeout(r, 900))]).then(go);
       return;
     }
-    noteFlight(a.getBoundingClientRect(), a.dataset.module, a.querySelector("b")?.textContent || a.textContent);
+    noteFlight(a.getBoundingClientRect(), a.dataset.module, a.dataset.name || a.querySelector("b")?.textContent || a.textContent);
   });
   $("#pause").hidden = true;
   $("#pause").textContent = concept().pause[0];

@@ -58,7 +58,15 @@ Literata (títulos, numerais de módulo, títulos de material), Schibsted Grotes
 
 ## Telas
 
-- **Início** (`#inicio`, `src/views/home.js` + `map.js`): título em dois tons com "hoje?" em itálico; placa de busca clara que abre a busca rápida; números reais (materiais, módulos com material); "Continuar" com o último material aberto; coração-mapa com rótulos tipográficos ("ART. 01 / M1 / 4 materiais") em duas colunas, cada um do lado em que a artéria termina, ligados por linhas-guia finas à ponta da artéria; "Módulos do curso" (índice com unidades e artéria; os em produção numa linha à parte); "Sua mesa de estudo" (em estudo e favoritos) e "Acabou de chegar". No celular, o "Continuar" vem depois do coração, para não empurrar o mapa quando os dados chegam.
+- **Início** (`#inicio`, `src/views/home.js` + `home-index.js` + `map.js`; direção D, rodada B):
+  - **Palco:** brilho radial (`--stage-glow`) atrás do mapa e a linha "Feito por estudantes · links para os originais · sem vínculo oficial com a IDOMED".
+  - **Título grande:** "O curso inteiro, *irrigado* por bons materiais." no IDOMED; "A medicina ganha *corpo*." no geral.
+  - **Abaixo do título:** o texto curto, a placa creme de busca ("Buscar entre N materiais e M assuntos", ⌘K no quadrado carmim), os números e o "Continuar" (painel translúcido; sem histórico, "Comece por aqui").
+  - **Mapa:** coração ou corpo com os rótulos como painéis translúcidos sem desfoque ("ART. 01 · M1" / nome da artéria / contagem), em duas colunas ligadas por linhas-guia.
+  - **Ao rolar, editorial:** índice numerado (grupo por módulo, linha por matéria com os assuntos e a contagem; números de materiais, assuntos e casos à esquerda) e a prateleira "Casos clínicos", o ÚNICO lugar com cartões grandes. Mesa de estudo, recentes, livros, próprios e internet viram listas em linhas.
+  - **No celular:** palco compacto (título curto, busca, coração menor com um rótulo, "Continuar" abaixo) e barra inferior (Início, Mapa → índice, Favoritos, Buscar).
+  - **Textos do acervo:** ficam em `window.aortaCopy` (`index.html`) e são aplicados antes da primeira pintura.
+  - **Fontes substitutas:** com `size-adjust` medido; o CLS fica ≤ 0,03.
 - **Módulo** (`#a-<área>`, `#todos`, `src/views/module.js`): numeral grande na cor da artéria, "ART. 01 · DESCENDENTE ANTERIOR", resumo real (materiais, unidades, quais estão em produção), mini-artéria; unidades em abas; matérias ao lado (fichas em pílula no celular); busca e filtros (tipo, situação, coleção, ordem, favoritos) com chips removíveis; folhas agrupadas por matéria (ou por assunto, com uma matéria escolhida). `#todos` usa a mesma tela com os módulos como abas. A rota `#a-<id>` de uma unidade ou matéria abre o módulo já com ela escolhida.
   - **Abas de assunto** (`src/views/topic-tabs.js`, lógica em `src/domain/topics.js`):
     - **o que aparece:** com uma matéria escolhida que tem assuntos cadastrados, surge acima da busca uma faixa "Todos · assuntos da matéria (na ordem do editor, com contagem; zero = "—", em produção) · Casos clínicos" (só se houver caso);
@@ -70,13 +78,26 @@ Literata (títulos, numerais de módulo, títulos de material), Schibsted Grotes
 - **Busca rápida** (Ctrl/⌘+K, "/" fora do módulo, placa e lupa): materiais, matérias/unidades e módulos; sem acento e sem maiúscula; grifo do termo; setas, Enter e Esc; sem resultado, sugere os módulos que têm material.
 - **Organizar** (`#organizar`) e **formulário** de material: mesmas funções de antes, no visual Aorta.
 
-## Movimento (GSAP, sempre interrompível)
+## Movimento (GSAP, sempre interrompível) — coreografia da rodada B
 
-- Coração: entrada crescendo até o tamanho (1,1 s, expo.out); batimento "lub-dub" (átrios 0,12 s, ventrículos a partir de 0,16 s com retorno elástico); pulso de luz de 1,1 s nas artérias irrigadas; repouso a cada 2,6 s, pausado fora da tela, com a aba escondida ou pelo botão "Pausar batimento". Apontar ou focar um rótulo realça a artéria e dispara o pulso só nela. Render sob demanda.
-- Do coração ao módulo: o nome tocado voa até o numeral do cabeçalho (0,7 s, expo.inOut) e o cabeçalho entra em cascata. Voltar devolve a rolagem e o foco ao rótulo de onde se veio.
-- Diálogos: entrada 0,32 s expo.out, saída 0,18 s; com teclado ou movimento reduzido, troca direta.
-- Estrela: salto de 280 ms que continua se o item for redesenhado.
-- Movimento reduzido: sem coração 3D (mapa em linhas), sem voo, sem deslocamentos; o resto funciona igual.
+Toda animação responde "por quê?": orientar, dar continuidade espacial ou confirmar uma ação. Nada atrasa a tarefa: o teclado nunca espera animação, e o conteúdo novo é escrito na hora (só a pintura acompanha). Os tempos vêm de `tokens.css` (`--motion-*`), e o GSAP os lê por `src/ui/tokens.js`. Os utilitários ficam em `src/ui/choreo.js` (`enter`, `exit`, `swap`, `press`, `respond`, `cascade`) e `src/ui/motion.js` (`revealIn`, título por linhas, contadores). O `check` reprova duração literal e curva que só acelera na interface (`tools/motion-rules.mjs`).
+
+| Categoria | Tempo (token) | Curva | Distância | Interrupção |
+|---|---|---|---|---|
+| **Gesto** (pressão, realce, estrela) | 100 ms ao afundar (`press`), 240 ms ao voltar (`release`) | `power2.out` | escala .97; estrela salta 1,35 | o próximo gesto substitui o tween (overwrite) e parte do estado atual |
+| **Ponteiro** (inclinação, ímã, anel, câmera seguindo) | mola (`src/ui/spring.js`), sem duração fixa | física: rigidez e amortecimento | ≤ 5 px; inclinação ≤ 3° | trocar de alvo preserva a velocidade; repouso não desenha quadros |
+| **Troca** (abas, pílula, sublinhado, painel da ficha, lista filtrada) | 320 ms (`swap`) | `power3.out` / `expo.out` | pílula desliza até a aba; conteúdo sobe 6 px | troca seguida reinicia do ponto atual; o conteúdo já mudou antes da pintura |
+| **Entrada** (primeira dobra, cabeçalho do módulo) | 720 ms (`enter`); listas 480 ms (`reveal`) | `expo.out` | 12 px para cima ou escala .96 → 1 | movimento reduzido, troca de acervo ou de tela cancelam pela referência |
+| **Saída** (diálogos, avisos, ficha) | 180 ms (`exit`), sempre mais curta que a entrada | `power2.out` (nunca ease-in) | volta para de onde veio | reabrir durante a saída retoma a entrada |
+| **Lista** (cascata de linhas, grupos, cartões) | 480 ms por item | `power2.out` | 12 px | 40 ms entre itens, no máximo 8 passos; itens fora da tela entram ao aparecer |
+| **Mergulho** (câmera até o destino do corpo) | 650 ms + voo do nome até o numeral (480 ms) | `power2.inOut` (câmera), `power3.out` (voo) | do rótulo até o cabeçalho | Esc, outro destino ou navegação cancelam; a câmera volta ao corpo inteiro |
+| **Cena 3D** (batimento, pulso, crescimento das artérias) | batimento a cada 2,6 s; pulso 1,1–1,5 s | física da cena (o pulso acelera ao correr: `power1.in`) | — | pausa fora da tela, com a aba escondida e pelo botão; é o único loop |
+
+- **Só transform e opacity** (e `filter` com parcimônia). O transform de posicionamento (âncoras dos rótulos do mapa) nunca é alvo de entrada: só o conteúdo dos rótulos se mexe.
+- **Origem:** ficha e busca nascem de onde foram chamadas. A entrada parte de escala ~.96.
+- **Toque:** hover só em `@media (hover: hover)`; a pressão vale enquanto o dedo está.
+- **Foco:** volta ao acionador ou, se ele sumiu, a uma alternativa lógica (título da página, linha vizinha).
+- **Movimento reduzido:** tudo funciona igual, sem deslocamento nem 3D animado. Trocar a preferência no meio encerra o que estiver em curso. A garantia por CSS fica no fim de `proto.css`.
 
 ## Desempenho
 

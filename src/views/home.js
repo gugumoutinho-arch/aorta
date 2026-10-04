@@ -1,31 +1,26 @@
-/* Início de cada acervo: título, busca, números reais, retomada, mapa (coração ou folha) e o que vem abaixo dele —
-   na IDOMED, módulos do curso, mesa de estudo e recentes; em medicina geral, disciplinas, livros de referência,
-   materiais próprios e o melhor da internet. */
+/* Início de cada acervo (direção D): um palco com o mapa (coração ou corpo), título, busca e o "Continuar" em vidro;
+   ao rolar, vira editorial — índice numerado, prateleira de casos clínicos e as listas do acervo (home-index.js). */
 import gsap from "gsap";
-import { S, ACERVOS, ready, reducedMotion } from "../core/state.js";
+import { S, ACERVOS, EMPTY_FILTERS, ready, reducedMotion } from "../core/state.js";
 import { $, h } from "../core/dom.js";
-import { plural, validDate, cmpName, norm } from "../core/text.js";
-import { childrenOf, moduleList, moduleNumber, pathOf, countLabel, inAcervo } from "../core/areas.js";
-import { miniCard, openLink, moduleToken } from "./cards.js";
-import { drawMap, mapVisible, wireMap, focusModuleLabel } from "./map.js";
-import { concept } from "./concept.js";
+import { plural, validDate } from "../core/text.js";
+import { moduleList, pathOf, descIds, inAcervo } from "../core/areas.js";
+import { openLink, moduleToken } from "./cards.js";
+import { drawMap, mapVisible, wireMap, focusModuleLabel, featureModule } from "./map.js";
+import { renderIndex, renderCases, wireCases, renderShelves, hideShelves } from "./home-index.js";
 import { revealHeadline, cancelHeadline, revealIn, countTo } from "../ui/motion.js";
+import { motionTokens } from "../ui/tokens.js";
+import { cascade } from "../ui/choreo.js";
+import { concept } from "./concept.js";
 
-const REVEAL = ".section-heading h2, .index-row, .production-index, .mini-card, .book";
+const REVEAL = ".section-heading h2, .index-aside > *, .index-group, .index-row, .production-index, .case-card, .mini-card, .book";
 let revealed = false;
 function revealHome(delay = 0) { revealHeadline($("#home-title"), delay); revealIn($("#view-home"), REVEAL); }
 
-/* Textos de cada acervo. A IDOMED aparece como nome do curso, sem marca nem logo, e com o aviso de que o acervo não é oficial. */
-const COPY = {
-  idomed: {
-    h1: ["O que você vai estudar ", "hoje?"], intro: "Provas, resumos e monitoria da IDOMED, organizados como o curso: do M1 ao M8.",
-    note: "Acervo feito por estudantes, sem vínculo oficial com a IDOMED.",
-  },
-  geral: {
-    h1: ["A medicina ganha ", "corpo."], intro: "Explore a medicina por disciplina. Dos livros de referência às suas anotações, cada caminho abre uma parte do acervo.",
-    note: "Livros apontam para onde podem ser lidos de forma legítima: biblioteca digital, editora ou edição aberta.",
-  },
-};
+/* Textos de cada acervo: definidos uma vez em index.html (window.aortaCopy), aplicados antes da primeira pintura.
+   A IDOMED aparece como nome do curso, sem marca nem logo, e com o aviso de que o acervo não é oficial.
+   O fim do título (h1[2]) some no celular, onde o palco é compacto. */
+const COPY = window.aortaCopy || { idomed: { h1: ["", "Aorta", "", ""], intro: "", note: "" }, geral: { h1: ["", "Aorta", "", ""], intro: "", note: "" } };
 
 let homeScroll = 0, lastModule = "";
 export function homeLeft() { homeScroll = scrollY; lastModule = ""; mapVisible(false); }
@@ -46,11 +41,12 @@ export function homeSwitched() {
   revealHome();
   // A entrada fica numa linha do tempo guardada: é ela que se cancela (por referência) se o aluno ligar "reduzir movimento" no meio.
   entrance?.kill();
+  const t = motionTokens();
   entrance = gsap.timeline({ onComplete: () => { entrance = null; } });
-  entrance.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 16 },
-    { opacity: 1, y: 0, duration: .7, ease: "expo.out", stagger: .06, clearProps: "opacity,transform" }, .15);
+  entrance.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 12 },
+    { opacity: 1, y: 0, duration: t.enter, ease: t.easeEnter, stagger: cascade(), clearProps: "opacity,transform" }, .15);
   // As âncoras têm transform de layout. Só seu conteúdo pode se deslocar.
-  entrance.fromTo("#modules .mod > *", { opacity: 0 }, { opacity: 1, duration: .32, ease: "power2.out", stagger: .008, clearProps: "opacity" }, 0);
+  entrance.fromTo("#modules .mod > *", { opacity: 0 }, { opacity: 1, duration: t.swap, ease: t.easeRespond, stagger: cascade(.01, 24), clearProps: "opacity" }, 0);
 }
 let entrance = null;
 /* Cancela a entrada em andamento e deixa tudo visível e sem estilo inline (movimento reduzido). */
@@ -63,22 +59,21 @@ export function settleEntrance() {
 const mats = () => S.materials.filter(m => inAcervo(m));
 let copyFor = "";
 function renderCopy() {
-  const c = COPY[S.acervo], a = ACERVOS[S.acervo], key = S.acervo + S.concept;
+  const c = COPY[S.acervo], a = ACERVOS[S.acervo], key = S.acervo + S.concept, text = c.h1.join("");
   // O título só é reescrito quando o acervo muda (não desfaz a animação a cada redesenho), mas o texto real do DOM
   // também é conferido: se algo chegou fora de ordem sob carga, a tela se corrige sozinha.
-  if (copyFor === key && $("#home-title").textContent === c.h1[0] + c.h1[1]) return;
+  if (copyFor === key && $("#home-title").textContent === text) return;
   copyFor = key;
   cancelHeadline($("#home-title"));
-  $("#home-title").replaceChildren(c.h1[0], h("em", { text: c.h1[1] }));
+  $("#home-title").replaceChildren(c.h1[0], h("em", { text: c.h1[1] }), ...(c.h1[2] ? [h("span", { class: "h1-tail", text: c.h1[2] })] : []), c.h1[3]);
   $("#intro-copy").textContent = c.intro;
   $("#acervo-note").textContent = c.note;
   $("#map-title").textContent = `${a.mapTitle} · ${concept().caption}`;
-  $("#index-title").textContent = a.indexTitle;
 }
 function renderCounts(mods) {
   const live = mods.filter(m => m.live).length, a = ACERVOS[S.acervo], n = mats().length;
   const box = $("#counts");
-  if (!ready()) { box.dataset.built = ""; box.textContent = S.dbState === "loading" ? "Carregando o acervo…" : ""; return; }
+  if (!ready()) { box.dataset.built = ""; box.textContent = S.dbState === "loading" ? "Carregando o acervo…" : ""; $("#search-label").textContent = "Buscar assunto, matéria ou material"; return; }
   if (box.dataset.built !== "1") {
     box.dataset.built = "1";
     box.replaceChildren(h("i", { "aria-hidden": "true" }), h("b", { id: "count-n", text: "0" }), h("span", { id: "count-n-word" }), " · ",
@@ -88,71 +83,38 @@ function renderCounts(mods) {
   $("#count-n-word").textContent = ` ${n === 1 ? "material" : "materiais"}`;
   $("#count-live").textContent = `${live} de ${mods.length}`;
   $("#count-unit").textContent = ` ${mods.length === 1 ? a.unit : a.units} com material`;
+  // A placa diz o tamanho do que dá para achar: materiais e assuntos deste acervo.
+  const ids = new Set(mods.flatMap(m => [...descIds(m.id)])), topics = S.topics.filter(t => ids.has(t.areaId)).length;
+  // No celular a placa diz só os materiais (uma linha, sem pular); os assuntos aparecem a partir de 641 px.
+  $("#search-label").replaceChildren(...(n ? [`Buscar entre ${plural(n, "material", "materiais")}`, topics ? h("span", { class: "search-more", text: " e " + plural(topics, "assunto", "assuntos") }) : ""] : ["Buscar assunto, matéria ou material"]));
 }
-function renderResume() {
+/* "Continuar" (painel de vidro sobre o palco). Sem histórico, o mesmo lugar convida a começar pelo primeiro módulo com
+   material: o espaço fica sempre ocupado depois que os dados chegam (sem salto de layout no celular). */
+function renderResume(mods) {
   const box = $("#resume");
   const last = mats().filter(m => validDate(m.lastOpenedAt)).sort((a, b) => b.lastOpenedAt.localeCompare(a.lastOpenedAt))[0];
-  box.hidden = !last;
-  if (!last) { box.replaceChildren(); return null; }
-  box.setAttribute("style", `--c:var(${moduleToken(last.areaId)})`);
-  box.replaceChildren(h("span", { class: "rib", "aria-hidden": "true" }),
-    h("div", null,
-      h("p", { class: "small", text: "Continuar · " + (pathOf(last.areaId).map(a => a.name).join(" › ") || "Sem área definida") }),
-      h("button", { class: "resume-title", type: "button", "data-mid": last.id, text: last.title || "(sem título)" }),
-      openLink(last, "open small", "Abrir original")));
-  return last;
-}
-function renderIndex(mods) {
-  const box = $("#course-index"), a = ACERVOS[S.acervo];
-  $("#index-meta").textContent = mods.length ? `${plural(mods.length, a.unit, a.units)} · ${mods.filter(m => m.live).length} com material` : "";
-  if (!mods.length) { box.replaceChildren(h("p", { class: "muted", text: ready() ? `Nenhum(a) ${a.unit} criado(a) ainda. Quem edita cria a estrutura em Organizar.` : "" })); return; }
-  const live = mods.filter(m => m.live), waiting = mods.filter(m => !m.live);
-  const rows = live.map(m => {
-    const units = childrenOf(m.id), liveUnits = units.filter(u => mats().some(x => pathOf(x.areaId).some(p => p.id === u.id)));
-    return h("article", { class: "index-row" + (S.acervo === "geral" ? " is-discipline" : ""), style: `--c:var(${m.token})` },
-      h("a", { class: "index-num", href: "#a-" + m.id, "data-module": m.id, "aria-label": `${m.name}: ${countLabel(m.count)}` }, m.name),
-      h("div", null,
-        h("h3", { text: units.length ? (S.acervo === "geral" ? liveUnits : units).map(u => u.name).join(" · ") : m.name }),
-        h("p", { text: `${countLabel(m.count)} · ${concept().labelTop ? "destino: " + concept().labelTop(m) : moduleNumber(m.index).toUpperCase() + (S.concept === "coracao" ? " · " + m.art : "")}` })),
-      h("a", { class: "index-go", href: "#a-" + m.id, "aria-hidden": "true", tabindex: "-1" }, "↗"));
-  });
-  const prod = waiting.length ? h("div", { class: "production-index" }, h("span", { text: "Em produção · ainda sem material" }),
-    waiting.map(m => h("a", { href: "#a-" + m.id, "data-module": m.id, "aria-label": `${m.name}, em produção`, text: m.name }))) : null;
-  box.replaceChildren(...rows, ...(prod ? [prod] : []));
-}
-
-/* Capa tipográfica de livro: autor grande, título, onde ler. Sem imagem de capa (direitos da editora). */
-function bookCard(m) {
-  const [author, ...rest] = String(m.title || "").split(" — ");
-  const open = m.source && /aberto|open/i.test(m.source + " " + (m.tags || []).join(" "));
-  return h("article", { class: "book", style: `--c:var(${moduleToken(m.areaId)})` },
-    h("div", { class: "book-cover", "aria-hidden": "true" }, h("span", { class: "book-spine" }), h("b", { text: author }), h("span", { text: rest.join(" — ") || "" })),
-    h("div", { class: "book-meta" },
-      h("p", { class: "mono", text: pathOf(m.areaId)[0]?.name || "Livro" }),
-      h("h3", null, h("button", { type: "button", "data-mid": m.id, text: m.title || "(sem título)" })),
-      h("p", { class: "small", text: m.source || "" }),
-      openLink(m, "open small", open ? "Ler livro aberto" : "Onde ler")));
-}
-function byUnitName(name) {
-  const key = norm(name);
-  return mats().filter(m => norm(pathOf(m.areaId)[1]?.name || "") === key).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
-}
-function renderShelves(resume) {
-  const geral = S.acervo === "geral";
-  const others = mats().filter(m => m !== resume);
-  const desk = others.filter(m => m.status === "em-estudo" || m.favorite)
-    .sort((a, b) => (b.status === "em-estudo") - (a.status === "em-estudo") || cmpName(a.title || "", b.title || "")).slice(0, 4);
-  $("#reading").hidden = !desk.length || geral;
-  $("#reading-list").replaceChildren(...desk.map(miniCard));
-  const books = geral ? mats().filter(m => m.type === "Livro" && norm(pathOf(m.areaId)[1]?.name || "") === norm("Livros de referência")) : [];
-  $("#books-section").hidden = !books.length;
-  $("#books").replaceChildren(...books.map(bookCard));
-  const own = geral ? byUnitName("Materiais próprios").slice(0, 3) : [], web = geral ? byUnitName("Da internet").slice(0, 6) : [];
-  $("#own-section").hidden = !own.length; $("#own").replaceChildren(...own.map(miniCard));
-  $("#web-section").hidden = !web.length; $("#web").replaceChildren(...web.map(miniCard));
-  const recent = geral ? [] : [...others].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")).slice(0, 3);
-  $("#recent-section").hidden = !recent.length;
-  $("#recent").replaceChildren(...recent.map(miniCard));
+  const first = mods.find(m => m.live);
+  box.hidden = !last && !first;
+  $("#resume-slot").dataset.filled = String(!box.hidden);
+  if (last) {
+    box.className = "resume"; box.setAttribute("style", `--c:var(${moduleToken(last.areaId)})`);
+    box.replaceChildren(
+      h("div", { class: "resume-text" },
+        h("p", { class: "mono", text: "Continuar · " + (pathOf(last.areaId).map(a => a.name).join(" › ") || "Sem área definida") }),
+        h("button", { class: "resume-title", type: "button", "data-mid": last.id, text: last.title || "(sem título)" })),
+      openLink(last, "resume-go", "Abrir original"));
+    featureModule(pathOf(last.areaId)[0]?.id);
+    return last;
+  }
+  if (first) {
+    box.className = "resume start"; box.setAttribute("style", `--c:var(${first.token})`);
+    box.replaceChildren(
+      h("div", { class: "resume-text" }, h("p", { class: "mono", text: "Comece por aqui" }),
+        h("a", { class: "resume-title", href: "#a-" + first.id, "data-module": first.id, text: `${first.name} · ${plural(first.count, "material", "materiais")}` })),
+      h("a", { class: "resume-go", href: "#a-" + first.id, tabindex: "-1", "aria-hidden": "true" }, "→"));
+    featureModule(first.id);
+  } else box.replaceChildren();
+  return null;
 }
 
 export function renderHome() {
@@ -160,17 +122,29 @@ export function renderHome() {
   const mods = ready() ? moduleList() : [];
   concept().decorate?.(mods);
   renderCounts(mods);
-  const resume = ready() ? renderResume() : null;
-  if (!ready()) $("#resume").hidden = true;
-  renderIndex(mods);
-  if (ready()) renderShelves(resume);
-  else ["#reading", "#recent-section", "#books-section", "#own-section", "#web-section"].forEach(s => { $(s).hidden = true; });
   drawMap(mods);
+  const resume = ready() ? renderResume(mods) : null;
+  if (!ready()) { $("#resume").hidden = true; $("#resume-slot").dataset.filled = "pending"; } // o espaço fica reservado até os dados chegarem
+  renderIndex(mods);
+  if (ready()) { renderCases(); renderShelves(resume); } else hideShelves();
   // Primeira chegada com dados: o conteúdo entra em cascata (o título já entrou na primeira pintura).
   if (ready() && !revealed && S.view === "inicio") { revealed = true; requestAnimationFrame(() => revealIn($("#view-home"), REVEAL)); }
 }
+/* "Ver todos" dos casos e o "Favoritos" da barra inferior: todos os materiais do acervo já filtrados. */
+export function showAll(filters) {
+  // O filtro vai pendente e a página do módulo o aplica ao resolver o escopo (vale mesmo se os dados chegarem depois).
+  S.pendingFilters = { ...EMPTY_FILTERS, ...filters };
+  if (location.hash !== "#todos") location.hash = "todos";
+  else { S.pendingArea = "todos"; window.dispatchEvent(new Event("aorta:render")); }
+}
+/* "Mapa" da barra inferior: o índice do curso, no início do acervo atual. */
+export function goIndex() {
+  const go = () => { const el = $("#indice"); el.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth", block: "start" }); el.focus({ preventScroll: true }); };
+  if (S.view !== "inicio") { addEventListener("hashchange", () => requestAnimationFrame(go), { once: true }); location.hash = "inicio"; } else go();
+}
 export function wireHome() {
   wireMap();
+  wireCases(showAll);
   matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => {
     if (e.matches) settleEntrance();
   });

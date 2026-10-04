@@ -1,9 +1,16 @@
+/* Substitutas com a largura média da Literata e da Schibsted (medida em 04/10/2026, texto do site, Chromium): enquanto a
+   fonte do Google não chega, o texto ocupa o mesmo espaço e nada pula na troca (CLS). Só valem antes da fonte carregar;
+   a tipografia do Aorta continua Literata + Schibsted Grotesk. */
+@font-face { font-family: "Literata Times"; src: local("Times New Roman"), local("TimesNewRomanPSMT"), local("Liberation Serif"); size-adjust: 114.1%; }
+@font-face { font-family: "Literata DejaVu"; src: local("DejaVu Serif"); size-adjust: 90.4%; }
+@font-face { font-family: "Schibsted Arial"; src: local("Arial"), local("ArialMT"), local("Liberation Sans"); size-adjust: 103.5%; }
+@font-face { font-family: "Schibsted DejaVu"; src: local("DejaVu Sans"); size-adjust: 91.8%; }
 /* Tokens do Aorta. Escuro é o padrão; o claro é desenhado (papel creme, tinta ameixa, artérias vinho), não invertido.
    "Sistema" = sem data-theme: segue prefers-color-scheme. Cores só por estes tokens. */
 :root {
-  --serif: "Literata", Georgia, serif;
-  --sans: "Schibsted Grotesk", system-ui, sans-serif;
-  --label: "Schibsted Grotesk", system-ui, sans-serif; /* rótulos técnicos em caixa alta ("ART. 01"), números tabulares */
+  --serif: "Literata", "Literata Times", "Literata DejaVu", Georgia, serif;
+  --sans: "Schibsted Grotesk", "Schibsted Arial", "Schibsted DejaVu", system-ui, sans-serif;
+  --label: "Schibsted Grotesk", "Schibsted Arial", "Schibsted DejaVu", system-ui, sans-serif; /* rótulos técnicos em caixa alta ("ART. 01"), números tabulares */
   --ease: cubic-bezier(.23, 1, .32, 1);
   --radius: 6px;
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
@@ -45,6 +52,9 @@
   --t-hema: #b8a8ff; --t-eosin: #ff8fb0; --t-giemsa: #bccafa; --t-masson: #b3d4cd; --t-pas: #d7b4e7; --t-safra: #e6bb97; --t-neutral: #b4a6c4;
 
   --atrium: #3a1f6e; --ventricle: #4a1f5e; --valve: #ff6f9a; --leaf: #93e38a;
+  /* Direção D: brilho do palco, vidro (painéis translúcidos sobre o palco) e fundo dos painéis fixos (ficha, barra inferior). */
+  --stage-glow: #2a1446; --glass: rgb(34 22 50 / .62); --glass-strong: rgb(34 22 50 / .84); --glass-line: rgb(201 184 255 / .22);
+  --panel: #120b20; --case-glow: #3a1630; --case-line: #5a2a48;
   color-scheme: dark;
 }
 @media (prefers-color-scheme: light) {
@@ -59,6 +69,8 @@
     --m1: #5f3c91; --m2: #a9204b; --m3: #7a4b82; --m4: #2f6157; --m5: #84461f; --m6: #44508a; --m7: #8f3d60; --m8: #5c571f;
     --t-hema: #5f3c91; --t-eosin: #a9204b; --t-giemsa: #44508a; --t-masson: #2f6157; --t-pas: #7a4b82; --t-safra: #84461f; --t-neutral: #6b5266;
     --atrium: #8a63a6; --ventricle: #b45a80; --valve: #962349; --leaf: #2f7a3a;
+    --stage-glow: #ead8ee; --glass: rgb(255 250 244 / .72); --glass-strong: rgb(255 250 244 / .9); --glass-line: rgb(91 58 138 / .2);
+    --panel: #fbf4ee; --case-glow: #f3dbe3; --case-line: #dfb8c6;
     color-scheme: light;
   }
 }
@@ -73,6 +85,8 @@
   --m1: #5f3c91; --m2: #a9204b; --m3: #7a4b82; --m4: #2f6157; --m5: #84461f; --m6: #44508a; --m7: #8f3d60; --m8: #5c571f;
   --t-hema: #5f3c91; --t-eosin: #a9204b; --t-giemsa: #44508a; --t-masson: #2f6157; --t-pas: #7a4b82; --t-safra: #84461f; --t-neutral: #6b5266;
   --atrium: #8a63a6; --ventricle: #b45a80; --valve: #962349; --leaf: #2f7a3a;
+  --stage-glow: #ead8ee; --glass: rgb(255 250 244 / .72); --glass-strong: rgb(255 250 244 / .9); --glass-line: rgb(91 58 138 / .2);
+  --panel: #fbf4ee; --case-glow: #f3dbe3; --case-line: #dfb8c6;
   color-scheme: light;
 }
 :root[data-theme="dark"] { color-scheme: dark; }

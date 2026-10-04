@@ -5,6 +5,10 @@ import { plural } from "../core/text.js";
 import { childrenOf, areaById, countIn, stainOf, stainVar } from "../core/areas.js";
 import { addArea, renameArea, deleteArea, addColl, renameColl, deleteColl } from "../core/actions.js";
 import { toast } from "../ui/toast.js";
+/* "Colar links" só carrega ao entrar em Organizar: fica fora do JS da primeira tela (orçamento de carga). */
+let importView = null, importReady = false;
+const loadImport = () => (importView ||= import("./import.js").then(m => { m.wireImport(); importReady = true; return m; })
+  .catch(e => { importView = null; console.warn("Colagem indisponível agora:", e); return { renderImport() {} }; }));
 
 const ui = { editing: null, confirming: null, adding: null };
 const later = fn => requestAnimationFrame(fn);
@@ -77,9 +81,12 @@ export function renderOrg() {
     if (ui.confirming === key) ul.append(h("li", null, confirmBox(`Excluir a coleção “${c.name}”? ${plural(n, "material sai", "materiais saem")} dela, mas continuam no catálogo.`, async () => { if (await deleteColl(c.id, c.name)) reset(); })));
   });
   $$("#mod-add input, #mod-add button, #coll-add input, #coll-add button").forEach(x => { x.disabled = disabled; });
+  loadImport().then(m => { if (S.view === "organizar") m.renderImport(); });
 }
 
 export function wireOrg() {
+  // Enquanto o módulo da colagem não chegou, o formulário não pode recarregar a página.
+  $("#imp-form").addEventListener("submit", e => { if (!importReady) e.preventDefault(); });
   $("#mod-add").addEventListener("submit", async e => { e.preventDefault(); const i = $("#mod-new"); if (await addArea("", i.value)) i.value = ""; });
   $("#coll-add").addEventListener("submit", async e => { e.preventDefault(); const i = $("#coll-new"); if (!i.value.trim()) { i.focus(); return; } if (await addColl(i.value)) i.value = ""; });
 }

@@ -33,7 +33,8 @@ try {
     const loaded = await page.evaluate(() => performance.now());
     await page.locator('[data-acervo-tab="' + (acervo === 'geral' ? 'idomed' : 'geral') + '"]').click(); await page.waitForTimeout(2500);
     const switched = await page.evaluate(() => performance.now());
-    await page.locator('#modules .mod').first().click(); await page.waitForTimeout(1800);
+    // No celular (direção D) só o rótulo em destaque fica à vista no palco: o mergulho parte dele.
+    await page.locator('#modules .mod:visible').first().click(); await page.waitForTimeout(1800);
     const measurement = await page.evaluate(({ loaded, switched }) => {
       const m = window.measureV5;
       const summarize = (start, end) => { const f = m.frames.filter(x => x.at >= start && x.at < end), tasks = m.tasks.filter(x => x.at >= start && x.at < end);
@@ -48,7 +49,7 @@ try {
     const server = scenario === 'v4' ? srv : await startServer({ inject: withDb(abundantSeed()) });
     for (const width of [320,375,1440]) for (const theme of ['dark','light']) for(const acervo of ['idomed','geral']) {
       const page = await browser.newPage({viewport:{width,height:width<500?844:1000},colorScheme:theme,reducedMotion:'reduce'});
-      await page.goto(server.url+'#'+acervo);await page.waitForSelector('#modules .mod');await page.evaluate(()=>document.fonts.ready);
+      await page.goto(server.url+'#'+acervo);await page.waitForSelector('#modules .mod', { state: 'attached' });await page.evaluate(()=>document.fonts.ready);
       await page.screenshot({path:path.join(folder,`${phase}-${scenario}-${acervo}-${theme}-${width}.png`)});await page.close();
     }
     if(server!==srv)server.server.close();

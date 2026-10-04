@@ -1,0 +1,42 @@
+/* Página do módulo (direção D): materiais em LISTA EDITORIAL — tipo no rótulo técnico, título em Literata, e à direita
+   "Abrir original" e a estrela. Sem cartões, sem fundo que segue o ponteiro; a linha aberta na ficha fica marcada. */
+.sheet-list { display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--line); }
+.material { position: relative; display: grid; grid-template-columns: 112px minmax(0, 1fr) auto; align-items: baseline; gap: var(--space-2) 22px;
+  padding: 18px 14px; margin-inline: -14px; border-bottom: 1px solid var(--line); border-radius: 0; background: none; box-shadow: none; }
+.material .mat-type { color: var(--c); font-size: 10.5px; letter-spacing: .14em; overflow-wrap: anywhere; }
+.material .mat-main { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.material-title { margin: 0; font: 400 22px/1.3 var(--serif); letter-spacing: -.01em; }
+/* Até 2 linhas na lista; o título COMPLETO é o nome do botão (leitor de tela) e aparece inteiro na ficha que ele abre.
+   No zoom de 200% e no celular estreito, sem limite (nada se perde). */
+.material-title button { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; text-align: left; overflow-wrap: anywhere; }
+.material-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) var(--space-3); margin: 0; font-size: 12.5px; color: var(--muted); }
+.material .mat-acts { display: flex; align-items: center; gap: var(--space-1); align-self: center; }
+.material .open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 var(--space-2); color: var(--flow); font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.material .open svg { width: 15px; height: 15px; }
+.material[aria-current="true"] { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong), inset 3px 0 0 var(--c); border-radius: var(--radius-card); border-bottom-color: transparent; }
+@media (hover: hover) {
+  .material-title button:hover { color: var(--flow); }
+  .material .open:hover span { text-decoration: underline; }
+}
+.material:has(.material-title button:focus-visible) { box-shadow: inset 0 0 0 2px var(--focus); border-radius: var(--radius-card); }
+.material-title button:focus-visible { outline: none; }
+
+/* Grupos (matéria ou assunto) */
+.group { margin-top: var(--space-5); }
+.group:first-child { margin-top: var(--space-2); }
+.group-h { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); padding-bottom: 10px; margin: 0; font: 600 11px var(--label); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.group-h .num { font: 600 12px var(--label); letter-spacing: 0; }
+
+@media (max-width: 640px) { /* inclui o zoom de 200% num computador (640 px de largura útil) */
+  .material-title button { display: block; -webkit-line-clamp: unset; overflow: visible; }
+}
+@media (max-width: 640px) {
+  .material { grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-1) var(--space-3); padding: 14px var(--space-2); margin-inline: calc(-1 * var(--space-2)); }
+  .material .mat-type { grid-column: 1 / -1; }
+  .material .mat-main { grid-column: 1; }
+  .material .mat-acts { grid-column: 2; grid-row: 2; flex-direction: column-reverse; align-items: flex-end; gap: 0; }
+  .material-title { font-size: 19px; }
+  .material .open { padding: 0; }
+  .material .open span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* no celular, só o ícone (nome completo no aria-label) */
+  .material .open { width: 44px; justify-content: center; }
+}

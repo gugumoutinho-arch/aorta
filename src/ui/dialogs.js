@@ -3,6 +3,7 @@
 import gsap from "gsap";
 import { $$ } from "../core/dom.js";
 import { reducedMotion } from "../core/state.js";
+import { motionTokens } from "./tokens.js";
 
 let keyboardInput = false;
 document.addEventListener("keydown", () => { keyboardInput = true; document.documentElement.dataset.input = "keyboard"; }, true);
@@ -22,7 +23,17 @@ export function openDlg(d, origin = document.activeElement) {
   if (!d.open) { origins.set(d, origin); d.showModal(); }
   if (still()) return;
   const o = offset(d);
-  gsap.fromTo(d, { x: o.x, y: o.y, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: .32, ease: "expo.out", overwrite: true, clearProps: "transform,opacity" });
+  const t = motionTokens();
+  // Fora do celular, nasce de onde foi chamado: a escala (.96 → 1) parte do ponto do acionador (linha da lista, lupa,
+  // placa de busca), com um deslocamento curto na mesma direção. No celular, a folha sobe da borda de baixo.
+  const from = origin?.isConnected && !mobile() ? origin.getBoundingClientRect() : null;
+  if (from && from.width) {
+    const r = d.getBoundingClientRect(), ox = Math.min(Math.max(from.left + from.width / 2 - r.left, 0), r.width), oy = Math.min(Math.max(from.top + from.height / 2 - r.top, 0), r.height);
+    gsap.fromTo(d, { x: o.x / 2, y: o.y / 2, scale: .96, opacity: 0, transformOrigin: `${ox}px ${oy}px` },
+      { x: 0, y: 0, scale: 1, opacity: 1, duration: t.swap, ease: t.easeEnter, overwrite: true, clearProps: "transform,opacity,transformOrigin" });
+    return;
+  }
+  gsap.fromTo(d, { x: o.x, y: o.y, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: t.swap, ease: t.easeEnter, overwrite: true, clearProps: "transform,opacity" });
 }
 export function closeDlg(d, immediate = false) {
   if (!d.open || closing.has(d)) return;
@@ -30,7 +41,9 @@ export function closeDlg(d, immediate = false) {
   if (immediate || still()) { d.close(); return; }
   closing.add(d);
   const o = offset(d);
-  gsap.to(d, { x: o.x, y: o.y, opacity: 0, duration: .18, ease: "power2.in", overwrite: true,
+  const t = motionTokens();
+  // Saída mais curta que a entrada e desacelerando (nada de ease-in na interface).
+  gsap.to(d, { x: o.x, y: o.y, opacity: 0, duration: t.exit, ease: t.easeRespond, overwrite: true,
     onComplete: () => { closing.delete(d); d.close(); d.style.removeProperty("transform"); d.style.removeProperty("opacity"); } });
 }
 /* Quem abriu recebe o foco de volta; se foi redesenhado, quem cuida do diálogo indica um substituto. */

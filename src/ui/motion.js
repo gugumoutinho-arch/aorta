@@ -6,18 +6,21 @@ import { reducedMotion } from "../core/state.js";
 import { spring } from "./spring.js";
 gsap.registerPlugin(SplitText);
 const splits = new Map(), counters = new Map(), pending = new Set(), entering = new Set(), revealed = new WeakSet();
+/* Título por linhas. O tween é cancelado pela referência: cancelar pelos alvos (killTweensOf) às vezes deixava o tween
+   vivo em trocas rápidas de acervo, e o onComplete dele apagava o registro do split ATUAL; o split órfão guardava o
+   título do outro acervo e o devolvia na troca seguinte (tools/acervos.mjs, "Trocas rápidas…"). */
 export function cancelHeadline(el) {
-  const split = splits.get(el);
-  if (split) { gsap.killTweensOf(split.lines); split.revert(); splits.delete(el); }
+  const cur = splits.get(el);
+  if (cur) { cur.tween.kill(); cur.split.revert(); splits.delete(el); }
 }
 export function revealHeadline(el, delay = 0) {
   if (!el) return;
   cancelHeadline(el);
   if (reducedMotion()) return;
   const split = SplitText.create(el, { type: "lines", mask: "lines", linesClass: "line", aria: "auto" });
-  splits.set(el, split);
-  gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: motionTokens().enter, ease: "power3.out", stagger: .065, delay,
-    onComplete: () => { split.revert(); splits.delete(el); } });
+  const tween = gsap.fromTo(split.lines, { yPercent: 85 }, { yPercent: 0, duration: motionTokens().enter, ease: "power3.out", stagger: .065, delay,
+    onComplete: () => { split.revert(); if (splits.get(el)?.split === split) splits.delete(el); } });
+  splits.set(el, { split, tween });
 }
 export function countTo(el, value) {
   if (!el) return;
@@ -50,7 +53,7 @@ export function wireMotion() {
     const magnet = spring(offset, () => { if (label) gsap.set(label.children, { x: offset.x, y: offset.y }); });
     const lean = spring(tilt, () => { if (card) gsap.set(card, { rotateX: tilt.x, rotateY: tilt.y, transformPerspective: 1100 }); });
     const releaseLabel = (instant = false) => { if (label) gsap.to(label.children, { x: 0, y: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "x,y" }); label = null; magnet.settle({ x: 0, y: 0 }); };
-    const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : .3, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
+    const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
     const ring = document.createElement("div"); ring.className = "cursor-ring"; ring.setAttribute("aria-hidden", "true");
     const tag = document.createElement("span"); ring.append(tag); document.body.append(ring);
     const cursor = { x: 0, y: 0 }, follow = spring(cursor, () => gsap.set(ring, cursor), { stiffness: 520, damping: 43 });
@@ -60,7 +63,7 @@ export function wireMotion() {
       if (label !== nextLabel) { releaseLabel(); if (nextLabel) gsap.killTweensOf(nextLabel.children, "x,y"); }
       label = nextLabel;
       if (label) { const r = label.getBoundingClientRect(); magnet.to({ x: (e.clientX - r.left - r.width / 2) / r.width * 5, y: (e.clientY - r.top - r.height / 2) / r.height * 4 }); }
-      const nextCard = e.target.closest?.(".mini-card, .book");
+      const nextCard = e.target.closest?.(".case-card");
       if (card !== nextCard) { releaseCard(); if (nextCard) gsap.killTweensOf(nextCard, "rotateX,rotateY,transformPerspective"); }
       card = nextCard;
       if (card) {
@@ -72,9 +75,11 @@ export function wireMotion() {
       follow.to({ x: e.clientX, y: e.clientY }); ring.classList.add("on");
       const hit = e.target.closest?.("#modules .mod, a, button, input, select, label");
       const next = !hit ? "" : hit.matches("#modules .mod") ? "open" : hit.matches("input, select") ? "text" : "link";
-      if (next !== mode) { mode = next; ring.dataset.mode = next; tag.textContent = next === "open" ? "abrir" : ""; }
+      if (next !== mode) { mode = next; ring.dataset.mode = next; }
     });
     const leave = () => { ring.classList.remove("on"); seen = false; magnet.to({ x: 0, y: 0 }); lean.to({ x: 0, y: 0 }); };
+    // Trocar de tela zera o anel: o modo "abrir" do rótulo não fica sobre a página nova.
+    listen(window, "hashchange", () => { leave(); mode = ""; ring.dataset.mode = ""; tag.textContent = ""; });
     listen(document.documentElement, "pointerleave", leave);
     listen(window, "blur", leave);
     return () => { abort.abort(); releaseLabel(true); releaseCard(true); magnet.dispose(); lean.dispose(); follow.dispose(); ring.remove(); };

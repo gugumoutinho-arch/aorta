@@ -3,6 +3,7 @@ import { S, STAINS, STATUS_LABEL, find } from "./state.js";
 import { areaById, childrenOf, depthOf } from "./areas.js";
 import { norm, nowIso } from "./text.js";
 import { toast } from "../ui/toast.js";
+import { restoreLinks } from "./topic-store.js";
 import { renderAll } from "../app.js";
 
 const failMsg = e => (e && e.code === "quota_exceeded") ? "O catálogo atingiu o limite de armazenamento. Remova itens antigos e tente de novo." : "Não foi possível salvar agora. Verifique a conexão e tente de novo.";
@@ -39,10 +40,18 @@ export async function setStatus(id, s) {
   await updateMaterial(id, { status: s, statusAt: nowIso() }, "Situação: " + STATUS_LABEL[s]);
 }
 export function markOpened(id) { if (S.db) S.db.doc("materials/" + id).update({ lastOpenedAt: nowIso() }).catch(e => console.error(e)); }
+/* O banco apaga as ligações com os assuntos junto com o material; o Desfazer devolve o material e as ligações. */
 export async function removeMaterial(id) {
   const m = find(id); if (!m) return false; const { id: _id, ...body } = m;
+  const links = S.links.filter(l => l.materialId === id).map(l => ({ materialId: l.materialId, topicId: l.topicId }));
+  // O Desfazer só confirma quando material E ligações voltaram; se parar no meio, oferece tentar de novo (repetir é seguro).
+  const restore = async () => { await S.db.doc("materials/" + id).set(body); await restoreLinks(S.db, links); };
+  const undo = async () => {
+    if (await write(restore, "Material restaurado, com os assuntos")) return;
+    toast("A restauração parou no meio (material ou assuntos). Nada se perde ao repetir.", { error: true, action: { label: "Tentar de novo", run: undo } });
+  };
   return write(() => S.db.doc("materials/" + id).delete(), "Removido do catálogo. O arquivo original não foi alterado.",
-    { action: { label: "Desfazer", run: () => write(() => S.db.doc("materials/" + id).set(body), "Material restaurado") } });
+    { action: { label: "Desfazer", run: undo } });
 }
 export async function ensureCollection(name) {
   const n = name.trim(); if (!n) return "";

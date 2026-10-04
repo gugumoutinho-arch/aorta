@@ -1,0 +1,164 @@
+# Progresso da sessão na nuvem (ramo `nuvem/f1-conteudo`)
+
+Base: `prototipo-v4` em `63e6004`. Quem retomar: leia esta lista, rode a bateria G (abaixo) e siga do primeiro pacote não concluído.
+
+Bateria G (dentro de `tools/`, com `CHROME_PATH` apontando para o Chromium e `CI=1`): `npm test`, `npm run check`, `npm run flows`, `npm run acervos`, `npm run topics`, `npm run topic-edit` e, nos pacotes visuais, `npm run lighthouse`.
+
+Ambiente da nuvem: o Chromium está em `/opt/pw-browsers/chromium` (não precisa de `playwright install`). As fontes do Google falham por certificado do proxy (`net::ERR_CERT_AUTHORITY_INVALID`); `check` e `flows` já ignoravam esse erro, e `topics.mjs` passou a ignorar também.
+
+## Base antes de qualquer mudança
+
+- `npm test` 34/34; `npm run check` 0 erros e 0 avisos; `npm run flows` 364/364; `npm run acervos` 67/67.
+- `npm run topics`: reprovou só em "sem erros no console" por causa das fontes (ver acima); as 18 verificações anteriores passaram.
+
+## Pacotes
+
+| Pacote | Situação | Commit |
+|---|---|---|
+| N1 · Gravar assuntos e ligações | concluído | `746ab39` |
+| N2 · Formulário com assuntos | concluído | `80bc24c` |
+| N3 · Quase-duplicatas | concluído | `771470f` |
+| N4 · Importação por colagem | concluído | `6299ca4`, correções da revisão em `0beab8b` |
+| N5 · Cardiologia → coração | concluído | `e60e5e3` |
+| N6 · Trocas rápidas instáveis | concluído | `57f77e6` |
+| N7 · Desempenho da primeira tela | tentado e revertido (meta não atingida) | `368fce2` → `128067b` |
+
+### N1 · Gravar assuntos e ligações
+
+- **Comandos e resultados:** `npm test` 49/49 (34 da base + 15 novos), `check` 0 erros e 0 avisos, `flows` 364/364, `acervos` 67/67, `topics` 57/57, `topic-edit` 5/5.
+- **Prova de que o teste pega o defeito:** com o `actions.js` antigo, o e2e reprova em "Desfazer: material e as duas ligações de volta" (espera de 5 s estourada).
+- **Pendências:** criar, ligar e desligar pela interface entram no e2e do N2, que traz o formulário. Nesta etapa, essas ações têm teste de unidade nas duas pontas do banco.
+
+### N3 · Quase-duplicatas
+
+- **Comandos e resultados:** `node --test tests/similar.test.mjs` 7/7 (reprovou com "módulo não encontrado" antes da implementação); `npm test` completo 56/56. `check`, `flows`, `acervos`, `topics` e `topic-edit` da bateria do N1 rodaram já com `similar.js` presente, que nada importa.
+- **Pendências:** confirmar com o dono "inf." e o veto de algarismos romanos.
+
+### N2 · Formulário com assuntos
+
+- **Resultados:** `npm test` 56/56; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 46/46. O e2e reprovou antes de o formulário ser ligado.
+- **`acervos`:** reprovou em "320 dark idomed … rótulos sobrepostos". O teste já era instável antes do N2; correção no N6.
+- **Lighthouse:** celular 95/93, computador 100/100, acessibilidade 100. Boas práticas 96 só pelo certificado das fontes no proxy da nuvem.
+- **Revisão de design:** 0 bloqueantes; 3 importantes corrigidos (salvar durante a criação, foco, falha visível).
+- **Pendências:** contraste da borda `--line-strong` (2,1 a 2,3:1), que é decisão de identidade do dono.
+- **Ambiente:** o Chrome daqui não confia no certificado do proxy para fonts.googleapis.com; as fontes caem no padrão do sistema e o Lighthouse marca 96 em boas práticas.
+
+### N4 · Colar links
+
+- **Bateria (`6299ca4`):** `npm test` 74/74; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 38/38. Lighthouse 94/94 e 100/100; boas práticas 96 (ambiente).
+- **Revisão de design:**
+  - 1 bloqueante, corrigido em `0beab8b`: "ligar" a duplicata mudava um material publicado sem dizer;
+  - 8 importantes, corrigidos;
+  - `import` 44/44 depois das correções.
+- **Limite:** os direitos não ficam guardados no material, porque `materials` não tem a coluna e a migração precisa do dono.
+
+### N5 · Cardiologia → coração
+
+- `routes.test` 6/6; `npm test` 80/80; `check` 0/0. O `acervos` desse commit caiu na corrida dos rótulos (corrigida no N6). Captura com uma Cardiologia fictícia: rótulo "Coração" e ponta no peito; página do módulo com o coração 3D.
+
+### N6 · Trocas rápidas
+
+- **Antes:** roteiro focado com 1/30, 2/40 e ≥ 1/11 falhas; `acervos` com 1/10.
+- **Depois:** roteiro focado 0/60; `acervos` 10/10 no teste-alvo.
+- **Ainda instável:** "botão fica pressionado até soltar", 1 em 10 depois da correção parcial.
+- **Bateria do commit:** toda verde, exceto Lighthouse boas práticas 96 (ambiente).
+
+### N7 · Desempenho (extra)
+
+- **6 pares de `medir-v5` e 5 rodadas de métricas de layout:** layouts −70%, tempo de layout quase igual; a maior tarefa da IDOMED não melhorou (mediana pior, variação enorme). Lighthouse igual (94/94).
+- **Revertido pela regra do pacote.** Próximo passo sugerido: atacar o carregamento e a montagem do coração 3D (é a maior tarefa).
+
+## Bateria final (`9594add`, cópia isolada)
+
+- `npm test` 80/80; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 44/44.
+- Lighthouse (mediana de 3): celular 94 (IDOMED) e 94 (geral), computador 100/100, acessibilidade 100. Boas práticas 96: o único erro de console é `ERR_CERT_AUTHORITY_INVALID` nas fontes do Google, porque o proxy da nuvem intercepta o certificado. No CI do GitHub não acontece.
+
+## Pendências abertas
+
+- **SQL para autorizar:** nenhum. Nada exigiu mudar o banco nem as regras de acesso.
+- **Direitos:** `materials` não tem coluna de direitos; os direitos do rascunho só decidem se pode publicar. Guardá-los exigiria uma migração, decisão do dono.
+- **Instabilidade ainda aberta em `acervos.mjs`:** "botão fica pressionado até soltar", 1 em 10 rodadas depois da correção parcial. Não reproduz isolada (0 em 30).
+- **Contraste da borda `--line-strong` (1,9 a 2,3:1) em campos e fichas:** decisão de identidade.
+- **N3:** confirmar "inf." como abreviação aprovada e o veto de algarismos romanos.
+- **N7:** revertido; o peso real da entrada é a montagem do coração 3D.
+- **Demonstração:** `cd tools && node demo.mjs --abas` (assuntos e colagem); `node demo.mjs --v4 --cardio` (Cardiologia no corpo).
+
+---
+
+# RODADA A (funcional) — prompt `docs/nuvem/rodada-a-funcional.md`
+
+- **Repositório:** `/home/user/aorta` (checkout Linux no lugar de `C:\claude e codexx`); remote `origin` = `https://github.com/gugumoutinho-arch/aorta`; ramo `nuvem/f1-conteudo`; status limpo ao começar.
+- **Retomada:** o ramo existia no remoto (`1cda9d7`) e descende do `prototipo-v4` antigo (`63e6004`). O `prototipo-v4` atual (`4b6f838`, que inclui `afef4f6`) entrou por merge (`7303e51`), sem recriar e sem force.
+- **SHA base da rodada A:** `4b6f838` (`origin/prototipo-v4` depois do fetch).
+
+## Preflight
+
+- Node v22.22.0; Chromium 141 (`/opt/pw-browsers/chromium`; o `chromium-1243` que o playwright-core 1.63 espera não existe e o ambiente proíbe `playwright install`, então `CHROME_PATH=/opt/pw-browsers/chromium`).
+- O Chromium abre; WebGL2 por SwiftShader (ANGLE/Vulkan) funciona; captura PNG funciona.
+- **Fontes não carregam:** 0 fontes carregadas; o proxy da nuvem recusa o certificado do Google Fonts. O `document.fonts.check` diz "sim" só porque não há `@font-face`. **Capturas e Lighthouse NÃO são comparáveis** com os do computador do dono; nada de tipografia ou de gate foi mudado por isso.
+- **Bateria G no preflight (`7303e51`):** `npm test` 80/80; `check` 0/0; `flows` 364/364; `acervos` 67/67; `topics` 57/57; `topic-edit` 46/46; `import` 44/44. Lighthouse (mediana de 3): celular 94/94, computador 100/100, acessibilidade 100, boas práticas **96** (só o erro de certificado das fontes; não comparável).
+
+| Pacote (rodada A) | Situação | Commit |
+|---|---|---|
+| N6 · trocas rápidas e botão | concluído | `22653e8` |
+| N1 · assuntos, ligações e rascunhos nas duas pontas | concluído | `58b71e1` |
+| N3 · quase-duplicatas | concluído | `bb2bf00` |
+| N2 · formulário com assuntos | concluído | `0b4cb09` |
+| N4 · colagem | concluído | `1a4ada4` |
+| N5 · Cardiologia → coração | concluído | `3c46934`, correções da revisão em `246d4c7` |
+
+### A · N6
+
+- Trocas rápidas 0/10; botão sob CPU 6×: regra antiga 2/10 falhas, regra nova 10/10; `acervos` 67/67 em 3/3.
+
+### A · N1
+
+- **Comandos (cópia isolada do commit):** `npm test` 89/89; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 51/51; `import` 44/44.
+- **Pendências:** nenhuma de banco. O Supabase real não foi exercitado.
+
+### A · N3
+
+- `npm test` 92/92; `topic-edit` 51/51 (cópia isolada). Pendência: o dono aprovar o vocabulário de plurais e as abreviações.
+
+### A · N2
+
+- `npm test` 92/92; `topic-edit` 52/52; `topics` 57/57 (cópia isolada). Sem mudança visual nesta rodada.
+
+### A · N4
+
+- **Bateria G (`1a4ada4`):** test 106/106; check 0/0; flows 364/364; acervos 67/67; topics 57/57; topic-edit 52/52; import 59/59. Lighthouse 91/92 (celular), 100/99 (computador), acessibilidade 100, boas práticas 96. LCP 2,7 s (não comparável; JS +2 KB comprimido).
+- **Revisão de design:** 2 bloqueantes e 4 importantes corrigidos.
+- **Pendência:** reconferir o LCP na bateria final.
+
+### A · N5
+
+- `routes.test` 7/7; `npm test` 107/107; `acervos` 71/71 (com Cardiologia fictícia e capturas do destaque).
+- **Revisão de design:** 0 bloqueantes, 3 importantes, corrigidos em `246d4c7`: a borda do coração voltou a ser sempre `--flow`; a cor da Cardiologia só aparece ao apontar, e só se ela tiver material; o repouso não acende o coração. Também corrigido: o realce continua enquanto o módulo está apontado. Depois das correções: `routes.test` 8/8; `npm test` 108/108; `acervos` 71/71; `check` 0/0; `flows` 364/364.
+- **Pendentes de antes da rodada:** o anel "ABRIR" do cursor cobre parte do nome e continua visível depois de mudar de rota.
+
+## Bateria G final (`246d4c7`, cópia isolada)
+
+- `npm test` 108/108; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 71/71; `topics` 57/57; `topic-edit` 52/52; `import` 59/59.
+- **Lighthouse (mediana de 3):**
+  - celular 91 (IDOMED) e 91 (geral), LCP 2,6 e 2,7 s;
+  - computador 100 e 99;
+  - acessibilidade 100;
+  - **boas práticas 96 (REPROVADO pelo script, que exige 100):** o único erro de console é `net::ERR_CERT_AUTHORITY_INVALID` nas fontes do Google (proxy da nuvem), como no preflight.
+- **LCP medido em sequência, nesta máquina:**
+  - base `7303e51`: 92/94, LCP 2,5/2,5 s;
+  - final: 91/90, 2,7/2,8 s;
+  - final com o harness de testes da base: 93/94, 2,6/2,5 s.
+- **Conclusão sobre o LCP:** quase toda a diferença vem do script de teste injetado no `<head>` (banco fictício com as regras do esquema + guarda do Supabase), não do site. O JS do site cresceu cerca de 6 KB sem compressão. Medido aqui, sem fontes e sem compressão no servidor local; não comparável com o computador do dono.
+
+RODADA A ENCERRADA em 2026-10-03, SHA 246d4c7 (código testado; este registro vem no commit seguinte).
+
+## Complemento local da rodada A (Claude, no Windows do dono, 03/10/2026)
+
+- **Revisão independente (só leitura) de `prototipo-v4...nuvem/f1-conteudo`:** 0 críticos, 0 altos. Dois médios corrigidos em `0ad655f`, com teste antes:
+  - colar um arquivo que outra aba já salvou conta como "já existia" (23505) e o lote segue;
+  - publicar usa o rascunho relido do banco.
+- **Bateria no Windows, com as fontes reais (a nuvem não carregou as fontes):**
+  - `npm test` 110/110; `check` 0/0; `flows` 364/364; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `acervos` 71/71 (2×, mais 3× antes do commit `246d4c7`);
+  - Lighthouse com mediana de 3: IDOMED 90/100, geral **85**/99 (celular/computador); acessibilidade e boas práticas 100; LCP no celular 2,7 s. O geral no celular está no limite: é meta da rodada B.
+
+RODADA A ENCERRADA (com o complemento local) em 03/10/2026, SHA 0ad655f — a rodada B parte do topo deste ramo, que descende dele.

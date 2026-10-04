@@ -57,7 +57,7 @@ Protótipo de referência: `_fora-do-site/propostas-home/coracao-mapa.html`. Ele
 ## Tipografia
 - **Literata:** títulos, numerais grandes de módulo, títulos de material.
 - **Schibsted Grotesk:** interface, rótulos e metadados.
-- **Título da home:** "O que você vai estudar *hoje?*", com a ênfase em itálico na cor `--flow`.
+- **Título da home (direção D, 04/10/2026):** "O curso inteiro, *irrigado* por bons materiais." (IDOMED) e "A medicina ganha *corpo*." (geral), com a ênfase em itálico na cor `--flow`. Os textos ficam em `window.aortaCopy` no `index.html`.
 - **Rótulos de seção:** 12 px, caixa alta, `letter-spacing:.1em`, cor `--mute`.
 
 ## Componentes

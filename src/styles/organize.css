@@ -9,10 +9,10 @@
 .tree, .tree ul, .rows { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-1); }
 .tree ul { padding-left: 22px; margin-top: var(--space-1); border-left: 1px dashed var(--line-strong); }
 .row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) 10px; min-height: 48px; padding: 2px var(--space-1); border-radius: 8px; }
-.row:hover { background: var(--surface); }
+@media (hover: hover) { .row:hover { background: var(--surface); } }
 .swatch { width: 10px; height: 10px; border-radius: 3px; background: var(--stain, var(--t-neutral)); flex: none; }
-.row .name { min-height: 44px; display: inline-flex; align-items: center; font-weight: 600; text-decoration: none; text-align: left; }
-.row .name:hover { text-decoration: underline; }
+.row .name { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; font-weight: 600; text-decoration: none; text-align: left; }
+@media (hover: hover) { .row .name:hover { text-decoration: underline; } }
 .lvl { font: 600 11px var(--label); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .count { font-size: 12.5px; color: var(--muted); margin-right: auto; }
 .row .btn { min-height: 44px; padding: 0 10px; font-size: 13px; }
@@ -20,3 +20,32 @@
 .addform input { flex: 1 1 200px; }
 @media (max-width: 900px) { .org { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { #view-organizar { padding-top: var(--space-5); } .panel { padding: var(--space-4); } .tree ul { padding-left: var(--space-3); } }
+
+/* Colar links: prévia linha a linha e rascunhos para revisar antes de publicar. */
+.import { margin-top: var(--space-5); }
+.import h3 { font-size: 18px; }
+.imp-opts { display: flex; flex-wrap: wrap; align-items: end; gap: var(--space-3); }
+.imp-opts .fld { flex: 1 1 200px; }
+.imp-preview, .imp-drafts { display: grid; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--line); }
+.imp-rows, .imp-draft-list, .imp-problems { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.imp-row, .imp-draft { display: grid; gap: 6px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-card); border: 1px solid var(--line); background: var(--surface); min-width: 0; }
+.imp-row.bad { border-color: var(--error); }
+.imp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2); }
+.imp-head .mono { color: var(--muted); }
+.imp-url { color: var(--muted); overflow-wrap: anywhere; }
+.imp-url a { color: var(--text); }
+.imp-note { display: flex; gap: 6px; align-items: flex-start; }
+.imp-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+.imp-warnline { color: var(--text); }
+.imp-warnline .imp-ico { color: var(--flow); }
+.imp-dest { display: grid; gap: 6px; }
+.imp-dest select { justify-self: start; width: min(100%, 72ch); }
+.imp-dup { color: var(--text); font-weight: 600; }
+.imp-warn { padding: var(--space-2) var(--space-3); border-radius: var(--radius); border: 1px solid var(--action); background: var(--paper); font-weight: 600; }
+.import code { font: inherit; font-weight: 600; color: var(--text); }
+.imp-action select { max-width: 100%; }
+.imp-draft { gap: var(--space-3); }
+.imp-draft h4 { font: 500 20px/1.2 var(--serif); overflow-wrap: anywhere; }
+.imp-draft input, .imp-draft select { background: var(--paper); }
+.imp-block { padding: var(--space-2) var(--space-3); border-radius: var(--radius); background: var(--paper); }
+.imp-draft .acts, .imp-preview .acts { display: flex; flex-wrap: wrap; gap: var(--space-2); }

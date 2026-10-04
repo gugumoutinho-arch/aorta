@@ -1,0 +1,18 @@
+/* Barra inferior (só no celular): Início, Mapa, Favoritos e Buscar. Alvos de 52 px, respeita a área segura do aparelho
+   e o item ativo tem um traço acima do ícone (forma), além da cor. */
+.tabbar { display: none; }
+@media (max-width: 640px) {
+  body { padding-bottom: calc(57px + env(safe-area-inset-bottom)); } /* 56 px + a borda: o fim da página nunca fica atrás da barra */
+  .tabbar { position: fixed; z-index: 70; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding-bottom: env(safe-area-inset-bottom); background: var(--panel); border-top: 1px solid var(--line); }
+  .tabbar a, .tabbar button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px;
+    color: var(--muted); font-size: 11px; font-weight: 550; text-decoration: none; }
+  .tabbar svg { width: 21px; height: 21px; }
+  .tabbar [aria-current="page"] { color: var(--text); }
+  .tabbar [aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 50%; width: 22px; height: 2px; margin-left: -11px; border-radius: 0 0 2px 2px; background: var(--action); }
+  .tabbar :focus-visible { outline-offset: -4px; }
+  body:has(dialog[open]) .tabbar { display: none; }
+  .toasts { bottom: calc(68px + env(safe-area-inset-bottom)); }
+  /* A busca e "Todos os materiais" moram na barra inferior: o topo fica com marca, Adicionar, Organizar e Aparência. */
+  .top-actions [data-search], .top-actions [data-nav="todos"] { display: none; }
+}

@@ -7,8 +7,9 @@ import { moduleList, pathOf, treeOrder, countIn, countLabel, acervoOf } from "..
 import { openDlg, closeDlg } from "../ui/dialogs.js";
 import { openDetail } from "./detail.js";
 import { moduleToken } from "./cards.js";
+import { materialLine, areaLine, searchKey } from "../domain/search.js";
 
-let options = [], active = -1, origin = null;
+let options = [], active = -1, origin = null, lastKey = "";
 const pal = () => $("#palette");
 const hay = m => norm([m.title, pathOf(m.areaId).map(a => a.name).join(" "), m.subject, m.type, (m.tags || []).join(" ")].join(" "));
 
@@ -17,6 +18,7 @@ function results(q) {
   if (!ready()) return [{ label: S.dbState === "loading" ? "Carregando o acervo…" : "O acervo não está disponível agora.", items: [] }];
   const mods = moduleList();
   const tag = id => ACERVOS[acervoOf(id)].label;
+  const other = id => acervoOf(id) === S.acervo ? "" : tag(id);
   if (!toks.length) {
     // Sem texto: os caminhos dos dois acervos, o atual primeiro.
     for (const key of [S.acervo, ...Object.keys(ACERVOS).filter(k => k !== S.acervo)]) {
@@ -26,16 +28,23 @@ function results(q) {
     return groups;
   }
   const mats = S.materials.filter(m => toks.every(t => hay(m).includes(t))).slice(0, 8);
-  if (mats.length) groups.push({ label: "Materiais", items: mats.map(m => ({ kind: "material", id: m.id, title: m.title || "(sem título)", sub: [tag(m.areaId), pathOf(m.areaId).map(a => a.name).join(" › ") || "Sem área definida", m.subject, m.type].filter(Boolean).join(" · "), token: moduleToken(m.areaId), badge: (m.type || "Link").slice(0, 2) })) });
+  // Caminho curto embaixo do título e o tipo à direita: cada resultado cabe em duas linhas no celular.
+  if (mats.length) groups.push({ label: "Materiais", items: mats.map(m => { const line = materialLine(m, pathOf(m.areaId), { otherAcervo: other(m.areaId) });
+    return { kind: "material", id: m.id, title: m.title || "(sem título)", sub: line.sub, right: line.right, token: moduleToken(m.areaId), badge: (m.type || "Link").slice(0, 2) }; }) });
   const areas = treeOrder().filter(([a]) => toks.every(t => norm(pathOf(a.id).map(x => x.name).join(" ")).includes(t))).slice(0, 6);
-  if (areas.length) groups.push({ label: "Módulos, unidades e matérias", items: areas.map(([a]) => ({ kind: "area", id: a.id, title: pathOf(a.id).map(x => x.name).join(" › "), sub: `${tag(a.id)} · ${countLabel(countIn(a.id))}`, token: moduleToken(a.id), badge: (pathOf(a.id)[0]?.name || "").slice(0, 3) })) });
-  if (!groups.length) groups.push({ label: "Nenhum resultado", empty: `Nada encontrado para “${q.trim()}”. A busca usa título, matéria, assunto, tipo e etiquetas, não o texto dos arquivos. Caminhos que já têm material:`,
+  if (areas.length) groups.push({ label: "Módulos, unidades e matérias", items: areas.map(([a]) => { const line = areaLine(pathOf(a.id), [other(a.id), countLabel(countIn(a.id))].filter(Boolean).join(" · "));
+    return { kind: "area", id: a.id, title: line.title, sub: line.sub, token: moduleToken(a.id), badge: (pathOf(a.id)[0]?.name || "").slice(0, 3) }; }) });
+  if (!groups.length) groups.push({ label: "Nenhum resultado", empty: `Nada encontrado para “${q.trim()}”. A busca usa título, matéria, assunto, tipo e etiquetas (acento e maiúscula não importam), não o texto dos arquivos. Caminhos que já têm material:`,
     items: mods.filter(m => m.live).map(m => ({ kind: "area", id: m.id, title: m.name, sub: plural(m.count, "material", "materiais"), token: m.token, badge: m.name })) });
   return groups;
 }
 
-function render() {
+/* Refaz a lista só quando a busca (sem acento, caixa e espaços extras) ou o acervo carregado mudaram. */
+function render(force = false) {
   const q = $("#pq").value, toks = tokens(q), list = $("#results");
+  const key = [searchKey(q), S.dbState, S.materials.length, S.areas.length].join("|");
+  if (!force && key === lastKey) return;
+  lastKey = key;
   options = []; let n = 0;
   const nodes = [];
   results(q).forEach((g, gi) => {
@@ -47,7 +56,7 @@ function render() {
       nodes.push(h("li", { role: "option", id, "aria-selected": "false", class: "opt", style: `--c:var(${it.token})`, "data-i": String(options.length - 1) },
         h("span", { class: "ic", "aria-hidden": "true", text: it.badge }),
         h("span", { class: "txt" }, h("strong", null, marked(it.title, toks)), h("small", { text: it.sub })),
-        h("span", { class: "ty mono", text: it.kind === "material" ? "Ficha" : "Abrir" })));
+        h("span", { class: "ty mono", text: it.kind === "material" ? it.right : "Abrir" })));
     });
   });
   list.replaceChildren(...nodes);
@@ -70,14 +79,14 @@ export function openPalette() {
   if ($("#dlg-form").open || $("#dlg-theme").open) return;
   if ($("#dlg-detail").open) closeDlg($("#dlg-detail"), true);
   origin = document.activeElement;
-  $("#pq").value = ""; render();
+  $("#pq").value = ""; render(true);
   openDlg(pal(), origin);
   requestAnimationFrame(() => $("#pq").focus());
 }
 
 export function wirePalette() {
   $$("[data-search]").forEach(b => b.addEventListener("click", openPalette));
-  $("#pq").addEventListener("input", render);
+  $("#pq").addEventListener("input", () => render());
   $("#pq").addEventListener("keydown", e => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") { e.preventDefault(); if (options.length) setActive((active + (e.key === "ArrowDown" ? 1 : options.length - 1)) % options.length); }
     else if (e.key === "Enter") { e.preventDefault(); choose(active); }

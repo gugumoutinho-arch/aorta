@@ -1,0 +1,72 @@
+[
+ {
+  "titulo": "Início (IDOMED) — celular",
+  "antes": "antes/inicio-idomed@390-dark.png",
+  "depois": "depois/inicio-idomed@390-dark.png"
+ },
+ {
+  "titulo": "Início (IDOMED) — computador",
+  "antes": "antes/inicio-idomed@1440-dark.png",
+  "depois": "depois/inicio-idomed@1440-dark.png"
+ },
+ {
+  "titulo": "Início ao rolar: índice e casos — celular",
+  "antes": "antes/inicio-idomed-rolado@390-dark.png",
+  "depois": "depois/inicio-idomed-rolado@390-dark.png"
+ },
+ {
+  "titulo": "Início ao rolar: índice e casos — computador",
+  "antes": "antes/inicio-idomed-rolado@1440-dark.png",
+  "depois": "depois/inicio-idomed-rolado@1440-dark.png"
+ },
+ {
+  "titulo": "Início (Medicina geral) — celular",
+  "antes": "antes/inicio-geral@390-dark.png",
+  "depois": "depois/inicio-geral@390-dark.png"
+ },
+ {
+  "titulo": "Início (Medicina geral) — computador",
+  "antes": "antes/inicio-geral@1440-dark.png",
+  "depois": "depois/inicio-geral@1440-dark.png"
+ },
+ {
+  "titulo": "Página do módulo — celular",
+  "antes": "antes/modulo@390-dark.png",
+  "depois": "depois/modulo@390-dark.png"
+ },
+ {
+  "titulo": "Página do módulo — computador",
+  "antes": "antes/modulo@1440-dark.png",
+  "depois": "depois/modulo@1440-dark.png"
+ },
+ {
+  "titulo": "Módulo numa aba de assunto — computador",
+  "antes": "antes/modulo-assunto@1440-dark.png",
+  "depois": "depois/modulo-assunto@1440-dark.png"
+ },
+ {
+  "titulo": "Ficha do material — celular",
+  "antes": "antes/ficha@390-dark.png",
+  "depois": "depois/ficha@390-dark.png"
+ },
+ {
+  "titulo": "Ficha do material — computador",
+  "antes": "antes/ficha@1440-dark.png",
+  "depois": "depois/ficha@1440-dark.png"
+ },
+ {
+  "titulo": "Busca rápida — celular",
+  "antes": "antes/busca@390-dark.png",
+  "depois": "depois/busca@390-dark.png"
+ },
+ {
+  "titulo": "Busca rápida — computador",
+  "antes": "antes/busca@1440-dark.png",
+  "depois": "depois/busca@1440-dark.png"
+ },
+ {
+  "titulo": "Carregando — computador",
+  "antes": "antes/carregando@1440-dark.png",
+  "depois": "depois/carregando@1440-dark.png"
+ }
+]
