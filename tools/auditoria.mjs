@@ -45,8 +45,8 @@ const SCENES = {
   'modulo-geral': { hash: 'a-g-anat' },
   'ficha': { hash: 'a-cis1-anat', prep: firstMaterial },
   'aviso-desfazer': { hash: 'a-cis1-anat', prep: async p => { await firstMaterial(p); await p.locator('#d-remove').click(); await p.locator('#d-rm-yes').click(); await p.waitForTimeout(600); } },
-  'busca': { hash: 'idomed', prep: async p => { await p.locator('.top-actions [data-search]').click(); await p.keyboard.type('membro'); await p.waitForTimeout(600); } },
-  'busca-vazia': { hash: 'idomed', prep: async p => { await p.locator('.top-actions [data-search]').click(); await p.keyboard.type('xyzw'); await p.waitForTimeout(600); } },
+  'busca': { hash: 'idomed', prep: async p => { await p.locator('[data-search]:visible').first().click(); await p.keyboard.type('membro'); await p.waitForTimeout(600); } },
+  'busca-vazia': { hash: 'idomed', prep: async p => { await p.locator('[data-search]:visible').first().click(); await p.keyboard.type('xyzw'); await p.waitForTimeout(600); } },
   'organizar': { hash: 'organizar' },
   'colagem': { hash: 'organizar', prep: async p => {
     await p.locator('#imp-text').fill('url,caminho,tipo,titulo\nhttps://drive.google.com/file/d/ficticio123/view,M1 › CIS 1 › Anatomia,Slides,Exemplo de colagem\nhttps://example.com/x,M9 › Nada,Slides,Caminho inexistente\nnao-e-link');
