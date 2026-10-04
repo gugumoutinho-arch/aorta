@@ -2,6 +2,13 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-05 — Claude — 2ª passada visual fechada — ramo `lapidacao-visual-2`, não publicado
+
+- **Trabalho do Astra** (P1 início, P2 módulo e lista, P3 ficha, busca, avisos, Organizar e formulário) revisado e fechado.
+- **Correção do Claude:** ações de Coleções na mesma linha.
+- **Bateria completa verde;** galeria nova em `docs/ui/`.
+- **Ferramentas para gastar menos na revisão:** `tools/prancha.mjs` e `tools/bateria.mjs`.
+
 ## 2026-10-04 — Codex/Astra — Segunda passada visual, P2
 
 - Abas com hierarquia e foco interno; favorito violeta preservado sob hover; lista com peso tipográfico mais preciso e coração pequeno com menos brilho. Só CSS.

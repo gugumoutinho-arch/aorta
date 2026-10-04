@@ -1,77 +1,52 @@
 [
   {
     "titulo": "Início com o coração 3D · computador, escuro",
-    "antes": "visual-antes/inicio-3d@1440-dark.png",
-    "depois": "visual-depois/inicio-3d@1440-dark.png"
+    "antes": "visual-v2-antes/inicio-3d@1440-dark.png",
+    "depois": "visual-v2-depois/inicio-3d@1440-dark.png"
   },
   {
     "titulo": "Início com o coração 3D · computador, claro",
-    "antes": "visual-antes/inicio-3d@1440-light.png",
-    "depois": "visual-depois/inicio-3d@1440-light.png"
+    "antes": "visual-v2-antes/inicio-3d@1440-light.png",
+    "depois": "visual-v2-depois/inicio-3d@1440-light.png"
   },
   {
     "titulo": "Início com o coração 3D · celular, escuro",
-    "antes": "visual-antes/inicio-3d@390-dark.png",
-    "depois": "visual-depois/inicio-3d@390-dark.png"
-  },
-  {
-    "titulo": "Índice como sumário · computador, claro",
-    "antes": "visual-antes/indice@1440-light.png",
-    "depois": "visual-depois/indice@1440-light.png"
-  },
-  {
-    "titulo": "Índice · celular, escuro",
-    "antes": "visual-antes/indice@390-dark.png",
-    "depois": "visual-depois/indice@390-dark.png"
+    "antes": "visual-v2-antes/inicio-3d@390-dark.png",
+    "depois": "visual-v2-depois/inicio-3d@390-dark.png"
   },
   {
     "titulo": "Módulo M1 (página de rosto) · computador, escuro",
-    "antes": "visual-antes/modulo@1440-dark.png",
-    "depois": "visual-depois/modulo@1440-dark.png"
+    "antes": "visual-v2-antes/modulo@1440-dark.png",
+    "depois": "visual-v2-depois/modulo@1440-dark.png"
   },
   {
     "titulo": "Matéria (Anatomia) · computador, escuro",
-    "antes": "visual-antes/materia@1440-dark.png",
-    "depois": "visual-depois/materia@1440-dark.png"
-  },
-  {
-    "titulo": "Matéria (Anatomia) · computador, claro",
-    "antes": "visual-antes/materia@1440-light.png",
-    "depois": "visual-depois/materia@1440-light.png"
+    "antes": "visual-v2-antes/materia@1440-dark.png",
+    "depois": "visual-v2-depois/materia@1440-dark.png"
   },
   {
     "titulo": "Matéria (Anatomia) · celular, escuro",
-    "antes": "visual-antes/materia@390-dark.png",
-    "depois": "visual-depois/materia@390-dark.png"
-  },
-  {
-    "titulo": "Lista rolada · celular, claro",
-    "antes": "visual-antes/materia-rolada@390-light.png",
-    "depois": "visual-depois/materia-rolada@390-light.png"
+    "antes": "visual-v2-antes/materia@390-dark.png",
+    "depois": "visual-v2-depois/materia@390-dark.png"
   },
   {
     "titulo": "Ficha (prancha) · computador, escuro",
-    "antes": "visual-antes/ficha@1440-dark.png",
-    "depois": "visual-depois/ficha@1440-dark.png"
+    "antes": "visual-v2-antes/ficha@1440-dark.png",
+    "depois": "visual-v2-depois/ficha@1440-dark.png"
   },
   {
     "titulo": "Ficha · celular, claro",
-    "antes": "visual-antes/ficha@390-light.png",
-    "depois": "visual-depois/ficha@390-light.png"
+    "antes": "visual-v2-antes/ficha@390-light.png",
+    "depois": "visual-v2-depois/ficha@390-light.png"
   },
   {
     "titulo": "Busca · computador, claro",
-    "antes": "visual-antes/busca@1440-light.png",
-    "depois": "visual-depois/busca@1440-light.png"
-  },
-  {
-    "titulo": "Busca · celular, escuro",
-    "antes": "visual-antes/busca@390-dark.png",
-    "depois": "visual-depois/busca@390-dark.png"
+    "antes": "visual-v2-antes/busca@1440-light.png",
+    "depois": "visual-v2-depois/busca@1440-light.png"
   },
   {
     "titulo": "Rodapé como colofão · computador, escuro",
-    "antes": "visual-antes/rodape@1440-dark.png",
-    "depois": "visual-depois/rodape@1440-dark.png"
+    "antes": "visual-v2-antes/rodape@1440-dark.png",
+    "depois": "visual-v2-depois/rodape@1440-dark.png"
   }
 ]

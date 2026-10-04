@@ -448,3 +448,20 @@ Abas de unidade com pesos 450/550 e contagens tabulares; foco desenhado dentro d
 - **Organizar e formulário:** cabeçalhos e campos no mesmo acabamento.
 - **Correção do Claude:** em Coleções, "Excluir" caía sozinho na linha de baixo quando o nome era longo. Agora o nome quebra na própria coluna, e contagem e ações ficam alinhadas.
 - **Testes:** `check` 0/0; `flows` 450/450; `topic-edit` 52/52; `import` 59/59.
+
+### Fechamento da 2ª passada (Claude, 05/10/2026)
+
+- **Bateria completa verde,** pela ferramenta nova `tools/bateria.mjs` (uma linha por suíte):
+  - `npm test` 134; `check` 0; `flows` 450; `acervos` 105; `topics` 57; `topic-edit` 52; `import` 59;
+  - orçamento ESTRITO aprovado (JS +11,1 kB sobre o baseline, igual à 1ª passada).
+- **Lighthouse IDOMED, mediana de 5:**
+  - celular 88 [89/87/90/88/87] (LCP 2,7 s, bloqueio 270 ms);
+  - computador 99;
+  - acessibilidade e boas práticas 100.
+  - Na 1ª passada, a mesma medida variou de 88 a 90; o celular oscila de rodada para rodada.
+- **Galeria** `docs/ui/`: 10 pares (9,6 MB, só dados fictícios). Antes = `3185d5b`; depois = este ramo. Com o grão, 15 pares passavam do limite de 10 MB.
+- **Ferramentas novas para gastar menos** (revisão com IA):
+  - `tools/prancha.mjs` junta várias capturas numa imagem só;
+  - `tools/bateria.mjs` roda as suítes e imprime só o resumo.
+
+2ª PASSADA VISUAL ENCERRADA em 05/10/2026
