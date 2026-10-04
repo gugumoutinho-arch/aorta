@@ -43,7 +43,8 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 |---|---|---|
 | U0 · Auditoria | concluído | `c64013e` (ferramentas), `8080fbe`, `d8f4da3` (doc) |
 | U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, `d8f4da3` |
-| U2 · Início na direção D | concluído | `0755196`, correções da revisão no commit seguinte |
+| U2 · Início na direção D | concluído | `0755196`, `654428c` |
+| U3 · Mapa e tarefa longa | concluído (revisão de design em andamento) | `e4bbae7` |
 
 ### U0 · Auditoria
 
@@ -155,3 +156,37 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - "Mapa" → "Índice": o nome vem da D, decisão do dono;
   - ordem do foco do "Continuar" no celular.
 - **Depois das correções:** `npm test` 120/120; `check` 0/0; `flows` **391/391**; `acervos` 71/71; orçamento ESTRITO passa. Capturas em `tools/reports/ui/u2/`.
+
+### U3 · Mapa e tarefa longa
+
+- **Causas da maior tarefa da entrada** (profiler do Chromium com CPU 4× e mapas de código):
+  - `canUse3D` criava um contexto WebGL só para testar o suporte (~190 ms), e o renderizador criava outro;
+  - a 1ª medida da pílula das abas (`indicator.js`) forçava o layout da página inteira dentro do script (~110 ms);
+  - `layout()` intercalava leituras e escritas;
+  - as linhas-guia liam `getBoundingClientRect` de cada rótulo a cada quadro do 3D.
+- **Correções:**
+  - o contexto do teste vira o do desenho;
+  - a 1ª medida da pílula vai para o quadro seguinte;
+  - `layout()` lê tudo e depois escreve;
+  - as guias usam as caixas guardadas.
+- **Medida** (`medir-v5`, 5 sequências, CPU 4×, 390 px, SwiftShader, `seed-v4`; "antes" = `654428c`, numa cópia isolada; "depois" = `e4bbae7`): maior tarefa, mediana (pior)
+
+  | Etapa | Base `d5fcad2` | Antes do U3 | Depois do U3 |
+  |---|---|---|---|
+  | Entrada IDOMED | 660 ms (749) | 968 ms (1113) | **174 ms (183)**, −82% |
+  | Entrada geral | 299 ms | 159 ms (188) | **136 ms (148)**, −14% |
+  | Troca IDOMED | 289 ms | 261 ms | 181 ms |
+  | Troca geral | 275 ms | 167 ms | 165 ms |
+  | Mergulho | 92 / 86 ms | 91 / 87 ms | 88 / 93 ms |
+
+  O U2 tinha piorado a entrada do IDOMED (968 ms); o U3 corrigiu e foi além.
+  - **Aceite de −20% na mediana:** cumprido no IDOMED, que é a entrada citada no prompt. No geral, −14% em relação ao U2 (−55% em relação à base).
+  - `medir-v5.mjs` foi ajustado ao palco compacto: clica no rótulo à vista.
+- **Rótulos:**
+  - o desenho (mapa em linhas e escala do 3D) fica ENTRE as colunas de rótulos;
+  - corpo: o lado de cada rótulo segue a posição da ponta, com colunas equilibradas;
+  - vizinhos trocam de lugar enquanto duas guias se cruzarem.
+  - **Teste novo** (`acervos`): nenhuma guia cruza outra nem atravessa rótulo, a 320/375/768/1440 px, nos dois acervos e nos dois temas. Antes da correção, falhava a 1440 px no IDOMED (três pontas sob os rótulos da direita) e a 768 px no geral (guias da mão e do fígado se cruzando).
+- **Estado ativo:** barra na borda do rótulo (forma) além da cor; guia mais grossa. O anel "abrir" do cursor ficou vazado (não cobre o nome) e zera ao trocar de tela.
+- **Órgão no tema claro:** parte ativa na cor plena do token (antes escurecida até quase preto); inativas mais leves. Captura do cerebelo nos dois temas conferida. O tom do token `--m8` do tema claro é escuro (oliva); o contraste com o creme é alto.
+- **Resultados (`e4bbae7`):** `npm test` 120/120; `check` 0/0; `flows` 391/391; `acervos` **105** (eram 71: 768 px e o teste de guias).

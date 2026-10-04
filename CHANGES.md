@@ -2,6 +2,19 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude (nuvem) — Rodada B · U3 · Mapa e tarefa longa — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou:**
+  - desenho entre as colunas de rótulos;
+  - guias sem cruzar (lado pela ponta, troca de vizinhos);
+  - rótulo ativo por forma;
+  - anel do cursor vazado;
+  - órgão legível no tema claro;
+  - entrada mais leve: um contexto WebGL só, 1ª medida da pílula no quadro seguinte, layout com leituras antes das escritas e guias sem ler o DOM a cada quadro.
+- **Medido:** maior tarefa da entrada do IDOMED, mediana de 5 com CPU 4×: 968 ms → 174 ms (base 660).
+- **Testado:** `npm test` 120/120; `check` 0/0; `flows` 391/391; `acervos` 105/105, com o teste novo de guias sem cruzar.
+- **Não verificado:** aparelho real (as medidas são do SwiftShader).
+
 ## 2026-10-04 — Claude (nuvem) — Rodada B · U2 · Início na direção D — ramo `nuvem/ui-lapidacao`, não publicado
 
 - **O que mudou:**
