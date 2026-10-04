@@ -10,8 +10,8 @@
 .module-meta { padding-bottom: 6px; }
 .module-meta .mono { color: var(--muted); letter-spacing: .16em; }
 .module-focus { margin-top: 10px; font: 400 clamp(40px, 4.2vw, 60px)/1.02 var(--serif); letter-spacing: -.035em; overflow-wrap: anywhere; }
-.module-summary { margin-top: 10px; font: 400 clamp(20px, 2.1vw, 27px)/1.35 var(--serif); max-width: 34ch; }
-.module-focus:not([hidden]) + .module-summary { font-size: 18px; color: color-mix(in oklab, var(--text) 80%, var(--muted)); }
+.module-summary { margin-top: 10px; font: 400 clamp(20px, 2.1vw, 27px)/1.35 var(--serif); max-width: 34ch; text-wrap: pretty; }
+.module-focus:not([hidden]) + .module-summary { font-size: 18px; max-width: 46ch; color: color-mix(in oklab, var(--text) 80%, var(--muted)); }
 .mini-artery { width: 160px; height: 180px; fill: none; stroke: var(--selected); stroke-width: 1.6; opacity: .75; }
 .units { display: flex; gap: 26px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; border-bottom: 1px solid var(--line); }
 .units::-webkit-scrollbar { display: none; }

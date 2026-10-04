@@ -45,6 +45,8 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, `d8f4da3` |
 | U2 · Início na direção D | concluído | `0755196`, `654428c` |
 | U3 · Mapa e tarefa longa | concluído | `e4bbae7`, correções da revisão no commit seguinte |
+| U4 · Página do módulo na direção D | concluído (revisão local) | `5dbc810`, acabamento no commit seguinte |
+| U5 · Ficha do material | concluído (testado localmente) | `79dd68b`, `4fd3856` |
 
 ### U0 · Auditoria
 
@@ -209,3 +211,18 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - **Corrigido** no commit seguinte: o encaixe passou a ser feito por `transform`.
   - **Medido depois:** computador 100/100 com CLS 0,002/0,001; celular 92 [92/72/92] e 91 [72/91/92].
 - **Pendente:** uma execução de 72 entre três no celular, nos dois acervos, como na base (91 [72/91/91]). Investigar no U9.
+
+### U4 · Página do módulo na direção D (`5dbc810`)
+
+- **Entrega da nuvem:** numeral gigante com foco em Literata, lista editorial no lugar dos cartões, ficha fixa à direita a partir de 1200 px, filtros compactos e "Em produção" desenhado.
+- **Revisão de design (local, Claude, no Windows do dono):** a revisão pedida na nuvem não voltou. Revisei pelas capturas `node auditoria.mjs --so=modulo,ficha --larguras=390,1440 --temas=dark,light`. A composição segue a direção D.
+  - **Um ajuste:** o resumo "5 materiais em 4 assuntos · 2 casos clínicos" deixava uma palavra sozinha na última linha com a ficha aberta. Agora `text-wrap: pretty` e medida de 46 caracteres quando há foco em matéria; captura conferida.
+- **Resultados (cópia isolada, Windows, fontes reais):** `npm test` 120/120; `check` 0/0; `flows` 432/432; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `acervos` 105/105.
+
+### U5 · Ficha do material (`79dd68b`, `4fd3856`)
+
+- **Comportamento:**
+  - a ficha e a busca nascem do ponto de onde foram chamadas;
+  - ligar "reduzir movimento" no meio do arraste devolve a folha ao lugar;
+  - 32 testes da folha no celular (cancelar o gesto, arrastar para fechar, reabrir durante o fechamento, movimento reduzido no meio).
+- **Nos dois commits enviados pela nuvem sem teste:** rodados localmente, tudo verde (`flows` 432/432).

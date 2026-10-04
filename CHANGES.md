@@ -2,6 +2,21 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B, U4 e U5 (direção D): página do módulo e ficha — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **U4 (nuvem, `5dbc810`):**
+  - numeral gigante com foco em Literata;
+  - lista editorial no lugar dos cartões;
+  - ficha fixa à direita a partir de 1200 px;
+  - filtros compactos e "Em produção" desenhado.
+  Revisão de design feita localmente pelas capturas; um ajuste (resumo sem palavra sozinha na última linha).
+- **U5 (nuvem, `79dd68b` e `4fd3856`, testados localmente):**
+  - ficha e busca nascem de onde foram chamadas;
+  - movimento reduzido no meio do arraste devolve a folha;
+  - 32 testes novos da folha no celular.
+- **Testado no Windows, com fontes reais:** `npm test` 120/120; `check` 0/0; `flows` 432/432; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `acervos` 105/105.
+- **Não testado:** aparelho físico, Safari, leitor de tela.
+
 ## 2026-10-04 — Claude (nuvem) — Rodada B · U3 · Mapa e tarefa longa — ramo `nuvem/ui-lapidacao`, não publicado
 
 - **O que mudou:**
