@@ -104,9 +104,12 @@ body.has-toast main { padding-bottom: 96px; }
 @keyframes toast-in { from { opacity: 0; translate: 0 10px; } }
 
 /* Rodapé */
-.footer { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 28px; padding-block: 36px var(--space-7); border-top: var(--hairline) solid var(--line); color: var(--muted); font-size: 13px; }
-.footer-brand { font: 600 28px var(--serif); color: var(--text); }
-.footer-brand span { display: block; margin-top: 6px; font: 13px var(--sans); color: var(--muted); }
+/* Série L: o rodapé é um colofão — uma coluna centrada, o nome em Literata, a frase em itálico e os créditos em letra miúda. */
+.footer { display: grid; justify-items: center; gap: 14px; padding-block: 56px var(--space-8); border-top: var(--hairline) solid var(--line); color: var(--muted); font-size: 13px; line-height: 1.6; text-align: center; }
+.footer::before { content: ""; width: 28px; height: 1.5px; margin-bottom: 6px; border-radius: 1px; background: var(--flow); }
+.footer > p { max-width: 62ch; }
+.footer-brand { font: 500 30px/1.1 var(--serif); letter-spacing: -.02em; color: var(--text); }
+.footer-brand span { display: block; margin-top: 8px; font: italic 400 16px/1.4 var(--serif); letter-spacing: 0; color: var(--muted); }
 .footer b { color: var(--text); font-weight: 600; }
 .credit { font-size: 12px; }
 .credit a { color: var(--text); }
@@ -114,13 +117,13 @@ body.has-toast main { padding-bottom: 96px; }
 /* Nome do módulo que voa do coração até o cabeçalho */
 .flight { position: fixed; z-index: 40; pointer-events: none; font-family: var(--serif); font-weight: 500; line-height: 1; letter-spacing: -.04em; color: var(--selected, var(--m1)); transform-origin: 0 0; }
 
-@media (max-width: 900px) { .shell { padding-inline: var(--space-5); } .brand-note { display: none; } .footer { grid-template-columns: 1fr 1fr; } .credit { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .shell { padding-inline: var(--space-5); } .brand-note { display: none; } }
 @media (max-width: 640px) {
   .shell { padding-inline: var(--space-4); }
   .top { height: 64px; }
   .brand { gap: 9px; } .brand svg { width: 20px; height: 26px; } .brand-name { font-size: 26px; }
   .top-actions { gap: 0; margin-right: -8px; }
-  .footer { grid-template-columns: 1fr; gap: 18px; }
+  .footer { gap: 12px; padding-block: 40px var(--space-7); }
 }
 @media (max-width: 380px) { /* 5 ações de 44 px + a marca cabem em 320 px */
   .brand svg { display: none; }
