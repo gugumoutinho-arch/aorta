@@ -2,12 +2,15 @@
    Quando as unidades do módulo são estruturas do órgão (ex.: encéfalo → telencéfalo, diencéfalo, tronco encefálico,
    cerebelo, medula espinal), cada parte acende com a unidade escolhida e um toque na parte abre a unidade.
    Render sob demanda; gira com o ponteiro ou arrastando; sem animação contínua. */
-import { WebGLRenderer, Scene, PerspectiveCamera, Group, Vector2, Vector3, Color, ShaderMaterial, BufferGeometry, BufferAttribute, Mesh, Raycaster, Box3, SRGBColorSpace } from "three";
+import { WebGLRenderer, Scene, PerspectiveCamera, Group, Vector2, Vector3, Color, ShaderMaterial, BufferGeometry, BufferAttribute, Mesh, Raycaster, Box3, SRGBColorSpace, LinearSRGBColorSpace } from "three";
 import gsap from "gsap";
 import { loadGLB } from "../heart/glb.js";
 import { spring } from "../ui/spring.js";
 
 const css = token => getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+/* O shader próprio escreve gl_FragColor sem converter para sRGB: a cor do token entra SEM linearizar, senão a tela mostra
+   a cor escurecida (o --m8 claro, #5c571f, saía quase preto). Revisão do U3. */
+const tokenColor = (token, into = new Color()) => into.setStyle(css(token), LinearSRGBColorSpace);
 const VERT = "varying vec3 N;varying vec3 V;void main(){vec4 p=modelViewMatrix*vec4(position,1.);N=normalize(normalMatrix*normal);V=normalize(-p.xyz);gl_Position=projectionMatrix*p;}";
 /* "light" (tema claro): a parte ativa fica na cor plena da disciplina (antes escurecia até quase preto sobre o creme)
    e as inativas, mais leves (as camadas transparentes somavam e pesavam mais que a parte ativa). */
@@ -27,7 +30,7 @@ export async function createOrganView(container, { url, keys, frame, token, onPi
   const scene = new Scene(), camera = new PerspectiveCamera(28, 1, .005, 10), root = new Group(); scene.add(root);
   const parts = keys.filter(k => glb[k]).map(k => {
     const g = new BufferGeometry(); g.setAttribute("position", new BufferAttribute(glb[k].pos.slice(), 3)); g.setIndex(new BufferAttribute(glb[k].idx, 1)); g.computeVertexNormals();
-    const mat = new ShaderMaterial({ transparent: true, depthWrite: false, vertexShader: VERT, fragmentShader: FRAG, uniforms: { base: { value: new Color(css("--atrium")) }, rim: { value: new Color(css(token)) }, on: { value: 1 }, light: { value: isLight() ? 1 : 0 } } });
+    const mat = new ShaderMaterial({ transparent: true, depthWrite: false, vertexShader: VERT, fragmentShader: FRAG, uniforms: { base: { value: tokenColor("--atrium") }, rim: { value: tokenColor(token) }, on: { value: 1 }, light: { value: isLight() ? 1 : 0 } } });
     const mesh = new Mesh(g, mat); mesh.userData.key = k; root.add(mesh); return mesh;
   });
   // Enquadra pelas partes principais ("frame"); o resto (ex.: medula espinal) pode sair da moldura.
@@ -70,7 +73,7 @@ export async function createOrganView(container, { url, keys, frame, token, onPi
       active = keysOn;
       parts.forEach(m => gsap.to(m.material.uniforms.on, { value: !keysOn || keysOn.includes(m.userData.key) ? 1 : 0, duration: .45, ease: "power2.out", overwrite: true, onUpdate: request }));
     },
-    theme() { const l = isLight() ? 1 : 0; parts.forEach(m => { m.material.uniforms.base.value.set(css("--atrium")); m.material.uniforms.rim.value.set(css(token)); m.material.uniforms.light.value = l; }); request(); },
+    theme() { const l = isLight() ? 1 : 0; parts.forEach(m => { tokenColor("--atrium", m.material.uniforms.base.value); tokenColor(token, m.material.uniforms.rim.value); m.material.uniforms.light.value = l; }); request(); },
     dispose() {
       destroyed = true; follow.dispose(); if (frame_) cancelAnimationFrame(frame_); gsap.killTweensOf([look, spin, root.scale]); parts.forEach(m => gsap.killTweensOf(m.material.uniforms.on));
       container.removeEventListener("pointercancel", cancel); container.removeEventListener("pointerleave", cancel);

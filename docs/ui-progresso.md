@@ -44,7 +44,7 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U0 · Auditoria | concluído | `c64013e` (ferramentas), `8080fbe`, `d8f4da3` (doc) |
 | U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, `d8f4da3` |
 | U2 · Início na direção D | concluído | `0755196`, `654428c` |
-| U3 · Mapa e tarefa longa | concluído (revisão de design em andamento) | `e4bbae7` |
+| U3 · Mapa e tarefa longa | concluído | `e4bbae7`, correções da revisão no commit seguinte |
 
 ### U0 · Auditoria
 
@@ -190,3 +190,13 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 - **Estado ativo:** barra na borda do rótulo (forma) além da cor; guia mais grossa. O anel "abrir" do cursor ficou vazado (não cobre o nome) e zera ao trocar de tela.
 - **Órgão no tema claro:** parte ativa na cor plena do token (antes escurecida até quase preto); inativas mais leves. Captura do cerebelo nos dois temas conferida. O tom do token `--m8` do tema claro é escuro (oliva); o contraste com o creme é alto.
 - **Resultados (`e4bbae7`):** `npm test` 120/120; `check` 0/0; `flows` 391/391; `acervos` **105** (eram 71: 768 px e o teste de guias).
+- **Revisão de design: 0 bloqueantes, 4 importantes:**
+  - **I1:** as cores do shader do órgão entravam linearizadas (`new Color(hex)`) e o shader próprio não volta para sRGB, por isso a parte ativa saía quase preta. Agora as cores entram sem linearizar. Capturas conferidas (`tools/reports/ui/u3/orgao-*`): cerebelo oliva no claro, creme-amarelo no escuro; rins em carmim;
+  - **I2:** o 3D reescala com a largura atual quando o mapa muda de largura (antes só quando as colunas mudavam);
+  - **I3:** teste novo em `flows`: as guias continuam sem cruzar com o 3D carregado e com o coração inclinado pelo ponteiro, a 375/768/1440 px;
+  - **I4:** registro feito no commit `32b03ee`.
+- **Sugestões aplicadas:**
+  - contexto WebGL liberado quando a cena é abortada;
+  - a troca de vizinhos para quando não reduz os cruzamentos;
+  - código morto do cursor removido.
+- **Depois:** `flows` **404/404**; `acervos` 105/105.

@@ -50,6 +50,18 @@ const smallTargets = page => page.evaluate(() => [...document.querySelectorAll('
   return r.width && r.height && cs.visibility !== 'hidden' && !e.closest('[hidden],dialog:not([open]),.sr,footer') && !e.matches('.material-title button,.mini-card h3 button,.resume-title') && (hh < 43.5 || w < 43.5);
 }).map(e => `${e.tagName}.${e.className || e.id}:${e.offsetWidth}x${e.offsetHeight}`));
 
+/* Linhas-guia sem cruzar entre si nem atravessar outro rótulo (mesma régua de acervos.mjs), lidas do atributo d. */
+const guidesClean = page => page.evaluate(() => {
+  const m = document.querySelector('#map').getBoundingClientRect();
+  const segs = [...document.querySelectorAll('#guides path[d]')].map(g => { const n = g.getAttribute('d').match(/-?[\d.]+/g).map(Number); return { i: g.dataset.guide, pts: [[n[0], n[1]], [n[2], n[3]], [n[4], n[3]]] }; });
+  const cross = (a, b, c, d) => { const o = (p, q, r) => Math.sign((q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])); return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0; };
+  const lines = s => [[s.pts[0], s.pts[1]], [s.pts[1], s.pts[2]]];
+  for (const a of segs) for (const b of segs) if (a.i < b.i) for (const [p1, p2] of lines(a)) for (const [q1, q2] of lines(b)) if (cross(p1, p2, q1, q2)) return false;
+  const boxes = [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth).map(e => { const r = e.getBoundingClientRect(); return { i: e.dataset.index, l: r.left - m.left + 1, t: r.top - m.top + 1, r: r.right - m.left - 1, b: r.bottom - m.top - 1 }; });
+  const hits = (p, q, b) => { for (let k = 0; k <= 20; k++) { const x = p[0] + (q[0] - p[0]) * k / 20, y = p[1] + (q[1] - p[1]) * k / 20; if (x > b.l && x < b.r && y > b.t && y < b.b) return true; } return false; };
+  return segs.every(s => boxes.every(b => b.i === s.i || lines(s).every(([p1, p2]) => !hits(p1, p2, b))));
+});
+
 /* ---------- caminho principal, em 3 larguras e 2 temas ---------- */
 for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   const tag = `${w}-${scheme}`;
@@ -308,12 +320,16 @@ for (const block of ['get', 'set']) {
 }
 
 /* ---------- coração 3D (WebGL por software) ---------- */
-for (const w of [375, 1440]) {
+for (const w of [375, 768, 1440]) {
   const { ctx, page, errors } = await open('dark', w, 'main', { browser: gl });
   await page.waitForFunction(() => document.querySelector('#map')?.classList.contains('ready'), null, { timeout: 30000 }).catch(() => {});
   await page.waitForTimeout(1500);
   ok(`${w} 3D: o coração carrega por cima do mapa em linhas`, await page.locator('#map.ready canvas').count() === 1 && await page.locator('#loader').isHidden());
   ok(`${w} 3D: linhas-guia acompanham as artérias projetadas`, await page.evaluate(() => { const vis = [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth).length; return vis > 0 && document.querySelectorAll('#guides path[d^="M"]').length === vis; }));
+  ok(`${w} 3D: linhas-guia sem cruzar nem atravessar rótulos (3D carregado)`, await guidesClean(page));
+  { const r = await page.locator('#map').boundingBox(); await page.mouse.move(r.x + r.width - 4, r.y + 4, { steps: 6 }); await page.waitForTimeout(900); }
+  ok(`${w} 3D: linhas-guia continuam limpas com o coração inclinado pelo ponteiro`, await guidesClean(page));
+  await page.mouse.move(2, 2); await page.waitForTimeout(300);
   ok(`${w} 3D: botão de pausar visível e acessível`, await page.locator('#pause').isVisible() && await page.getAttribute('#pause', 'aria-pressed') === 'false');
   await page.click('#pause');
   ok(`${w} 3D: pausar muda estado e texto`, await page.getAttribute('#pause', 'aria-pressed') === 'true' && /Retomar/.test(await page.locator('#pause').innerText()));

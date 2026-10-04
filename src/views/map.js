@@ -39,7 +39,7 @@ function drawOutline() {
   $("#flat-outline").replaceChildren(...concept().outline().map(d => { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); return p; }));
 }
 /* Fração da largura do mapa livre para o desenho 3D (as cenas usam para escolher a escala). */
-export const freeWidth = () => mapSize.w ? Math.max(.4, (mapSize.w - 2 * labelCol) / mapSize.w) : 1;
+export const freeWidth = () => { const w = $("#map").clientWidth; return w ? Math.max(.4, (w - 2 * labelCol) / w) : 1; }; // largura atual (o 3D reescala antes do layout)
 
 function buildLabels() {
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
@@ -71,6 +71,7 @@ function layout() {
   if (!w || !hgt) return;
   const labels = $$("#modules .mod").filter(b => b.getClientRects().length); // no celular, só o rótulo em destaque
   const size = new Map(labels.map(b => [b.dataset.module, { w: b.offsetWidth, h: b.offsetHeight }]));
+  const widthChanged = mapW !== mapSize.w;
   mapSize = { w: mapW, h: hgt };
   // Com mais de um rótulo à vista (fora do palco compacto do celular), as duas colunas ficam reservadas para eles.
   const col = labels.length > 1 ? Math.max(0, ...[...size.values()].map(x => x.w)) + 10 : 0, colChanged = col !== labelCol;
@@ -100,10 +101,14 @@ function layout() {
     const cross = (a, b) => { const p = ends[a.m.index], q = ends[b.m.index]; if (!p || !q) return false;
       const o = (u, v, r) => Math.sign((v[0] - u[0]) * (r[1] - u[1]) - (v[1] - u[1]) * (r[0] - u[0])), a2 = end(a), b2 = end(b), pa = [p.x, p.y], qb = [q.x, q.y];
       return o(pa, a2, qb) * o(pa, a2, b2) < 0 && o(qb, b2, pa) * o(qb, b2, a2) < 0; };
+    // Para quando não há cruzamento ou quando a troca não diminui o total (evita oscilar entre duas ordens).
+    const total = list => list.reduce((n, a, i) => n + list.slice(i + 1).filter(b => cross(a, b)).length, 0);
     stack(items);
-    for (let pass = 0; pass < items.length * items.length; pass++) {
+    for (let pass = 0, now = total(items); now && pass < items.length * items.length; pass++) {
       const k = items.findIndex((x, i) => i && cross(items[i - 1], x)); if (k < 1) break;
-      items = [...items.slice(0, k - 1), items[k], items[k - 1], ...items.slice(k + 1)]; stack(items);
+      const tried = [...items.slice(0, k - 1), items[k], items[k - 1], ...items.slice(k + 1)].map(x => ({ ...x }));
+      stack(tried); const after = total(tried); if (after >= now) { stack(items); break; }
+      items = tried; now = after;
     }
     for (const x of items) {
       const left = right ? w - x.w : 0, top = Math.max(0, x.top);
@@ -120,7 +125,7 @@ function layout() {
   const flat = $("#flat-map"), bw = box[1] - box[0];
   flat.style.left = flat.style.right = labelCol + "px"; flat.style.width = "auto";
   flat.setAttribute("viewBox", `${box[0]} 0 ${bw} 560`);
-  if (colChanged) scene?.resize?.(); // o 3D reescala para o espaço livre
+  if (colChanged || widthChanged) scene?.resize?.(); // o 3D reescala para o espaço livre (colunas ou largura mudaram)
   $("#guides").setAttribute("viewBox", `0 0 ${mapW} ${hgt}`);
   guides(tips);
 }
@@ -181,6 +186,8 @@ async function startHeart() {
       onLost: () => { if (token === boot) { scene = null; toFlat("O 3D foi interrompido pelo navegador. O mapa em linhas funciona do mesmo jeito."); } },
       isCurrent: () => token === boot,
     });
+    // Contexto do teste que não virou desenho (cena abortada antes do renderizador): libera já.
+    if (!created) gl?.getExtension("WEBGL_lose_context")?.loseContext();
     if (token !== boot) { created?.dispose(); return; }
     if (!created) { toFlat("Modelo 3D indisponível agora. O mapa em linhas funciona do mesmo jeito."); return; }
     scene = created; sceneKey = key;

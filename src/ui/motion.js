@@ -75,7 +75,7 @@ export function wireMotion() {
       follow.to({ x: e.clientX, y: e.clientY }); ring.classList.add("on");
       const hit = e.target.closest?.("#modules .mod, a, button, input, select, label");
       const next = !hit ? "" : hit.matches("#modules .mod") ? "open" : hit.matches("input, select") ? "text" : "link";
-      if (next !== mode) { mode = next; ring.dataset.mode = next; tag.textContent = next === "open" ? "abrir" : ""; }
+      if (next !== mode) { mode = next; ring.dataset.mode = next; }
     });
     const leave = () => { ring.classList.remove("on"); seen = false; magnet.to({ x: 0, y: 0 }); lean.to({ x: 0, y: 0 }); };
     // Trocar de tela zera o anel: o modo "abrir" do rótulo não fica sobre a página nova.
