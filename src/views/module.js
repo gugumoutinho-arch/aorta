@@ -71,6 +71,7 @@ function resolvePending() {
     else { scope = p[0].id; unit = p[1]?.id || ""; subject = p[2]?.id || ""; }
   }
   if (scope !== S.scope) { S.q = ""; S.f = { ...EMPTY_FILTERS }; }
+  if (S.pendingFilters) { S.q = ""; S.f = S.pendingFilters; S.pendingFilters = null; } // "Favoritos" e "Ver todos os casos"
   S.scope = scope; S.unit = unit; S.subject = subject;
   const askedTab = S.pendingTab; S.pendingTab = "";
   S.tab = subject ? askedTab : "";

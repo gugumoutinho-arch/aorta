@@ -43,7 +43,7 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 |---|---|---|
 | U0 · Auditoria | concluído | `c64013e` (ferramentas), `8080fbe`, `d8f4da3` (doc) |
 | U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, `d8f4da3` |
-| U2 · Início na direção D | concluído (revisão de design em andamento) | `0755196` |
+| U2 · Início na direção D | concluído | `0755196`, correções da revisão no commit seguinte |
 
 ### U0 · Auditoria
 
@@ -131,3 +131,27 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 
   Acessibilidade 100 e boas práticas 100.
 - **Não verificado:** compreensão em 5 s (fica para o piloto com alunos); celular real.
+- **Revisão de design (só leitura): 0 bloqueantes, 8 importantes, corrigidos:**
+  - foco restaurado no mesmo contêiner (chaves `area` e id do contêiner);
+  - `#indice` vindo de outra tela religa o mapa;
+  - nota da IDOMED diz "links para os originais";
+  - "Buscar entre" (não "em");
+  - desfoque removido (o "Continuar" está sobre o brilho liso), rótulos mais estreitos em volta do coração;
+  - testes novos da barra inferior (Mapa, Favoritos, Buscar, Início), da prateleira de casos ("Ver todos" filtra por caso) e do mergulho no celular pelo rótulo destacado.
+- **Sugestões aplicadas:**
+  - crédito HuBMAP na legenda;
+  - "Ver todos os materiais" no fim do índice;
+  - filtro pendente para "Favoritos" e casos;
+  - `reducedMotion()` na barra;
+  - sem transições de `box-shadow` e `background`;
+  - `color-mix` sem transparência acidental;
+  - limpeza de duplicatas;
+  - `import()` da colagem com `catch`;
+  - seta "→" fora do leitor de tela;
+  - "Em produção" de volta nos rótulos (regra da skill).
+- **Não aplicadas, com motivo:**
+  - título do "Continuar" sem limite no computador: o espaço reservado contra CLS depende das 2 linhas, e o título completo está no botão e na ficha;
+  - índice como `<ol>`;
+  - "Mapa" → "Índice": o nome vem da D, decisão do dono;
+  - ordem do foco do "Continuar" no celular.
+- **Depois das correções:** `npm test` 120/120; `check` 0/0; `flows` **391/391**; `acervos` 71/71; orçamento ESTRITO passa. Capturas em `tools/reports/ui/u2/`.

@@ -34,7 +34,7 @@ function buildLabels() {
   const artery = !concept().labelTop && S.concept === "coracao";
   nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (!artery && m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-name": m.name, "data-index": String(m.index), style: `--c:var(${m.token})` },
     h("span", { class: "mono", text: (concept().labelTop?.(m) || moduleNumber(m.index) + (artery ? " · " + m.name : "")) + " " }), h("b", { text: artery ? m.art.charAt(0).toLocaleUpperCase("pt-BR") + m.art.slice(1) : m.name }),
-    h("small", { text: " " + (m.live ? countLabel(m.count) : artery ? "Ainda não irrigado" : countLabel(m.count)) }))));
+    h("small", { text: " " + countLabel(m.count) }))));
   $("#flat-arteries").replaceChildren(...mods.map(m => {
     const p = document.createElementNS(NS, "path");
     p.setAttribute("d", concept().flat(m, mods.length).d); p.dataset.flat = String(m.index);

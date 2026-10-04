@@ -58,7 +58,15 @@ Literata (títulos, numerais de módulo, títulos de material), Schibsted Grotes
 
 ## Telas
 
-- **Início** (`#inicio`, `src/views/home.js` + `map.js`): título em dois tons com "hoje?" em itálico; placa de busca clara que abre a busca rápida; números reais (materiais, módulos com material); "Continuar" com o último material aberto; coração-mapa com rótulos tipográficos ("ART. 01 / M1 / 4 materiais") em duas colunas, cada um do lado em que a artéria termina, ligados por linhas-guia finas à ponta da artéria; "Módulos do curso" (índice com unidades e artéria; os em produção numa linha à parte); "Sua mesa de estudo" (em estudo e favoritos) e "Acabou de chegar". No celular, o "Continuar" vem depois do coração, para não empurrar o mapa quando os dados chegam.
+- **Início** (`#inicio`, `src/views/home.js` + `home-index.js` + `map.js`; direção D, rodada B):
+  - **Palco:** brilho radial (`--stage-glow`) atrás do mapa e a linha "Feito por estudantes · links para os originais · sem vínculo oficial com a IDOMED".
+  - **Título grande:** "O curso inteiro, *irrigado* por bons materiais." no IDOMED; "A medicina ganha *corpo*." no geral.
+  - **Abaixo do título:** o texto curto, a placa creme de busca ("Buscar entre N materiais e M assuntos", ⌘K no quadrado carmim), os números e o "Continuar" (painel translúcido; sem histórico, "Comece por aqui").
+  - **Mapa:** coração ou corpo com os rótulos como painéis translúcidos sem desfoque ("ART. 01 · M1" / nome da artéria / contagem), em duas colunas ligadas por linhas-guia.
+  - **Ao rolar, editorial:** índice numerado (grupo por módulo, linha por matéria com os assuntos e a contagem; números de materiais, assuntos e casos à esquerda) e a prateleira "Casos clínicos", o ÚNICO lugar com cartões grandes. Mesa de estudo, recentes, livros, próprios e internet viram listas em linhas.
+  - **No celular:** palco compacto (título curto, busca, coração menor com um rótulo, "Continuar" abaixo) e barra inferior (Início, Mapa → índice, Favoritos, Buscar).
+  - **Textos do acervo:** ficam em `window.aortaCopy` (`index.html`) e são aplicados antes da primeira pintura.
+  - **Fontes substitutas:** com `size-adjust` medido; o CLS fica ≤ 0,03.
 - **Módulo** (`#a-<área>`, `#todos`, `src/views/module.js`): numeral grande na cor da artéria, "ART. 01 · DESCENDENTE ANTERIOR", resumo real (materiais, unidades, quais estão em produção), mini-artéria; unidades em abas; matérias ao lado (fichas em pílula no celular); busca e filtros (tipo, situação, coleção, ordem, favoritos) com chips removíveis; folhas agrupadas por matéria (ou por assunto, com uma matéria escolhida). `#todos` usa a mesma tela com os módulos como abas. A rota `#a-<id>` de uma unidade ou matéria abre o módulo já com ela escolhida.
   - **Abas de assunto** (`src/views/topic-tabs.js`, lógica em `src/domain/topics.js`):
     - **o que aparece:** com uma matéria escolhida que tem assuntos cadastrados, surge acima da busca uma faixa "Todos · assuntos da matéria (na ordem do editor, com contagem; zero = "—", em produção) · Casos clínicos" (só se houver caso);

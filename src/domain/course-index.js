@@ -1,7 +1,7 @@
 /* Índice editorial do início (direção D): linhas numeradas com as matérias do curso (ou as disciplinas, na Medicina
    geral), um resumo dos assuntos e a contagem. Lógica pura sobre áreas, materiais e assuntos; sem DOM. */
 const byOrder = (a, b) => ((a.order ?? 999) - (b.order ?? 999)) || String(a.name).localeCompare(String(b.name), "pt-BR", { numeric: true });
-const CASE_TYPE = "Caso clínico";
+import { CASE_TYPE } from "./topics.js";
 
 /* Contagem de materiais por área, somando os descendentes. */
 function counter(areas, materials) {

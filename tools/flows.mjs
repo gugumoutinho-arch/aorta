@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { chromium } from 'playwright-core';
 import AxeBuilder from '@axe-core/playwright';
-import { reports, chromePath, startServer, withDb, seed, LOADING, FAILING, WEBGL_ARGS } from './harness.mjs';
+import { reports, chromePath, startServer, withDb, seed, LOADING, FAILING, WEBGL_ARGS, here } from './harness.mjs';
+import { withTopics } from './fixtures-topics.mjs';
 
 const out = path.join(reports, 'flows'); fs.mkdirSync(out, { recursive: true });
 const log = []; let fails = 0;
@@ -23,6 +24,7 @@ const srv = {
   load: await startServer({ inject: LOADING }), fail: await startServer({ inject: FAILING }),
   prod: await startServer({ inject: withDb(eightModules(noHistory)) }), prodLive: await startServer({ inject: withDb(eightModules(noHistory, true)) }),
   noModel: await startServer({ block: /^\/modelos\// }),
+  cases: await startServer({ inject: withDb(withTopics(JSON.parse(fs.readFileSync(path.join(here, 'seed-v4.json'), 'utf8')))) }),
 };
 const flat = await chromium.launch({ executablePath: chromePath(), headless: true, args: ['--disable-gpu', '--disable-webgl', '--disable-webgl2'] });
 const gl = await chromium.launch({ executablePath: chromePath(), headless: true, args: WEBGL_ARGS });
@@ -207,6 +209,44 @@ for (const scheme of ['light', 'dark']) for (const w of [375, 1440]) {
   await ctx.close();
 }
 
+/* ---------- barra inferior do celular (direção D) e atalhos do índice ---------- */
+for (const scheme of ['light', 'dark']) {
+  const { ctx, page, errors } = await open(scheme, 375);
+  const current = () => page.evaluate(() => document.querySelector('#tabbar [aria-current="page"]')?.dataset.tabNav || '');
+  ok(`375-${scheme} barra inferior: visível, 4 itens de 44 px ou mais, Início ativo`, await page.locator('#tabbar').isVisible() && await page.evaluate(() => [...document.querySelectorAll('#tabbar a, #tabbar button')].every(e => e.offsetHeight >= 44 && e.offsetWidth >= 44)) && await current() === 'inicio');
+  ok(`375-${scheme} barra inferior: não cobre o fim da página`, await page.evaluate(() => parseFloat(getComputedStyle(document.body).paddingBottom) >= document.querySelector('#tabbar').offsetHeight));
+  await page.locator('#tabbar [data-tab-nav="mapa"]').click(); await page.waitForTimeout(900);
+  ok(`375-${scheme} Mapa: leva ao índice, com foco nele, e fica ativo`, await page.evaluate(() => { const r = document.querySelector('#indice').getBoundingClientRect(); return r.top < innerHeight / 2 && document.activeElement?.id === 'indice'; }) && await current() === 'mapa');
+  await page.locator('#tabbar [data-tab-nav="favoritos"]').click(); await page.waitForTimeout(700);
+  const fav = await page.evaluate(() => ({ hash: location.hash, pressed: document.querySelector('#f-fav')?.getAttribute('aria-pressed'), n: document.querySelectorAll('#materials [data-fav]').length, on: document.querySelectorAll('#materials [data-fav][aria-pressed="true"]').length }));
+  ok(`375-${scheme} Favoritos: só favoritos (${fav.on}/${fav.n}) com o filtro ligado`, fav.hash === '#todos' && fav.pressed === 'true' && fav.n > 0 && fav.n === fav.on && await current() === 'favoritos');
+  await page.locator('#tabbar [data-tab-nav="buscar"]').click(); await page.waitForTimeout(400);
+  ok(`375-${scheme} Buscar: abre a busca rápida e esconde a barra`, await dialogOpen(page, 'palette') && await page.locator('#tabbar').isHidden());
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300);
+  await page.locator('#tabbar [data-tab-nav="inicio"]').click(); await page.waitForTimeout(700);
+  ok(`375-${scheme} Início: volta ao início`, await page.locator('#view-home').isVisible() && await current() === 'inicio');
+  ok(`375-${scheme} índice: "Ver todos os materiais" no fim`, await page.locator('#course-index .index-all[href="#todos"]').count() === 1);
+  ok(`375-${scheme} barra inferior: sem erros de console`, errors.length === 0, errors.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+{
+  const { ctx, page } = await open('dark', 1440);
+  ok('1440 barra inferior: só no celular', await page.locator('#tabbar').isHidden());
+  await ctx.close();
+}
+/* Prateleira de casos clínicos: só com caso; "Ver todos" abre todos os materiais filtrados por "Caso clínico". */
+for (const w of [375, 1440]) {
+  const { ctx, page, errors } = await open('light', w, 'cases');
+  await page.evaluate(() => { location.hash = 'idomed'; }); await page.waitForTimeout(700);
+  const cards = await page.locator('#cases .case-card').count();
+  ok(`${w} casos: prateleira com os casos do acervo, cartões com nome completo para o leitor de tela`, cards === 2 && await page.evaluate(() => [...document.querySelectorAll('#cases [data-mid]')].every(b => /caso/i.test(b.getAttribute('aria-label')))));
+  await page.locator('#cases-all').click(); await page.waitForTimeout(800);
+  const st = await page.evaluate(() => ({ hash: location.hash, type: document.querySelector('#f-type')?.value, n: document.querySelectorAll('#materials [data-mid]').length }));
+  ok(`${w} casos: "Ver todos" abre todos os materiais só com casos (${st.n})`, st.hash === '#todos' && st.type === 'Caso clínico' && st.n === 2);
+  ok(`${w} casos: sem erros de console`, errors.length === 0, errors.slice(0, 2).join(' | '));
+  await ctx.close();
+}
+
 /* ---------- tema: controles nativos, persistência e primeira pintura ---------- */
 for (const w of [375, 1440]) {
   const { ctx, page } = await open('light', w);
@@ -277,10 +317,11 @@ for (const w of [375, 1440]) {
   await shot(page, `coracao-3d@${w}-dark`);
   // interrupções: cliques rápidos em artérias diferentes, abrir/fechar a ficha várias vezes
   // No celular só um rótulo fica no palco: a troca rápida vem pelos links do índice (mesmo destino, mesma corrida).
-  const modLink = id => w < 641 ? page.locator(`#course-index [data-module="${id}"]`) : page.locator(`#modules .mod[data-module="${id}"]`);
-  await modLink('m1').click(); await page.waitForTimeout(60);
+  // No celular só um rótulo fica no palco: o m1 vai pelo rótulo (mergulho) quando ele é o destacado; o m2, pelo índice.
+  const modLink = async id => w < 641 && !(await page.locator(`#modules .mod[data-module="${id}"]`).isVisible()) ? page.locator(`#course-index [data-module="${id}"]`) : page.locator(`#modules .mod[data-module="${id}"]`);
+  await (await modLink('m1')).click(); await page.waitForTimeout(60);
   await page.goBack().catch(() => {}); await page.waitForTimeout(60);
-  await modLink('m2').click(); await page.waitForTimeout(1200);
+  await (await modLink('m2')).click(); await page.waitForTimeout(1200);
   ok(`${w} interrupção: troca rápida termina no último módulo, sem voo preso`, (await page.locator('#module-title').innerText()) === 'M2' && await page.locator('.flight').count() === 0 && await page.evaluate(() => getComputedStyle(document.querySelector('#module-title')).opacity === '1'));
   for (let i = 0; i < 8; i++) { await page.locator('#materials [data-mid]').first().click(); await page.waitForTimeout(40); await page.keyboard.press('Escape'); await page.waitForTimeout(40); }
   await page.waitForTimeout(500);

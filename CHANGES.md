@@ -22,6 +22,11 @@ Mais recente primeiro. Regras completas em `AGENTS.md`.
   - Lighthouse celular 93/93, acessibilidade e boas práticas 100.
   - Verificações antigas trocadas pela nova verdade em `flows` e `acervos` (ver `docs/ui-progresso.md`).
 - **Não verificado:** celular real; compreensão em 5 s com alunos.
+- **Correções da revisão de design:**
+  - foco, rota do índice e texto honesto ("links para os originais", "Buscar entre");
+  - sem desfoque;
+  - testes da barra inferior e da prateleira de casos.
+  - `flows` 391/391.
 
 ## 2026-10-04 — Claude (nuvem) — Rodada B · U1 · Sistema de movimento — ramo `nuvem/ui-lapidacao`, não publicado
 

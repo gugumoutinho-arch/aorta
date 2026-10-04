@@ -7,7 +7,7 @@ import { renderBanner } from "./views/banner.js";
 import { renderHome, homeLeft, homeReturned, homeSwitched } from "./views/home.js";
 import { renderModule, moduleEntered, moduleLeft } from "./views/module.js";
 import { syncConcept } from "./views/concept.js";
-import { cancelDive } from "./views/map.js";
+import { cancelDive, mapVisible } from "./views/map.js";
 import { renderOrg } from "./views/organize.js";
 import { renderDetail } from "./views/detail.js";
 import { renderDatalists } from "./views/form.js";
@@ -38,10 +38,12 @@ export function renderNav() {
   syncTabbar();
 }
 /* Redesenhar troca os elementos; quem estava com o foco (teclado, leitor de tela) volta para o equivalente novo. */
-const FOCUS_KEYS = ["fav", "mid", "module", "unit", "subject", "tab"];
+const FOCUS_KEYS = ["fav", "mid", "module", "area", "unit", "subject", "tab"];
+/* Chave do foco: o seletor do equivalente e o contêiner com id onde ele estava (o mesmo módulo pode aparecer no mapa,
+   no índice e no "Continuar": procura primeiro no mesmo lugar, para o foco não pular para o topo). */
 function focusKey() {
   const el = document.activeElement; if (!el || el === document.body) return null;
-  for (const k of FOCUS_KEYS) if (el.dataset?.[k] !== undefined) return `[data-${k}="${CSS.escape(el.dataset[k])}"]`;
+  for (const k of FOCUS_KEYS) if (el.dataset?.[k] !== undefined) return { sel: `[data-${k}="${CSS.escape(el.dataset[k])}"]`, box: el.parentElement?.closest("[id]")?.id || "" };
   return null;
 }
 export function renderAll() {
@@ -52,7 +54,11 @@ export function renderAll() {
   else renderOrg();
   renderDatalists();
   if ($("#dlg-detail").open) renderDetail();
-  if (key && (!document.activeElement || document.activeElement === document.body)) $$(key).find(e => !e.closest("[hidden],dialog:not([open])"))?.focus({ preventScroll: true });
+  if (key && (!document.activeElement || document.activeElement === document.body)) {
+    const usable = e => !e.closest("[hidden],dialog:not([open])") && e.getClientRects().length;
+    const inBox = key.box ? $$(`#${CSS.escape(key.box)} ${key.sel}`).find(usable) : null;
+    (inBox || $$(key.sel).find(usable))?.focus({ preventScroll: true });
+  }
 }
 
 /* Rotas: #inicio (início do acervo atual), #idomed e #geral (início de cada acervo), #todos (todos os materiais do
@@ -75,7 +81,7 @@ export function route(focus) {
   if (was === "inicio" && S.view !== "inicio") homeLeft();
   if (was === "modulo" && S.view !== "modulo") moduleLeft();
   renderAll();
-  if (toIndex) { requestAnimationFrame(goIndex); return; }
+  if (toIndex) { mapVisible(true); requestAnimationFrame(goIndex); return; }
   if (!focus) return;
   if (S.view === "modulo") moduleEntered();
   else if (S.view === "inicio" && S.acervoSwitched) { S.acervoSwitched = false; homeSwitched(); }
@@ -92,8 +98,8 @@ export function subscribe() {
   }, onErr);
   S.db.collection("areas").onSnapshot(s => { S.areas = map(s); S.got.a = true; renderAll(); }, onErr);
   S.db.collection("collections").onSnapshot(s => { S.collections = map(s).sort((a, b) => cmpName(a.name, b.name)); S.got.c = true; renderAll(); }, onErr);
-  // Assuntos são um extra: se as tabelas faltarem ou falharem, o catálogo segue sem as abas.
-  // Assuntos são um extra: só a página do módulo e o formulário os usam (o mapa do início não é redesenhado por eles).
+  // Assuntos são um extra: se as tabelas faltarem ou falharem, o catálogo segue sem as abas. Usam-nos a página do
+  // módulo, o formulário e o índice do início (resumo das matérias e o total na placa de busca).
   // Falha antes de carregar: segue sem abas. Falha depois (rede oscilou): mantém o que já tinha.
   const topicsArrived = () => { if (S.view === "modulo" || S.view === "inicio" || $("#dlg-form").open) renderAll(); };
   const noTopics = e => {

@@ -2,7 +2,7 @@
    e o item ativo tem um traço acima do ícone (forma), além da cor. */
 .tabbar { display: none; }
 @media (max-width: 640px) {
-  body { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+  body { padding-bottom: calc(57px + env(safe-area-inset-bottom)); } /* 56 px + a borda: o fim da página nunca fica atrás da barra */
   .tabbar { position: fixed; z-index: 70; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr));
     padding-bottom: env(safe-area-inset-bottom); background: var(--panel); border-top: 1px solid var(--line); }
   .tabbar a, .tabbar button { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-height: 56px;

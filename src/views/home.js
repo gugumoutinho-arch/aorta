@@ -20,7 +20,7 @@ function revealHome(delay = 0) { revealHeadline($("#home-title"), delay); reveal
 /* Textos de cada acervo: definidos uma vez em index.html (window.aortaCopy), aplicados antes da primeira pintura.
    A IDOMED aparece como nome do curso, sem marca nem logo, e com o aviso de que o acervo não é oficial.
    O fim do título (h1[2]) some no celular, onde o palco é compacto. */
-const COPY = window.aortaCopy;
+const COPY = window.aortaCopy || { idomed: { h1: ["", "Aorta", "", ""], intro: "", note: "" }, geral: { h1: ["", "Aorta", "", ""], intro: "", note: "" } };
 
 let homeScroll = 0, lastModule = "";
 export function homeLeft() { homeScroll = scrollY; lastModule = ""; mapVisible(false); }
@@ -86,7 +86,7 @@ function renderCounts(mods) {
   // A placa diz o tamanho do que dá para achar: materiais e assuntos deste acervo.
   const ids = new Set(mods.flatMap(m => [...descIds(m.id)])), topics = S.topics.filter(t => ids.has(t.areaId)).length;
   // No celular a placa diz só os materiais (uma linha, sem pular); os assuntos aparecem a partir de 641 px.
-  $("#search-label").replaceChildren(...(n ? [`Buscar em ${plural(n, "material", "materiais")}`, topics ? h("span", { class: "search-more", text: " e " + plural(topics, "assunto", "assuntos") }) : ""] : ["Buscar assunto, matéria ou material"]));
+  $("#search-label").replaceChildren(...(n ? [`Buscar entre ${plural(n, "material", "materiais")}`, topics ? h("span", { class: "search-more", text: " e " + plural(topics, "assunto", "assuntos") }) : ""] : ["Buscar assunto, matéria ou material"]));
 }
 /* "Continuar" (painel de vidro sobre o palco). Sem histórico, o mesmo lugar convida a começar pelo primeiro módulo com
    material: o espaço fica sempre ocupado depois que os dados chegam (sem salto de layout no celular). */
@@ -132,8 +132,10 @@ export function renderHome() {
 }
 /* "Ver todos" dos casos e o "Favoritos" da barra inferior: todos os materiais do acervo já filtrados. */
 export function showAll(filters) {
-  const apply = () => { S.q = ""; S.f = { ...EMPTY_FILTERS, ...filters }; window.dispatchEvent(new Event("aorta:render")); };
-  if (location.hash !== "#todos") { addEventListener("hashchange", apply, { once: true }); location.hash = "todos"; } else apply();
+  // O filtro vai pendente e a página do módulo o aplica ao resolver o escopo (vale mesmo se os dados chegarem depois).
+  S.pendingFilters = { ...EMPTY_FILTERS, ...filters };
+  if (location.hash !== "#todos") location.hash = "todos";
+  else { S.pendingArea = "todos"; window.dispatchEvent(new Event("aorta:render")); }
 }
 /* "Mapa" da barra inferior: o índice do curso, no início do acervo atual. */
 export function goIndex() {

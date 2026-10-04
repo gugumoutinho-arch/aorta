@@ -31,7 +31,7 @@ export const S = {
   drafts: [], draftsOff: false,
   /* t = assuntos, l = ligações; topicsOff = tabelas ausentes ou falha antes de carregar (segue sem abas) */
   got: { m: false, a: false, c: false, t: false, l: false, d: false }, topicsOff: false,
-  view: "inicio", pendingArea: "", pendingTab: "", acervoSwitched: false,
+  view: "inicio", pendingArea: "", pendingTab: "", pendingFilters: null, acervoSwitched: false,
   /* página de módulo: escopo (id do módulo ou "todos"), unidade, matéria e aba de assunto ("" = Todos) */
   scope: "", unit: "", subject: "", tab: "",
   q: "", f: { ...EMPTY_FILTERS }, sort: "recent",

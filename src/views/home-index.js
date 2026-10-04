@@ -21,14 +21,15 @@ function groupHead(mod) {
 function row(r) {
   const body = [h("span", { class: "index-n mono", text: r.num }), h("span", { class: "index-name", text: r.name }),
     h("span", { class: "index-sum", text: r.summary }), h("span", { class: "index-count", text: r.live ? String(r.count) : "—" })];
-  if (!r.live) return h("div", { class: "index-row off", style: `--c:var(${r.token})` }, ...body, h("span", { class: "sr", text: ", em produção" }));
+  if (!r.live) { body[3].setAttribute("aria-hidden", "true"); return h("div", { class: "index-row off", style: `--c:var(${r.token})` }, ...body); }
   return h("a", { class: "index-row", href: "#" + areaRoute(r.id), "data-area": r.id, style: `--c:var(${r.token})`,
     "aria-label": `${r.name}: ${plural(r.count, "material", "materiais")}${r.summary ? ". " + r.summary : ""}` }, ...body);
 }
 export function renderIndex(mods) {
   const box = $("#course-index"), a = ACERVOS[S.acervo];
   $("#index-title").textContent = a.indexTitle;
-  if (!ready()) { box.replaceChildren(); $("#index-meta").textContent = ""; $("#index-stats").replaceChildren(); return; }
+  if (!ready() || !mods.length) { $("#index-meta").textContent = ""; $("#index-stats").replaceChildren(); }
+  if (!ready()) { box.replaceChildren(); return; }
   if (!mods.length) { box.replaceChildren(h("p", { class: "muted", text: `Nenhum(a) ${a.unit} criado(a) ainda. Quem edita cria a estrutura em Organizar.` })); return; }
   const all = mats(), { groups, waiting } = courseIndex({ areas: S.areas, materials: all, topics: S.topics, acervo: S.acervo, modules: mods });
   const rows = groups.flatMap(g => g.rows), liveRows = rows.filter(r => r.live).length;
@@ -39,7 +40,8 @@ export function renderIndex(mods) {
   $("#index-stats").replaceChildren(stat(st.materials, "Materiais"), stat(st.topics, "Assuntos"), stat(st.cases, "Casos"));
   const prod = waiting.length ? h("div", { class: "production-index" }, h("span", { text: "Em produção · ainda sem material" }),
     waiting.map(m => h("a", { href: "#a-" + m.id, "data-module": m.id, "aria-label": `${m.name}, em produção`, text: m.name }))) : null;
-  box.replaceChildren(...groups.flatMap(g => [g.module ? groupHead(g.module) : null, ...g.rows.map(row)].filter(Boolean)), ...(prod ? [prod] : []));
+  const seeAll = h("a", { class: "index-all quiet", href: "#todos" }, `Ver todos os materiais (${st.materials})`, h("span", { "aria-hidden": "true", text: " →" }));
+  box.replaceChildren(...groups.flatMap(g => [g.module ? groupHead(g.module) : null, ...g.rows.map(row)].filter(Boolean)), ...(prod ? [prod] : []), seeAll);
 }
 
 /* Prateleira de casos clínicos: cartões grandes que rolam de lado; só aparece se houver caso no acervo. */
@@ -47,7 +49,7 @@ export function renderCases() {
   const list = mats().filter(m => m.type === CASE_TYPE).sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || ""));
   $("#cases-section").hidden = !list.length;
   if (!list.length) { $("#cases").replaceChildren(); return; }
-  $("#cases-all").textContent = `Ver ${list.length === 1 ? "o caso" : "todos os " + list.length} →`;
+  $("#cases-all").replaceChildren(`Ver ${list.length === 1 ? "o caso" : "todos os " + list.length}`, h("span", { "aria-hidden": "true", text: " →" }));
   $("#cases").replaceChildren(...list.slice(0, 8).map(m => {
     const where = [pathOf(m.areaId).at(-1)?.name, m.subject].filter(Boolean).join(" · ");
     return h("article", { class: "case-card", style: `--c:var(${moduleToken(m.areaId)})` },

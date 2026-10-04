@@ -17,7 +17,7 @@
 .guides path { fill: none; stroke: var(--line-strong); stroke-width: 1; transition: stroke .2s var(--ease); }
 .guides path.hot { stroke: var(--flow); }
 .modules { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-.mod { pointer-events: auto; position: absolute; left: 0; top: 0; width: 112px; min-height: 72px; padding: 6px 0 var(--space-2); display: flex; flex-direction: column; justify-content: center; text-decoration: none; color: var(--c); border-bottom: 1px solid var(--line-strong); transition: border-color .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease); }
+.mod { pointer-events: auto; position: absolute; left: 0; top: 0; width: 112px; min-height: 72px; padding: 6px 0 var(--space-2); display: flex; flex-direction: column; justify-content: center; text-decoration: none; color: var(--c); border-bottom: 1px solid var(--line-strong); transition: border-color .2s var(--ease), color .2s var(--ease); }
 .mod[data-side="right"] { align-items: flex-end; text-align: right; }
 .mod .mono { font-size: 11px; color: var(--muted); }
 .mod b { font: 500 34px/1.05 var(--serif); letter-spacing: -.03em; }

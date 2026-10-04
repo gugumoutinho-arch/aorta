@@ -29,9 +29,9 @@
 .index-row.off { color: var(--muted); }
 .index-row.off .index-name { font-style: italic; }
 .index-row.off .index-n { color: var(--muted); }
-a.index-row { transition: background-color .2s var(--ease); }
 @media (hover: hover) { a.index-row:hover .index-name, .index-group:hover b { color: var(--flow); } }
 a.index-row:focus-visible { outline-offset: -2px; border-radius: var(--radius-small); }
+.index-all { margin-top: var(--space-3); align-self: flex-start; }
 .production-index { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) 18px; padding: 20px 0; border-top: 1px dashed var(--line-strong); color: var(--muted); font-size: 13px; }
 .production-index a { font: 400 22px var(--serif); font-style: italic; color: var(--muted); text-decoration: none; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; }
 @media (hover: hover) { .production-index a:hover { color: var(--text); } }
@@ -41,7 +41,7 @@ a.index-row:focus-visible { outline-offset: -2px; border-radius: var(--radius-sm
 .case-shelf { display: flex; gap: 18px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: thin; padding: 2px 2px var(--space-4); margin-inline: -2px; }
 .case-shelf:focus-visible { outline-offset: 4px; }
 .case-card { position: relative; flex: none; width: min(330px, 82vw); min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; gap: var(--space-4); padding: 22px; border-radius: 18px; scroll-snap-align: start;
-  background: linear-gradient(155deg, color-mix(in oklab, var(--case-glow) 70%, var(--c) 12%), var(--surface)); border: 1px solid var(--case-line); }
+  background: linear-gradient(155deg, color-mix(in oklab, var(--case-glow) 88%, var(--c) 12%), var(--surface)); border: 1px solid var(--case-line); }
 .case-card .mono { color: var(--flow); font-size: 11px; letter-spacing: .14em; }
 .case-card h3 { font: 400 24px/1.15 var(--serif); letter-spacing: -.01em; }
 .case-card h3 button { text-align: left; overflow-wrap: anywhere; }

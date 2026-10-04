@@ -7,7 +7,8 @@ import { addArea, renameArea, deleteArea, addColl, renameColl, deleteColl } from
 import { toast } from "../ui/toast.js";
 /* "Colar links" só carrega ao entrar em Organizar: fica fora do JS da primeira tela (orçamento de carga). */
 let importView = null, importReady = false;
-const loadImport = () => (importView ||= import("./import.js").then(m => { m.wireImport(); importReady = true; return m; }));
+const loadImport = () => (importView ||= import("./import.js").then(m => { m.wireImport(); importReady = true; return m; })
+  .catch(e => { importView = null; console.warn("Colagem indisponível agora:", e); return { renderImport() {} }; }));
 
 const ui = { editing: null, confirming: null, adding: null };
 const later = fn => requestAnimationFrame(fn);
