@@ -17,7 +17,11 @@ const css = token => getComputedStyle(document.documentElement).getPropertyValue
 const breathe = () => new Promise(r => ("scheduler" in window && scheduler.yield) ? scheduler.yield().then(r) : setTimeout(r, 0));
 
 const RIM_VERTEX = "varying vec3 N;varying vec3 V;void main(){vec4 p=modelViewMatrix*vec4(position,1.);N=normalize(normalMatrix*normal);V=normalize(-p.xyz);gl_Position=projectionMatrix*p;}";
-const RIM_FRAGMENT = "uniform vec3 base;uniform vec3 rim;uniform float kick;varying vec3 N;varying vec3 V;void main(){float f=pow(1.-max(dot(normalize(N),normalize(V)),0.),2.1);float key=max(dot(normalize(N),normalize(vec3(-.4,.7,.6))),0.);gl_FragColor=vec4(base*(.35+.65*key)+rim*f*(1.+kick*.5),.25+.53*f);}";
+/* Série L: borda (fresnel) mais estreita e luminosa, miolo mais fundo e um pontilhado de 1/255 que desfaz as faixas do degradê. */
+const RIM_FRAGMENT = "uniform vec3 base;uniform vec3 rim;uniform float kick;varying vec3 N;varying vec3 V;void main(){float f=pow(1.-max(dot(normalize(N),normalize(V)),0.),2.4);float key=max(dot(normalize(N),normalize(vec3(-.4,.7,.6))),0.);vec3 c=base*(.3+.6*key)+rim*f*(1.22+kick*.5);float n=fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5;gl_FragColor=vec4(c+n/255.,.2+.6*f);}";
+/* Halo das artérias vivas: um tubo mais largo, mais forte no centro da vista (some nas bordas) e que acompanha o pulso. */
+const HALO_VERTEX = "varying vec3 N;varying vec3 V;varying vec2 UV;void main(){UV=uv;vec4 p=modelViewMatrix*vec4(position,1.);N=normalize(normalMatrix*normal);V=normalize(-p.xyz);gl_Position=projectionMatrix*p;}";
+const HALO_FRAGMENT = "uniform vec3 col;uniform float flow;uniform float hot;varying vec3 N;varying vec3 V;varying vec2 UV;void main(){float c=pow(max(dot(normalize(N),normalize(V)),0.),1.6);float p=exp(-pow((UV.x-flow)*6.,2.));gl_FragColor=vec4(col,(.07+.12*hot+.26*p)*c);}";
 const TUBE_VERTEX = "varying vec2 UV;void main(){UV=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}";
 const TUBE_FRAGMENT = "uniform vec3 col;uniform float flow;uniform float off;uniform float hot;varying vec2 UV;void main(){if(off>.5){if(fract(UV.x*24.)>.45)discard;gl_FragColor=vec4(col,.45+hot*.3);return;}float p=exp(-pow((UV.x-flow)*10.,2.));gl_FragColor=vec4(col*(1.+hot*.25)+vec3(.85,.45,.55)*p,.95);}";
 
@@ -69,7 +73,11 @@ async function assemble(o, glb, renderer) {
       uniforms: { col: { value: new Color(css(m.token)) }, flow: { value: -1 }, off: { value: live[i] ? 0 : 1 }, hot: { value: 0 } } });
     const tube = new Mesh(new TubeGeometry(curve, 90, live[i] ? .034 : .024, 7, false), mat);
     tube.renderOrder = 3; heart.add(tube);
-    return { mat, tip: curve.getPoint(1), token: m.token };
+    const glow = new ShaderMaterial({ transparent: true, depthWrite: false, vertexShader: HALO_VERTEX, fragmentShader: HALO_FRAGMENT,
+      uniforms: { col: mat.uniforms.col, flow: mat.uniforms.flow, hot: mat.uniforms.hot } }); // os mesmos uniformes: o pulso e o destaque valem para os dois
+    const halo = new Mesh(new TubeGeometry(curve, 90, .088, 10, false), glow);
+    halo.renderOrder = 2; halo.visible = live[i]; heart.add(halo);
+    return { mat, halo, tip: curve.getPoint(1), token: m.token };
   }
   await breathe();
 
@@ -89,7 +97,7 @@ async function assemble(o, glb, renderer) {
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const visibleWidth = 2 * 13 * Math.tan(MathUtils.degToRad(15)) * camera.aspect;
     // Largura livre entre as colunas de rótulos (map.js); no celular, o palco compacto usa a metade.
-    baseScale = Math.min(1.15, visibleWidth * Math.min(w < 560 ? .5 : .64, (o.free?.() ?? 1) * .9) / 4.6);
+    baseScale = Math.min(1.25, visibleWidth * Math.min(w < 560 ? .5 : .7, (o.free?.() ?? 1) * .92) / 4.6); // série L: o coração é o protagonista do palco
     if (entered) heart.scale.setScalar(baseScale);
     heart.rotation.set(.1, -.12, .035); heart.position.set(0, .2, 0);
     request();
@@ -138,7 +146,7 @@ async function assemble(o, glb, renderer) {
       else schedule();
     },
     visible(v) { visible = v; sync(); },
-    update(next) { live = next; vessels.forEach((v, i) => { if (v) v.mat.uniforms.off.value = live[i] ? 0 : 1; }); request(); },
+    update(next) { live = next; vessels.forEach((v, i) => { if (v) { v.mat.uniforms.off.value = live[i] ? 0 : 1; v.halo.visible = !!live[i]; } }); request(); },
     theme() {
       atria.forEach(m => { m.material.uniforms.base.value.set(css("--atrium")); m.material.uniforms.rim.value.set(css("--violet-2")); });
       ventricles.forEach(m => { m.material.uniforms.base.value.set(css("--ventricle")); m.material.uniforms.rim.value.set(css("--flow")); });

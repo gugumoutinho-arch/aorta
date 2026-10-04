@@ -327,3 +327,19 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
   - Saiu o ponto carmim da contagem.
   - A busca rápida mostra um ponto na cor do módulo no lugar das iniciais.
 - **Testes:** `check` 0/0; `flows` 450/450; `acervos` 105/105; `topics` 57/57; `topic-edit` 52/52; `import` 59/59, sem mudar nenhuma asserção.
+
+### V3 · Início: palco e coração
+
+- **O coração é o protagonista.** No coração 3D, o desenho avança sob a borda interna das colunas de rótulos (`reach3d`, em `map.js`), porque os rótulos têm placa.
+  - **Medido com os 8 rótulos do seed:** 0,85 da coluna reservada a partir de 1200 px e 0,9 abaixo deixam as linhas-guia sem cruzar nem atravessar rótulos, de 700 a 1920 px. O coração fica cerca de 20% maior.
+  - **O mapa em linhas e os outros conceitos continuam com a coluna inteira:** ali, qualquer avanço cruzava duas guias (`acervos.mjs` pegou).
+- **Shader:**
+  - borda mais estreita e luminosa e miolo mais fundo;
+  - pontilhado de 1/255 contra faixas no degradê;
+  - artérias com material ganham halo: um tubo largo, mais forte no centro da vista, que divide os uniformes com a artéria (pulso e destaque valem para os dois).
+- **Luz do palco em camadas:** núcleo violeta e halo carmim tênue, em `oklab`, com reserva para navegadores sem suporte.
+- **O grão passou para cima do conteúdo, como um filme.**
+  - Desfaz as faixas dos brilhos.
+  - Não recebe clique e por isso fica fora do teste de toque e de contraste.
+  - Fica abaixo da barra inferior, dos avisos e dos diálogos.
+- **Defeito antigo corrigido:** o `overflow-x: clip` do `main` cortava os brilhos "de borda a borda" (palco e cabeçalho do módulo) numa linha reta perto da borda direita, já visível nas capturas "antes". O corte foi para o `body`, que tem a largura exata da tela; nada cria rolagem lateral.

@@ -39,7 +39,12 @@ function drawOutline() {
   $("#flat-outline").replaceChildren(...concept().outline().map(d => { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); return p; }));
 }
 /* Fração da largura do mapa livre para o desenho 3D (as cenas usam para escolher a escala). */
-export const freeWidth = () => { const w = $("#map").clientWidth; return w ? Math.max(.4, (w - 2 * labelCol) / w) : 1; }; // largura atual (o 3D reescala antes do layout)
+/* Série L: no coração 3D, o desenho pode avançar sob a borda interna das colunas de rótulos (eles têm placa). reach3d =
+   fração da coluna reservada; medido com os 8 rótulos (seed-v4): sem guia cruzando nem atravessando rótulo com 0,85 a
+   partir de 1200 px e 0,9 abaixo. O mapa em linhas e os outros conceitos mantêm a coluna inteira (ali, qualquer avanço
+   cruzava duas guias). */
+const reach3d = () => S.concept !== "coracao" ? 1 : innerWidth >= 1200 ? .85 : .9;
+export const freeWidth = () => { const w = $("#map").clientWidth; return w ? Math.max(.4, (w - 2 * labelCol * reach3d()) / w) : 1; }; // largura atual (o 3D reescala antes do layout)
 
 function buildLabels() {
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;

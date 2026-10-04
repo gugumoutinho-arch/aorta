@@ -2,12 +2,13 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { overflow-x: clip; background: var(--bg); -webkit-tap-highlight-color: transparent; scroll-padding-top: var(--space-5); scrollbar-color: var(--line-strong) var(--bg); }
 [data-theme-switching] *, [data-theme-switching] *::before, [data-theme-switching] *::after { transition: none !important; }
-body { margin: 0; min-height: 100dvh; background: transparent; color: var(--text); font: 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { margin: 0; min-height: 100dvh; background: var(--bg); color: var(--text); font: 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 body:has(dialog[open]:modal) { overflow: hidden; } /* a ficha fixa (não modal) não trava a rolagem */
 ::selection { background: var(--flow); color: var(--bg); }
-/* Grão de filme ATRÁS do conteúdo (fundo do html), nos dois temas: profundidade no escuro, papel no claro. Camada sem
-   clique e fora do teste de toque: não muda o contraste medido nem cobre texto. */
-.grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; background: url("../assets/grao.png") 0 0 / 128px 128px repeat; opacity: var(--grain-opacity); }
+/* Grão de filme sobre a página (série L), nos dois temas: profundidade no escuro, papel no claro; desfaz as faixas dos
+   brilhos. Camada sem clique (pointer-events: none), invisível para o teste de toque e de contraste, abaixo da barra
+   inferior (70), dos avisos (90) e dos diálogos (camada superior). Pontos de no máximo 14/255: não pesa no texto. */
+.grain { position: fixed; inset: 0; z-index: 60; pointer-events: none; background: url("../assets/grao.png") 0 0 / 128px 128px repeat; opacity: var(--grain-opacity); }
 h1, h2, h3, p { margin: 0; }
 h1, h2, h3 { font-family: var(--serif); font-weight: 500; letter-spacing: -.02em; text-wrap: balance; }
 em { font-style: italic; font-weight: 400; color: var(--flow); }
@@ -19,7 +20,9 @@ button, a, select, input, summary { touch-action: manipulation; }
 [hidden] { display: none !important; }
 /* Títulos e o conteúdo recebem foco por programa (ao chegar numa página ou ficha): sem moldura, o leitor de tela já anuncia. */
 h1[tabindex="-1"]:focus, h2[tabindex="-1"]:focus, main[tabindex="-1"]:focus { outline: none; }
-main { overflow-x: clip; }
+/* O corte lateral fica no corpo (largura exata da tela): os brilhos de borda a borda (palco, cabeçalho do módulo) não
+   terminam mais numa linha reta na borda do conteúdo, e nada cria rolagem lateral. */
+body { overflow-x: clip; }
 mark.hit { background: none; color: var(--flow); font-weight: 650; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

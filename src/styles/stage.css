@@ -5,7 +5,9 @@
   min-height: min(820px, calc(100dvh - 88px)); padding-block: var(--space-6) var(--space-5); isolation: isolate; }
 .stage::before { /* o brilho do palco, de borda a borda, centrado atrás do coração */
   content: ""; position: absolute; z-index: -1; inset: -88px calc(50% - 50vw) 0; pointer-events: none;
-  background: radial-gradient(ellipse 42% 58% at 70% 48%, var(--stage-glow), transparent 72%); }
+  background: radial-gradient(ellipse 42% 58% at 70% 48%, var(--stage-glow), transparent 72%);
+  background: radial-gradient(in oklab ellipse 22% 30% at 72% 47%, var(--glow-core), transparent 72%), radial-gradient(in oklab ellipse 20% 22% at 75% 60%, var(--glow-halo), transparent 70%),
+    radial-gradient(in oklab ellipse 46% 62% at 70% 48%, var(--stage-glow), transparent 74%); } /* série L: luz em camadas, sem faixas (oklab + grão) */
 .eyebrow { display: flex; gap: 12px; font: 500 13.5px/1.45 var(--sans); letter-spacing: .005em; color: var(--muted); }
 .eyebrow::before { content: ""; flex: none; width: 22px; height: 1.5px; margin-top: .72em; border-radius: 1px; background: var(--flow); } /* um traço curto: a voz de chamada, sem caixa alta */
 /* Nessa faixa a linha cabe em 1 linha com a Schibsted e quebra em 2 com a substituta: duas linhas reservadas, nada pula
