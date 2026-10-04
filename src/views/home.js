@@ -10,6 +10,8 @@ import { miniCard, openLink, moduleToken } from "./cards.js";
 import { drawMap, mapVisible, wireMap, focusModuleLabel } from "./map.js";
 import { concept } from "./concept.js";
 import { revealHeadline, cancelHeadline, revealIn, countTo } from "../ui/motion.js";
+import { motionTokens } from "../ui/tokens.js";
+import { cascade } from "../ui/choreo.js";
 
 const REVEAL = ".section-heading h2, .index-row, .production-index, .mini-card, .book";
 let revealed = false;
@@ -46,11 +48,12 @@ export function homeSwitched() {
   revealHome();
   // A entrada fica numa linha do tempo guardada: é ela que se cancela (por referência) se o aluno ligar "reduzir movimento" no meio.
   entrance?.kill();
+  const t = motionTokens();
   entrance = gsap.timeline({ onComplete: () => { entrance = null; } });
-  entrance.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 16 },
-    { opacity: 1, y: 0, duration: .7, ease: "expo.out", stagger: .06, clearProps: "opacity,transform" }, .15);
+  entrance.fromTo(["#intro-copy", ".search-plate", "#counts", "#acervo-note"], { opacity: 0, y: 12 },
+    { opacity: 1, y: 0, duration: t.enter, ease: t.easeEnter, stagger: cascade(), clearProps: "opacity,transform" }, .15);
   // As âncoras têm transform de layout. Só seu conteúdo pode se deslocar.
-  entrance.fromTo("#modules .mod > *", { opacity: 0 }, { opacity: 1, duration: .32, ease: "power2.out", stagger: .008, clearProps: "opacity" }, 0);
+  entrance.fromTo("#modules .mod > *", { opacity: 0 }, { opacity: 1, duration: t.swap, ease: t.easeRespond, stagger: cascade(.01, 24), clearProps: "opacity" }, 0);
 }
 let entrance = null;
 /* Cancela a entrada em andamento e deixa tudo visível e sem estilo inline (movimento reduzido). */

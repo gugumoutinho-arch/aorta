@@ -11,6 +11,8 @@ import { onThemeChange } from "../ui/theme.js";
 import { syncAcervoTabs } from "../app.js";
 import { slideIndicator } from "../ui/indicator.js";
 import { revealIn } from "../ui/motion.js";
+import { motionTokens } from "../ui/tokens.js";
+import { enter } from "../ui/choreo.js";
 import { CASES, tabContext, topicTabs, inTab, firstTopicName, areaRoute } from "../domain/topics.js";
 import { renderTopicTabs } from "./topic-tabs.js";
 let unitsInk = null;
@@ -283,7 +285,7 @@ export function moduleEntered() {
   if (reducedMotion()) return;
   requestAnimationFrame(() => revealIn($("#materials"), ".group-h, .material"));
   gsap.killTweensOf(title); gsap.set(title, { clearProps: "opacity,transform" });
-  gsap.fromTo(".module-meta, #units", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .38, ease: "power2.out", stagger: .04, overwrite: true, clearProps: "opacity,transform" });
+  enter(".module-meta, #units", { y: 10 });
   if (!f || f.id !== S.scope || performance.now() - f.at > 1500 || !f.rect.width) return;
   // O nome do módulo sai do rótulo tocado e pousa no numeral do cabeçalho.
   $$(".flight").forEach(n => { gsap.killTweensOf(n); n.remove(); });
@@ -292,8 +294,8 @@ export function moduleEntered() {
   document.body.append(fly);
   gsap.set(title, { opacity: 0 });
   gsap.fromTo(fly, { x: f.rect.left - to.left, y: f.rect.top - to.top, scale: Math.max(.18, f.rect.height / to.height) },
-    { x: 0, y: 0, scale: 1, duration: .48, ease: "power3.out", overwrite: true,
-      onComplete: () => { fly.remove(); gsap.to(title, { opacity: 1, duration: .15, clearProps: "opacity" }); } });
+    { x: 0, y: 0, scale: 1, duration: motionTokens().reveal, ease: "power3.out", overwrite: true,
+      onComplete: () => { fly.remove(); gsap.to(title, { opacity: 1, duration: motionTokens().exit, ease: motionTokens().easeRespond, clearProps: "opacity" }); } });
 }
 
 export function wireModule() {

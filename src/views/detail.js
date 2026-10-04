@@ -6,6 +6,7 @@ import { fmtDate } from "../core/text.js";
 import { pathOf } from "../core/areas.js";
 import { toggleFav, setStatus, removeMaterial, materialWrites, popping, pop } from "../core/actions.js";
 import { openDlg, closeDlg } from "../ui/dialogs.js";
+import { motionTokens } from "../ui/tokens.js";
 import { openLink, moduleToken } from "./cards.js";
 import { openForm } from "./form.js";
 
@@ -80,7 +81,7 @@ function wireDrag() {
   handle.addEventListener("pointermove", e => { if (drag) dlg().style.transform = `translateY(${Math.max(0, e.clientY - drag.y)}px)`; });
   const end = e => {
     if (!drag) return; const y = e.clientY - drag.y; drag = null;
-    if (y > 90) closeDlg(dlg()); else gsap.to(dlg(), { y: 0, duration: .25, ease: "expo.out", clearProps: "transform" });
+    if (y > 90) closeDlg(dlg()); else gsap.to(dlg(), { y: 0, duration: motionTokens().release, ease: motionTokens().easeEnter, overwrite: true, clearProps: "transform" });
   };
   handle.addEventListener("pointerup", end);
   handle.addEventListener("pointercancel", () => { drag = null; dlg().style.removeProperty("transform"); });

@@ -53,7 +53,7 @@ export function wireMotion() {
     const magnet = spring(offset, () => { if (label) gsap.set(label.children, { x: offset.x, y: offset.y }); });
     const lean = spring(tilt, () => { if (card) gsap.set(card, { rotateX: tilt.x, rotateY: tilt.y, transformPerspective: 1100 }); });
     const releaseLabel = (instant = false) => { if (label) gsap.to(label.children, { x: 0, y: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "x,y" }); label = null; magnet.settle({ x: 0, y: 0 }); };
-    const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : .3, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
+    const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
     const ring = document.createElement("div"); ring.className = "cursor-ring"; ring.setAttribute("aria-hidden", "true");
     const tag = document.createElement("span"); ring.append(tag); document.body.append(ring);
     const cursor = { x: 0, y: 0 }, follow = spring(cursor, () => gsap.set(ring, cursor), { stiffness: 520, damping: 43 });

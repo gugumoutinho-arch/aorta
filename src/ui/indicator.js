@@ -3,6 +3,7 @@ import { motionTokens } from "./tokens.js";
    Primeiro posicionamento sem animação; trocas com mola. Movimento reduzido: troca direta. */
 import gsap from "gsap";
 import { reducedMotion } from "../core/state.js";
+import { press } from "./choreo.js";
 
 export function slideIndicator(container, activeSelector, cls, { underline = false } = {}) {
   let ink = container.querySelector(":scope > ." + cls);
@@ -28,7 +29,7 @@ export function wirePress(root = document) {
   let pressed = null;
   const release = () => {
     if (!pressed) return;
-    gsap.to(pressed, { scale: 1, duration: reducedMotion() ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "transform" });
+    press(pressed, false);
     pressed = null;
   };
   root.addEventListener("pointerdown", e => {
@@ -36,7 +37,7 @@ export function wirePress(root = document) {
     const el = e.target.closest(".btn, .icon, .toggle, .search-plate, .acervo-tabs a, .units button, .subjects button, .segments label, .proto-switch a, .favorite");
     if (!el || reducedMotion()) return;
     release(); pressed = el;
-    gsap.to(el, { scale: .975, duration: motionTokens().press, ease: "power2.out", overwrite: "auto" });
+    press(el, true);
   });
   root.addEventListener("pointerup", release);
   root.addEventListener("pointercancel", release);
