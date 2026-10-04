@@ -80,7 +80,7 @@ dialog::backdrop { background: var(--scrim); } /* sem desfoque: vidro só no pal
   transition: background-color var(--motion-exit) var(--ease), border-color var(--motion-exit) var(--ease), color var(--motion-exit) var(--ease), transform var(--motion-press) var(--ease); }
 .fld .topic-chip { font-size: 14px; font-weight: 500; }
 .fld .topic-chip input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-.topic-chip:hover { border-color: var(--text); }
+@media (hover: hover) { .topic-chip:hover { border-color: var(--text); } }
 .topic-chip:has(input:checked) { background: var(--violet-2); border-color: var(--violet-2); color: var(--bg); }
 .topic-chip:has(input:checked)::before { content: "✓" / ""; font-weight: 700; }
 .topic-chip:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }

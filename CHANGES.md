@@ -2,6 +2,12 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B, U9: acabamento — ramo `nuvem/ui-lapidacao`
+
+- **Contraste:** cores de módulo com contraste AA medido (teste novo).
+- **Toque:** efeitos de mouse só em aparelhos com mouse (12 regras), com verificação nova no `check`.
+- **Testado:** `npm test` 134/134; `check` 0/0; `flows` 450/450.
+
 ## 2026-10-04 — Claude — Rodada B, U8: avisos e carregamento — ramo `nuvem/ui-lapidacao`
 
 - **Aviso "Desfazer":** pausa enquanto há cursor, dedo ou foco nele, e não cobre mais o fim da lista.

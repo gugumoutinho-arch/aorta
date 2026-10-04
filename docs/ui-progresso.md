@@ -49,7 +49,8 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U5 · Ficha do material | concluído (testado localmente) | `79dd68b`, `4fd3856` |
 | U6 · Busca rápida | concluído (local) | `522c7c9` |
 | U7 · Organizar e colagem | concluído (local) | `9c9332d` |
-| U8 · Estados e avisos | concluído (local) | commit "U8" |
+| U8 · Estados e avisos | concluído (local) | `45726d2` |
+| U9 · Acabamento | concluído (local) | commit "U9" |
 
 ### U0 · Auditoria
 
@@ -254,3 +255,10 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 - **Espaço para o aviso:** com aviso na tela, a página ganha espaço embaixo (`body.has-toast`), e o aviso não cobre o fim da lista. No celular, ele já ficava acima da barra inferior.
 - **Esqueleto:** imita a lista editorial (rótulo, título e assunto, com divisórias), em vez do bloco de 120 px. Captura conferida.
 - **Testes:** `timer.test` 3/3 com relógio simulado (`npm test` 132/132); `flows` 450/450, com a verificação nova "aviso não cobre o fim da lista" em cada largura e tema; `check` 0/0.
+
+### U9 · Acabamento (local)
+
+- **Contraste:** `--m1…--m8` medidos sobre `--bg`, `--paper` e `--surface` nos dois temas, todos ≥ 4,5:1. O teste `contrast.test` lê `tokens.css` e reprova se algum cair.
+- **Hover só com mouse:** as 12 regras de `:hover` fora de `@media (hover: hover)` foram movidas (nada "gruda" no toque). O `check` agora reprova `:hover` solto. O estado ativo das abas de assunto foi separado do hover.
+- **Anel do cursor:** já só existe com `(hover: hover) and (pointer: fine)`. Nas capturas a 390 px ele aparece porque o navegador de teste usa mouse; em celular real não aparece.
+- **Testes:** `npm test` 134/134; `check` 0/0, com a etapa nova; `flows` 450/450.

@@ -59,6 +59,20 @@ const slw = sl.results.flatMap(r => r.warnings.map(w => ({ ...w, file: path.base
 slw.length ? slw.slice(0, 8).forEach(w => add('css', w.severity === 'error' ? 'erro' : 'aviso', `${w.file}:${w.line}: ${w.text}`)) : add('css', 'ok', `CSS sem erros (stylelint, ${cssFiles.length} arquivos).`);
 const literal = cssFiles.filter(f => !f.endsWith('tokens.css')).map(f => (fs.readFileSync(f, 'utf8').match(/#[0-9a-fA-F]{3,8}\b/g) || []).length).reduce((a, n) => a + n, 0);
 literal ? add('css', 'erro', `${literal} cor(es) hexadecimal(is) fora de tokens.css; cores de tema devem ser tokens.`) : add('css', 'ok', 'Cores só por tokens (nenhum hexadecimal fora de tokens.css).');
+const looseHover = cssFiles.flatMap(f => hoverOutsideMedia(fs.readFileSync(f, 'utf8')).map(x => `${path.basename(f)}:${x}`));
+looseHover.length ? add('css', 'erro', `:hover fora de @media (hover: hover) (no toque o efeito "gruda"):\n${looseHover.slice(0, 8).join('\n')}`)
+  : add('css', 'ok', 'Efeitos de passar o mouse só em aparelhos com mouse (@media (hover: hover)).');
+
+/* Regras com :hover fora de um @media que exija hover; devolve "linha: seletor". */
+function hoverOutsideMedia(css) {
+  const out = [], stack = []; let buf = '', line = 1;
+  for (const c of css.replace(/\/\*[\s\S]*?\*\//g, m => m.replace(/[^\n]/g, ' '))) {
+    if (c === '\n') line++;
+    if (c === '{') { const sel = buf.trim(); if (/:hover/.test(sel) && !stack.some(p => /@media[^{]*hover:\s*hover/.test(p))) out.push(`${line}: ${sel.replace(/\s+/g, ' ').slice(0, 90)}`); stack.push(sel); buf = ''; }
+    else if (c === '}') { stack.pop(); buf = ''; } else if (c === ';') buf = ''; else buf += c;
+  }
+  return out;
+}
 
 // 4) HTML
 if (b.ok) {

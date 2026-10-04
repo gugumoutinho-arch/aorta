@@ -37,24 +37,24 @@ mark.hit { background: none; color: var(--flow); font-weight: 650; text-decorati
 .top-actions { display: flex; align-items: center; gap: 2px; }
 .icon { min-width: 44px; min-height: 44px; display: inline-grid; place-items: center; border-radius: 50%; color: var(--text); text-decoration: none; font-size: 20px; transition: background-color .2s var(--ease), color .2s var(--ease); }
 .icon svg { width: 21px; height: 21px; }
-.icon:hover { background: var(--surface); }
+@media (hover: hover) { .icon:hover { background: var(--surface); } }
 .icon[aria-current="page"] { color: var(--flow); }
 .icon:disabled { opacity: .45; cursor: default; }
 
 /* Botões e campos */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-4); border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--paper); color: var(--text); font-size: 14px; font-weight: 550; text-decoration: none; transition: border-color .2s var(--ease), background-color .2s var(--ease), box-shadow .2s var(--ease); }
-.btn:hover { border-color: var(--text); }
+@media (hover: hover) { .btn:hover { border-color: var(--text); } }
 .btn:active { box-shadow: inset 0 0 0 1px var(--text); }
 .btn.primary, .primary { background: var(--action); color: var(--action-ink); border-color: var(--action); }
 .btn.ghost { background: none; border-color: transparent; color: var(--muted); }
-.btn.ghost:hover { color: var(--text); border-color: var(--line); }
+@media (hover: hover) { .btn.ghost:hover { color: var(--text); border-color: var(--line); } }
 .btn.danger { background: none; border-color: var(--error); color: var(--error); }
 .btn:disabled { opacity: .5; cursor: default; }
 .primary { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 20px; border-radius: var(--radius); font-weight: 650; text-decoration: none; transition: filter .2s var(--ease), box-shadow .2s var(--ease); }
 .primary svg { width: 18px; height: 18px; }
-.primary:hover { box-shadow: 0 10px 30px -10px var(--action); }
+@media (hover: hover) { .primary:hover { box-shadow: 0 10px 30px -10px var(--action); } }
 .quiet { min-height: 44px; display: inline-flex; align-items: center; color: var(--muted); font-size: 13px; text-decoration: none; }
-.quiet:hover { color: var(--text); }
+@media (hover: hover) { .quiet:hover { color: var(--text); } }
 input, select, textarea { min-height: 44px; max-width: 100%; padding: 10px var(--space-3); border-radius: var(--radius); border: 1px solid var(--line-strong); background: var(--surface); caret-color: var(--action); }
 input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 input[type="checkbox"], input[type="radio"] { min-height: 0; accent-color: var(--action); width: 18px; height: 18px; }

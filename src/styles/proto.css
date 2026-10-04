@@ -6,7 +6,7 @@
 .acervo-tabs a { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; min-height: 48px; padding: var(--space-1) var(--space-4); border-radius: var(--radius-card); text-decoration: none; color: var(--muted); transition: background-color .25s var(--ease), color .25s var(--ease), box-shadow .25s var(--ease); }
 .acervo-tabs b { font: 600 14.5px/1.2 var(--sans); }
 .acervo-tabs small { font-size: 11.5px; }
-.acervo-tabs a:hover { color: var(--text); }
+@media (hover: hover) { .acervo-tabs a:hover { color: var(--text); } }
 .acervo-tabs a[aria-current="page"] { color: var(--text); }
 .units { position: relative; }
 .units-ink { position: absolute; left: 0; top: 0; z-index: 1; background: var(--selected); border-radius: 2px; pointer-events: none; opacity: 0; }
@@ -33,7 +33,7 @@ body[data-concept="corpo"] .mod .mono { font-size: 10px; letter-spacing: .12em; 
 body[data-concept="corpo"] .mod small { margin-top: 3px; }
 .mod.hot b { font-style: normal; }
 .mod b { transition: none; }
-.mod:hover b { transform: none; }
+@media (hover: hover) { .mod:hover b { transform: none; } }
 body[data-concept="corpo"] #flat-outline path { fill: color-mix(in oklab, var(--violet-2) 6%, transparent); }
 
 /* Nomes longos (disciplinas) no mapa e no cabeçalho */
@@ -115,7 +115,7 @@ body.diving #modules .mod.hot { transform-origin: center; }
 .search-plate { transition: box-shadow .24s var(--ease); }
 .btn, .toggle { position: relative; overflow: hidden; isolation: isolate; }
 .btn::before, .toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--surface); transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }
-.btn:hover::before, .toggle:hover::before { transform: scaleX(1); transform-origin: left; }
+@media (hover: hover) { .btn:hover::before, .toggle:hover::before { transform: scaleX(1); transform-origin: left; } }
 .btn.primary::before { background: color-mix(in oklab, var(--action) 80%, white); }
 .line { padding-bottom: .04em; margin-bottom: -.04em; } /* a máscara das linhas não muda a altura do título (CLS) */
 @media (prefers-reduced-motion: reduce) { .cursor-ring { display: none; } .btn::before, .toggle::before { transition: none; } }
