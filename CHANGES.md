@@ -2,6 +2,24 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B ENCERRADA (direção D) — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou na rodada (nuvem U0–U4 e U5; local: revisão do U4, U6–U9, fontes, galeria):**
+  - página inicial em palco + índice editorial + prateleira de casos;
+  - mapa sem guias cruzadas e entrada 4× mais leve;
+  - página do módulo com numeral gigante, lista editorial e ficha fixa à direita;
+  - ficha e busca nascendo de onde foram chamadas;
+  - busca com caminho curto;
+  - colagem que explica a tabulação;
+  - aviso "Desfazer" que pausa;
+  - esqueleto no formato da lista;
+  - hover só com mouse;
+  - fontes sem bloquear a primeira pintura.
+- **Números no Windows:** Lighthouse celular 90/91 (antes 85–90), computador 100; LCP 2,4 s; CLS ≤ 0,015.
+- **Galeria:** `docs/ui/index.html`.
+- **Bateria final:** tudo verde (`npm test` 134, `flows` 450, `acervos` 105, `topics` 57, `topic-edit` 52, `import` 59, `check` 0).
+- **Não testado:** aparelho físico, Safari, leitor de tela; vídeos de movimento não gerados.
+
 ## 2026-10-04 — Claude — Rodada B: primeira pintura sem esperar as fontes — ramo `nuvem/ui-lapidacao`
 
 - **Fontes:** a folha do Google Fonts não bloqueia mais a primeira pintura; o texto aparece com substitutas calibradas e a linha em caixa alta do início tem 2 linhas reservadas em tablet, para nada pular na troca.

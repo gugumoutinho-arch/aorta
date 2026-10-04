@@ -276,3 +276,17 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - orçamento ESTRITO aprovado 2× (pior CLS 0,015);
   - Lighthouse com mediana de 3: celular IDOMED **90** [90/90/90] e geral **91** [84/91/91]; computador 100/100; LCP 2,4 s nos dois; CLS 0–0,001; acessibilidade e boas práticas 100;
   - `flows` 450/450; `acervos` 105/105; `topics` 57/57; `check` 0/0.
+
+## Entrega e encerramento (local, Claude, Windows do dono, 04/10/2026)
+
+- **Galeria:** `docs/ui/index.html`, 14 pares antes|depois (28 PNG, 4,3 MB), só com dados fictícios, revisados.
+  - "Antes" = fim da rodada A (`d5fcad2`); "depois" = este ramo; capturados aqui com a mesma ferramenta (`auditoria.mjs`).
+  - **Alvos "pequenos" apontados no depois:** são os títulos dos cartões de casos clínicos; o `::after` estende o clique ao cartão inteiro (≈190 px de altura), então a área real de toque está certa. Falso positivo da ferramenta, que mede só o botão.
+- **Vídeos:** não gerados nesta etapa local. O movimento pode ser visto ao vivo na prévia (`cd tools && node demo.mjs --abas`). Evidência de movimento em vídeo: não entregue.
+- **Bateria final, no Windows com fontes reais:**
+  - `npm test` 134/134; `check` 0/0; `flows` 450/450; `topics` 57/57; `topic-edit` 52/52; `import` 59/59; `acervos` 105/105 (3×);
+  - orçamento ESTRITO aprovado (pior CLS 0,015; JS inicial +11,1 kB sobre o baseline);
+  - Lighthouse com mediana de 3: celular IDOMED 90 e geral 91, computador 100/100, LCP 2,4 s, CLS 0–0,001, acessibilidade e boas práticas 100.
+- **Só o dono pode validar:** celular Android e iPhone reais, Safari e leitor de tela.
+
+RODADA B ENCERRADA em 04/10/2026, SHA 16e45df
