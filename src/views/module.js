@@ -238,7 +238,8 @@ function groupOf(list, from) {
   const areaName = k => k ? (areaLabel(k, from) || areaById(k).name) : "Sem área definida";
   return keys.map(k => ({ key: k, label: S.subject ? (k || "Sem assunto") : areaName(k), items: by.get(k).sort(sorter()) }));
 }
-const skeleton = () => h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 3 }, () => h("div", { class: "skel-card" })));
+const skeleton = () => h("div", { class: "skel", "aria-hidden": "true" }, Array.from({ length: 4 }, () =>
+  h("div", { class: "skel-row" }, h("span", { class: "skel-bar label" }), h("span", { class: "skel-bar title" }), h("span", { class: "skel-bar meta" }))));
 function renderMaterials(base, mod) {
   const box = $("#materials"), line = $("#result-line");
   // Endereço com aba antes de os assuntos chegarem: espera, em vez de mostrar a matéria inteira e depois pular.

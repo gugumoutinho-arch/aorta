@@ -48,7 +48,8 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 | U4 · Página do módulo na direção D | concluído (revisão local) | `5dbc810`, acabamento no commit seguinte |
 | U5 · Ficha do material | concluído (testado localmente) | `79dd68b`, `4fd3856` |
 | U6 · Busca rápida | concluído (local) | `522c7c9` |
-| U7 · Organizar e colagem | concluído (local) | commit "U7" |
+| U7 · Organizar e colagem | concluído (local) | `9c9332d` |
+| U8 · Estados e avisos | concluído (local) | commit "U8" |
 
 ### U0 · Auditoria
 
@@ -246,3 +247,10 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
 - **Alvos de toque:** nomes curtos da árvore (M1, M2…) com pelo menos 44 px de largura (a auditoria mediu 21–41 px).
 - **Captura:** a cena `colagem` da auditoria mostra agora o aviso; a nova `colagem-planilha` mostra a prévia (aviso e erro diferenciados por ícone e texto). Conferidas a 390 px; 0 alvos pequenos.
 - **Testes:** `import.test` +3 (`npm test` 129/129); `import` 59/59; `check` 0/0.
+
+### U8 · Estados e avisos (local)
+
+- **Pausa de verdade no aviso com "Desfazer":** o tempo para com cursor, dedo ou foco e volta ao sair, com o que faltava e um piso de 3 s (`src/ui/timer.js`). Antes, o aviso só reconferia no fim e sumia 1 s depois de sair.
+- **Espaço para o aviso:** com aviso na tela, a página ganha espaço embaixo (`body.has-toast`), e o aviso não cobre o fim da lista. No celular, ele já ficava acima da barra inferior.
+- **Esqueleto:** imita a lista editorial (rótulo, título e assunto, com divisórias), em vez do bloco de 120 px. Captura conferida.
+- **Testes:** `timer.test` 3/3 com relógio simulado (`npm test` 132/132); `flows` 450/450, com a verificação nova "aviso não cobre o fim da lista" em cada largura e tema; `check` 0/0.

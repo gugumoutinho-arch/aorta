@@ -2,6 +2,12 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude — Rodada B, U8: avisos e carregamento — ramo `nuvem/ui-lapidacao`
+
+- **Aviso "Desfazer":** pausa enquanto há cursor, dedo ou foco nele, e não cobre mais o fim da lista.
+- **Carregamento:** esqueleto no formato da lista.
+- **Testado:** `npm test` 132/132; `flows` 450/450; `check` 0/0.
+
 ## 2026-10-04 — Claude — Rodada B, U7: colagem que explica a tabulação — ramo `nuvem/ui-lapidacao`
 
 - **Colagem:** colar com vírgulas dá um aviso claro ("copie direto da planilha ou cole só os links"), em vez de erros genéricos; o texto de ajuda diz que as colunas vêm separadas por tabulação.

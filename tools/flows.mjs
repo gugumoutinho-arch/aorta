@@ -140,6 +140,11 @@ for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   ok(`${tag} remover: aviso cita o arquivo original`, /arquivo original/.test(await page.locator('#dlg-detail .confirm-inline').innerText()));
   await page.click('#d-rm-yes'); await page.waitForTimeout(600);
   ok(`${tag} remover: sai do catálogo`, await page.locator('#materials .material').count() === before - 1);
+  ok(`${tag} aviso com Desfazer não cobre o fim da lista (rolado até o fim)`, await page.evaluate(async () => {
+    window.scrollTo(0, document.documentElement.scrollHeight); await new Promise(r => setTimeout(r, 120));
+    const rows = [...document.querySelectorAll('#materials .material')], last = rows.at(-1), t = document.querySelector('.toast');
+    return document.body.classList.contains('has-toast') && !!t && (!last || last.getBoundingClientRect().bottom <= t.getBoundingClientRect().top + 1);
+  }));
   await page.locator('.toast button').click(); await page.waitForTimeout(500);
   ok(`${tag} remover: Desfazer restaura`, await page.locator('#materials .material').count() === before);
   // alvos de toque
