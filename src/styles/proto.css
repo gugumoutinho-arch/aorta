@@ -102,23 +102,14 @@ body.diving #modules .mod.hot { transform-origin: center; }
   .module-hero:has(.organ-view:not([hidden])) h1.xlong { font-size: 40px; }
 }
 
-/* Microanimações: anel do cursor, brilho que segue o ponteiro nos cartões e botões que varrem ao passar */
-.cursor-ring { position: fixed; left: 0; top: 0; z-index: 200; width: 64px; height: 64px; margin: -32px 0 0 -32px;
-  pointer-events: none; opacity: 0; display: grid; place-items: center; transition: opacity .18s; }
-.cursor-ring::before { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--violet-2); transform: scale(.44); transition: transform .24s var(--ease), background-color .2s, border-color .2s; }
-.cursor-ring.on { opacity: 1; }
-.cursor-ring span { position: relative; font: 600 10px var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--bg); opacity: 0; transition: opacity .18s; }
-.cursor-ring[data-mode="link"]::before { transform: scale(.65); border-color: var(--flow); }
-/* "Abrir": anel vazado, sem preencher, para não cobrir o nome que está embaixo do ponteiro (revisão do N5). */
-.cursor-ring[data-mode="open"]::before { transform: scale(.8); border-width: 2px; border-color: var(--flow); }
-.cursor-ring[data-mode="text"] { opacity: 0; }
+/* Microanimações: brilho que segue o ponteiro nos cartões e botões que varrem ao passar (o anel do cursor saiu, D-L3) */
 .search-plate { transition: box-shadow .24s var(--ease); }
 .btn, .toggle { position: relative; overflow: hidden; isolation: isolate; }
 .btn::before, .toggle::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--surface); transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }
 @media (hover: hover) { .btn:hover::before, .toggle:hover::before { transform: scaleX(1); transform-origin: left; } }
 .btn.primary::before { background: color-mix(in oklab, var(--action) 80%, white); }
 .line { padding-bottom: .04em; margin-bottom: -.04em; } /* a máscara das linhas não muda a altura do título (CLS) */
-@media (prefers-reduced-motion: reduce) { .cursor-ring { display: none; } .btn::before, .toggle::before { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .btn::before, .toggle::before { transition: none; } }
 
 /* Movimento reduzido vale NO MESMO INSTANTE, sem esperar o JavaScript: qualquer entrada que o GSAP tenha deixado em
    andamento (opacidade 0 e deslocamento inline) perde para estas regras. O JS só limpa o resto em seguida. */

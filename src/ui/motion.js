@@ -54,10 +54,7 @@ export function wireMotion() {
     const lean = spring(tilt, () => { if (card) gsap.set(card, { rotateX: tilt.x, rotateY: tilt.y, transformPerspective: 1100 }); });
     const releaseLabel = (instant = false) => { if (label) gsap.to(label.children, { x: 0, y: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "x,y" }); label = null; magnet.settle({ x: 0, y: 0 }); };
     const releaseCard = (instant = false) => { if (card) { gsap.to(card, { rotateX: 0, rotateY: 0, duration: instant ? 0 : motionTokens().release, ease: "power2.out", overwrite: "auto", clearProps: "rotateX,rotateY,transformPerspective" }); card.style.removeProperty("--mx"); card.style.removeProperty("--my"); } card = null; lean.settle({ x: 0, y: 0 }); };
-    const ring = document.createElement("div"); ring.className = "cursor-ring"; ring.setAttribute("aria-hidden", "true");
-    const tag = document.createElement("span"); ring.append(tag); document.body.append(ring);
-    const cursor = { x: 0, y: 0 }, follow = spring(cursor, () => gsap.set(ring, cursor), { stiffness: 520, damping: 43 });
-    let seen = false, mode = "";
+    // Série L (D-L3): sem o anel que seguia o cursor; ficam o ímã dos rótulos e a inclinação dos cartões.
     listen(document, "pointermove", e => {
       const nextLabel = e.target.closest?.("#modules .mod");
       if (label !== nextLabel) { releaseLabel(); if (nextLabel) gsap.killTweensOf(nextLabel.children, "x,y"); }
@@ -71,18 +68,12 @@ export function wireMotion() {
         card.style.setProperty("--mx", x * 100 + "%"); card.style.setProperty("--my", y * 100 + "%");
         lean.to({ x: (.5 - y) * 2.5, y: (x - .5) * 3 });
       }
-      if (!seen) { follow.settle({ x: e.clientX, y: e.clientY }); seen = true; }
-      follow.to({ x: e.clientX, y: e.clientY }); ring.classList.add("on");
-      const hit = e.target.closest?.("#modules .mod, a, button, input, select, label");
-      const next = !hit ? "" : hit.matches("#modules .mod") ? "open" : hit.matches("input, select") ? "text" : "link";
-      if (next !== mode) { mode = next; ring.dataset.mode = next; }
     });
-    const leave = () => { ring.classList.remove("on"); seen = false; magnet.to({ x: 0, y: 0 }); lean.to({ x: 0, y: 0 }); };
-    // Trocar de tela zera o anel: o modo "abrir" do rótulo não fica sobre a página nova.
-    listen(window, "hashchange", () => { leave(); mode = ""; ring.dataset.mode = ""; tag.textContent = ""; });
+    const leave = () => { magnet.to({ x: 0, y: 0 }); lean.to({ x: 0, y: 0 }); };
+    listen(window, "hashchange", leave); // trocar de tela solta o rótulo e o cartão
     listen(document.documentElement, "pointerleave", leave);
     listen(window, "blur", leave);
-    return () => { abort.abort(); releaseLabel(true); releaseCard(true); magnet.dispose(); lean.dispose(); follow.dispose(); ring.remove(); };
+    return () => { abort.abort(); releaseLabel(true); releaseCard(true); magnet.dispose(); lean.dispose(); };
   });
   matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", e => {
     if (!e.matches) return;

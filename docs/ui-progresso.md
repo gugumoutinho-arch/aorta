@@ -362,3 +362,17 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
   | Matéria | 789 → 654 px | 737 px |
 
   O título do 1º material fica inteiro acima da barra inferior (787 px). Chegar a ≤ 420 pede a rodada de estrutura.
+
+### V5 · Rodapé, índice, ficha e barra inferior
+
+- **Rodapé como colofão de livro:** os mesmos textos e créditos (HuBMAP, CC BY 4.0, com link) numa coluna centrada, com o nome em Literata, a frase em itálico e um traço curto como florão.
+- **Índice como sumário de livro:** um pontilhado leva o nome da matéria até a contagem; os números do índice ficam em Literata 44.
+- **Ficha fixa** com realce interno e sombra que flutua.
+- **Barra inferior do celular em vidro** (desfoque de 16 px), com reserva opaca onde não há suporte. O conteúdo passa por baixo.
+
+### V6 · Movimento fino
+
+- **Saiu o anel que seguia o cursor (D-L3).** Ficam o ímã dos rótulos do mapa e a inclinação dos cartões de caso.
+- **O "irrigado" do título ganha um brilho** que passa uma vez só. Com movimento reduzido, termina já no estado final; no alto contraste, fica na cor sólida.
+- **Microinterações da lapidação** (linha que tinge e acende "Abrir original", seta do cartão que avança, cartão de caso que sobe 2 px): todas em CSS, dentro de `@media (hover: hover)`, desligadas pelo movimento reduzido.
+- **Único ajuste de teste da rodada** (previsto no plano): `acervos.mjs`, o nome da verificação "remove cursor e 3D" passou a "remove o 3D", porque o anel não existe mais. A verificação em si não mudou.

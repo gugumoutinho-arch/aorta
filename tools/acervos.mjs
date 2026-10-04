@@ -94,7 +94,7 @@ try {
   // O 3D e o cursor saem quando o navegador entrega o evento da preferência; com o 3D por software a thread principal fica
   // ocupada e o evento pode demorar, então espera a condição (até 3 s) em vez de uma pausa fixa.
   await p.waitForFunction(()=>document.querySelectorAll('.cursor-ring, #map canvas').length===0,null,{timeout:3000}).catch(()=>{});
-  ok('Reduzir durante entrada remove cursor e 3D',await p.locator('.cursor-ring, #map canvas').count()===0);
+  ok('Reduzir durante entrada remove o 3D (sem anel de cursor desde a série L)',await p.locator('.cursor-ring, #map canvas').count()===0);
   ok('Fluxos 3D sem erros',errors.length===0 || (console.log(errors),false));
   await ctx.close();
   // N5 · Cardiologia (disciplina fictícia) aponta para o coração: rótulo, destaque ao apontar e mergulho até o coração.
