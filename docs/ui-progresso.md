@@ -343,3 +343,22 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
   - Não recebe clique e por isso fica fora do teste de toque e de contraste.
   - Fica abaixo da barra inferior, dos avisos e dos diálogos.
 - **Defeito antigo corrigido:** o `overflow-x: clip` do `main` cortava os brilhos "de borda a borda" (palco e cabeçalho do módulo) numa linha reta perto da borda direita, já visível nas capturas "antes". O corte foi para o `body`, que tem a largura exata da tela; nada cria rolagem lateral.
+
+### V4 · Módulo: página de rosto, controles e ritmo do celular
+
+- **Numeral com luz:** degradê vertical na cor do módulo, com recorte no texto. No alto contraste do Windows, volta à cor sólida.
+- **Resumo da matéria** em Literata itálica.
+- **Miniatura do coração:** o traço provisório à direita do cabeçalho virou o contorno do mapa em linhas, com a artéria do módulo acesa e as outras tracejadas. É o mesmo desenho do Início (`concept().outline()` e `flat()`), sem arte nova.
+- **Linha de contagem:** fica só para o leitor de tela (continua `role=status`) quando não há busca, filtro nem "só favoritos". O cabeçalho já diz quantos são.
+- **Celular:**
+  - numeral de 64 px e espaçamentos compactos;
+  - busca, ★ e Filtros numa linha só. A estrela é o mesmo `#f-fav`, com o nome "Favoritos" no texto para o leitor de tela.
+- **Estado "Em estudo"** em violeta (estado de leitura, não ação).
+- **Medido, celular 390 × 844** (real e seed):
+
+  | Tela | 1º material (antes → depois) | Fim do título |
+  |---|---|---|
+  | Módulo | 693 → 567 px | 650 px |
+  | Matéria | 789 → 654 px | 737 px |
+
+  O título do 1º material fica inteiro acima da barra inferior (787 px). Chegar a ≤ 420 pede a rodada de estrutura.

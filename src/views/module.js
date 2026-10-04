@@ -156,6 +156,18 @@ function renderHeader(mod) {
     $("#" + id).setAttribute("aria-label", `Módulo ${word}: ${n.name}`); $("#" + id).title = `${word[0].toUpperCase() + word.slice(1)}: ${n.name}`;
   }
   renderFocus(mod);
+  drawMiniHeart(mod);
+}
+/* Série L: no lugar do traço provisório, a miniatura do coração (contorno do mapa em linhas) com a artéria deste módulo
+   acesa e as outras tracejadas. Só desenho (aria-hidden); o texto do cabeçalho já diz qual é a artéria. */
+const SVG_NS = "http://www.w3.org/2000/svg";
+function drawMiniHeart(mod) {
+  const box = $(".mini-artery"), c = concept();
+  if (!box || !c.outline || !c.flat) return;
+  const list = moduleList(); c.decorate?.(list);
+  const path = (d, cls) => { const p = document.createElementNS(SVG_NS, "path"); p.setAttribute("d", d); p.setAttribute("class", cls); return p; };
+  box.setAttribute("viewBox", "0 0 600 560");
+  box.replaceChildren(...c.outline().map(d => path(d, "mh-outline")), ...list.map(m => path(c.flat(m, list.length).d, m.id === mod.id ? "mh-on" : "mh-off")));
 }
 /* Direção D: com unidade ou matéria escolhida, o cabeçalho diz onde se está (rótulo técnico) e qual é o foco (em
    Literata), com o resumo daquele recorte: materiais, assuntos e casos clínicos. */

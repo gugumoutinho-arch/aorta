@@ -67,7 +67,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
 input[type="checkbox"], input[type="radio"] { min-height: 0; accent-color: var(--action); width: 18px; height: 18px; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 1px; }
 .chip { display: inline-flex; align-items: center; min-height: 24px; padding: 0 9px; border-radius: var(--radius-pill); font-size: 12px; border: var(--hairline) solid var(--line-strong); color: var(--text); }
-.chip.status[data-s="em-estudo"] { border-color: var(--flow); color: var(--flow); }
+.chip.status[data-s="em-estudo"] { border-color: color-mix(in oklab, var(--violet-2) 55%, transparent); color: var(--violet-2); } /* série L: estado de leitura, não ação */
 .chip.status[data-s="revisado"] { border-color: var(--ok); color: var(--ok); }
 
 /* Estados */
