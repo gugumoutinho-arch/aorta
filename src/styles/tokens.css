@@ -80,7 +80,7 @@
     --hair: rgb(48 25 48 / .1); --hair-strong: rgb(48 25 48 / .18);
     --inset-light: inset 0 1px 0 rgb(255 255 255 / .75); --inset-action: inset 0 1px 0 rgb(255 255 255 / .2);
     --shadow-float: 0 24px 50px -28px rgb(80 30 55 / .3), 0 8px 18px -12px rgb(80 30 55 / .18);
-    --glow-core: oklch(91% .04 320); --glow-halo: oklch(86% .06 5 / .45); --grain-opacity: .9;
+    --glow-core: oklch(91% .04 320); --glow-halo: oklch(86% .06 5 / .45); --grain-opacity: .7;
     color-scheme: light;
   }
 }
@@ -100,7 +100,7 @@
   --hair: rgb(48 25 48 / .1); --hair-strong: rgb(48 25 48 / .18);
   --inset-light: inset 0 1px 0 rgb(255 255 255 / .75); --inset-action: inset 0 1px 0 rgb(255 255 255 / .2);
   --shadow-float: 0 24px 50px -28px rgb(80 30 55 / .3), 0 8px 18px -12px rgb(80 30 55 / .18);
-  --glow-core: oklch(91% .04 320); --glow-halo: oklch(86% .06 5 / .45); --grain-opacity: .9;
+  --glow-core: oklch(91% .04 320); --glow-halo: oklch(86% .06 5 / .45); --grain-opacity: .7;
   color-scheme: light;
 }
 :root[data-theme="dark"] { color-scheme: dark; }

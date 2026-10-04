@@ -376,3 +376,9 @@ Os dois pacotes mexem nos mesmos arquivos de estilo, por isso vão num commit s�
 - **O "irrigado" do título ganha um brilho** que passa uma vez só. Com movimento reduzido, termina já no estado final; no alto contraste, fica na cor sólida.
 - **Microinterações da lapidação** (linha que tinge e acende "Abrir original", seta do cartão que avança, cartão de caso que sobe 2 px): todas em CSS, dentro de `@media (hover: hover)`, desligadas pelo movimento reduzido.
 - **Único ajuste de teste da rodada** (previsto no plano): `acervos.mjs`, o nome da verificação "remove cursor e 3D" passou a "remove o 3D", porque o anel não existe mais. A verificação em si não mudou.
+
+### V7 · Tema claro "papel"
+
+- **Grão mais leve no papel** (opacidade de 0,9 para 0,7): textura de papel sem sujar o creme.
+- **Faixa de assuntos:** com abas escondidos dos dois lados, as duas bordas esmaecem por inteiro (antes, no meio da rolagem, cada uma esmaecia pela metade). Conferido pela linha do tempo da rolagem: no começo só a direita, no meio as duas, no fim só a esquerda.
+- **Revisão nos 2 temas:** ficha (prancha), busca, índice, módulo e Início, com 3D e em linhas, sem ajuste extra de contraste (`check` com axe 0/0).

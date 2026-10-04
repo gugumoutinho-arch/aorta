@@ -49,7 +49,7 @@
 @property --fade-r { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @supports (animation-timeline: scroll()) {
   .topic-tabs { mask-image: linear-gradient(90deg, transparent, black var(--fade-l), black calc(100% - var(--fade-r)), transparent); animation: tabs-fade linear both; animation-timeline: scroll(self inline); }
-  @keyframes tabs-fade { from { --fade-l: 0px; --fade-r: 40px; } to { --fade-l: 40px; --fade-r: 0px; } }
+  @keyframes tabs-fade { 0% { --fade-l: 0px; --fade-r: 40px; } 8%, 92% { --fade-l: 40px; --fade-r: 40px; } 100% { --fade-l: 40px; --fade-r: 0px; } }
 }
 .subjects .num { font: 600 12px var(--label); color: var(--muted); }
 .catalog { min-width: 0; }
