@@ -1,6 +1,9 @@
 import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/home.css";
+import "./styles/stage.css";
+import "./styles/index-list.css";
+import "./styles/tabbar.css";
 import "./styles/module.css";
 import "./styles/dialogs.css";
 import "./styles/organize.css";
@@ -20,12 +23,15 @@ import { wireOrg } from "./views/organize.js";
 import { wirePalette } from "./views/palette.js";
 import { wirePress } from "./ui/indicator.js";
 import { wireMotion } from "./ui/motion.js";
+import { wireTabbar } from "./views/tabbar.js";
 
 /* Protótipo v4: aplica o conceito visual (coração ou folha) e lembra a escolha neste aparelho. */
 syncConcept();
 wireDialogs(detailFallbackFocus);
 wirePress(); wireMotion();
-wireTheme(); wireHome(); wireModule(); wireDetail(); wireForm(); wireOrg(); wirePalette();
+wireTheme(); wireHome(); wireModule(); wireDetail(); wireForm(); wireOrg(); wirePalette(); wireTabbar();
+// Pedido de redesenho vindo de uma ação de navegação (ex.: "Favoritos" da barra inferior aplica o filtro e redesenha).
+window.addEventListener("aorta:render", () => renderAll());
 window.addEventListener("hashchange", () => route(true));
 route(false);
 

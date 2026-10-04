@@ -63,7 +63,7 @@ export function wireMotion() {
       if (label !== nextLabel) { releaseLabel(); if (nextLabel) gsap.killTweensOf(nextLabel.children, "x,y"); }
       label = nextLabel;
       if (label) { const r = label.getBoundingClientRect(); magnet.to({ x: (e.clientX - r.left - r.width / 2) / r.width * 5, y: (e.clientY - r.top - r.height / 2) / r.height * 4 }); }
-      const nextCard = e.target.closest?.(".mini-card, .book");
+      const nextCard = e.target.closest?.(".case-card");
       if (card !== nextCard) { releaseCard(); if (nextCard) gsap.killTweensOf(nextCard, "rotateX,rotateY,transformPerspective"); }
       card = nextCard;
       if (card) {

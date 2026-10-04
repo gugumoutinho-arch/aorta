@@ -13,6 +13,8 @@ import { renderDetail } from "./views/detail.js";
 import { renderDatalists } from "./views/form.js";
 import { slideIndicator } from "./ui/indicator.js";
 import { parseAreaRoute } from "./domain/topics.js";
+import { syncTabbar } from "./views/tabbar.js";
+import { goIndex } from "./views/home.js";
 
 /* Abas de acervo: a pílula desliza com mola até o acervo atual. */
 let pill = null;
@@ -33,6 +35,7 @@ export function renderNav() {
     on ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current");
   });
   $$("[data-action='add']").forEach(b => { b.disabled = !ready(); });
+  syncTabbar();
 }
 /* Redesenhar troca os elementos; quem estava com o foco (teclado, leitor de tela) volta para o equivalente novo. */
 const FOCUS_KEYS = ["fav", "mid", "module", "unit", "subject", "tab"];
@@ -68,9 +71,11 @@ export function route(focus) {
   else if (hs === "todos") { S.view = "modulo"; S.pendingArea = "todos"; }
   else if (hs.startsWith("a-")) { const { areaId, tab } = parseAreaRoute(hs.slice(2)); S.view = "modulo"; S.pendingArea = areaId; S.pendingTab = tab; }
   else { S.view = "inicio"; if (ACERVOS[hs]) S.acervoSwitched = setAcervo(hs); }
+  const toIndex = hs === "indice"; // endereço direto do índice do curso (item "Mapa" da barra inferior)
   if (was === "inicio" && S.view !== "inicio") homeLeft();
   if (was === "modulo" && S.view !== "modulo") moduleLeft();
   renderAll();
+  if (toIndex) { requestAnimationFrame(goIndex); return; }
   if (!focus) return;
   if (S.view === "modulo") moduleEntered();
   else if (S.view === "inicio" && S.acervoSwitched) { S.acervoSwitched = false; homeSwitched(); }
@@ -90,7 +95,7 @@ export function subscribe() {
   // Assuntos são um extra: se as tabelas faltarem ou falharem, o catálogo segue sem as abas.
   // Assuntos são um extra: só a página do módulo e o formulário os usam (o mapa do início não é redesenhado por eles).
   // Falha antes de carregar: segue sem abas. Falha depois (rede oscilou): mantém o que já tinha.
-  const topicsArrived = () => { if (S.view === "modulo" || $("#dlg-form").open) renderAll(); };
+  const topicsArrived = () => { if (S.view === "modulo" || S.view === "inicio" || $("#dlg-form").open) renderAll(); };
   const noTopics = e => {
     console.warn("Assuntos indisponíveis.", e);
     if (topicsReady() && !S.topicsOff) return;

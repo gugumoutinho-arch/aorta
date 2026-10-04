@@ -69,19 +69,42 @@
   <div id="state-banner" hidden></div>
 
   <section class="view" id="view-home" data-view="inicio" aria-labelledby="home-title">
-    <div class="hero">
+    <div class="stage" id="stage">
       <div class="intro">
-        <h1 id="home-title">O que você vai estudar <em>hoje?</em></h1>
-        <p class="intro-copy" id="intro-copy">Provas, resumos e monitoria, organizados do jeito que o curso é.</p>
+        <p class="eyebrow" id="acervo-note"></p>
+        <h1 id="home-title">O curso inteiro, <em>irrigado</em><span class="h1-tail"> por bons materiais</span>.</h1>
+        <p class="intro-copy" id="intro-copy">Slides, casos clínicos, resumos e estudos dirigidos, organizados como o curso é. O Aorta guarda os links; o original fica com quem fez.</p>
         <button class="search-plate" type="button" data-search aria-haspopup="dialog" aria-controls="palette">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-          <span class="search-label">Buscar assunto, matéria ou material</span>
-          <kbd class="kbd" aria-hidden="true">Ctrl K</kbd>
-          <span class="search-go" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          <span class="search-label" id="search-label">Buscar assunto, matéria ou material</span>
+          <span class="search-go" aria-hidden="true"><kbd class="kbd">Ctrl K</kbd><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </button>
         <p class="counts" id="counts"></p>
-        <p class="acervo-note" id="acervo-note"></p>
-        <div class="resume" id="resume" hidden></div>
+        <script>
+        /* Textos de cada acervo (fonte única: home.js usa window.aortaCopy). Aplicados aqui, antes da primeira pintura,
+           para o início do acervo certo não nascer com o texto do outro e pular quando o JS chega (CLS). */
+        (() => {
+          const copy = window.aortaCopy = {
+            idomed: { h1: ["O curso inteiro, ", "irrigado", " por bons materiais", "."], note: "Feito por estudantes · sem vínculo oficial com a IDOMED",
+              intro: "Slides, casos clínicos, resumos e estudos dirigidos, organizados como o curso é: do M1 ao M8. O Aorta guarda os links; o original fica com quem fez." },
+            geral: { h1: ["A medicina ganha ", "corpo", "", "."], note: "Feito por estudantes · links para os originais",
+              intro: "Explore a medicina por disciplina. Dos livros de referência às suas anotações, cada caminho abre uma parte do acervo. Livros apontam só para onde podem ser lidos de forma legítima." },
+          };
+          let acervo = "idomed";
+          try { acervo = localStorage.getItem("aorta-acervo") === "geral" ? "geral" : "idomed"; } catch (_) {}
+          const hash = location.hash.slice(1);
+          if (copy[hash]) acervo = hash;
+          // O mapa e o layout do palco dependem do acervo (coração ou corpo): marcados já na primeira pintura.
+          document.body.dataset.acervo = acervo; document.body.dataset.concept = acervo === "geral" ? "corpo" : "coracao";
+          const c = copy[acervo], t = document.getElementById("home-title"), em = document.createElement("em");
+          em.textContent = c.h1[1];
+          const tail = document.createElement("span"); tail.className = "h1-tail"; tail.textContent = c.h1[2];
+          t.replaceChildren(c.h1[0], em, ...(c.h1[2] ? [tail] : []), c.h1[3]);
+          document.getElementById("intro-copy").textContent = c.intro;
+          document.getElementById("acervo-note").textContent = c.note;
+        })();
+        </script>
+        <div class="resume-slot" id="resume-slot"><div class="resume" id="resume" hidden></div></div>
       </div>
       <div class="atlas" id="atlas">
         <div class="map-caption"><h2 class="mono" id="map-title">Mapa do curso · vista anterior</h2><button class="quiet" type="button" id="pause" aria-pressed="false">Pausar batimento</button></div>
@@ -94,13 +117,21 @@
           <nav class="modules" id="modules" aria-labelledby="map-title"></nav>
           <div class="loader" id="loader" aria-hidden="true"><span id="load-text">Preparando o coração</span><b id="progress"></b></div>
         </div>
-        <div class="map-legend"><span><i></i>Com material</span><span><i class="dashed"></i>Em produção</span></div>
-        <p class="model-state" id="model-state" role="status"></p>
+        <div class="map-legend"><span><i></i>Com material</span><span><i class="dashed"></i>Em produção</span><span class="model-state" id="model-state" role="status"></span></div>
       </div>
     </div>
-    <section class="index-section" aria-labelledby="index-title">
-      <div class="section-heading"><h2 id="index-title">Módulos do curso</h2><span class="mono" id="index-meta"></span></div>
-      <div id="course-index"></div>
+    <section class="index-section" id="indice" aria-labelledby="index-title" tabindex="-1">
+      <div class="index-aside">
+        <p class="eyebrow">Índice</p>
+        <h2 id="index-title">Módulos do curso</h2>
+        <p class="index-lede" id="index-meta"></p>
+        <dl class="index-stats" id="index-stats"></dl>
+      </div>
+      <div class="index-list" id="course-index"></div>
+    </section>
+    <section class="cases-section" id="cases-section" aria-labelledby="cases-title" hidden>
+      <div class="section-heading"><h2 id="cases-title">Casos clínicos</h2><button class="quiet" type="button" id="cases-all"></button></div>
+      <div class="case-shelf" id="cases" tabindex="0" role="region" aria-labelledby="cases-title"></div>
     </section>
     <section class="reading-section" id="reading" aria-labelledby="reading-title" hidden>
       <div class="section-heading"><h2 id="reading-title">Sua mesa de estudo</h2><span class="mono">Em estudo e favoritos</span></div>
@@ -218,6 +249,13 @@
   <p>O site guarda <b>links</b>; os arquivos continuam onde estão, no Google Drive. Nada é copiado nem sincronizado.</p>
   <p class="credit credit-heart">Modelo 3D: <a href="https://humanatlas.io/3d-reference-library" target="_blank" rel="noopener noreferrer">3D Reference Organ for Heart, Male, v1.3</a> — HuBMAP / Human Reference Atlas, a partir do Visible Human Male (National Library of Medicine), licença <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>. As artérias são um traçado estilizado sobre o modelo, não anatomia para estudo.</p>
 </footer>
+
+<nav class="tabbar" id="tabbar" aria-label="Seções">
+  <a href="#inicio" data-tab-nav="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V20h-5v-5h-6v5H4z"/></svg><span>Início</span></a>
+  <a href="#indice" data-tab-nav="mapa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 6h3M11 6h8M5 12h3M11 12h8M5 18h3M11 18h8"/></svg><span>Mapa</span></a>
+  <a href="#todos" data-tab-nav="favoritos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m12 4 2.4 5 5.4.7-4 3.8 1 5.4L12 16.3 7.2 18.9l1-5.4-4-3.8 5.4-.7z"/></svg><span>Favoritos</span></a>
+  <button type="button" data-search data-tab-nav="buscar" aria-haspopup="dialog" aria-controls="palette"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar</span></button>
+</nav>
 
 <dialog class="palette" id="palette" aria-labelledby="palette-title">
   <div class="dialog-top"><h2 id="palette-title">Encontre seu material</h2><button class="icon" type="button" data-close aria-label="Fechar busca"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>

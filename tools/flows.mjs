@@ -57,12 +57,15 @@ for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
   ok(`${tag} início: números reais do acervo`, /7\s+materiais/.test(await page.locator('#counts').innerText()) && /2 de 2/.test(await page.locator('#counts').innerText()));
   ok(`${tag} início: um rótulo por módulo no mapa`, await page.locator('#modules .mod').count() === 2);
   ok(`${tag} início: mapa em linhas sem WebGL, com aviso`, await page.locator('#map canvas').count() === 0 && /Mapa em linhas/.test(await page.locator('#model-state').innerText()));
-  ok(`${tag} início: índice dos módulos`, await page.locator('#course-index .index-row').count() === 2 && !/null|undefined/.test(await page.locator('#course-index').innerText()));
+  // Índice editorial (direção D): um grupo por módulo com material e uma linha numerada por matéria (01…08, na ordem do curso).
+  ok(`${tag} início: índice dos módulos`, await page.locator('#course-index .index-group').count() === 2 && !/null|undefined/.test(await page.locator('#course-index').innerText())
+    && JSON.stringify(await page.locator('#course-index .index-row .index-n').allInnerTexts()) === JSON.stringify(['01', '02', '03', '04', '05', '06', '07', '08']));
   ok(`${tag} início: linhas-guia ligam rótulo e artéria`, await page.locator('#guides path[d^="M"]').count() === 2);
   await noOverflow(page, `${tag} início`); await shot(page, `inicio@${tag}`);
   // teclado no mapa: setas andam entre as artérias
   await page.locator('#modules .mod').first().focus(); await page.keyboard.press('ArrowRight');
-  ok(`${tag} mapa: seta move o foco para o próximo módulo`, await page.evaluate(() => document.activeElement === document.querySelectorAll('#modules .mod')[1]));
+  // No celular o palco mostra um rótulo só: a seta não pode levar o foco a um rótulo escondido.
+  ok(`${tag} mapa: seta move o foco para o próximo módulo`, await page.evaluate(() => { const vis = [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth); return document.activeElement === vis[vis.length > 1 ? 1 : 0]; }));
   // abrir o módulo pelo rótulo
   await page.locator('#modules .mod[data-module="m1"]').click(); await page.waitForTimeout(900);
   ok(`${tag} módulo: abre pelo rótulo com o foco no título`, await page.locator('#view-module').isVisible() && await page.evaluate(() => document.activeElement?.id === 'module-title') && (await page.locator('#module-title').innerText()) === 'M1');
@@ -160,7 +163,8 @@ for (const w of [320, 375, 1440]) for (const scheme of ['light', 'dark']) {
 /* ---------- estados: sem histórico, carregando, banco fora do ar ---------- */
 for (const scheme of ['light', 'dark']) {
   let { ctx, page } = await open(scheme, 375, 'none');
-  ok(`375-${scheme} sem histórico: sem "Continuar"`, await page.locator('#resume').isHidden());
+  // Sem histórico, o mesmo lugar do "Continuar" convida a começar pelo primeiro módulo com material (sem salto de layout).
+  ok(`375-${scheme} sem histórico: sem "Continuar", com "Comece por aqui" levando ao M1`, !/Continuar/.test(await page.locator('#resume').innerText()) && await page.locator('#resume.start a[href="#a-m1"]').count() >= 1 && await page.locator('#resume [data-mid]').count() === 0);
   ok(`375-${scheme} sem histórico: mesa de estudo e recentes aparecem`, await page.locator('#reading .mini-card').count() > 0 && await page.locator('#recent .mini-card').count() === 3);
   await shot(page, `inicio-sem-historico@375-${scheme}`); await ctx.close();
   ({ ctx, page } = await open(scheme, 375, 'load'));
@@ -180,11 +184,17 @@ for (const scheme of ['light', 'dark']) for (const w of [375, 1440]) {
   const { ctx, page, errors } = await open(scheme, w, 'prod');
   ok(`${tag}: oito rótulos, seis tracejados`, await page.locator('#modules .mod').count() === 8 && await page.locator('#modules .mod.off').count() === 6);
   ok(`${tag}: rótulos não se sobrepõem`, await page.evaluate(() => { const r = [...document.querySelectorAll('#modules .mod')].map(e => e.getBoundingClientRect()); return r.every((a, i) => r.every((b, j) => i === j || a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top)); }));
-  ok(`${tag}: rótulos dentro do mapa`, await page.evaluate(() => { const m = document.querySelector('#map').getBoundingClientRect(); return [...document.querySelectorAll('#modules .mod')].every(e => { const r = e.getBoundingClientRect(); return r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; }); }));
+  ok(`${tag}: rótulos dentro do mapa`, await page.evaluate(() => { const m = document.querySelector('#map').getBoundingClientRect(); return [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth).every(e => { const r = e.getBoundingClientRect(); return r.left >= m.left - 1 && r.right <= m.right + 1 && r.top >= m.top - 1 && r.bottom <= m.bottom + 1; }); }));
   ok(`${tag}: índice separa os módulos em produção`, await page.locator('.production-index a').count() === 6);
   const v = await axeClean(page); ok(`${tag}: acessibilidade do início`, v.length === 0, v.map(x => x.id).join(', '));
   await noOverflow(page, tag); await shot(page, `em-producao-inicio@${tag.replace(' em produção', '')}`);
-  await page.locator('#modules .mod[data-module="m3"]').click(); await page.waitForTimeout(800);
+  // Celular (direção D): o palco compacto mostra um rótulo só; todos os módulos continuam a um toque, pelo índice.
+  if (w < 641) {
+    ok(`${tag}: palco compacto com um rótulo à vista (o do "Continuar" ou o primeiro com material)`, await page.evaluate(() => [...document.querySelectorAll('#modules .mod')].filter(e => e.offsetWidth).length === 1));
+    ok(`${tag}: os oito módulos estão no índice (grupos e "em produção")`, await page.evaluate(() => new Set([...document.querySelectorAll('#course-index [data-module]')].map(a => a.dataset.module)).size === 8));
+    await page.locator('.production-index a[href="#a-m3"]').click();
+  } else await page.locator('#modules .mod[data-module="m3"]').click();
+  await page.waitForTimeout(800);
   ok(`${tag}: módulo em produção explica e leva ao que tem material`, /ainda não foi irrigado/.test(await page.locator('#materials').innerText()) && await page.locator('#materials .empty a[href="#a-m1"]').count() === 1);
   ok(`${tag}: cabeçalho diz "Em produção"`, /Em produção/.test(await page.locator('#module-summary').innerText()));
   await shot(page, `em-producao-modulo@${tag.replace(' em produção', '')}`);
@@ -266,9 +276,11 @@ for (const w of [375, 1440]) {
   await page.click('#pause');
   await shot(page, `coracao-3d@${w}-dark`);
   // interrupções: cliques rápidos em artérias diferentes, abrir/fechar a ficha várias vezes
-  await page.locator('#modules .mod[data-module="m1"]').click(); await page.waitForTimeout(60);
+  // No celular só um rótulo fica no palco: a troca rápida vem pelos links do índice (mesmo destino, mesma corrida).
+  const modLink = id => w < 641 ? page.locator(`#course-index [data-module="${id}"]`) : page.locator(`#modules .mod[data-module="${id}"]`);
+  await modLink('m1').click(); await page.waitForTimeout(60);
   await page.goBack().catch(() => {}); await page.waitForTimeout(60);
-  await page.locator('#modules .mod[data-module="m2"]').click(); await page.waitForTimeout(1200);
+  await modLink('m2').click(); await page.waitForTimeout(1200);
   ok(`${w} interrupção: troca rápida termina no último módulo, sem voo preso`, (await page.locator('#module-title').innerText()) === 'M2' && await page.locator('.flight').count() === 0 && await page.evaluate(() => getComputedStyle(document.querySelector('#module-title')).opacity === '1'));
   for (let i = 0; i < 8; i++) { await page.locator('#materials [data-mid]').first().click(); await page.waitForTimeout(40); await page.keyboard.press('Escape'); await page.waitForTimeout(40); }
   await page.waitForTimeout(500);

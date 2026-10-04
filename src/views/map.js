@@ -1,6 +1,6 @@
 /* Mapa do acervo (coração ou folha, ver concept.js): rótulos HTML dos módulos (links de verdade), linhas-guia até a
    ponta de cada caminho, mapa em linhas (SVG) como base sempre presente e o 3D por cima, carregado depois da primeira tela. */
-import { ready, reducedMotion } from "../core/state.js";
+import { S, ready, reducedMotion } from "../core/state.js";
 import { $, $$, h } from "../core/dom.js";
 import { moduleNumber, countLabel } from "../core/areas.js";
 import { noteFlight } from "./module.js";
@@ -30,8 +30,11 @@ function drawOutline() {
 function buildLabels() {
   const nav = $("#modules"), focused = document.activeElement?.closest?.("#modules [data-module]")?.dataset.module;
   // O nome acessível é o próprio texto visível ("Art. 01 M1 4 materiais"), como pede o WCAG 2.5.3.
-  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-index": String(m.index), style: `--c:var(${m.token})` },
-    h("span", { class: "mono", text: (concept().labelTop?.(m) || moduleNumber(m.index)) + " " }), h("b", { text: m.name }), h("small", { text: " " + countLabel(m.count) }))));
+  // Coração (direção D): "ART. 01 · M1" no rótulo técnico e o nome da artéria em destaque; corpo: destino e disciplina.
+  const artery = !concept().labelTop && S.concept === "coracao";
+  nav.replaceChildren(...mods.map(m => h("a", { class: "mod" + (m.live ? "" : " off") + (!artery && m.name.length > 4 ? " long" : ""), href: "#a-" + m.id, "data-module": m.id, "data-name": m.name, "data-index": String(m.index), style: `--c:var(${m.token})` },
+    h("span", { class: "mono", text: (concept().labelTop?.(m) || moduleNumber(m.index) + (artery ? " · " + m.name : "")) + " " }), h("b", { text: artery ? m.art.charAt(0).toLocaleUpperCase("pt-BR") + m.art.slice(1) : m.name }),
+    h("small", { text: " " + (m.live ? countLabel(m.count) : artery ? "Ainda não irrigado" : countLabel(m.count)) }))));
   $("#flat-arteries").replaceChildren(...mods.map(m => {
     const p = document.createElementNS(NS, "path");
     p.setAttribute("d", concept().flat(m, mods.length).d); p.dataset.flat = String(m.index);
@@ -41,6 +44,7 @@ function buildLabels() {
   }));
   $("#guides").replaceChildren(...mods.map(m => { const p = document.createElementNS(NS, "path"); p.dataset.guide = String(m.index); return p; }));
   if (focused) nav.querySelector(`[data-module="${focused}"]`)?.focus({ preventScroll: true });
+  featureModule(featured);
 }
 
 /* Duas colunas, cada rótulo do lado em que o caminho termina, na ordem da altura da ponta. Nada atravessa o desenho. */
@@ -164,6 +168,15 @@ export function drawMap(list) {
   else if (!started) { started = true; scheduleHeart(); }
 }
 export function mapVisible(on) { visible = on; scene?.visible(on); if (on) { scene?.reset?.(false); requestLayout(); } }
+/* Módulo em destaque (o do "Continuar" ou o primeiro com material). No celular, o palco compacto mostra só o rótulo dele;
+   os outros continuam no índice logo abaixo. */
+let featured = "";
+export function featureModule(id = "") {
+  featured = id || "";
+  $$("#modules .mod").forEach(b => b.classList.toggle("featured", b.dataset.module === featured));
+  const i = mods.find(m => m.id === featured)?.index;
+  $$("#guides [data-guide]").forEach(g => g.classList.toggle("featured", +g.dataset.guide === i));
+}
 export function focusModuleLabel(id) { const a = $(`#modules [data-module="${id}"]`); if (!a) return false; a.focus({ preventScroll: true }); return true; }
 
 export function wireMap() {
@@ -177,7 +190,7 @@ export function wireMap() {
   // Setas andam entre as artérias; Enter abre (é um link).
   nav.addEventListener("keydown", e => {
     if (!["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp", "Home", "End"].includes(e.key)) return;
-    const bs = $$("#modules .mod"), i = bs.indexOf(document.activeElement); if (i < 0) return;
+    const bs = $$("#modules .mod").filter(b => b.offsetWidth), i = bs.indexOf(document.activeElement); if (i < 0) return; // só os rótulos à vista
     e.preventDefault();
     const j = e.key === "Home" ? 0 : e.key === "End" ? bs.length - 1 : (i + (["ArrowRight", "ArrowDown"].includes(e.key) ? 1 : bs.length - 1)) % bs.length;
     bs[j].focus();
@@ -192,11 +205,11 @@ export function wireMap() {
       const token = ++diveId, rect = label.querySelector("b").getBoundingClientRect();
       diving = true; highlight(+label.dataset.index, true);
       document.body.classList.add("diving");
-      const go = () => { if (!diving || token !== diveId) return; diving = false; document.body.classList.remove("diving"); noteFlight(rect, label.dataset.module, label.querySelector("b")?.textContent || ""); location.hash = "a-" + label.dataset.module; };
+      const go = () => { if (!diving || token !== diveId) return; diving = false; document.body.classList.remove("diving"); noteFlight(rect, label.dataset.module, label.dataset.name || ""); location.hash = "a-" + label.dataset.module; };
       Promise.race([scene.focus(+label.dataset.index), new Promise(r => setTimeout(r, 900))]).then(go);
       return;
     }
-    noteFlight(a.getBoundingClientRect(), a.dataset.module, a.querySelector("b")?.textContent || a.textContent);
+    noteFlight(a.getBoundingClientRect(), a.dataset.module, a.dataset.name || a.querySelector("b")?.textContent || a.textContent);
   });
   $("#pause").hidden = true;
   $("#pause").textContent = concept().pause[0];

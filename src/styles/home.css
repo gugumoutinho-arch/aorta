@@ -1,45 +1,10 @@
-/* Início: herói em duas colunas no computador; no celular, título, busca e o coração logo abaixo. */
+/* Mapa do início (coração ou corpo): o mapa em linhas (SVG) é a base sempre presente; o 3D entra por cima depois da
+   primeira tela. Rótulos HTML (links de verdade) em duas colunas, ligados à ponta de cada caminho por linhas-guia. */
 #view-home { position: relative; }
-#view-home::after { /* grão estático (~0,06), só na área do herói */
-  content: ""; position: absolute; z-index: -1; inset: -88px -40px auto; height: 820px; pointer-events: none; opacity: .06;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-#view-home::before { /* feixes de luz com grão, atrás do coração (Raycast/Igloo), sem cobrir o texto */
-  content: ""; position: absolute; z-index: -1; inset: -88px -10vw auto 38%; height: 760px; pointer-events: none;
-  background: repeating-linear-gradient(118deg, transparent 0 80px, var(--beam) 80px 130px, transparent 130px 220px), radial-gradient(60% 55% at 60% 40%, var(--haze), transparent 70%);
-  filter: blur(34px); -webkit-mask-image: linear-gradient(black 55%, transparent); mask-image: linear-gradient(black 55%, transparent);
-}
-.hero { display: grid; grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr); gap: var(--space-6); align-items: center; min-height: min(720px, calc(100dvh - 88px)); padding-block: var(--space-5); }
-.intro h1 { font-size: clamp(44px, 4.9vw, 70px); line-height: 1.06; letter-spacing: -.035em; max-width: 13ch; font-optical-sizing: auto; }
-.intro-copy { margin-top: 20px; color: var(--muted); font-size: 18px; max-width: 34ch; }
-.search-plate { margin-top: 30px; width: 100%; max-width: 540px; min-height: 64px; display: flex; align-items: center; gap: 14px; padding: var(--space-2) var(--space-2) var(--space-2) 18px; border-radius: var(--radius-card); text-align: left; background: var(--plate); color: var(--plate-ink);
-  box-shadow: 0 1px 0 rgb(255 255 255 / .7) inset, 0 18px 36px -18px var(--shadow); transition: transform .25s var(--ease), box-shadow .25s var(--ease); }
-.search-plate > svg { width: 20px; height: 20px; flex: none; }
-.search-label { flex: 1; font-size: 17px; }
-.search-plate .kbd { font: 600 11px var(--label); padding: 5px var(--space-2); border-radius: var(--radius-small); border: 1px solid currentColor; opacity: .7; }
-.search-go { display: grid; place-items: center; width: 48px; height: 48px; flex: none; border-radius: 7px; background: var(--action); color: var(--action-ink); transition: transform .25s var(--ease); }
-.search-go svg { width: 20px; height: 20px; }
-.search-plate:hover { box-shadow: 0 1px 0 rgb(255 255 255 / .7) inset, 0 22px 40px -16px var(--shadow); }
-.search-plate:hover .search-go { transform: translateX(3px); }
-.search-plate:active { transform: scale(.99); }
-@media (hover: none), (pointer: coarse) { .search-plate .kbd { display: none; } }
-.counts { margin-top: 14px; font-size: 13px; color: var(--muted); display: flex; align-items: center; flex-wrap: wrap; gap: 0 var(--space-1); min-height: 20px; }
-.counts i { width: 7px; height: 7px; border-radius: 50%; background: var(--action); box-shadow: 0 0 10px var(--action); margin-right: 6px; }
-.counts b { color: var(--text); font-weight: 650; }
-.resume { margin-top: 34px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; max-width: 540px; padding: 14px var(--space-4); border-radius: var(--radius-card); border: 1px solid var(--line); background: color-mix(in oklab, var(--paper) 80%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.resume .rib { width: 9px; height: 40px; background: var(--action); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); }
-.resume .small { color: var(--muted); font-size: 12px; }
-.resume-title { display: block; width: 100%; text-align: left; margin: var(--space-1) 0 2px; font: 500 16px/1.4 var(--serif); }
-.resume-title:hover { color: var(--flow); }
-.resume .open { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--flow); font-weight: 600; text-decoration: none; }
-.resume .open svg { width: 15px; height: 15px; }
-
-/* Coração-mapa */
-.atlas { min-width: 0; }
 .atlas[data-empty="true"] .modules, .atlas[data-empty="true"] .guides { visibility: hidden; }
-.map-caption { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); }
-.map-caption h2 { font: 600 11px var(--label); letter-spacing: .08em; }
-.map { position: relative; height: 560px; isolation: isolate; touch-action: pan-y; }
+.map-caption { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 44px; color: var(--muted); } /* altura fixa: "Pausar batimento" aparece depois, com o 3D, sem empurrar nada */
+.map-caption h2 { flex: 1 1 auto; min-width: 0; font: 600 11px var(--label); letter-spacing: .08em; }
+.map { position: relative; height: 600px; isolation: isolate; touch-action: pan-y; }
 .map canvas, .flat-map, .guides { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .map canvas { z-index: 1; }
 .flat-map { z-index: 0; color: var(--violet-2); transition: opacity .6s var(--ease); }
@@ -52,93 +17,33 @@
 .guides path { fill: none; stroke: var(--line-strong); stroke-width: 1; transition: stroke .2s var(--ease); }
 .guides path.hot { stroke: var(--flow); }
 .modules { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
-.mod { pointer-events: auto; position: absolute; left: 0; top: 0; width: 112px; min-height: 72px; padding: 6px 0 var(--space-2); display: flex; flex-direction: column; justify-content: center; text-decoration: none; color: var(--c); border-bottom: 1px solid var(--line-strong); transition: border-color .2s var(--ease), color .2s var(--ease); }
+.mod { pointer-events: auto; position: absolute; left: 0; top: 0; width: 112px; min-height: 72px; padding: 6px 0 var(--space-2); display: flex; flex-direction: column; justify-content: center; text-decoration: none; color: var(--c); border-bottom: 1px solid var(--line-strong); transition: border-color .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease); }
 .mod[data-side="right"] { align-items: flex-end; text-align: right; }
 .mod .mono { font-size: 11px; color: var(--muted); }
-.mod b { font: 500 34px/1.05 var(--serif); letter-spacing: -.03em; transition: transform .25s var(--ease); }
+.mod b { font: 500 34px/1.05 var(--serif); letter-spacing: -.03em; }
 .mod small { font-size: 11.5px; color: var(--muted); }
 .mod.off { border-bottom-style: dashed; color: var(--muted); }
 .mod.off b { font-size: 27px; }
 .mod.off small { font-style: italic; }
-.mod:hover, .mod.hot { border-bottom-color: var(--c); }
-.mod.hot b { font-style: italic; }
-.mod:hover b { transform: translateX(var(--nudge, 3px)); }
-.mod[data-side="right"]:hover b { --nudge: -3px; }
+.mod.hot { border-bottom-color: var(--c); }
+@media (hover: hover) { .mod:hover { border-bottom-color: var(--c); } }
 .mod:focus-visible { outline-offset: 4px; }
 .loader { position: absolute; z-index: 4; left: 50%; bottom: 8px; translate: -50% 0; display: flex; gap: 10px; align-items: baseline; color: var(--muted); font-size: 11px; white-space: nowrap; pointer-events: none; }
 .loader b { font: 600 13px var(--label); color: var(--text); font-variant-numeric: tabular-nums; }
-.map-legend { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; padding-top: var(--space-2); border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); }
-.map-legend span { display: flex; gap: 6px; align-items: center; }
-.map-legend i { display: block; width: 16px; border-top: 2px solid var(--flow); }
-.map-legend i.dashed { border-top: 1px dashed var(--muted); }
-.model-state { margin-top: var(--space-1); font-size: 12px; color: var(--muted); min-height: 18px; }
 body[data-state="login"] .atlas, body[data-state="denied"] .atlas, body[data-state="unavailable"] .atlas,
 body[data-state="login"] .search-plate, body[data-state="denied"] .search-plate, body[data-state="unavailable"] .search-plate,
 body[data-state="login"] .index-section, body[data-state="denied"] .index-section, body[data-state="unavailable"] .index-section { display: none; }
 
-/* Índice dos módulos e cartões */
-.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 26px; }
-.section-heading h2 { font-size: clamp(30px, 3vw, 38px); line-height: 1.15; }
-.section-heading > .mono { color: var(--muted); }
-.index-section { padding-block: 56px 40px; border-top: 1px solid var(--line); }
-.index-row { display: grid; grid-template-columns: 96px minmax(0, 1fr) 44px; gap: var(--space-5); align-items: center; padding: 22px 0; border-top: 1px solid var(--line); }
-.index-num { font: 500 46px/1 var(--serif); letter-spacing: -.04em; color: var(--c); text-decoration: none; min-height: 44px; display: flex; align-items: center; }
-.index-row h3 { font: 600 17px/1.4 var(--sans); letter-spacing: 0; }
-.index-row p { margin-top: var(--space-1); font-size: 13px; color: var(--muted); }
-.index-go { display: grid; place-items: center; width: 44px; height: 44px; color: var(--muted); text-decoration: none; font-size: 20px; }
-.index-row:hover .index-go { color: var(--c); }
-.production-index { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1) 18px; padding: 20px 0; border-top: 1px dashed var(--line-strong); color: var(--muted); font-size: 13px; }
-.production-index a { font: 500 24px var(--serif); color: var(--muted); text-decoration: none; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; }
-.production-index a:hover { color: var(--text); }
-.reading-section, .recent-section { padding-block: var(--space-6) var(--space-7); }
-.card-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
-.mini-card { position: relative; display: flex; flex-direction: column; gap: 14px; padding: 20px 22px 18px; border-radius: var(--radius-small); background: var(--paper); border-top: 3px solid var(--c); min-width: 0; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
-.mini-card::after { content: ""; position: absolute; left: 6px; right: 6px; bottom: -5px; height: 5px; border-radius: 0 0 6px 6px; background: var(--paper-2); z-index: -1; }
-.mini-card:hover { transform: translateY(-3px); box-shadow: 0 18px 34px -22px var(--shadow); }
-.mini-card .mono { color: var(--muted); }
-.mini-card h3 { font-size: 20px; line-height: 1.35; }
-.mini-card h3 button { text-align: left; overflow-wrap: anywhere; }
-.mini-card h3 button::after { content: ""; position: absolute; inset: 0; } /* o cartão inteiro abre a ficha */
-.mini-card h3 button:focus-visible { outline: none; }
-.mini-card:has(button:focus-visible) { outline: 2px solid var(--focus); outline-offset: 3px; }
-.mini-card .small { color: var(--muted); font-size: 12px; margin-top: auto; }
-
-@media (min-width: 1500px) { .map { height: 620px; } }
-@media (max-width: 900px) {
-  .hero { grid-template-columns: 1fr; min-height: 0; gap: var(--space-2); }
-  .intro h1 { max-width: 16ch; }
-  .map { height: 480px; }
-}
+@media (min-width: 1500px) { .map { height: 640px; } }
+@media (max-width: 999px) { .map { height: 500px; } }
 @media (max-width: 640px) {
-  #view-home::before { inset: 0 -16px auto -16px; height: 620px; opacity: .8; }
-  .hero { padding-block: 22px 0; }
-  .intro h1 { font-size: 39px; line-height: 1.08; }
-  .intro-copy { font-size: 15px; margin-top: var(--space-3); }
-  .search-plate { margin-top: 20px; min-height: 56px; gap: 10px; padding-left: 14px; }
-  .search-label { font-size: 15px; }
-  .search-go { width: 42px; height: 42px; }
-  /* "Continuar" chega com os dados: no celular fica abaixo do coração para não empurrar o mapa (sem salto de layout). */
-  .hero { display: flex; flex-direction: column; align-items: stretch; }
-  .intro { display: contents; }
-  .atlas { order: 1; margin-top: var(--space-3); }
-  .resume { order: 2; margin-top: var(--space-2); }
-  .map { height: 380px; margin-inline: -16px; }
+  /* Palco compacto: coração menor e um rótulo só (o do "Continuar" ou o primeiro com material); os demais módulos
+     estão no índice logo abaixo, com os mesmos links. */
+  .map { height: 260px; margin-inline: -16px; }
   .modules { inset: 0 16px; }
-  .search-plate .kbd { display: none; }
+  .mod:not(.featured), .guides path:not(.featured) { display: none; }
   .mod { width: 86px; min-height: 62px; padding: var(--space-1) 0 6px; }
-  /* véu que esmaece para dentro: o texto fica legível sem recortar o coração com um retângulo */
-  .mod[data-side="left"] { background: linear-gradient(90deg, var(--bg) 62%, transparent); }
-  .mod[data-side="right"] { background: linear-gradient(270deg, var(--bg) 62%, transparent); }
   .mod b { font-size: 27px; }
   .mod.off b { font-size: 22px; }
   .mod small, .mod .mono { font-size: 11px; }
-  .map-legend { gap: var(--space-3); font-size: 11px; }
-  .model-state { font-size: 11px; }
-  .index-section { padding-block: 36px var(--space-5); }
-  .section-heading { flex-direction: column; align-items: flex-start; gap: var(--space-2); margin-bottom: 18px; }
-  .index-row { grid-template-columns: 58px minmax(0, 1fr) 44px; gap: var(--space-3); padding: var(--space-4) 0; }
-  .index-num { font-size: 34px; }
-  .index-row h3 { font-size: 15px; }
-  .index-row p { font-size: 12px; }
-  .card-row { grid-template-columns: 1fr; }
 }

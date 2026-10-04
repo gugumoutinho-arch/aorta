@@ -21,8 +21,9 @@ try {
       ok(width+' '+theme+' '+acervo+' mapa pelo acervo',await p.getAttribute('body','data-concept')===(acervo==='geral'?'corpo':'coracao'));
       ok(width+' '+theme+' '+acervo+' nomes corretos',acervo==='geral'? !(await p.locator('#modules').innerText()).match(/\bM[1-8]\b/):await p.locator('#modules [data-module="m1"]').count()===1);
       ok(width+' '+theme+' '+acervo+' sem rolagem e rótulos sobrepostos',await p.evaluate(()=>{
-        const rects=[...document.querySelectorAll('#modules .mod')].map(e=>e.getBoundingClientRect());
-        return document.documentElement.scrollWidth<=innerWidth+1&&rects.every((r,i)=>r.width>=44&&r.height>=44&&rects.every((s,j)=>i===j||r.right<=s.left||s.right<=r.left||r.bottom<=s.top||s.bottom<=r.top));
+        // Só os rótulos à vista (no celular, o palco compacto mostra um só); pelo menos um sempre aparece.
+        const rects=[...document.querySelectorAll('#modules .mod')].filter(e=>e.offsetWidth).map(e=>e.getBoundingClientRect());
+        return rects.length>0&&document.documentElement.scrollWidth<=innerWidth+1&&rects.every((r,i)=>r.width>=44&&r.height>=44&&rects.every((s,j)=>i===j||r.right<=s.left||s.right<=r.left||r.bottom<=s.top||s.bottom<=r.top));
       }));
       const axe=await new AxeBuilder({page:p}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
       ok(width+' '+theme+' '+acervo+' WCAG',axe.violations.length===0 || (console.log(JSON.stringify(axe.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})))),false));
