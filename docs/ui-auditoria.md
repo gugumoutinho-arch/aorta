@@ -25,8 +25,12 @@
 | Lighthouse celular (mediana de 3) | IDOMED 91 [72/91/91], geral 90 [90/91/71]; LCP 2,7 s e 4,6 s | `npm run lighthouse` |
 | Lighthouse computador | IDOMED 100, geral 99 | idem |
 | Acessibilidade / boas práticas | 100 / 100 (com fontes reais) | idem |
-| Entrada IDOMED, maior tarefa (CPU 4×, 5 sequências) | PREENCHER | `node medir-v5.mjs --fase=base-N` |
-| p95 do quadro durante movimento ativo | PREENCHER | `node movimento.mjs --fase=u1-antes` |
+| Entrada, maior tarefa (CPU 4×, 5 sequências; mediana / pior) | IDOMED 660 / 749 ms; geral 299 / 408 ms | `node medir-v5.mjs --fase=base-N` + `node resumo-medidas.mjs base` |
+| Troca de acervo, maior tarefa (mediana) | IDOMED 289 ms; geral 275 ms | idem |
+| Mergulho, maior tarefa (mediana) | IDOMED 92 ms; geral 86 ms | idem |
+| CLS da jornada medir-v5 (mediana / pior) | IDOMED 0,022 / 0,042; geral 0,064 / 0,092 | idem |
+| p95 do quadro só durante movimento ativo, 1440 px (mediana de 5) | pílula do acervo 300 ms; unidades 33; abas de assunto 33; estrela 67; ficha 383; aviso 267; busca 400 | `node movimento.mjs --fase=u1-antes` |
+| idem, 390 px | pílula 233 ms; unidades 17; abas 17; estrela 17; ficha 200; aviso 117; busca 150 | idem, `--largura=390` |
 
 **CLS do orçamento na base (`ORCAMENTO_ESTRITO` desligado; meta 0,03):**
 
@@ -35,7 +39,9 @@
 | v4 | 320: idomed 0,062, geral 0,292 · 375: 0,101 / 0,067 · 390: 0,079 / 0,065 · 768: 0,137 / 0,061 · 1440: geral 0,058 |
 | abundante | 320: 0,191 / 0,116 · 375: 0,063 / 0,076 · 390: 0,081 / 0,070 · 768: 0,119 / 0,203 · 1440: geral 0,074 |
 
-**Leitura:**
+**Leitura das medidas de movimento:** no computador (1440 px), diálogos, aviso e busca passam de 250 ms por quadro durante o movimento. A causa provável é o `backdrop-filter` do fundo do diálogo e a área grande repintada por software (SwiftShader). A troca de acervo inclui o início do 3D. Esses números NÃO valem para um celular com GPU; servem para comparar antes e depois no mesmo ambiente.
+
+**Leitura do CLS:**
 - com as fontes reais, a troca de fonte (`display=swap`) e a chegada dos dados ("Continuar", contagens, rótulos do mapa) empurram a primeira dobra;
 - o "~0,065 do geral" citado no prompt aparece, mas não é o pior caso;
 - o pior caso é 320 px no geral (0,29): o mapa do corpo e o "Continuar" entram depois do título.
@@ -48,7 +54,7 @@
 | K2 | Rótulos do corpo cruzando linhas-guia | Confirmado no celular e a 768 px. As guias de Anatomia (mão) e Farmacologia (intestino) atravessam o corpo e passam por trás de rótulos vizinhos. | `inicio-geral@768-dark`, `inicio-geral@390-dark` |
 | K3 | Contraste do órgão no tema claro | A confirmar no U3 com o 3D carregado. Na matriz, o órgão do módulo não chegou a aparecer em 1,8 s (vê-se a mini-artéria). | `modulo-geral@1440-light` |
 | K4 | CLS da jornada do geral | Confirmado e pior que o citado: até 0,29 a 320 px. | orçamento |
-| K5 | Maior tarefa na entrada do IDOMED | PREENCHER (medir-v5, 5 sequências). | `medir-v5` |
+| K5 | Maior tarefa na entrada do IDOMED | Confirmado e maior que o citado: mediana 660 ms, pior 749 ms (citado: 550–590). | `medir-v5` |
 | K6 | Lighthouse do celular oscilando | Confirmado: uma execução de 71–72 em cada acervo, entre outras de 90–91. | lighthouse |
 
 ## Achados por tela

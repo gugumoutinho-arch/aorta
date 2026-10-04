@@ -29,4 +29,52 @@ Quem retomar: leia esta lista, rode `cd tools && npm test && npm run check` e si
   - depois disso, `document.fonts` mostra 16 faces e 3 carregadas na tela inicial, e os 4 pedidos de fonte (css2, Literata ×2, Schibsted) retornam ok.
   - **Consequência:** as capturas e o Lighthouse desta rodada TÊM as fontes reais e passam a ser comparáveis com o computador do dono, ao contrário da rodada A.
   - **Para retomar noutro contêiner:** a configuração é só deste contêiner (fora do repositório); refaça com `certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n <nome> -i <ca.pem>` para cada CA "O = Anthropic" do bundle.
-- **Bateria G na base (`d5fcad2`):** ver abaixo.
+- **Bateria G na base (`d5fcad2`, cópia isolada, com fontes):**
+  - `npm test` 110/110; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 71/71; `topics` 57/57; `topic-edit` 52/52; `import` 59/59;
+  - `orcamento`: passa no modo não estrito; o CLS fica acima de 0,03 em 18 de 20 combinações (máx. 0,29);
+  - Lighthouse (mediana de 3):
+    - celular: IDOMED 91 [72/91/91], LCP 2,7 s; geral 90 [90/91/71], LCP 4,6 s;
+    - computador: 100 e 99;
+    - acessibilidade 100 e boas práticas **100** (com as fontes, o erro de certificado da rodada A some).
+
+## Pacotes
+
+| Pacote | Situação | Commit |
+|---|---|---|
+| U0 · Auditoria | concluído | `c64013e` (ferramentas), `4daa6f7` + seguinte (doc) |
+| U1 · Sistema de movimento | concluído (aceite parcial, ver abaixo) | `110d1de`, desfoque dos diálogos no commit seguinte |
+
+### U0 · Auditoria
+
+- **Saída:** `docs/ui-auditoria.md`, com 162 capturas da base em `tools/reports/ui/u0/` (fora do git).
+- **Medidas da base, `medir-v5` (5 sequências, CPU 4×, 390 px, SwiftShader, `seed-v4`), maior tarefa (mediana / pior):**
+
+  | Etapa | IDOMED | Geral |
+  |---|---|---|
+  | Entrada | 660 / 749 ms | 299 / 408 ms |
+  | Troca de acervo | 289 ms | 275 ms |
+  | Mergulho | 92 ms | 86 ms |
+
+  CLS mediano: IDOMED 0,022; geral 0,064.
+- **`movimento.mjs`:** p95 do quadro SÓ durante o movimento ativo, mediana de 5 sequências, Chromium 141, `seed-v4` + `fixtures-topics`, sem limite de CPU, rede local:
+
+  | Largura | Pílula do acervo | Unidades | Abas | Estrela | Ficha | Aviso | Busca |
+  |---|---|---|---|---|---|---|---|
+  | 1440 px | 300 | 33 | 33 | 67 | 383 | 267 | 400 ms |
+  | 390 px | 233 | 17 | 17 | 17 | 200 | 117 | 150 ms |
+
+### U1 · Sistema de movimento
+
+- **Verificação (cópia de `110d1de`):** `check` 0/0; `flows` 364/364; `acervos` 71/71.
+- **p95 ativo depois da migração (o mesmo ambiente):** igual à base dentro do ruído, como esperado, porque as propriedades animadas não mudaram.
+  - 1440 px: pílula 317, unidades 33, abas 33, estrela 50, ficha 383, aviso 267, busca 433 ms;
+  - 390 px: 217 / 17 / 17 / 17 / 200 / 117 / 150 ms.
+- **Causa do custo alto em diálogos e avisos:** o `backdrop-filter: blur(3px)` do fundo dos diálogos, de tela cheia. Ele também contraria "vidro com parcimônia" da D.
+  - **Medido depois de tirá-lo** (1440 px, árvore com o U2 em andamento, o que não afeta a página do módulo): ficha 383 → **83 ms**, aviso 267 → **67 ms**, busca 433 → **167 ms**. A busca roda sobre o coração 3D em movimento no início.
+- **Aceite "p95 ativo ≤ 20 ms":**
+  - cumprido a 390 px em unidades, abas e estrela;
+  - NÃO cumprido em ficha, aviso, busca e pílula do acervo, que a 1440 px inclui o início do 3D;
+  - este ambiente desenha por software (SwiftShader), então a medida serve só como tendência.
+  - Pendente: medir em aparelho real.
+- **Vídeos:** `tools/reports/ui/videos/u1-antes/` e `u1-depois/` (fora do git; vão no artefato final).
+- **Movimento reduzido:** intacto. `flows` cobre a troca no meio da animação e passou.

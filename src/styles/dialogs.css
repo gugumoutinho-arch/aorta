@@ -1,6 +1,6 @@
 /* Diálogos: busca (paleta), ficha do material (folha/painel), formulário e aparência. */
 dialog { color: var(--text); background: var(--paper); border: 1px solid var(--line); padding: var(--space-5); border-radius: 14px; box-shadow: 0 40px 90px -30px var(--shadow); max-height: 90dvh; overscroll-behavior: contain; }
-dialog::backdrop { background: var(--scrim); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+dialog::backdrop { background: var(--scrim); } /* sem desfoque: vidro só no palco (direção D); o desfoque de tela cheia custava ~200–400 ms por quadro no SwiftShader */
 .dialog-top { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
 .dialog-top h2 { font-size: 26px; }
 .dialog-top .mono { color: var(--muted); }

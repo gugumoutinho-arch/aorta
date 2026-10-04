@@ -2,6 +2,32 @@
 
 Mais recente primeiro. Regras completas em `AGENTS.md`.
 
+## 2026-10-04 — Claude (nuvem) — Rodada B · U1 · Sistema de movimento — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **O que mudou:**
+  - coreografia por categoria (gesto, ponteiro, troca, entrada, saída, lista, mergulho, cena 3D) em DESIGN.md › Movimento;
+  - utilitários `src/ui/choreo.js` (`enter`, `exit`, `swap`, `press`, `respond`, `cascade`) sobre os tokens;
+  - migrados os usos da interface: diálogos, ficha, cabeçalho do módulo, voo do título, entrada do início, pressão e inclinação. Os diálogos não saem mais com `power2.in`, e a pressão foi de .975 para .97.
+- **Régua no `check`** (`tools/motion-rules.mjs`, teste com fixtures positivas e negativas):
+  - na interface (`src/ui`, `src/views`) não pode haver duração literal nem curva que só acelera;
+  - exceção só com "movimento: exceção — <motivo>" na mesma linha;
+  - a cena 3D fica fora da régua, com justificativa.
+  - O hexadecimal fora de `tokens.css` passou de aviso a erro.
+- **Fundo dos diálogos sem desfoque:** só o palco pode ter vidro. Medido: o p95 ativo da ficha a 1440 px caiu de 383 para 83 ms (SwiftShader).
+- **Testado (cópia isolada de `110d1de`):** `npm test` 115/115 com `CHROME_PATH`; `check` 0 erros e 0 avisos; `flows` 364/364; `acervos` 71/71. Vídeos e medidas antes e depois em `docs/ui-progresso.md`. O aceite de p95 ≤ 20 ms é só parcial (ver lá).
+- **Não verificado:** sensação do movimento em aparelho real (o vídeo é SwiftShader, sem GPU).
+
+## 2026-10-04 — Claude (nuvem) — Rodada B · preflight e U0 · Auditoria — ramo `nuvem/ui-lapidacao`, não publicado
+
+- **Preflight:** as fontes reais passaram a carregar no Chromium da nuvem. A CA do proxy foi registrada no NSS, com a verificação TLS ligada. Bateria G na base `d5fcad2` toda verde; Lighthouse celular 91/90, acessibilidade e boas práticas 100.
+- **Ferramentas novas:**
+  - `tools/ambiente.mjs` (preflight);
+  - `tools/auditoria.mjs` (matriz de capturas);
+  - `tools/movimento.mjs` (vídeos e p95 só do movimento ativo);
+  - `tools/resumo-medidas.mjs` (mediana e pior caso de `medir-v5`);
+  - `tools/galeria.mjs` (`docs/ui/`).
+- **Auditoria:** `docs/ui-auditoria.md`, com 162 capturas da base, achados P0–P3 e as medidas da base (CLS, maior tarefa, p95 ativo).
+
 ## 2026-10-03 — Claude (nuvem) — Rodada A · N5 (seguimento da revisão de design) — ramo `nuvem/f1-conteudo`, não publicado
 
 - **Por quê:** a revisão (`aorta-design-reviewer`) apontou que a borda do coração ficava na cor da Cardiologia o tempo todo, inclusive no batimento de repouso, que é de todos os módulos. Ele acendia duas vezes por ciclo e ficava tingido mesmo com a Cardiologia "em produção".
