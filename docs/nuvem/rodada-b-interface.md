@@ -1,6 +1,6 @@
 Você é o Claude (Opus) rodando na nuvem no projeto **Aorta**: um acervo aberto de links de estudo de medicina, feito por um estudante de medicina (o dono, homem; trate-o como "o dono"). É um site estático em Vite + JS puro com GSAP 3.15 (SplitText, Flip, ScrollTrigger), Three.js e Supabase.
 
-Esta é a **RODADA B**, SÓ de interface e movimento: lapidar cada tela até ficar impecável, no nível de Linear, Vercel, Stripe e Apple, sem perder a identidade. Trabalhe sozinho, pacote por pacote. Escreva tudo em português do Brasil.
+Esta é a **RODADA B**, SÓ de interface e movimento: **redesenhar o site na DIREÇÃO D aprovada pelo dono** (item 1b) e lapidar cada tela até ficar impecável, no nível de Linear, Vercel, Stripe e Apple, sem perder a identidade. Não é retoque: a página inicial e a do módulo mudam de layout. Trabalhe sozinho, pacote por pacote. Escreva tudo em português do Brasil.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 0) PONTO DE PARTIDA (sem alternativa)
@@ -12,10 +12,10 @@ Esta é a **RODADA B**, SÓ de interface e movimento: lapidar cada tela até fic
   - o ramo;
   - o status limpo.
 - **Rodada A:**
-  - comece EXCLUSIVAMENTE do SHA final da rodada A: em `origin/nuvem/f1-conteudo`, o arquivo `docs/nuvem-progresso.md` precisa ter a linha "RODADA A ENCERRADA em <data>, SHA <sha>", e esse SHA precisa ser o topo do ramo;
-  - se a linha não existir, ou o topo divergir, PARE e avise o dono. Não há alternativa de partir de outro ramo.
+  - comece EXCLUSIVAMENTE do TOPO de `origin/nuvem/f1-conteudo`. O arquivo `docs/nuvem-progresso.md` desse ramo precisa ter a linha "RODADA A ENCERRADA … SHA <sha>" (a última dessas linhas vale), e esse SHA precisa ser ANCESTRAL do topo (`git merge-base --is-ancestor <sha> origin/nuvem/f1-conteudo`). Os commits depois dele só podem ser de documentação (confira com `git diff --stat <sha>..origin/nuvem/f1-conteudo`);
+  - se a linha não existir, o SHA não for ancestral ou houver código depois dele, PARE e avise o dono. Não há alternativa de partir de outro ramo.
 - **Ramo da rodada B:**
-  - crie `nuvem/ui-lapidacao` a partir desse SHA;
+  - crie `nuvem/ui-lapidacao` a partir do topo de `origin/nuvem/f1-conteudo`;
   - se ele já existir, valide que descende do SHA da A e RETOME por `docs/ui-progresso.md` (sem recriar, sem force);
   - registre o SHA base.
 - **Leia:** AGENTS.md, DESIGN.md (a fonte do sistema visual), `src/styles/tokens.css`, `src/ui/{motion,spring,indicator,tokens}.js`, o topo do CHANGES.md e `docs/nuvem-progresso.md`. Use `rg`; não releia o repositório inteiro.
@@ -28,6 +28,40 @@ Esta é a **RODADA B**, SÓ de interface e movimento: lapidar cada tela até fic
 - **Metáforas:** coração-mapa no IDOMED; corpo com órgãos na Medicina geral. O batimento é o ÚNICO loop permitido.
 - **Abas:** abas de acervo com pílula, abas de assunto, unidades com sublinhado.
 - **Revisão de design:** antes de commitar interface, use a skill `.claude/skills/aorta-design` e a revisão só de leitura previstas no AGENTS.md.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1b) DIREÇÃO D — APROVADA PELO DONO (o alvo do redesenho)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+**Referência visual exata:** `docs/nuvem/direcao-d/D-Inicio.dc.html`, `D-Modulo.dc.html` e `D-Celular.dc.html`, no ramo `prototipo-v4` (leia com `git show origin/prototipo-v4:docs/nuvem/direcao-d/D-Inicio.dc.html`).
+
+São maquetes estáticas (HTML com estilos inline, dados do catálogo real do dono como exemplo):
+- reproduza a COMPOSIÇÃO, a hierarquia, as proporções e os componentes;
+- use os tokens de `tokens.css` (as maquetes têm os hexadecimais do tema escuro; nunca copie hexadecimal, mapeie para o token), também no tema claro;
+- não copie os dados: o site lê o catálogo;
+- o desenho do coração na maquete é um esboço: o site usa o coração 3D real que já existe.
+
+**A ideia, em uma frase:** alma da direção A (editorial), motor da B (ferramenta) e brilho da C (palco), em doses certas. Impressiona nos primeiros 3 segundos e depois sai do caminho.
+
+- **Início — palco:**
+  - a primeira dobra é um palco: brilho radial roxo atrás do coração 3D (gradiente de tokens), título grande em Literata à esquerda ("O curso inteiro, *irrigado* por bons materiais." como direção de tom; a microcópia pode ser ajustada), uma linha "feito por estudantes · sem vínculo oficial com a IDOMED" e a BUSCA grande e clara (placa creme, ⌘K) logo abaixo;
+  - em volta do coração, os rótulos dos módulos e o "Continuar" flutuam como painéis translúcidos ("vidro").
+- **Início — ao rolar, vira editorial:**
+  - ÍNDICE numerado das matérias (01 Embriologia · resumo dos assuntos · contagem), em linhas finas, Literata grande, com números (materiais, assuntos, casos) à esquerda;
+  - depois, uma PRATELEIRA horizontal "Casos clínicos" com cartões grandes. É o ÚNICO lugar de cartões grandes; o resto é lista.
+- **Módulo:**
+  - cabeçalho com o numeral gigante ("M1"), artéria e matéria em Literata, resumo, e à direita a PARTE DO CORPO/ÓRGÃO ACESA do assunto ativo (reaproveite a vista de órgão existente; sem geometria correspondente, não invente destaque);
+  - faixa de abas de assunto com pílula (já existe; refine);
+  - materiais em LISTA EDITORIAL (tipo em rótulo, título em Literata, estrela), sem grade de cartões;
+  - no computador (≥ 1200 px), a FICHA abre como painel FIXO à direita da lista, sem cobrir a lista e sem trocar de tela; abaixo disso, continua a folha/painel atual.
+- **Celular:**
+  - palco compacto (título, busca, coração menor com 1 rótulo, "Continuar");
+  - índice em linhas;
+  - BARRA INFERIOR de navegação (Início, Mapa, Favoritos, Buscar), com alvos ≥ 44 px, `env(safe-area-inset-bottom)` e item ativo indicado por forma além da cor.
+- **Vidro com parcimônia:**
+  - `backdrop-filter` só em até 3 elementos sobre o palco, só em telas largas e dentro de `@supports`;
+  - no celular e sem suporte, o mesmo painel translúcido sem desfoque (custo zero);
+  - nunca vidro em listas ou textos longos.
+- **O que NÃO entra da direção C:** palco em todas as telas, cartões grandes para tudo e desfoque generalizado. Prioridade: achar e abrir um material rápido.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 2) A RÉGUA DO MOVIMENTO
@@ -172,8 +206,9 @@ npm test && npm run check
   - constantes físicas de mola e câmera não são duração nem curva.
 - **Aceite:** vídeos antes e depois das trocas (abas, pílula, sublinhado, estrela, ficha, avisos, busca); p95 ativo ≤ 20 ms como observação do ambiente; movimento reduzido intacto.
 
-**U2 · Primeira visita e início**
-- **Primeira visita:** a tela inicial mostra, sem rolar, o que é o Aorta, para quem, de onde vêm os materiais (links para os originais) e a busca à mão. A compreensão real em 5 s fica para o piloto com alunos; não declare "resolvido".
+**U2 · Início na direção D (palco + editorial)**
+- **Redesenho:** a página inicial no layout da D (item 1b): palco com coração, título, busca e painéis translúcidos; índice editorial numerado; prateleira de Casos clínicos (reaproveitando os dados de casos já existentes; sem casos, a prateleira não aparece). No celular, a versão compacta e a barra inferior.
+- **Primeira visita:** sem rolar, mostra o que é o Aorta, para quem, de onde vêm os materiais (links para os originais) e a busca à mão. A compreensão real em 5 s fica para o piloto com alunos; não declare "resolvido".
 - **Estabilidade:** reserve espaço para contagens, "Continuar" e mapa.
 - **Aceite:**
   - `ORCAMENTO_ESTRITO=1 npm run orcamento` passa (CLS ≤ 0,03, os dois acervos, 320–1440 px);
@@ -190,7 +225,8 @@ npm test && npm run check
 - **Tarefa longa:** em `src/views/map.js` (~linhas 49–84), agrupe leituras e depois escritas, reaproveite medidas e divida entre quadros.
 - **Aceite:** redução ≥ 20% na MEDIANA da maior tarefa da entrada (5 sequências, antes e depois com `medir-v5 --fase=`), sem regressão funcional; se não atingir, registre como pendente.
 
-**U4 · Página do módulo**
+**U4 · Página do módulo na direção D**
+- **Redesenho:** cabeçalho com numeral gigante + órgão/parte acesa do assunto ativo; lista editorial no lugar dos cartões; a ficha como painel fixo à direita a partir de 1200 px (item 1b).
 - **Cabeçalho:** hierarquia (numeral, artéria, resumo).
 - **Unidades:** sublinhado.
 - **Matérias:** lateral no computador, fichas no celular.
@@ -204,7 +240,8 @@ npm test && npm run check
 - **Aceite:** WCAG sem violações; sem rolagem lateral a 320 px; zoom 200%.
 
 **U5 · Ficha do material**
-- **Computador:** o painel nasce do cartão.
+- **Computador (≥ 1200 px):** painel fixo à direita da lista (direção D). Trocar de material troca o conteúdo do painel com uma transição curta, sem fechar e reabrir; a lista continua navegável por teclado; Esc devolve o foco à linha.
+- **Entre o celular e 1200 px:** o painel nasce da linha clicada.
 - **Celular:**
   - arraste para fechar só a partir da ALÇA ou área autorizada; o conteúdo continua rolável e selecionável;
   - o botão Fechar está sempre disponível;
